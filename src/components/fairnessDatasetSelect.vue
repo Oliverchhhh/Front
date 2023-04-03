@@ -276,7 +276,7 @@
                 this.sendSelect();
             },
             showDataDes(e,index){
-                debugger;
+                // debugger;
                 console.log(e);
                 console.log(index);
                 var srcStatus;

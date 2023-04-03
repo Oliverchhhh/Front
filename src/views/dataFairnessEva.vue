@@ -21,7 +21,7 @@
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                         <!-- 功能名称 -->
                         <h3>{{ funcDesText.name }}</h3>
-                        <a-button class="DataEva" @click="dataEvaClick">
+                        <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
                             <a-icon type="security-scan" />
                             评估
                         </a-button>
@@ -125,6 +125,7 @@ import {drawclass1pro, drawconseva1, drawbar} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
 import funcicon from "../assets/img/dataEvaIcon.png"
 import bgimg from "../assets/img/dataEvaBackground.png"
+import { color } from "echarts";
 
 // import { defineComponent,reactive, ref } from 'vue';
 
@@ -140,6 +141,12 @@ export default {
     },
     data(){
         return{
+            /* 评估按钮样式和状态 */
+            buttonBGColor:{
+                background:"#0B55F4",
+                color:"#FFFFFF"
+            },
+            disStatus:false,
             /* 数据占比结论 */
             propTextsub:"",
             /* 日志框是否显示，false不显示，true显示，默认不显示 */
@@ -195,16 +202,8 @@ export default {
             handler(v){
                 if(v){
                     this.noScroll();
-                    // body.style.overflow="hidden";
-                    // body.style.height="100%";
-                    // document.body.style.overflow="hidden";
-                    // document.body.style.height="100%";
                 }else{
                     this.canScroll();
-                    // body.style.overflow="visible";
-                    // body.style.height="herit";
-                    // document.body.style.overflow="visible";
-                    // document.body.style.height="auto";
                 }
             }
         }
@@ -235,6 +234,15 @@ export default {
             this.senAttrList = senAttrList;
             this.tarAttrList = tarAttrList;
             this.staAttrList = staAttrList;
+            if(senAttrList.length==0 || tarAttrList.length==0 || staAttrList.length==0){
+                this.buttonBGColor.background = "#C8DCFB";
+                // this.disStatus = true;
+                
+                
+            }else{
+                this.buttonBGColor.background = "#0B55F4";
+                // this.disStatus = false;
+            };
         },
         /* result 处理*/
         resultPro(){
@@ -347,17 +355,21 @@ export default {
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
-            this.logflag = true;
+            
             /*判断选择*/
             if (this.senAttrList.length ==0 ){
-                alert("请选择敏感属性");
+                this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
+                return 0;
             };
             if (this.tarAttrList.length ==0 ){
-                alert("请选择目标属性");
+                this.$message.warning('请在数据集里面至少选择一项目标属性！',3);
+                return 0;
             };
             if (this.staAttrList.length ==0 ){
-                alert("请选择统计属性");
+                this.$message.warning('请在数据集里面至少选择一项统计属性！',3);
+                return 0;
             };
+            this.logflag = true;
             var that=this;
             var tid = "";
             /* 调用创建主任务接口 */
