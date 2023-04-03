@@ -14,24 +14,6 @@
             </tbody>
             
         </table>
-        <!-- <table>
-            <thead>
-                <tr>
-                    <th class="colname" width="50px">序号</th>
-                    <th class="colname" :width="item.width" v-for="(item,index) in  tableheader" :key="index">
-                    {{ item.title }}
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(row,num) in tabledata">
-                <td> {{ num+1 }}</td>
-                <td v-for="(key,Ind) in tableheader">
-                {{ row[key.indexname] }}
-                </td>
-                </tr>
-            </tbody>
-        </table> -->
     </div>
 </template>
 
@@ -49,31 +31,43 @@ export default {
 }
 </script>
 <style>
-.dataInfo{
-    margin-bottom: 15px;
-}
+
 
 .colname{
-    height:48px;
     width: 180px;
-    font-family: PingFangSC-Semibold;
-    font-size: 18px;
-    color: #f1f1f1;
-    letter-spacing: 0;
-    line-height: 36px;
+    height: 40px;
+    padding: 9px 20px;
+    /* display: flex;
+    flex-direction: column; */
+    align-items: flex-start;
+    box-sizing: border-box;
+    font-family: 'Microsoft YaHei';
+    font-style: normal;
     font-weight: 400;
-    text-align: center;
-    background-color: rgba(81,150,255,1);
-    border: 2px solid #c7c5c58e;;
+    font-size: 14px;
+    line-height: 22px;
+    text-align: left;
+    color: #3E4453;
+    background: #F2F4F9;
+    border: 1px solid #E0E3EB;
 }
 .colvalue{
+    box-sizing: border-box;
+    /* display: flex;
+    flex-direction: column; */
+    align-items: flex-start;
+    padding: 9px 20px;
     width: 180px;
-    text-align: center;
-    border: 2px solid #c7c5c58e;
-    font-size: 16px;
-    font-family: PingFangSC-Semibold;
-    line-height: 36px;
+    height: 40px;
+    background: #FFFFFF;
+    border: 1px solid #E0E3EB;
+    font-family: 'Microsoft YaHei';
+    font-style: normal;
     font-weight: 400;
+    font-size: 14px;
+    line-height: 22px;
+    text-align: left;
+    color: #000000;
 }
 /* .dataInfo{
     margin: 0 73px;

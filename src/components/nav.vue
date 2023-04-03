@@ -1,14 +1,24 @@
 <template>
-    <div class="nav">
-        <div class="logo">
-            <img src="../assets/img/logo.png">
-            <label>LOGO</label>
+    <div class="banner">
+        <!-- 导航栏 -->
+        <div class="nav">
+            <div class="top_nav">
+                <a-menu v-model="current" mode="horizontal">
+                    <a-menu-item key="index"> 平台介绍 </a-menu-item>
+                    <a-menu-item key="join" > <a href="" target="_blank" rel="noopener noreferrer">在线体验 </a></a-menu-item>
+                </a-menu>
+            </div>
         </div>
-        <div class="top_nav">
-            <a-menu v-model="current" mode="horizontal">
-                <a-menu-item key="index"> 平台介绍 </a-menu-item>
-                <a-menu-item key="join" > <a href="" target="_blank" rel="noopener noreferrer">在线体验 </a></a-menu-item>
-            </a-menu>
+        <!-- 平台介绍 -->
+        <div class="pro_des">
+            <!-- 产品介绍 -->
+            <div class="product_text">
+                <h1>人工智能<br/>安全理论及验证平台</h1>
+                <p>聚焦人工智能系统面临的安全问题，提供人工智能系统全生命周期一站式检测和一体化安全防御方案，适用于安防、交通、金融行业广泛应用的的人脸识别、目标检测等人工智能场景。</p>
+                <a-button type="primary" class="join">立即体验</a-button>
+                <!-- <div class="pro_bottom"></div> -->
+            </div>
+            
         </div>
     </div>
 </template>
@@ -25,45 +35,55 @@ export default{
 </script>
 
 <style scoped>
+.banner{
+    position: absolute;
+    width: 1920px;
+    height: 564px;
+    left: 0px;
+    top: 0px;
+    background: linear-gradient(270deg, #E6EFFF 0%, #F5F8FF 100%);
+}
 .nav{
-    height:80px;
-    min-width: none;
-    background: #FFFFFF;
-    box-shadow: 0px 2px 6px 0px rgba(137,161,191,0.25);
-}
-/* 系统logo样式 */
-.logo{
-    width: 150px;
-    margin-left: 160px;
-    float: left;
-}
-/* logo图片样式 */
-.logo img{
-    width: 42px;
-    height: 42px;
-    background: #F3F3F8;
-    margin: 19px auto;
-    border-radius: 50%;
-    float: left;
-}
-/* logo文字的样式 */
-.logo label{
-    width: 84px;
-    height: 33px;
-    font-family: PingFangSC-Semibold;
-    font-size: 24px;
-    color: #B0BDC8;
-    letter-spacing: 3.45px;
-    font-weight: 600;
-    margin: 0px auto 23px 24px;
-    float: left;
-    text-align: center;
+    /* 导航栏 */
+    position: absolute;
+    width: 1920px;
+    height: 68px;
+    left: 0px;
+    top: 0px;
+    background: rgba(255, 255, 255, 0.6);
 }
 /* 导航文字样式 */
 .top_nav{
     float: right;
-    margin-right: 219px;
+    margin-right: 400px;
     width: 280px;
+}
+/* 导航文字样式 */
+.ant-menu-item{
+    /* 平台介绍 */
+    width: 72px;
+    height: 26px;
+    font-family: 'Microsoft YaHei';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 26px;
+    margin:21px 0 21px 48px;
+    /* identical to box height, or 144% */
+    color: #000000;
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+
+.ant-menu-horizontal > .ant-menu-item:hover, .ant-menu-horizontal > .ant-menu-submenu:hover, .ant-menu-horizontal > .ant-menu-item-active, .ant-menu-horizontal > .ant-menu-submenu-active, .ant-menu-horizontal > .ant-menu-item-open, .ant-menu-horizontal > .ant-menu-submenu-open, .ant-menu-horizontal > .ant-menu-item-selected, .ant-menu-horizontal > .ant-menu-submenu-selected {
+    color: #0B55F4;
+    border-bottom: none;
+    font-weight: 700;
+}
+.ant-menu-horizontal > .ant-menu-item, .ant-menu-horizontal > .ant-menu-item-selected{
+    border-bottom: none;
 }
 /* 取消组件中的下划线 */
 .ant-menu.ant-menu-horizontal{
@@ -73,21 +93,105 @@ export default{
 .ant-dropdown-menu__item, .ant-menu-item{
     padding: 0 0;
 }
+.ant-menu-horizontal > .ant-menu-item-selected > a {
+    color: #0B55F4;
+    font-weight: 700;
+}
+.ant-menu-item-selected > a, .ant-menu-item-selected > a:hover {
+    color: #0B55F4;
+}
 /* active时的样式 */
 .ant-menu-horizontal>.ant-menu-item.is-active{
-    color: #0E6FFF ;
-    border-bottom: 2px solid #0E6FFF;
+    color: #0B55F4 ;
+    border-bottom: 2px solid #0B55F4;
+    font-weight: 700;
+} 
+.pro_des{
+    width: 1920px;
+    height: 496px;
+    margin-top:68px;
+    background-image: url("../assets/img/bg.png");
+    background-size: 1920px 496px;
+    background-repeat:no-repeat;
 }
-/* 导航文字样式 */
-.ant-menu-item{
-    width: 72px;
-    height: 36px;
-    font-family: PingFangSC-Semibold;
-    font-size: 18px;
-    color: #555B66;
-    letter-spacing: 0;
-    line-height: 36px;
-    font-weight: 600;
-    margin:22px 0 22px 68px;
+.pro_bottom{
+    /* Rectangle 295 */
+    position: absolute;
+    width: 1920px;
+    height: 88px;
+    left: 0px;
+    top: 476px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #FFFFFF 83.29%);
+}
+/* 平台介绍文字的样式 */
+.product_text{
+    /* 人工智能安全理论及验证平台 */
+    width: 584px;
+    text-align: left;
+    margin-left: 360px;
+}
+/* 平台名称样式 */
+.product_text h1{
+    /* height: 112px; */
+    font-family: 'PingFang SC';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 48px;
+    line-height: 56px;
+    /* or 117% */
+    color: #0D0D0D;
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+    padding: 76px 0 0 0;
+    margin-bottom: 18px
+}
+.product_text p{
+    /* 适用于大规模人工智能系统的评估与验证 */
+    width: 584px;
+    height: 84px;
+    /* padding:18px 0 0 0; */
+    font-family: 'PingFang SC';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 28px;
+    /* or 140% */
+    color: #3E4453;
+    /* Inside auto layout */
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 0;
+}
+/* 立即体验按钮样式 */
+.join{
+    /* Auto layout */
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 10px 32px;
+    gap: 4px;
+
+    width: 160px;
+    height: 54px;
+
+    background: #0B55F4;
+    border-radius: 4px;
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+    font-family: 'PingFang SC';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 34px;
+    margin-top: 48px;
 }
 </style>

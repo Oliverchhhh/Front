@@ -1,10 +1,7 @@
 <template>
     <div id="funcDes">
         <!-- 功能描述 -->
-        <div>
-            <!-- 背景图片-->
-        </div>
-        <div>
+        <div style="height: 80px;">
             <!-- title -->
             <h2 class="subTitle">功能介绍</h2>
             <p class="destext">{{ funcDesText.destext }}</p>
@@ -45,14 +42,16 @@
 <style scoped>
 /* 背景图设置 */
 #funcDes{
-width: 1420px;
-margin: 134px auto auto auto;
-margin-left: 250px;
+width: 1200px;
+margin: 80px auto auto auto;
+margin-left: 360px;
+margin-right: 360px;
 background-image: url("../assets/img/funcBackground.png");
 background-color: #FFFFFF;
-background-position: 133px 66px;
-background-size: 1123.37px 690px;
+background-position: 122px 43px;
+background-size: 1000px 538px;
 background-repeat:no-repeat;
+height: 670px;
 }
 
 /* 功能总介绍 */
@@ -64,17 +63,20 @@ color: #79828F;
 letter-spacing: 6px;
 line-height: 32px;
 font-weight: 400;
-margin-top:24px;
+width: 1200px;
+margin-top: 72px;
+position: absolute;
+
 }
 /* 功能介绍正文样式设置 */
 .funcBody{
 box-shadow: 13px 13px 51px 0px rgba(111,118,138,0.2);
-width: 1420px;
+width: 1200px;
 height: 355px;
 border-radius: 8px; 
-margin-top: 60px;
+margin-top: 48px;
 background-color: #FFFFFF;
-background-position: 1172px 127px;
+background-position: 967px 127px;
 background-size: 210px 229px;
 background-repeat:no-repeat;
 }

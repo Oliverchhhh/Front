@@ -7,6 +7,7 @@ import App from './App'
 import router from './router'
 import '../src/assets/css/global.css'
 import axios from 'axios';
+import '@/assets/css/ui-page.less'
 Vue.prototype.$axios = axios;
 axios.defaults.baseURL="/"
 // import '../src/assets/css/ui-page.less'
@@ -19,3 +20,15 @@ new Vue({
   components: { App },
   template: '<App/>'
 })
+
+//弹出框禁止滑动
+Vue.prototype.noScroll = function () {
+  document.body.style.overflow="hidden";
+  document.body.style.height="100%";// 禁止页面滑动
+}
+ 
+//弹出框可以滑动
+Vue.prototype.canScroll = function () {
+  document.body.style.overflow="visible";
+  document.body.style.height="auto";
+}

@@ -7,14 +7,12 @@
             <navmodule/>
         </a-layout-header>
         <a-layout-content>
-            <!-- 产品介绍 -->
-            <top_product/>
             <!-- 功能介绍 -->
             <func_introduce :funcDesText="funcDesText"></func_introduce>
             <!-- 参数配置 -->
             <div class="paramCon">
                 <!-- 参数配置容器 -->
-                <h2 class="subTitle">参数配置</h2>
+                <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
                 
                 <div class="funcParam">
                     <div class="paramTitle" >
@@ -27,37 +25,83 @@
                             <a-icon type="security-scan" />
                             评估
                         </a-button>
-                        <a-divider />
                     </div>
+                    <a-divider />
                     <div class="inputdiv">
                         <!-- 输入主体 -->
-                        <p class="paramName">请选择数据集</p>
-                        <!-- 折叠面板 -->
-                        <template>
-                            <!-- 单选组件 选中哪个显示哪个数据集信息 -->
-                            <a-radio-group v-model="value" @change="onChangeRadio" v-for="(temp,index) in dataname" :key="index">
-                                <div class="radiobackground">
-                                <a-radio :style="radioStyle" :value="index">
-                                    {{ temp }}
-                                </a-radio>
-                                </div>
-                                <!-- 数据集描述 -->
-                                <div class="datades" v-if="value===index">
-                                    <br/>
-                                    <p class="bgInfo" style="margin-top: -25px; height: auto;"><a :href="datainfo[temp].href">{{ datainfo[temp].name }}</a>：{{ datainfo[temp].text }}</p>
-                                    <datatable :tabledata="datainfo[temp].tabledata"></datatable>
-                                </div>
-                            </a-radio-group>
-                        </template>
-                        <p class="paramName">请选择敏感属性</p>
-                        <div>
-                            <dataAttrTranfer :mockData="mockData" :targetKeys="targetKeys" @clientTransfer="clientTransfer"></dataAttrTranfer>
-                        </div> 
-
+                        <fairnessDataset @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
                     </div>
                 </div>
             </div>
-
+            <!-- 日志展示 -->
+            <div v-if="logflag">
+                <showLog :percent="percent" :logtext="logtext"></showLog>
+            </div>
+            <!-- 结果展示 -->
+            <dataEvaResult @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+                <div slot="header">
+                    <div class="dialog_title">
+                        <h1>公平性评估</h1>
+                        <p class="inputParam">数据集：{{ dataname[dataNameValue] }} 所选敏感属性：<span v-for="(temp,index) in senAttrList" :key="index">{{ temp }} </span> 所选目标属性：<span v-for="(temp,index) in tarAttrList" :key="index">{{ temp }} </span></p>
+                        <p class="inputParam">所选统计属性：<span v-for="(temp,index) in staAttrList" :key="index">{{ temp }} </span></p>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main">
+                    <!-- 得分图 -->
+                    <div class="result" style="width: 100%;position: relative;">
+                        <div id="rdeva">
+                            <div class="echart_title">
+                                <div class="left_gradient"></div>
+                                <div class=" main_top_echarts_con_title ">个体公平性评估得分</div>
+                                <div class="right_gradient"></div>
+                            </div>
+                            <div id = 'conseva' class="result" style="width: 500px;height:400px;margin-left:25%;margin-top: -10px;"></div>
+                            <div class="resultext">
+                                <p>说明：个体公平性评估是指评估数据集中相似的个体是否有相似的标签或预测结果，趋于相似则代表数据集是公平的。</p>
+                                <p>{{ consText }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 数据占比 -->
+                    <div class="result" style="width: 100%;position: relative;float: left;margin-top: 0%;">
+                        <div class="echart_title">
+                            <div class="left_gradient"></div>
+                            <div class=" main_top_echarts_con_title ">各群体优势预测结果占比/各群体样本占比</div>
+                            <div class="right_gradient"></div>
+                        </div>
+                        <div style="width:100px;float: left;margin: 10px 0px 10px 40px;height: 400px;background-color: beige;">
+                            <a-tabs  tab-position="left" style="margin-top: 10px;" size="large" @change="callbackpro">
+                            <a-tab-pane v-for="(temp,index) in staAttrList" :key=index :tab=temp>
+                            </a-tab-pane>
+                        </a-tabs>
+                        </div>
+                        <div id="pro" class="result" style="width: 678px;height:400px;display: inline-block;"></div>   
+                        <div class="resultext">
+                                    <p >{{ propTextsub }}</p>
+                        </div>           
+                    </div>
+                    <!-- 群体 -->
+                    <div class="result" style="width: 100%; position: relative; float: left;margin-top: 0.1%;">
+                        <!-- <div class=" main_top_echarts_con_title bar_data_eva" style="display:none">数据集：群体公平性评估</div> -->
+                        <div class="echart_title">
+                            <div class="left_gradient"></div>
+                            <div class=" main_top_echarts_con_title ">数据集：群体公平性评估</div>
+                            <div class="right_gradient"></div>
+                        </div>
+                        <div style="width: 98%;height: 90%;overflow: scroll;margin-left :1%">
+                            <div class="result" v-for="(temp,index) in senAttrList" style="float: left;margin-top:.5%;margin-bottom:5%" :key="index">
+                                <div  style="float: left;width: 500px;height: 400px;" :id="temp+'Difference'"></div>
+                                <div style="width:500px;float:left;height:400px" :id="temp+'Ratio'"></div>
+                                <div class="resultext">
+                                    <p>说明：群体公平性评估是指评估数据集中同一属性下各个群体通过不同评估方法预测结果准确率是否有差别，差别越小则代表数据集越公平。如上图是{{ temp }}属性下的群体公平性评估</p>
+                                    <p >{{ grouptext[temp] }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dataEvaResult>
         </a-layout-content>
         <a-layout-footer>
 
@@ -68,14 +112,16 @@
 <script>
 /* 引入组件，导航栏 */
 import navmodule from "../components/nav.vue";
-/* 引入组件，产品介绍 */
-import top_product from "../components/productIntroduce.vue"
 /* 引入组件，功能介绍 */
 import func_introduce from "../components/funcIntroduce.vue"
-/* 引入组件，数据集表格 */
-import datatable from "../components/dataTable.vue"
-/* 引入组件，属性选择 */
-import dataAttrTranfer from "../components/dataAttrTranfer.vue"
+/* 引入组件，公平性数据集选择 */
+import fairnessDataset from "../components/fairnessDatasetSelect.vue"
+/* 引入组件，日志显示 */
+import showLog from "../components/showLog.vue"
+/* 引入组件，结果显示 */
+import dataEvaResult from "../components/dataEvaResult.vue"
+/* 引入自定义js，结果显示 */
+import {drawclass1pro, drawconseva1, drawbar} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
 import funcicon from "../assets/img/dataEvaIcon.png"
 import bgimg from "../assets/img/dataEvaBackground.png"
@@ -87,93 +133,30 @@ export default {
     components:{
         /* 注册组件 */
         navmodule:navmodule,
-        top_product:top_product,
         func_introduce:func_introduce,
-        datatable:datatable,
-        dataAttrTranfer:dataAttrTranfer,
+        showLog:showLog,
+        dataEvaResult:dataEvaResult,
+        fairnessDataset:fairnessDataset
     },
     data(){
         return{
-            /* 单选框默认选中 */
+            /* 数据占比结论 */
+            propTextsub:"",
+            /* 日志框是否显示，false不显示，true显示，默认不显示 */
+            logflag:false,
+            /* 进度 */
+            percent:10,
+            /* 日志内容 */
+            logtext:["开始执行","执行结束"],
             dataname:["German","Adult","Compas"],
-            value: "0",
-            /* 单选按钮样式 */
-            radioStyle: {
-                display: 'block',
-                height: '30px',
-                lineHeight: '30px',
-            },
-             /* 每个数据集可选属性列表 */
-            dataAttrlist:{
-            German:[{title:"Age",description:"借款人的年龄",chosen:true},
-            {title:"Sex",description:"借款人的性别",chosen:true},
-            {title:"Credit history",description:"借款人的性别",chosen:false},
-            {title:"Status of existing checking account",description:"借款人的过去信用记录",chosen:false}],
-            Adult:[
-            {title:"Age",description:"以年为单位的年龄",chosen:true},
-            {title:"Sex",description:"个人的性别",chosen:true},
-            {title:"Workclass",description:"个人的工作类型，如私人/政府 ",chosen:false},
-            {title:"Education",description:"个人的工作类型，如私人/政府 ",chosen:false},
-            {title:"Education-num",description:"Education-num",chosen:false}],
-            Compas:[
-            {title:"Age",description:"被拘留人的年龄",chosen:true},
-            {title:"Sex",description:"被拘留人的性别",chosen:true},
-            {title:"Race",description:"被拘留人的种族",chosen:false},
-            {title:"Score",description:"模型预测的被拘留人再次犯罪的风险得分",chosen:false},
-            {title:"criminal-type",description:"被拘留人的犯罪类型",chosen:false}],
-            },
-            mockData:[],
-            targetKeys:[],
-
-            /* 数据集信息 */
-            datainfo:{
-                German:{
-                    name:"German数据集",
-                    text:"是一个用于信用评估的数据集。该数据集包含各种个人信息，包括性别、年龄、工作类型、信用记录等等。这些信息被用于预测个人的信用违约概率，以便银行等金融机构能够做出更好的贷款决策。",
-                    href:"https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data)",
-                    tabledata:[
-                        {name:"数据集特征",value:"多元统计"},
-                        {name:"示例个数",value:"1,000"},
-                        {name:"所属领域",value:"财经"},
-                        {name:"属性类型",value:"连续型，离散型"},
-                        {name:"属性数量",value:"20"},
-                        {name:"创建日期",value:"1994-11-17"},
-                        {name:"相关任务",value:"分类"},
-                        {name:"是否缺失",value:"否"}
-                    ],
-                    attrlist:[]
-                },
-                Adult:{
-                    name:"Adult数据集",
-                    text:"Adult数据集是一个用于预测个人收入是否超过50000美元的数据集。该数据集包含各种个人信息，包括年龄、教育程度、职业、婚姻状况等等。",
-                    href:"https://archive.ics.uci.edu/ml/datasets/adult",
-                    tabledata:[
-                        {name:"数据集特征",value:"多元统计"},
-                        {name:"示例个数",value:"48842"},
-                        {name:"所属领域",value:"财经/社会"},
-                        {name:"属性类型",value:"连续型，离散型"},
-                        {name:"属性数量",value:"14"},
-                        {name:"创建日期",value:"1996-05-01"},
-                        {name:"相关任务",value:"分类"},
-                        {name:"是否缺失",value:"是"}
-                    ],
-                },
-                Compas:{
-                    name:"Compas数据集",
-                    text:"是一个用于犯罪风险评估的数据集。该数据集包含各种犯罪嫌疑人的个人信息，包括性别、年龄、种族、前科记录等等。这些信息被用于预测嫌疑人的未来犯罪行为的概率，以便法院能够在决定是否对其进行拘留或释放时做出更好的判断。",
-                    href:"https://www.propublica.org/datastore/dataset/compas-recidivism-risk-score-data-and-analysis",
-                    tabledata:[
-                        {name:"数据集特征",value:"多元统计"},
-                        {name:"示例个数",value:"6172"},
-                        {name:"所属领域",value:"社会"},
-                        {name:"属性特征",value:"连续型，离散型"},
-                        {name:"属性数量",value:"12"},
-                        {name:"创建日期",value:"2016-5-23"},
-                        {name:"相关任务",value:"分类"},
-                        {name:"是否缺失",value:"否"}
-                    ],
-                }
-            },
+            /* 选中数据集序号 */
+            dataNameValue:0,
+            /* 选中敏感属性列表 */
+            senAttrList:[],
+            /* 选中目标属性列表 */
+            tarAttrList:[],
+            /* 选中统计属性列表 */
+            staAttrList:[],
             /* 功能介绍模块信息 */
             funcDesText:{
                 /* 功能名称 */
@@ -192,38 +175,189 @@ export default {
                     "数据集中存在多种属性，用户可自定义选择敏感属性",
                     "从数据集基础统计分析、群体公平性、个体公平性等多个维度评估数据集，可视化展示数据集公平性"
                 ]
+            },
+            /* 结果弹窗状态信息 */
+            isShowPublish:false,
+            /* 个体公平性结论 */
+            consText:"",
+            /* 数据占比结论 */
+            propText:{},
+            /* 群体公平性结论 */
+            grouptext:{},
+            /* 公平性结果 */
+            result:{}
+        }
+    },
+    watch:{
+        /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
+        isShowPublish:{
+            immediate:true,
+            handler(v){
+                if(v){
+                    this.noScroll();
+                    // body.style.overflow="hidden";
+                    // body.style.height="100%";
+                    // document.body.style.overflow="hidden";
+                    // document.body.style.height="100%";
+                }else{
+                    this.canScroll();
+                    // body.style.overflow="visible";
+                    // body.style.height="herit";
+                    // document.body.style.overflow="visible";
+                    // document.body.style.height="auto";
+                }
             }
         }
     },
-    methods: {
-        onChangeRadio(e) {
-            const targetKeys = [];
-            const mockData = [];
-            const dataAttrlist = this.dataAttrlist[this.dataname[this.value]]
-            for (let index in dataAttrlist) {
-                const data = {
-                    key: index,
-                    title: dataAttrlist[index].title,
-                    description: dataAttrlist[index].description,
-                    chosen: dataAttrlist[index].chosen,
-                };
-                if (data.chosen) {
-                    targetKeys.push(data.key);
-                }
-                mockData.push(data);
+    mounted(){
+        let that=this;
+        // that.resultPro();
+        // that.callbackpro(0);
+    },
+    methods: { 
+        callbackpro(val) {
+            console.log("callbackval",val);
+            if(!(this.staAttrList[val] in this.result["Proportion"])){
+                drawclass1pro("pro",this.result["Proportion"][this.staAttrList[val]], this.staAttrList[val],this.dataname[this.dataNameValue]);
+                this.propTextsub = this.propText[this.staAttrList[val]];
             }
-            this.mockData = mockData;
-            this.targetKeys = targetKeys;
-        },
-        clientTransfer(targetKeys){
-            this.targetKeys=targetKeys;
-        },
-        dataEvaClick(){
-            const attrlist=[];
-            for( let i in this.targetKeys){
-                attrlist.push(this.dataAttrlist[this.dataname[this.value]][this.targetKeys[i]].title)
-            };
             
+        }, 
+        /* 关闭结果窗口 */
+        closeDialog(){
+        this.isShowPublish=false;
+        //把绑定的弹窗数组 设为false即可关闭弹窗
+        },
+        
+        /* 监听数据集选择 */
+        clientDatasetSelect(value, senAttrList, tarAttrList, staAttrList){
+            this.dataNameValue = value;
+            this.senAttrList = senAttrList;
+            this.tarAttrList = tarAttrList;
+            this.staAttrList = staAttrList;
+        },
+        /* result 处理*/
+        resultPro(){
+            // debugger;
+            this.senAttrList = ['age'];
+            this.tarAttrList = ['credit_amount'];
+            this.staAttrList = ['age','credit_amount'];
+            var that = this;
+            var res = {'Favorable Rate Difference': 
+                    {'credit_amount': 
+                        {'age': 0.05977907732293697}
+                    }, 
+                    'Favorable Rate Ratio': {
+                        'credit_amount': {
+                            'age': 0.8472521999003819
+                        }
+                    }, 
+                    'Consistency': 0.7814000000000003, 
+                    'Proportion': {
+                        'age': {
+                            '>25': 0.81, '<=25': 0.18999999999999995
+                        }
+                    }, 
+                    'Corelation coefficients': [{
+                        'attr': 'credit_amount', 'target': 'credit_amount', 'values': {
+                            'pearson': 0.9999999999999999, 'spearman': 1.0, 'kendalltau': 1.0, 'mutual_info': 0.6640641265641081
+                        }
+                    }, {
+                        'attr': 'credit_amount', 'target': 'age', 'values': {
+                            'pearson': 0.048314876568606106, 'spearman': 0.04831487656860612, 'kendalltau': 0.04831487656860611, 'mutual_info': 0.0011839451088140607
+                        }
+                    }, {
+                        'attr': 'age', 'target': 'credit_amount', 'values': {
+                            'pearson': 0.048314876568606106, 'spearman': 0.04831487656860612, 'kendalltau': 0.04831487656860612, 'mutual_info': 0.0011839451088140607
+                        }
+                    }, {
+                        'attr': 'age', 'target': 'age', 'values': {
+                            'pearson': 1.0, 'spearman': 1.0, 'kendalltau': 1.0, 'mutual_info': 0.4862229646617908
+                        }
+                    }]
+                };
+            that.result["Consistency"]=res.Consistency.toFixed(2);
+            that.result["Proportion"]=res.Proportion;
+            //得分图
+            drawconseva1("conseva",res.Consistency.toFixed(2));
+            if( res.Consistency.toFixed(2)>0.9 )
+            {
+                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，高于标准线0.9，故该数据集从个体公平性方面分析结果为公平数据集";
+            }
+            else if( res.Consistency.toFixed(2)<=0.9 && res.Consistency.toFixed(2)>=0.6 )
+            {
+                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，高于标准线0.6，故该数据集从个体公平性方面分析结果为较公平数据集";
+            }
+            else( res.Consistency.toFixed(2)<0.6 )
+            {
+                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，低于标准线0.6，故该数据集从个体公平性方面分析结果为相对不公平数据集";
+            }
+            //饼图
+            
+            for( var key in res.Proportion){
+                // drawclass1pro(key+"pro", res.Proportion[key], key, that.dataname[that.dataNameValue]);
+                var maxkey ="";
+                var maxvalue=0;
+                var minkey="";
+                var minvalue=1;
+                for(let temp in res.Proportion[key]){
+                    if( res.Proportion[key][temp]>=maxvalue ){
+                        maxkey=temp;
+                        maxvalue=res.Proportion[key][temp]
+                    }
+                    if (res.Proportion[key][temp] < minvalue){
+                        minkey=temp;
+                        minvalue=res.Proportion[key][temp]
+                    }
+                }
+                var maxmin=maxvalue/minvalue;
+                if(maxmin < 1.2){
+                    that.propText[key]="数据集属性"+key+"中，"+maxkey+"的占比是"+maxvalue.toFixed(2)+"，"+minkey+"的占比是"+minvalue.toFixed(2)+",两者间的比值是"+maxmin.toFixed(2)+"相对公平";
+                }else{
+                    that.propText[key]="数据集属性"+key+"中，"+maxkey+"的占比是"+maxvalue.toFixed(2)+"，"+minkey+"的占比是"+minvalue.toFixed(2)+",两者间的比值是"+maxmin.toFixed(2)+"相对不公平"
+                }
+                
+            }
+            //直方图
+            var diflist={};
+            var ratiolist={};
+            var labels = [];
+            // 初始化diflist和ratiolist
+            for(let attrTemp of that.senAttrList){
+                diflist[attrTemp]=[];
+                ratiolist[attrTemp]=[];
+            };
+            // 群体评估数据整合
+            for(let temp1 in res["Favorable Rate Difference"]){
+                labels.push(temp1)
+                for(let attrTemp of that.attrlist){
+                    diflist[attrTemp].push(res["Favorable Rate Difference"][temp1][attrTemp].toFixed(2))
+                    ratiolist[attrTemp].push(res["Favorable Rate Ratio"][temp1][attrTemp].toFixed(2))
+                }
+            };
+            that.result["diflist"]=diflist;
+            that.result["ratiolist"]=ratiolist;
+            // 画图
+            for(let attrTemp of that.senAttrList){
+                drawbar(attrTemp+"Difference",diflist[attrTemp],labels,"Favorable Rate Difference");
+                drawbar(attrTemp+"Ratio",ratiolist[attrTemp],labels,"Favorable Rate Ratio");
+                that.grouptext[attrTemp]="结果说明待填充"
+            }
+
+        },
+        /* 点击评估触发事件 */
+        dataEvaClick(){
+            this.logflag = true;
+            /*判断选择*/
+            if (this.senAttrList.length ==0 ){
+                alert("请选择敏感属性");
+            };
+            if (this.tarAttrList.length ==0 ){
+                alert("请选择目标属性");
+            };
+            if (this.staAttrList.length ==0 ){
+                alert("请选择统计属性");
+            };
             var that=this;
             var tid = "";
             /* 调用创建主任务接口 */
@@ -231,21 +365,94 @@ export default {
                 console.log(result);
                 tid = result.data.Taskid;
                 const postdata={
-                dataname:that.dataname[that.value],
-                attrlist:attrlist,
+                dataname:that.dataname[that.dataNameValue],
+                senAttrList:JSON.stringify(that.senAttrList),
+                tarAttrList:JSON.stringify(that.tarAttrList),
+                staAttrList:JSON.stringify(that.staAttrList),
                 tid:tid};
                 console.log(postdata)
-                that.$axios.post("http://127.0.0.1:24109/DataFairnessEvaluate",postdata).then((result) => {
-                    console.log(result)
+                that.$axios.post("http://127.0.0.1:24109/DataFairnessEvaluate",postdata).then((ressult) => {
+                    /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
+                    that.logflag = false;
+                    that.isShowPublish = true;
+                    var res = ressult.data;
+                    console.log(res);
+                    
+                    that.result["Consistency"]=res.Consistency.toFixed(2);
+                    that.result["Proportion"]=res.Proportion;
+                    //得分图
+                    drawconseva1("conseva",res.Consistency.toFixed(2));
+                    if( res.Consistency.toFixed(2)>0.9 )
+                    {
+                        that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，高于标准线0.9，故该数据集从个体公平性方面分析结果为公平数据集";
+                    }
+                    else if( res.Consistency.toFixed(2)<=0.9 && res.Consistency.toFixed(2)>=0.6 )
+                    {
+                        that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，高于标准线0.6，故该数据集从个体公平性方面分析结果为较公平数据集";
+                    }
+                    else( res.Consistency.toFixed(2)<0.6 )
+                    {
+                        that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，低于标准线0.6，故该数据集从个体公平性方面分析结果为相对不公平数据集";
+                    }
+                    //饼图
+                    
+                    for( var key in res.Proportion){
+                        // drawclass1pro(key+"pro", res.Proportion[key], key, that.dataname[that.dataNameValue]);
+                        var maxkey ="";
+                        var maxvalue=0;
+                        var minkey="";
+                        var minvalue=1;
+                        for(let temp in res.Proportion[key]){
+                            if( res.Proportion[key][temp]>=maxvalue ){
+                                maxkey=temp;
+                                maxvalue=res.Proportion[key][temp]
+                            }
+                            if (res.Proportion[key][temp] < minvalue){
+                                minkey=temp;
+                                minvalue=res.Proportion[key][temp]
+                            }
+                        }
+                        var maxmin=maxvalue/minvalue;
+                        if(maxmin < 1.2){
+                            that.propText[key]="数据集属性"+key+"中，"+maxkey+"的占比是"+maxvalue.toFixed(2)+"，"+minkey+"的占比是"+minvalue.toFixed(2)+",两者间的比值是"+maxmin.toFixed(2)+"相对公平";
+                        }else{
+                            that.propText[key]="数据集属性"+key+"中，"+maxkey+"的占比是"+maxvalue.toFixed(2)+"，"+minkey+"的占比是"+minvalue.toFixed(2)+",两者间的比值是"+maxmin.toFixed(2)+"相对不公平"
+                        }
+                        
+                    }
+                    //直方图
+                    var diflist={};
+                    var ratiolist={};
+                    var labels = [];
+                    // 初始化diflist和ratiolist
+                    for(let attrTemp of that.senAttrList){
+                        diflist[attrTemp]=[];
+                        ratiolist[attrTemp]=[];
+                    };
+                    // 群体评估数据整合
+                    for(let temp1 in res["Favorable Rate Difference"]){
+                        labels.push(temp1)
+                        for(let attrTemp of that.attrlist){
+                            diflist[attrTemp].push(res["Favorable Rate Difference"][temp1][attrTemp].toFixed(2))
+                            ratiolist[attrTemp].push(res["Favorable Rate Ratio"][temp1][attrTemp].toFixed(2))
+                        }
+                    };
+                    that.result["diflist"]=diflist;
+                    that.result["ratiolist"]=ratiolist;
+                    // 画图
+                    for(let attrTemp of that.senAttrList){
+                        drawbar(attrTemp+"Difference",diflist[attrTemp],labels,"Favorable Rate Difference");
+                        drawbar(attrTemp+"Ratio",ratiolist[attrTemp],labels,"Favorable Rate Ratio");
+                        that.grouptext[attrTemp]="结果说明待填充"
+                    }
                 }).catch((err) => {
-                    console.log(err)
+                        console.log(err)
                 });
             }).catch((err) => {
                 console.log(err)
-            });
-            
-            
+            });    
         }
+
     },
         };
 </script>
@@ -253,31 +460,39 @@ export default {
 <style scoped>
 
 .paramCon{
-    width: 1420px;
-    margin: 79.78px auto auto auto;
-    margin-left: 250px;
+    width: 1200px;
+    margin-left: 360px;
 }
 .funcParam{
-box-shadow: 13px 13px 51px 0px rgba(111,118,138,0.2);
-width: 1420px;
-height: 720px;
-border-radius: 8px; 
-margin: 60px 0;
-background-color: #FFFFFF;
+/* 模型公平性评估 */
+box-sizing: border-box;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+width: 1200px;
+height: 824px;
+background: #FFFFFF;
+border: 1px solid #E0E3EB;
+margin: 0px 0px 40px 0px;
+box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
+border-radius: 8px;
+flex: none;
+order: 0;
+flex-grow: 0;
 text-align: left;
 }
 .paramTitle{
-    height:101px;
-    padding: 32px 0 0 0;
-    margin-left: 35.3px;
-    margin-right: 31px;
+    height:80px;
+    padding: 20px 24px 20px 26px;
     text-align: left;
+    width: 1200px;
 }
 .paramIcom{
     display: inline;
-    width: 42px;
-    height: 32px;
-    margin: auto 16px 0px auto;
+    width: 36px;
+    height: 36px;
+    margin: auto 10px 0px auto;
 }
 .paramTitle h3{
     /* height: 48px; */
@@ -294,59 +509,98 @@ text-align: left;
 }
 /* 按钮样式 */
 .DataEva{
-    width: 143px;
-    height: 50px;
-    border-radius: 4px;
-    background-color: #FFFFFF;
-    display: inline;
     float: right;
-    font-size: 24px;
-    padding: 7px 32px;
-    font-family: PingFangSC-Semibold;   
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 20px;
+    padding: 0px 24px;
+    font-family: 'Microsoft YaHei';
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 24px;
+    gap: 4px;
+    width: 114px;
+    height: 40px;
+    background: #FFFFFF;
+    border-radius: 6px;
+}
+.ant-divider-horizontal{
+    margin: 0 0;
 }
 /* 输入模块div样式 */
 .inputdiv{
-    margin: 5px 31px;
-    height: 540px;
+    margin: 0px 48px;
+    height: 700px;
     overflow: auto;
 }
-
-/* 单选背景样式 */
-.radiobackground{
-    background-color: #F1F3F7;
-    border-radius: 4px;
-    height: 63px;
-    padding: 17px 0px;
-    margin: 0 0 15px 0;
+/* 结果标题样式 */
+/* 结果名称样式 */
+.dialog_title h1{
+    font-family: PingFangSC-Semibold;
+    font-size: 32px;
+    color: #333333;
+    letter-spacing: 0;
+    font-weight: 600;
+    margin-bottom: 8px;
+    /* width: 160px; */
 }
-/* 输入名样式 */
-.paramName{
-    height: 40px;
+/* 参数展示样式 */
+.dialog_title p{
     font-family: PingFangSC-Regular;
-    font-size: 20px;
+    font-size: 16px;
     color: #79828F;
     letter-spacing: 0;
-    line-height: 40px;
+    line-height: 24px;
     font-weight: 400;
-    margin: 17px 0px;
 }
-
-.ant-radio-group{
-    width: 100%;
+/* 图表名称样式 */
+.echart_title{
+    text-align: center;
 }
-.ant-radio-wrapper{
-    margin: 0px 33px;
+.main_top_echarts_con_title{
+    height: 28px;
+    font-family: PingFangSC-Medium;
     font-size: 20px;
+    color: #384458;
+    letter-spacing: 0;
+    font-weight: 500;
+    display: inline-block;
+}
+.left_gradient{
+    display: inline-block;
+    width: 56px;
+    height: 12px;
+    opacity: 0.28;
+    transform: scaleX(-1);
+    background-image: linear-gradient(270deg, #FFFFFF 0%, #3672F5 100%);
+    border-radius: 7.5px 0px 0px 7.5px;
+    margin-right: 12px;
+}
+.right_gradient{
+    display: inline-block;
+    width: 56px;
+    height: 12px;
+    opacity: 0.28;
+    background-image: linear-gradient(270deg, #FFFFFF 0%, #3672F5 100%);
+    border-radius: 7.5px 0px 0px 7.5px;
+    margin-left: 12px;
+}
+/* 结果文字样式 */
+.resultext{
+    width: 100%;
+    /* height: 22px; */
     font-family: PingFangSC-Regular;
-    color: #555B66;
+    font-size: 16px;
+    color: #000000;
     font-weight: 400;
+    margin-top: -40px;
 }
-.ant-radio-inner{
-
-    top: -5px;
-}
-/* 数据集描述 */
-.datades{
-    margin: 0 73px;
+/* 得分图div */
+#rdeva{
+    height:495px;
+    text-align: center;
 }
 </style>

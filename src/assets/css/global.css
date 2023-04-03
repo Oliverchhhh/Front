@@ -13,7 +13,7 @@ html, body, #app{
     color: #333;
     text-align: left;
     line-height: 80px;
-    height:82px;
+    height:564px;
     padding: 0 0;
   }
   .ant-layout-content {
@@ -28,16 +28,21 @@ color: #333;
 text-align: center;
 line-height: 113px;
 }
+
 /* 标题样式设置 */
 .subTitle{
-    height: 60px;
-    font-family: PingFangSC-Semibold;
+
+    position: absolute;
+    width: 264px;
+    height: 48px;
+    left: 856px;
+    letter-spacing: 16px;
+
+    font-family: 'PingFang SC';
+    font-style: normal;
+    font-weight: 500;
     font-size: 40px;
-    color: #333333;
-    letter-spacing: 17.5px;
-    line-height: 60px;
-    font-weight: 600;
-    text-align: center;
+    line-height: 48px;
 }
 /* 功能介绍中的背景文字样式 */
 .bgInfo{
@@ -52,7 +57,7 @@ line-height: 113px;
 .ant-radio-inner{
     width: 24px;
     height: 24px;
-    border-width: 5px;
+    border-width: 3px;
 }
  /*滚动条设置  */
   ::-webkit-scrollbar
@@ -81,9 +86,76 @@ line-height: 113px;
     font-family: PingFangSC-Regular;
     color: #555B66;
 }
+/* 穿梭框文字样式 */
 .ant-transfer-list-content-item{
-    font-size: 16px;
-    font-family: PingFangSC-Regular;
-    color: #555B66;
+    font-family: 'PingFang SC';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 22px;
+    color: #000000;
+    padding: 6px 16px;
 
+}
+/* 选中样式 */
+.ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #0B55F4;
+    border-color: #0B55F4;
+}
+
+/* 穿梭框中间按钮样式 */
+.ant-btn-icon-only.ant-btn-sm{
+    width: 30px;
+height: 30px;
+background: #0B55F4;
+border-radius: 2px;
+}
+.ant-btn-icon-only.ant-btn-sm[disabled]{
+    background:#C8DCFB !important;
+    opacity: 1;
+}
+/* 穿梭框头样式 */
+.ant-transfer-list-header{
+    padding: 9px 12px 9px 16px;
+    height: 40px;
+    background: #F2F4F9;
+    font-family: 'PingFang SC';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 22px;
+    color: #000000;
+  }
+/* 进度条样式 */
+.ant-progress-bg{
+    height: 6px;
+    background: #09CAD6;
+    border-radius: 0px 3px 3px 0px;
+}
+.ant-progress-show-info .ant-progress-outer{
+    height: 6px;
+    margin: 0px 0px;
+    padding: 0px 0px;
+    width: 100%;
+}
+.ant-progress-inner{
+    vertical-align:top;
+    height: 6px;
+}
+.ant-progress-text{
+    color: #FFFFFF;
+    display: none;
+}
+
+
+.ant-radio-checked .ant-radio-inner{
+    border-color: #0B55F4;
+}
+.radiobackground:hover .ant-radio-inner{
+    border-color: #0B55F4;
+}
+.ant-radio-inner::after{
+    background-color: #0B55F4;
+    width: 12px;
+    height: 12px;
 }
