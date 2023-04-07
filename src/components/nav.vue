@@ -15,8 +15,8 @@
             <div class="product_text">
                 <h1>人工智能<br/>安全理论及验证平台</h1>
                 <p>聚焦人工智能系统面临的安全问题，提供人工智能系统全生命周期一站式检测和一体化安全防御方案，适用于安防、交通、金融行业广泛应用的的人脸识别、目标检测等人工智能场景。</p>
-                <a-button type="primary" class="join">立即体验</a-button>
-                <!-- <div class="pro_bottom"></div> -->
+                <!-- <a-button type="primary" class="join">立即体验</a-button> -->
+                <div class="pro_bottom"></div>
             </div>
             
         </div>
@@ -106,6 +106,9 @@ export default{
     border-bottom: 2px solid #0B55F4;
     font-weight: 700;
 } 
+.ant-menu{
+    background: none;
+}
 .pro_des{
     width: 1920px;
     height: 496px;

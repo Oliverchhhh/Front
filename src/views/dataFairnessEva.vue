@@ -184,7 +184,7 @@ export default {
                 ]
             },
             /* 结果弹窗状态信息 */
-            isShowPublish:false,
+            isShowPublish:true,
             /* 个体公平性结论 */
             consText:"",
             /* 数据占比结论 */

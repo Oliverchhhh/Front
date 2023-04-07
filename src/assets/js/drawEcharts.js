@@ -52,12 +52,12 @@ function drawclass1pro(ID, mydata, classname, dataname){
         top: '5%',
         left: 'center'
       },
-      color:["rgb(25,182,172)","rgb(122,193,73)"],
+      color:["rgba(91,143,249,0.85)","rgba(90,216,166,0.85)"],
       series: [
         {
           name: dataname,
           type: 'pie',
-          radius: ['40%', '70%'],
+          radius: ['60%', '70%'],
           // center: ['40%', '50%'],
           avoidLabelOverlap: false,
       label: {

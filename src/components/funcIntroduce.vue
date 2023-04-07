@@ -90,9 +90,9 @@ background-repeat:no-repeat;
 /* 功能icon样式 */
 .functitle img{
     display: inline;
-    width: 42px;
-    height: 32px;
-    margin: auto 16px 1px auto;
+    width: 36px;
+    height: 36px;
+    margin: auto 10px 1px auto;
 
 /* 功能标题正文样式 */}
 .functitle h3{
