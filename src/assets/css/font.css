@@ -1,0 +1,55 @@
+@font-face {
+    font-family: "HONORSansCN-Bold";
+    src: url('../font/HONORSansCN-Bold.ttf');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+@font-face {
+font-family: "HONORSansCN-DemiBold";
+src: url('../font/HONORSansCN-DemiBold.ttf');
+font-weight: normal;
+font-style: normal;
+}
+@font-face {
+    font-family: "HONORSansCN-ExtraBold";
+    src: url('../font/HONORSansCN-ExtraBold.ttf');
+    font-weight: normal;
+    font-style: normal;
+    }
+@font-face {
+    font-family: "HONORSansCN-ExtraLight";
+    src: url('../font/HONORSansCN-ExtraLight.ttf');
+    font-weight: normal;
+    font-style: normal;
+    }
+@font-face {
+    font-family: "HONORSansCN-Heavy";
+    src: url('../font/HONORSansCN-Heavy.ttf');
+    font-weight: normal;
+    font-style: normal;
+    }
+@font-face {
+    font-family: "HONORSansCN-Light";
+    src: url('../font/HONORSansCN-Light.ttf');
+    font-weight: normal;
+    font-style: normal;
+    }
+@font-face {
+font-family: "HONORSansCN-Medium";
+src: url('../font/HONORSansCN-Medium.ttf');
+font-weight: normal;
+font-style: normal;
+}
+@font-face {
+font-family: "HONOR Sans CN";
+src: url('../font/HONORSansCN-Regular.ttf');
+font-weight: normal;
+font-style: normal;
+}
+@font-face {
+font-family: "HONORSansCN-Thin";
+src: url('../font/HONORSansCN-Thin.ttf');
+font-weight: normal;
+font-style: normal;
+}

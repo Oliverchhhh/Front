@@ -5,20 +5,17 @@
         <!-- transition 这里可以加一些简单的动画效果 -->
         <transition name="drop">
             <!--style 通过props 控制内容的样式 -->
-            <div class="dialog-content" :style="{top:topDistance+'px',width:widNum+'%',left:leftSite+'%'}" v-if="isShow" @click.stop="_stopPropagation($event)">
+            <div class="dialog-content" v-if="isShow" @click.stop="_stopPropagation($event)">
                 <div class="dialog_head back">
                     <!--弹窗头部 title-->
-                    <a-icon type="close" @click="closeMyself" style="font-size: 20px;color: #BDBDBD;" class="closebutton"/>
-                    <slot name="header">提示信息</slot>
+                    <div class="close_button">
+                        <a-icon type="close" @click="closeMyself" style="font-size: 20px;color:#6C7385;" class="closebutton"/>
+                    </div>
+                    <slot name="header">结果报告</slot>
                 </div>
-                <div class="dialog_main" :style="{paddingTop:pdt+'px',paddingBottom:pdb+'px'}">
+                <div class="dialog_main" >
                 <!--弹窗的内容-->
                     <slot name="main">弹窗内容</slot>
-                    <!-- 导出 -->
-                    
-                    <!-- <div class="foot_close" @click="closeMyself">
-                        <div class="close_img back"></div>
-                    </div> -->
                 </div>
             </div>
         </transition>
@@ -93,12 +90,20 @@ export default {
  width: 100%;
  height: 100%;
  }
-
+.close_button{
+    height: 40px;
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    float: right;
+}
 /* 内容层 z-index要比遮罩大，否则会被遮盖， */
  .dialog-content{
- position: fixed;
- top: 10px;
-/* height: 1887px ; */
+position: fixed;
+top: 10px;
+width: 1080px;
+left: 420px;
  bottom: 5px;
   /* 移动端使用felx布局 */
  display: flex;
@@ -114,28 +119,33 @@ border-radius: 8px;
  }
  /* 标题框样式 */
  .dialog_head{
-    width: 100%;
-    height: 157px;
+    width: 1080px;
+    left: 0px;
+    top: 1px;
+    height: 88px;
+    padding: 24px 18px 24px 24px;
+    border-bottom: 1px solid #E0E3EB;
  }
- /* 关闭按钮样式 */
- .closebutton{
-    width: 20px;
-    height: 20px;
-    margin-left: 870px;
-    margin-top:30px;
+ 
+ .dialog_main{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    gap: 60px;
+
+    position: absolute;
+    width: 1080px;
+    /* height: 8265px; */
+    left: 0px;
+    top: 89px;
+
  }
- /* .dialog_main{
-    overflow-y: scroll;
-    height: 90%;
- } */
  .foot_close{
     background: #5196FF;
     border-radius: 4px;
     width: 143px;
     height: 50px;
- }
- .close_img{
-    background-color: blueviolet;
  }
 
  

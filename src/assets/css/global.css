@@ -159,3 +159,377 @@ border-radius: 2px;
     width: 12px;
     height: 12px;
 }
+/* 结果标题框样式 */
+.dialog_title{
+    height: 40px;
+    text-align: left;
+}
+/* 结果标题icon样式 */
+.dialog_title img{
+    height: 36px;
+    width: 36px;
+    margin-bottom: 8px;
+}
+/* 结果标题样式 */
+.dialog_title h1{
+    font-family: HONORSansCN-Bold;
+    font-size: 28px;
+    line-height: 40px;
+    color: #000000;
+    letter-spacing: 0;
+    font-weight: 700;
+    text-align: left;
+    display: inline;
+    margin-bottom: 0px;
+}
+.result_div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    margin-top: 48px;
+    width: 960px;
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    flex-grow: 0
+    }
+/* 维度标题样式 */
+.main_top_echarts_con_title{
+    height: 36px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 700;
+    flex-direction: column;
+    font-size: 28px;
+    line-height: 36px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    color: rgba(0, 0, 0, 0.9);
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+/* 评分背景图样式 */
+.scorebg{
+    width: 360px;
+    height: 310px;
+    background: url("../img/score.png") no-repeat center;
+    background-size: cover;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+/* 总分样式 */
+.g_score{
+    width: 106px;
+    height: 110px;
+
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 88px;
+    line-height: 110px;
+    /* identical to box height, or 125% */
+    margin-bottom: 0px;
+    text-align: center;
+    margin-top: 52px;
+    color: #FFFFFF;
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+/* 总分评语样式 */
+.g_score_evaluate{
+    width: 48px;
+    height: 32px;
+
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 32px;
+    /* identical to box height, or 133% */
+
+    text-align: center;
+
+    color: #FFFFFF;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+}
+/* 结论框样式 */
+.conclusion{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    gap: 8px;
+    margin-bottom: 12px;
+    width: 960px;
+/* gray-7 */
+
+background: #F2F4F9;
+border-radius: 4px;
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+.result_text{
+margin-bottom: 0px;
+font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 22px;
+/* identical to box height, or 138% */
+
+text-align: center;
+
+/* gray-1 */
+
+color: #000000;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+.result_annotation{
+margin-bottom: 0px;
+font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+
+/* identical to box height, or 150% */
+
+text-align: center;
+
+/* gray-3 */
+
+color: #6C7385;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+/* 两维评估 */
+.two_score{
+    display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 12px;
+
+width: 844px;
+height: 65px;
+margin: 24px auto;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+.left_score_label{
+    display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+width: 200px;
+height: 65px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+.right_score_label{
+    display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+width: 200px;
+height: 65px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 2;
+flex-grow: 0;
+}
+.center_score_label{
+    width: 420px;
+height: 24px;
+
+/* bule-6 */
+
+background: #C8DCFB;
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+/* 维度条底色 */
+.process_bg{
+    display: inline-block;
+    width: 209px;
+    height: 24px;
+    background-color: #C8DCFB
+}
+/* 左侧评分 */
+.left_pro{
+    height: 24px;
+    background-color:#0B55F4;
+    float:right
+}
+/* 右侧评分 */
+.right_pro{
+    height: 24px;
+    background-color:#06b449;
+    float:left
+}
+.score_text{
+    width: 44px;
+height: 41px;
+
+font-family: 'HONORSansCN-Bold';
+font-size: 32px;
+line-height: 38px;
+text-align: center;
+margin: auto auto;
+/* blue-3 */
+
+color: #0B55F4;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+
+}
+.score_lable{
+    width: 112px;
+height: 24px;
+margin: auto auto;
+font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+
+/* gray-1 */
+
+color: #000000;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+.score_description{
+    display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+width: 638px;
+height: 32px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+.con_score{
+    width: 38px;
+    display: inline;
+height: 32px;
+
+font-family: 'HONORSansCN-Bold';
+/* font-family: 'MiSans'; */
+/* font-family: "HONOR Sans CN"; */
+font-style: normal;
+font-weight: 700;
+font-size: 24px;
+line-height: 32px;
+/* identical to box height, or 133% */
+
+/* blue-3 */
+
+color: #0B55F4;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+/* 标题下的说明文字 */
+.title_annotation{
+height: 22px;
+
+font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 22px;
+margin-top: 4px;
+margin-bottom: 0px;
+/* identical to box height, or 157% */
+
+text-align: center;
+
+/* gray-2 */
+
+color: #3E4453;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+}

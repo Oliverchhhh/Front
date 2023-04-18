@@ -16,6 +16,12 @@ export default new Router({
       path: '/dataFairnessEva',
       name: 'datafairnesseva',
       component: () => import('../views/dataFairnessEva.vue')
+    },
+    // 组装的模型公平性评估页面
+    {
+      path: '/modelFairnessEva',
+      name: 'modelfairnesseva',
+      component: () => import('../views/modelFairnessEva.vue')
     }
   ]
   

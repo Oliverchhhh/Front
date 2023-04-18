@@ -7,7 +7,8 @@ import App from './App'
 import router from './router'
 import '../src/assets/css/global.css'
 import axios from 'axios';
-import '@/assets/css/ui-page.less'
+import './assets/css/ui-page.less'
+import './assets/css/font.css'
 Vue.prototype.$axios = axios;
 axios.defaults.baseURL="/"
 // import '../src/assets/css/ui-page.less'
