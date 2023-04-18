@@ -216,8 +216,9 @@ border-radius: 2px;
 /* 评分背景图样式 */
 .scorebg{
     width: 360px;
-    height: 310px;
+    height: 366px;
     background: url("../img/score.png") no-repeat center;
+    background-position: 0px 13px ;
     background-size: cover;
     align-items: center;
     display: flex;
@@ -236,7 +237,7 @@ border-radius: 2px;
     /* identical to box height, or 125% */
     margin-bottom: 0px;
     text-align: center;
-    margin-top: 52px;
+    margin-top: 72px;
     color: #FFFFFF;
 /* Inside auto layout */
 

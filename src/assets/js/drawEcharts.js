@@ -482,7 +482,7 @@ function drawCorelationHeat(ID, heatX, data, colorList){
       inRange: {
         color: colorList
       },
-      bottom: '-10%'
+      bottom: '20px'
     },
     series: [
       {

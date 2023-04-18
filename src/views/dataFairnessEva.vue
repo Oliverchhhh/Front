@@ -49,8 +49,9 @@
                     <!-- 总评分 -->
                     <div class="result_div">
                         <div class="g_score_content">
-                            <div class=" main_top_echarts_con_title ">数据集公平性总评分</div>
                             <div class="scorebg">
+                                <div class=" main_top_echarts_con_title ">数据集公平性总评分</div>
+                            
                                 <p class="g_score"> {{result.score}}</p>
                                 <p class="g_score_evaluate"> {{ result.score_evaluate }}</p>
                             </div>
