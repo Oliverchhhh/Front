@@ -316,31 +316,11 @@
 .datasetselect{
     width: 1104px;
 }
-/* 单选背景样式 */
-/* .radiobackground{
-    height: 60px;
-    padding: 16px 32px 16px 24px;
-    background: #F2F4F9;
-    border-radius: 4px;
-    margin: 0 0 24px 0;
-} */
+
 .radiobackground:hover .ant-radio-wrapper{
     color:#0B55F4;
 }
-.mainParamName{
-    /* width: 120px; */
-    height: 28px;
 
-    font-family: 'Microsoft YaHei';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 20px;
-    line-height: 28px;
-    /* identical to box height, or 140% */
-    margin: 24px 0px;
-
-    color: #000000;
-}
 /* 输入名样式 */
 .paramName{
     height: 24px;
@@ -357,19 +337,7 @@
 .ant-radio-group{
     width: 100%;
 }
-.ant-radio-wrapper{
-    margin: 0px 0px 24px 0px;
-    font-size: 20px;
-    font-family: 'Microsoft YaHei';
-    font-style: normal;
-    color: #000000;;
-    font-weight: 400;
-    line-height: 28px;
-    background: #F2F4F9;
-    height: 60px;
-    border-radius: 4px;
-    padding: 16px 32px 16px 24px;
-}
+
 /* 数据集描述 */
 .datades{
     margin: 0 24px;

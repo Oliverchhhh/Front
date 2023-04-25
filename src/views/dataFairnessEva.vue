@@ -38,7 +38,7 @@
                 <showLog :percent="percent" :logtext="logtext"></showLog>
             </div>
             <!-- 结果展示 -->
-            <dataEvaResult @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
@@ -188,7 +188,7 @@
                         
                     </div>
                 </div>
-            </dataEvaResult>
+            </resultDialog>
         </a-layout-content>
         <a-layout-footer>
 
@@ -206,7 +206,7 @@ import fairnessDataset from "../components/fairnessDatasetSelect.vue"
 /* 引入组件，日志显示 */
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
-import dataEvaResult from "../components/dataEvaResult.vue"
+import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
 import {drawclass1pro, drawconseva1, drawbar, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
@@ -221,7 +221,7 @@ export default {
         navmodule:navmodule,
         func_introduce:func_introduce,
         showLog:showLog,
-        dataEvaResult:dataEvaResult,
+        resultDialog:resultDialog,
         fairnessDataset:fairnessDataset,
     },
     data(){
@@ -265,7 +265,7 @@ export default {
                 backinfo:"数据集在收集的过程中的偏见行为可能导致数据集中存在偏见，包括带有偏见的数据标注，带有偏见的数据采样，如男性样本的比例远高于女性等等，数据公平性评估功能发现数据集中属性分布不均衡现象，并直观向用户展示数据问题。",
                 /* 亮点介绍 */
                 highlight:[
-                    "支持用户上传自定义数据集",
+                    "支持German，Adult，Compas数据集",
                     "数据集中存在多种属性，用户可自定义选择敏感属性",
                     "从数据集基础统计分析、群体公平性、个体公平性等多个维度评估数据集，可视化展示数据集公平性"
                 ]

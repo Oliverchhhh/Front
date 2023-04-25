@@ -23,7 +23,7 @@
 </template>
 <script>
 export default {
-    name:"dataEvaResult",
+    name:"resultDialog",
     props: {
         isShow: {
         //弹窗组件是否显示 默认不显示

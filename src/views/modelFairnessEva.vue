@@ -29,7 +29,25 @@
                     <a-divider />
                     <div class="inputdiv">
                         <!-- 输入主体 -->
+                        <!-- 选数据 -->
                         <fairnessDataset @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
+                        <!-- 选模型 -->
+                        <div class="model">
+                            <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择模型结构</p>
+                            <a-radio :style="radioStyle" defaultChecked disabled>
+                                3 Hidden-layer FCN
+                            </a-radio>
+                        </div>
+                        <!-- 选算法 -->
+                        <div class="selectMethod">
+                            <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择评估算法（可多选）</p>
+                            <div class="methodDes">
+                                
+                                <span class="formula" v-html="evamethod['DI']"></span>
+                            </div>
+
+                        </div>
+                        <div class></div>
                     </div>
                 </div>
             </div>
@@ -38,135 +56,156 @@
                 <showLog :percent="percent" :logtext="logtext"></showLog>
             </div>
             <!-- 结果展示 -->
-            <dataEvaResult @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <h3>数据集公平性评估结果报告</h3>
+                        <h1>模型公平性评估结果报告</h1>
                     </div>
                 </div>
                 <div class="dialog_publish_main" slot="main">
                     <!-- 总评分 -->
-                    <div class="g_score_div">
-                        <div class=" main_top_echarts_con_title ">评估报告总评分</div>
-                        <div>
-                            <img src="" alt="">
-                            <p class="g_score"> {{result.score}}</p>
-                            <p class="g_score_evaluate"> {{ result.score_evaluate }}</p>
+                    <div class="result_div">
+                        <div class="g_score_content">
+                            <div class="scorebg">
+                                <div class=" main_top_echarts_con_title ">模型公平性总评分</div>
+                            
+                                <p class="g_score"> {{result.score}}</p>
+                                <p class="g_score_evaluate"> {{ result.score_evaluate }}</p>
+                            </div>
                         </div>
                         <div class="conclusion">
-                            <p class="result_text">{{ dataname[dataNameValue] }} 数据集综合评分为{{result.score}}，是一个{{ result.score_con }}的数据集</p>
+                            <p class="result_text">{{ dataname[dataNameValue] }} 模型综合评分为{{result.score}}，是一个{{ result.score_con }}的模型</p>
                             <p class="result_annotation">综合评分计算来源是个体公平性和群体公平性两个维度上的评分</p>
                         </div>
                     </div>
                     <!-- 评分详情 -->
-                    <div class="score_detail">
+                    <div class="result_div">
                         <div class=" main_top_echarts_con_title ">公平性评分详情</div>
-                        <div class="score_radar">
-                            <div>
-                                <P>{{ result.consistency_score }}</P>
-                                <p>个体公平性评估</p>
+                        <div class="two_score">
+                            <div class="left_score_label">
+                                <P class="score_text">{{ result.consistency_score }}</P>
+                                <p class="score_lable">个体公平性评估</p>
                             </div>
-                            <div>
-                                <div style="display: inline-block;"><a-progress :percent="30" /></div>
-                                <div style="display: inline-block;transform: rotate(90deg);"><a-progress :percent="30" /></div>
+                            <div class="center_score_label">
+                                <div class="process_bg" ><div class="left_pro" :style="'width:'+result.consistency_score/100*210 +'px'"></div></div>
+                                <div class="process_bg" style="margin-left: -4px;"><div class="right_pro" :style="'width:'+result.group_score/100*210 +'px'"></div></div>
                             </div>
-                            <div>
-                                <P>{{ result.group_score }}</P>
-                                <p>群体公平性评估</p>
+                            <div class="right_score_label">
+                                <P class="score_text">{{ result.group_score }}</P>
+                                <p class="score_lable">群体公平性评估</p>
                             </div>
                         </div>
-                        <div class="conclusion">
-                            <span class="con_score">{{ result.consistency_score }}</span><p class="result_text">数据集中个体公平性指标为{{ result.Consistency }}</p>
+                        <div class="conclusion" style="height: 80px;">
+                            <div class="score_description">
+                                <div class="con_score">{{ result.consistency_score }}</div>
+                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">模型个体公平性指标为{{ result.Consistency }}</div>
+                            </div>
+                            
                         </div>
-                        <div class="conclusion">
-                            <span class="con_score">{{ result.group_score }}</span><p class="result_text">数据集中经Favorable Rate Difference、Favorable Rate Ratio算法评估后，综合得分为{{ result.group_score }}</p>
+                        <div class="conclusion" style="height: 80px;">
+                            <div class="score_description">
+                                <div class="con_score">{{ result.group_score }}</div>
+                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">模型经所选公平性评估算法评估后，综合得分为{{ result.group_score }}</div>
+                            </div>
                         </div>
                     </div>
                     <!-- 个体得分图 -->
-                    <div class="result" style="width: 100%;position: relative;">
+                    <div class="result_div">
+                        
+                        <div class="echart_title">
+                            
+                            <div class=" main_top_echarts_con_title ">个体公平性评估得分</div>
+                            <p class="title_annotation">个体公平性评估是指评估数据集中相似的个体是否有相似的标签或预测结果</p>
+                            
+                        </div>
                         <div id="rdeva">
-                            <div class="echart_title">
-                                
-                                <div class=" main_top_echarts_con_title ">个体公平性评估得分</div>
-                                <p class="result_annotation">个体公平性要求相似的个体有相似的标签或预测结果</p>
-                                
-                            </div>
-                            <div id = 'conseva' class="result" style="width: 500px;height:400px;margin-left:25%;margin-top: -10px;"></div>
+                            <div id = 'conseva'></div>
+                            <div class="conseva_label">consistency</div>
                             <div class="conclusion">
                                 <p class="result_text">{{ consText }}</p>
-                                <p class="result_annotation">说明：个体公平性评估是指评估数据集中相似的个体是否有相似的标签或预测结果，趋于相似则代表数据集是公平的。</p>
+                                <p class="result_annotation">个体公平性指标越接近1，数据集越公平。</p>
                             </div>
                         </div>
+                        
                     </div>
                     
                     
                     <!-- 群体 -->
-                    <div class="result" style="width: 100%; position: relative; float: left;margin-top: 0.1%;">
-                        <!-- <div class=" main_top_echarts_con_title bar_data_eva" style="display:none">数据集：群体公平性评估</div> -->
+                    <div class="result_div">
                         <div class="echart_title">
                             
-                            <div class=" main_top_echarts_con_title ">数据集群体公平性评估</div>
-                            <p class="result_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
+                            <div class=" main_top_echarts_con_title ">模型群体公平性评估</div>
+                            <p class="title_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
                             
                         </div>
-                        <div style="width: 98%;height: 90%;overflow: scroll;margin-left :1%">
-                            <div class="result" v-for="(temp,index) in senAttrList" style="float: left;margin-top:.5%;margin-bottom:5%" :key="index">
-                                <div  style="float: left;width: 500px;height: 400px;" :id="temp+'Difference'"></div>
-                                <div style="width:500px;float:left;height:400px" :id="temp+'Ratio'"></div>
+                        <div class="group_echarts_div">
+
+                            <div v-for="(temp,index) in senAttrList" class="attr_echarts_div" :key="index">
+                                <div class="attr_title_div">
+                                    <h3>{{ temp }}</h3>
+                                    <p>敏感属性</p>
+                                </div>
+                                <div class="group_echart_content">
+                                    <div  class="group_left_echart"  :id="temp+'Difference'"></div>
+                                    <div class="group_right_echart"  :id="temp+'Ratio'"></div>
+                                </div>
                                 <div class="conclusion">
                                     <p class="result_text">{{ grouptext[temp] }}</p>
-                                    <p class="result_annotation">说明：群体公平性评估是指评估数据集中同一属性下各个群体通过不同评估方法预测结果准确率是否有差别，差别越小则代表数据集越公平。如上图是{{ temp }}属性下的群体公平性评估</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <a-divider>With Text</a-divider>
+                    <!-- <a-divider>With Text</a-divider> -->
                     <!-- 数据占比 -->
-                    <div class="result" style="width: 100%;position: relative;float: left;margin-top: 0%;">
+                    <div class="result_div">
                         <div class="echart_title">
-                            
-                            <div class=" main_top_echarts_con_title ">各群体优势预测结果占比/各群体样本占比</div>
-                            
-                            
+                            <div class=" main_top_echarts_con_title ">数据集中各群体的占比</div>
                         </div>
-                        <div style="width:100px;float: left;margin: 10px 0px 10px 40px;height: 400px;background-color: beige;">
-                            
-                        </div>
-                        <div id="pro" class="result" style="width: 678px;height:400px;display: inline-block;"></div>   
+                        <div id="pro_tree"></div>   
                         <div class="conclusion">
-                                    <p class="result_text">{{ propTextsub }}</p>
-                                    <p class="result_annotation">各群体的占比越均匀，数据集越公平</p>
+                                    <p class="result_text">各群体的占比越均匀，数据集越公平</p>
+                                    <p class="result_annotation">子节点面积大小代表占比多少</p>
                         </div>           
                     </div>
                     <!-- 相关性 -->
-                    <div>
-                        <div class=" main_top_echarts_con_title ">数据集的各属性之间的相关性</div>
-                        <p class="result_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
-                        <h3>Pearson相关系数</h3>
-                        <div id="person"></div>
-                        <div class="conclusion">
-                            <p class="result_annotation">Pearson相关系数的取值范围为-1到1。1表示完全正相关，0表示无关，-1表示完全负相关。</p>
+                    <div class="result_div">
+                        <div class="echart_title">
+                            <div class=" main_top_echarts_con_title ">数据集的各属性之间的相关性</div>
+                            <p class="title_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
                         </div>
+                        <div class="heat_content">
+                            <h3>互信息系数</h3>
+                            <div id="NMI" class="heat_canvas" :style="{height:heat_height}"></div>
+                            <div class="conclusion">
+                                <p class="result_text">互信息的值大于等于0，值越大表示两个变量之间的依赖关系越强。互信息为0时，表示两个变量相互独立。但是需要注意的是，互信息值的上限取决于两个变量的熵，因此互信息值本身并不具有直接的对比意义。可以使用归一化互信息（Normalized Mutual Information，NMI）进行归一化处理，将其值映射到0到1之间。</p>
+                            </div>
+                        </div>
+                        <div class="heat_content">
+                            <h3>Pearson相关系数</h3>
+                            <div id="person" class="heat_canvas" :style="{height:heat_height}"></div>
+                            <div class="conclusion">
+                                <p class="result_text ">Pearson相关系数的取值范围为-1到1。1表示完全正相关，0表示无关，-1表示完全负相关。</p>
+                            </div>
+                        </div>
+                        <div class="heat_content">
                         <h3>Spearman秩相关系数</h3>
-                        <div id="spearman"></div>
-                        <div class="conclusion">
-                            <p class="result_annotation">Spearman秩相关系数的取值范围也为-1到1。1表示完全正单调关系，0表示无单调关系，-1表示完全负单调关系。</p>
+                            <div id="spearman" class="heat_canvas" :style="{height:heat_height}"></div>
+                            <div class="conclusion" >
+                                <p class="result_text ">Spearman秩相关系数的取值范围也为-1到1。1表示完全正单调关系，0表示无单调关系，-1表示完全负单调关系。</p>
+                            </div>
                         </div>
-                        <h3>Kendall Tau相关系数</h3>
-                        <div id="Kendall"></div>
-                        <div class="conclusion">
-                            <p class="result_annotation">Kendall Tau相关系数的取值范围也为-1到1。1表示完全正序关系，0表示无序关系，-1表示完全负序关系。</p>
+                        <div class="heat_content">
+                            <h3>Kendall Tau相关系数</h3>
+                            <div id="Kendall" class="heat_canvas" :style="{height:heat_height}"></div>
+                            <div class="conclusion">
+                                <p class="result_text ">Kendall Tau相关系数的取值范围也为-1到1。1表示完全正序关系，0表示无序关系，-1表示完全负序关系。</p>
+                            </div>
                         </div>
-                        <h3>互信息系数</h3>
-                        <div id="NMI"></div>
-                        <div class="conclusion">
-                            <p class="result_annotation">互信息的值大于等于0，值越大表示两个变量之间的依赖关系越强。互信息为0时，表示两个变量相互独立。但是需要注意的是，互信息值的上限取决于两个变量的熵，因此互信息值本身并不具有直接的对比意义。可以使用归一化互信息（Normalized Mutual Information，NMI）进行归一化处理，将其值映射到0到1之间。</p>
-                        </div>
-
+                        
                     </div>
                 </div>
-            </dataEvaResult>
+            </resultDialog>
         </a-layout-content>
         <a-layout-footer>
 
@@ -184,27 +223,54 @@ import fairnessDataset from "../components/fairnessDatasetSelect.vue"
 /* 引入组件，日志显示 */
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
-import dataEvaResult from "../components/dataEvaResult.vue"
+import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
-import {drawclass1pro, drawconseva1, drawbar} from "../assets/js/drawEcharts.js"
+import {drawclass1pro, drawconseva1, drawbar, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
-import funcicon from "../assets/img/dataEvaIcon.png"
-import bgimg from "../assets/img/dataEvaBackground.png"
-
-// import { defineComponent,reactive, ref } from 'vue';
-
+import funcicon from "../assets/img/modelEvaIcon.png"
+import bgimg from "../assets/img/modelEvaBackground.png"
+import centerPng from "../assets/img/center.png"
+import secondPng from "../assets/img/second.png"
+const selectSvg = {
+        template:`
+        <svg t="1680138013828" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4354" width="128" height="128"><path d="M534.869333 490.496a1403.306667 1403.306667 0 0 0 50.858667-25.813333c16.042667-8.618667 29.013333-15.061333 38.570667-19.029334 9.557333-3.925333 17.066667-6.058667 22.869333-6.058666 9.557333 0 17.749333 3.2 24.917333 10.026666 6.826667 6.826667 10.581333 15.061333 10.581334 25.088 0 5.76-1.706667 11.818667-5.12 17.92-3.413333 6.101333-7.168 10.069333-10.922667 11.861334-35.157333 14.677333-74.410667 25.429333-116.736 31.872 7.850667 7.168 17.066667 17.237333 28.330667 29.781333 11.264 12.544 17.066667 18.986667 17.749333 20.053333 4.096 6.101333 9.898667 13.653333 17.408 22.613334 7.509333 8.96 12.629333 15.786667 15.36 20.778666 2.730667 5.034667 4.437333 11.093333 4.437333 18.304a33.706667 33.706667 0 0 1-9.898666 24.021334 33.834667 33.834667 0 0 1-25.6 10.410666c-10.24 0-22.186667-8.618667-35.157334-25.472-12.970667-16.512-30.037333-46.933333-50.517333-91.050666-20.821333 39.424-34.816 65.962667-41.642667 78.506666-7.168 12.544-13.994667 22.186667-20.48 28.672a30.976 30.976 0 0 1-22.528 9.685334 32.256 32.256 0 0 1-25.258666-11.093334 35.413333 35.413333 0 0 1-9.898667-23.68c0-7.893333 1.365333-13.653333 4.096-17.578666 25.258667-35.84 51.541333-67.413333 78.848-93.568a756.650667 756.650667 0 0 1-61.44-12.544 383.061333 383.061333 0 0 1-57.685333-20.48c-3.413333-1.749333-6.485333-5.717333-9.557334-11.818667a30.208 30.208 0 0 1-5.12-16.853333 32.426667 32.426667 0 0 1 10.581334-25.088 33.152 33.152 0 0 1 24.234666-10.026667c6.485333 0 14.677333 2.133333 24.576 6.101333 9.898667 4.266667 22.186667 10.026667 37.546667 18.261334 15.36 7.893333 32.426667 16.853333 51.882667 26.538666-3.413333-18.261333-6.485333-39.082667-8.874667-62.378666-2.389333-23.296-3.413333-39.424-3.413333-48.042667 0-10.752 3.072-19.712 9.557333-27.264A30.677333 30.677333 0 0 1 512.341333 341.333333c9.898667 0 18.090667 3.925333 24.576 11.477334 6.485333 7.893333 9.557333 17.92 9.557334 30.464 0 3.584-0.682667 10.410667-1.365334 20.48-0.682667 10.368-2.389333 22.570667-4.096 36.906666-2.048 14.677333-4.096 31.146667-6.144 49.834667z" fill="#FF3838" p-id="4355"></path></svg>
+        `,
+    };
+    const selectIcon = {
+        template: `
+            <a-icon :component="selectSvg" />
+        `,
+        data() {
+            return {
+                selectSvg,
+            };
+        },
+    }
 export default {
-    name:"datafairnesseva",
+    name:"modelfairnesseva",
     components:{
         /* 注册组件 */
         navmodule:navmodule,
         func_introduce:func_introduce,
         showLog:showLog,
-        dataEvaResult:dataEvaResult,
-        fairnessDataset:fairnessDataset
+        resultDialog:resultDialog,
+        fairnessDataset:fairnessDataset,
+        selectIcon,
     },
     data(){
         return{
+            /* 评估算法 */
+            evamethod:{
+                "DI":'<img src="./static/img/hatY.png" style="height:24px;width:15px;"/>为模型预测结果',
+
+            },
+            /* 单选按钮样式 */
+            radioStyle: {
+                display: 'block',
+                lineHeight: '30px',
+            },
+            /* 热力图height*/
+            heat_height:"213px",
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -231,154 +297,35 @@ export default {
             /* 功能介绍模块信息 */
             funcDesText:{
                 /* 功能名称 */
-                name:"数据集公平性评估",
+                name:"模型公平性评估",
                 /* 功能icon，需先引入 */
                 imgpath:funcicon,
                 /* 功能背景图片，需先引入 */
                 bgimg:bgimg,
                 /* 功能介绍下的总介绍 */
-                destext:"数据集中普遍存在偏见，通过公平性评估功能，可视化展示数据集中的偏见现象",
+                destext:"模型预测存在偏见，通过公平性评估功能，可视化展示模型预测的偏见情况",
                 /* 背景介绍 */
-                backinfo:"数据集在收集的过程中的偏见行为可能导致数据集中存在偏见，包括带有偏见的数据标注，带有偏见的数据采样，如男性样本的比例远高于女性等等，数据公平性评估功能发现数据集中属性分布不均衡现象，并直观向用户展示数据问题。",
+                backinfo:"数据集中一般会存在偏见，而模型在训练过程中可能会放大训练数据集中的偏见，甚至产生出新的偏见，而这些偏见最终会导致模型产生带有偏见的预测结果。通过模型公平性评估功能可从不同维度评估模型公平性。",
                 /* 亮点介绍 */
                 highlight:[
-                    "支持用户上传自定义数据集",
-                    "数据集中存在多种属性，用户可自定义选择敏感属性",
-                    "从数据集基础统计分析、群体公平性、个体公平性等多个维度评估数据集，可视化展示数据集公平性"
+                    "支持German，Adult，Compas数据集",
+                    "从群体公平性、个体公平性等两个维度评估模型，可视化展示模型公平性",
+                    "支持27种公平性评估算法，如：Disparate impact，Demographic parity，Predictive equality……"
                 ]
             },
             /* 结果弹窗状态信息 */
-            isShowPublish:true,
+            isShowPublish:false,
             /* 个体公平性结论 */
             consText:"",
-            /* 数据占比结论 */
-            propText:{},
             /* 群体公平性结论 */
             grouptext:{},
             /* 公平性结果 */
             result:{
-                "score":82,
+                "score":72,
                 "consistency_score":60,
-                "group_score":70,
-                "Favorable Rate Difference": {
-                    "credit_amount": {
-                        "sex": 0.0785413744740533,
-                        "age": 0.05977907732293697
-                    }
-                },
-                "Favorable Rate Ratio": {
-                    "credit_amount": {
-                        "sex": 0.8057578910856746,
-                        "age": 0.8472521999003819
-                    }
-                },
-                "Consistency": 0.7794000000000003,
-                "Proportion": {
-                    "sex": {
-                        "male": 0.69,
-                        "female": 0.31000000000000005
-                    },
-                    "age": {
-                        ">25": 0.81,
-                        "<=25": 0.18999999999999995
-                    }
-                },
-                "Corelation coefficients": [
-                    {
-                        "attr": "credit_amount",
-                        "target": "credit_amount",
-                        "values": {
-                            "pearson": 0.9999999999999999,
-                            "spearman": 1.0,
-                            "kendalltau": 1.0,
-                            "mutual_info": 0.6640641265641081
-                        }
-                    },
-                    {
-                        "attr": "credit_amount",
-                        "target": "sex",
-                        "values": {
-                            "pearson": null,
-                            "spearman": null,
-                            "kendalltau": null,
-                            "mutual_info": 0.002834441155283779
-                        }
-                    },
-                    {
-                        "attr": "credit_amount",
-                        "target": "age",
-                        "values": {
-                            "pearson": 0.048314876568606106,
-                            "spearman": 0.04831487656860612,
-                            "kendalltau": 0.04831487656860611,
-                            "mutual_info": 0.0011839451088140607
-                        }
-                    },
-                    {
-                        "attr": "sex",
-                        "target": "credit_amount",
-                        "values": {
-                            "pearson": null,
-                            "spearman": null,
-                            "kendalltau": null,
-                            "mutual_info": 0.002834441155283779
-                        }
-                    },
-                    {
-                        "attr": "sex",
-                        "target": "sex",
-                        "values": {
-                            "pearson": null,
-                            "spearman": null,
-                            "kendalltau": null,
-                            "mutual_info": 0.6191006644255872
-                        }
-                    },
-                    {
-                        "attr": "sex",
-                        "target": "age",
-                        "values": {
-                            "pearson": null,
-                            "spearman": null,
-                            "kendalltau": null,
-                            "mutual_info": 0.030239806505490963
-                        }
-                    },
-                    {
-                        "attr": "age",
-                        "target": "credit_amount",
-                        "values": {
-                            "pearson": 0.048314876568606106,
-                            "spearman": 0.04831487656860612,
-                            "kendalltau": 0.04831487656860612,
-                            "mutual_info": 0.0011839451088140607
-                        }
-                    },
-                    {
-                        "attr": "age",
-                        "target": "sex",
-                        "values": {
-                            "pearson": null,
-                            "spearman": null,
-                            "kendalltau": null,
-                            "mutual_info": 0.030239806505490963
-                        }
-                    },
-                    {
-                        "attr": "age",
-                        "target": "age",
-                        "values": {
-                            "pearson": 1.0,
-                            "spearman": 1.0,
-                            "kendalltau": 1.0,
-                            "mutual_info": 0.4862229646617908
-                        }
-                    }
-                ],
-                "stop": 1
+                "group_score":70,}
             }
-        }
-    },
+        },
     watch:{
         /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
         isShowPublish:{
@@ -394,24 +341,14 @@ export default {
     },
     mounted(){
         let that=this;
-        // that.resultPro();
-        // that.callbackpro(0);
+        
     },
     methods: { 
-        callbackpro(val) {
-            console.log("callbackval",val);
-            if(!(this.staAttrList[val] in this.result["Proportion"])){
-                drawclass1pro("pro",this.result["Proportion"][this.staAttrList[val]], this.staAttrList[val],this.dataname[this.dataNameValue]);
-                this.propTextsub = this.propText[this.staAttrList[val]];
-            }
-            
-        }, 
         /* 关闭结果窗口 */
         closeDialog(){
         this.isShowPublish=false;
         //把绑定的弹窗数组 设为false即可关闭弹窗
         },
-        
         /* 监听数据集选择 */
         clientDatasetSelect(value, senAttrList, tarAttrList, staAttrList){
             this.dataNameValue = value;
@@ -420,121 +357,144 @@ export default {
             this.staAttrList = staAttrList;
             if(senAttrList.length==0 || tarAttrList.length==0 || staAttrList.length==0){
                 this.buttonBGColor.background = "#C8DCFB";
-                // this.disStatus = true;
-                
-                
             }else{
                 this.buttonBGColor.background = "#0B55F4";
-                // this.disStatus = false;
             };
         },
         /* result 处理*/
-        resultPro(){
-            // debugger;
-            this.senAttrList = ['age'];
-            this.tarAttrList = ['credit_amount'];
-            this.staAttrList = ['age','credit_amount'];
+        resultPro(res){
+            debugger;
             var that = this;
-            var res = {'Favorable Rate Difference': 
-                    {'credit_amount': 
-                        {'age': 0.05977907732293697}
-                    }, 
-                    'Favorable Rate Ratio': {
-                        'credit_amount': {
-                            'age': 0.8472521999003819
-                        }
-                    }, 
-                    'Consistency': 0.7814000000000003, 
-                    'Proportion': {
-                        'age': {
-                            '>25': 0.81, '<=25': 0.18999999999999995
-                        }
-                    }, 
-                    'Corelation coefficients': [{
-                        'attr': 'credit_amount', 'target': 'credit_amount', 'values': {
-                            'pearson': 0.9999999999999999, 'spearman': 1.0, 'kendalltau': 1.0, 'mutual_info': 0.6640641265641081
-                        }
-                    }, {
-                        'attr': 'credit_amount', 'target': 'age', 'values': {
-                            'pearson': 0.048314876568606106, 'spearman': 0.04831487656860612, 'kendalltau': 0.04831487656860611, 'mutual_info': 0.0011839451088140607
-                        }
-                    }, {
-                        'attr': 'age', 'target': 'credit_amount', 'values': {
-                            'pearson': 0.048314876568606106, 'spearman': 0.04831487656860612, 'kendalltau': 0.04831487656860612, 'mutual_info': 0.0011839451088140607
-                        }
-                    }, {
-                        'attr': 'age', 'target': 'age', 'values': {
-                            'pearson': 1.0, 'spearman': 1.0, 'kendalltau': 1.0, 'mutual_info': 0.4862229646617908
-                        }
-                    }]
-                };
+            // 总分判断
+            if(that.result.score > 80){
+                that.result.score_evaluate = "优秀";
+                that.result.score_con = "公平";
+            }else if(that.result.score > 60 && that.result.score <=80){
+                that.result.score_evaluate = "良好";
+                that.result.score_con = "较公平";
+            }else{
+                that.result.score_evaluate = "差";
+                that.result.score_con = "较不公平";
+            }
             that.result["Consistency"]=res.Consistency.toFixed(2);
             that.result["Proportion"]=res.Proportion;
-            //得分图
-            drawconseva1("conseva",res.Consistency.toFixed(2));
-            if( res.Consistency.toFixed(2)>0.9 )
-            {
-                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，高于标准线0.9，故该数据集从个体公平性方面分析结果为公平数据集";
-            }
-            else if( res.Consistency.toFixed(2)<=0.9 && res.Consistency.toFixed(2)>=0.6 )
-            {
-                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，高于标准线0.6，故该数据集从个体公平性方面分析结果为较公平数据集";
-            }
-            else( res.Consistency.toFixed(2)<0.6 )
-            {
-                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，低于标准线0.6，故该数据集从个体公平性方面分析结果为相对不公平数据集";
-            }
-            //饼图
             
-            // for( var key in res.Proportion){
-            //     // drawclass1pro(key+"pro", res.Proportion[key], key, that.dataname[that.dataNameValue]);
-            //     var maxkey ="";
-            //     var maxvalue=0;
-            //     var minkey="";
-            //     var minvalue=1;
-            //     for(let temp in res.Proportion[key]){
-            //         if( res.Proportion[key][temp]>=maxvalue ){
-            //             maxkey=temp;
-            //             maxvalue=res.Proportion[key][temp]
-            //         }
-            //         if (res.Proportion[key][temp] < minvalue){
-            //             minkey=temp;
-            //             minvalue=res.Proportion[key][temp]
-            //         }
-            //     }
-            //     var maxmin=maxvalue/minvalue;
-            //     if(maxmin < 1.2){
-            //         that.propText[key]="数据集属性"+key+"中，"+maxkey+"的占比是"+maxvalue.toFixed(2)+"，"+minkey+"的占比是"+minvalue.toFixed(2)+",两者间的比值是"+maxmin.toFixed(2)+"相对公平";
-            //     }else{
-            //         that.propText[key]="数据集属性"+key+"中，"+maxkey+"的占比是"+maxvalue.toFixed(2)+"，"+minkey+"的占比是"+minvalue.toFixed(2)+",两者间的比值是"+maxmin.toFixed(2)+"相对不公平"
-            //     }
-                
-            // }
-            // //直方图
-            // var diflist={};
-            // var ratiolist={};
-            // var labels = [];
-            // // 初始化diflist和ratiolist
-            // for(let attrTemp of that.senAttrList){
-            //     diflist[attrTemp]=[];
-            //     ratiolist[attrTemp]=[];
-            // };
-            // // 群体评估数据整合
-            // for(let temp1 in res["Favorable Rate Difference"]){
-            //     labels.push(temp1)
-            //     for(let attrTemp of that.attrlist){
-            //         diflist[attrTemp].push(res["Favorable Rate Difference"][temp1][attrTemp].toFixed(2))
-            //         ratiolist[attrTemp].push(res["Favorable Rate Ratio"][temp1][attrTemp].toFixed(2))
-            //     }
-            // };
-            // that.result["diflist"]=diflist;
-            // that.result["ratiolist"]=ratiolist;
-            // // 画图
-            // for(let attrTemp of that.senAttrList){
-            //     drawbar(attrTemp+"Difference",diflist[attrTemp],labels,"Favorable Rate Difference");
-            //     drawbar(attrTemp+"Ratio",ratiolist[attrTemp],labels,"Favorable Rate Ratio");
-            //     that.grouptext[attrTemp]="结果说明待填充"
-            // }
+            //得分图
+            drawconseva1("conseva",that.result["Consistency"]);
+            if( that.result["Consistency"]>0.9 )
+            {
+                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，高于标准线0.9，故该数据集从个体公平性方面分析结果为公平数据集";
+            }
+            else if( that.result["Consistency"]<=0.9 && that.result["Consistency"]>=0.6 )
+            {
+                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，高于标准线0.6，故该数据集从个体公平性方面分析结果为较公平数据集";
+            }
+            else( that.result["Consistency"]<0.6 )
+            {
+                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，低于标准线0.6，故该数据集从个体公平性方面分析结果为相对不公平数据集";
+            }
+            //直方图
+            var diflist={};
+            var ratiolist={};
+            var labels = [];
+            // 初始化diflist和ratiolist
+            for(let attrTemp of that.senAttrList){
+                diflist[attrTemp]=[];
+                ratiolist[attrTemp]=[];
+            };
+            // 群体评估数据整合
+            for(let temp1 in that.result["Favorable Rate Difference"]){
+                labels.push(temp1)
+
+                for(let attrTemp of that.senAttrList){
+                    diflist[attrTemp].push(res["Favorable Rate Difference"][temp1][attrTemp].toFixed(2))
+                    ratiolist[attrTemp].push(res["Favorable Rate Ratio"][temp1][attrTemp].toFixed(2))
+                }
+            };
+            that.result["diflist"]=diflist;
+            that.result["ratiolist"]=ratiolist;
+            // 画图
+            for(let attrTemp of that.senAttrList){
+                drawbar(attrTemp+"Difference",diflist[attrTemp],labels,"Favorable Rate Difference");
+                drawbar(attrTemp+"Ratio",ratiolist[attrTemp],labels,"Favorable Rate Ratio");
+                that.grouptext[attrTemp]="本次测试敏感属性为"+attrTemp+"，目标属性为"+labels.toString()+"\
+                左上直方图为使用favorable rate ratio的统计结果，表示不同"+attrTemp+"对目标属性结果预测的影响，\
+                值越接近1则表示则敏感属性对目标属性的影响越小，\
+                右上图直方图为使用favorable rate difference的统计结果，值越小则敏感属性"+attrTemp+"对目标属性的影响越小。"
+            }
+            // 占比图
+            var data = {
+                id: "center_"+that.dataname[that.dataNameValue],
+                label: that.dataname[that.dataNameValue],
+                population: 1,
+                children: []};
+            
+            for (let key in that.result.Proportion){
+                var second_children={
+                    id:"second_"+key,
+                    label:key,
+                    population:1,
+                    children:[]
+                };
+                for( let key1 in that.result.Proportion[key]){
+                    var third_children={
+                    id:key1,
+                    label:key1,
+                    population:that.result.Proportion[key][key1].toFixed(3),
+                    isLeaf: true,
+                    };
+                    second_children["children"].push(third_children);
+                }
+                data["children"].push(second_children);
+            }
+            
+            console.log("centerPng11:",centerPng);
+            drawPopGraph("pro_tree", data, centerPng, secondPng)
+            // 热力图
+            var heatX=[];
+            var X_index={}
+            var personData=[];
+            var spearmanData=[];
+            var kendallData=[];
+            var NMIData=[];
+            var x_num = 0
+            for(let temp of that.result["Corelation coefficients"] ){
+                if(heatX.indexOf(temp["attr"]) == -1){
+                    X_index[temp["attr"]] = x_num;
+                    heatX.push(temp["attr"])
+                    x_num += 1;
+                }
+                if(heatX.indexOf(temp["target"]) == -1){
+                    X_index[temp["target"]] = x_num;
+                    heatX.push(temp["target"])
+                    x_num += 1;
+                }
+                if(temp.values.pearson != null){
+                    personData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.pearson.toFixed(3)])
+                }
+                if(temp.values.spearman != null){
+                    spearmanData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.spearman.toFixed(3)])
+                }
+                if(temp.values.kendalltau != null){
+                    kendallData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.kendalltau.toFixed(3)])
+                }
+                if(temp.values.mutual_info != null){
+                    NMIData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.mutual_info.toFixed(3)])
+                }
+            };
+            if(x_num > 5){
+                that.heat_height = 48 * x_num + "px";
+            }
+            var NMIColorList=["rgba(206, 221, 253, 1)", "rgba(157, 187, 251, 1)", "rgba(60, 119, 246, 1)", "rgba(11, 85, 244, 1)", "rgba(7, 51, 146, 1)"];
+            var spearmanColorList=["rgba(223, 206, 253, 1)", "rgba(191, 157, 251, 1)", "rgba(142, 84, 247, 1)" ,"rgba(94, 11, 244, 1)", "rgba(56, 7, 146, 1)"];
+            var kendallColorList=["rgba(253, 227, 206, 1)", "rgba(251, 199, 157, 1)", "rgba(247, 158, 84, 1)", "rgba(244, 116, 11, 1)", "rgba(146, 70, 7, 1)"];
+            var personColorList=["rgba(253, 206, 236, 1)", "rgba(251, 157, 218, 1)", "rgba(247, 84, 190, 1)", "rgba(244, 11, 162, 1)", "rgba(195, 9, 130, 1)"];
+            // person热力图
+            drawCorelationHeat("NMI", heatX, NMIData, NMIColorList);
+            drawCorelationHeat("person", heatX, personData, personColorList);
+            drawCorelationHeat("spearman", heatX, spearmanData, spearmanColorList);
+            drawCorelationHeat("Kendall", heatX, kendallData, kendallColorList);
+            
 
         },
         /* 点击评估触发事件 */
@@ -567,80 +527,16 @@ export default {
                 staAttrList:JSON.stringify(that.staAttrList),
                 tid:tid};
                 console.log(postdata)
-                that.$axios.post("http://127.0.0.1:24109/DataFairnessEvaluate",postdata).then((ressult) => {
+                that.$axios.post("http://127.0.0.1:24109/DataFairnessEvaluate",postdata).then((res) => {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.logflag = false;
                     that.isShowPublish = true;
-                    var res = ressult.data;
-                    console.log(res);
-                    
-                    that.result["Consistency"]=res.Consistency.toFixed(2);
-                    that.result["Proportion"]=res.Proportion;
-                    //得分图
-                    drawconseva1("conseva",res.Consistency.toFixed(2));
-                    if( res.Consistency.toFixed(2)>0.9 )
-                    {
-                        that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，高于标准线0.9，故该数据集从个体公平性方面分析结果为公平数据集";
-                    }
-                    else if( res.Consistency.toFixed(2)<=0.9 && res.Consistency.toFixed(2)>=0.6 )
-                    {
-                        that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，高于标准线0.6，故该数据集从个体公平性方面分析结果为较公平数据集";
-                    }
-                    else( res.Consistency.toFixed(2)<0.6 )
-                    {
-                        that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+res.Consistency.toFixed(2)+"，低于标准线0.6，故该数据集从个体公平性方面分析结果为相对不公平数据集";
-                    }
-                    //饼图
-                    
-                    for( var key in res.Proportion){
-                        // drawclass1pro(key+"pro", res.Proportion[key], key, that.dataname[that.dataNameValue]);
-                        var maxkey ="";
-                        var maxvalue=0;
-                        var minkey="";
-                        var minvalue=1;
-                        for(let temp in res.Proportion[key]){
-                            if( res.Proportion[key][temp]>=maxvalue ){
-                                maxkey=temp;
-                                maxvalue=res.Proportion[key][temp]
-                            }
-                            if (res.Proportion[key][temp] < minvalue){
-                                minkey=temp;
-                                minvalue=res.Proportion[key][temp]
-                            }
-                        }
-                        var maxmin=maxvalue/minvalue;
-                        if(maxmin < 1.2){
-                            that.propText[key]="数据集属性"+key+"中，"+maxkey+"的占比是"+maxvalue.toFixed(2)+"，"+minkey+"的占比是"+minvalue.toFixed(2)+",两者间的比值是"+maxmin.toFixed(2)+"相对公平";
-                        }else{
-                            that.propText[key]="数据集属性"+key+"中，"+maxkey+"的占比是"+maxvalue.toFixed(2)+"，"+minkey+"的占比是"+minvalue.toFixed(2)+",两者间的比值是"+maxmin.toFixed(2)+"相对不公平"
-                        }
-                        
-                    }
-                    //直方图
-                    var diflist={};
-                    var ratiolist={};
-                    var labels = [];
-                    // 初始化diflist和ratiolist
-                    for(let attrTemp of that.senAttrList){
-                        diflist[attrTemp]=[];
-                        ratiolist[attrTemp]=[];
-                    };
-                    // 群体评估数据整合
-                    for(let temp1 in res["Favorable Rate Difference"]){
-                        labels.push(temp1)
-                        for(let attrTemp of that.attrlist){
-                            diflist[attrTemp].push(res["Favorable Rate Difference"][temp1][attrTemp].toFixed(2))
-                            ratiolist[attrTemp].push(res["Favorable Rate Ratio"][temp1][attrTemp].toFixed(2))
-                        }
-                    };
-                    that.result["diflist"]=diflist;
-                    that.result["ratiolist"]=ratiolist;
-                    // 画图
-                    for(let attrTemp of that.senAttrList){
-                        drawbar(attrTemp+"Difference",diflist[attrTemp],labels,"Favorable Rate Difference");
-                        drawbar(attrTemp+"Ratio",ratiolist[attrTemp],labels,"Favorable Rate Ratio");
-                        that.grouptext[attrTemp]="结果说明待填充"
-                    }
+                    // 评分后端暂未输出，前端写死
+                    res.data["score"] = 72;
+                    res.data["consistency_score"] = 62;
+                    res.data["group_score"] = 82;
+                    that.result = res.data;
+                    that.resultPro(res.data);
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -648,9 +544,8 @@ export default {
                 console.log(err)
             });    
         }
-
-    },
-        };
+    }
+}
 </script>
 <!-- <style  scoped> -->
 <style scoped>
@@ -684,11 +579,15 @@ text-align: left;
     text-align: left;
     width: 1200px;
 }
-.paramIcom{
-    display: inline;
-    width: 36px;
-    height: 36px;
-    margin: auto 10px 0px auto;
+.methodDes{
+    height: 100px;
+    width: 960px;
+    background-color: aquamarine;
+}
+/* 公式样式 */
+.formula_Y{
+    height:24px;
+    width:15px;
 }
 .paramTitle h3{
     /* height: 48px; */
@@ -723,6 +622,7 @@ text-align: left;
     background: #FFFFFF;
     border-radius: 6px;
 }
+
 .ant-divider-horizontal{
     margin: 0 0;
 }
@@ -732,38 +632,290 @@ text-align: left;
     height: 700px;
     overflow: auto;
 }
-/* 结果标题样式 */
-/* 结果名称样式 */
-.dialog_title h1{
-    font-family: PingFangSC-Semibold;
-    font-size: 32px;
-    color: #333333;
-    letter-spacing: 0;
-    font-weight: 600;
-    margin-bottom: 8px;
-    /* width: 160px; */
-}
-/* 参数展示样式 */
-.dialog_title p{
-    font-family: PingFangSC-Regular;
-    font-size: 16px;
-    color: #79828F;
-    letter-spacing: 0;
-    line-height: 24px;
-    font-weight: 400;
-}
+
 /* 图表名称样式 */
 .echart_title{
-    text-align: center;
+    display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px 120px;
+gap: 4px;
+
+width: 960px;
+height: 62px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
 }
-.main_top_echarts_con_title{
-    height: 28px;
-    font-family: PingFangSC-Medium;
-    font-size: 20px;
-    color: #384458;
-    letter-spacing: 0;
-    font-weight: 500;
-    display: inline-block;
+.dialog_publish_main{
+align-items: center;
+flex-direction: column;
+position: absolute;
+display: flex;
+width: 1080px;
+}
+.g_score_content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px 120px;
+    gap: 20px;
+
+    width: 960px;
+    height: 366px;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
 }
 
+/* 结果文字样式 */
+.resultext{
+    width: 100%;
+    /* height: 22px; */
+    font-family: PingFangSC-Regular;
+    font-size: 16px;
+    color: #000000;
+    font-weight: 400;
+    margin-top: -40px;
+}
+/* 得分图div */
+#rdeva{
+    display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+
+width: 960px;
+height: 414px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0
+}
+/* 得分图echart */
+#conseva{
+    width: 300px;
+    height:300px;
+}
+/* 仪表盘中的文字 */
+.conseva_label{
+    margin-top: -85px;
+    margin-bottom: 85px;
+    width: 86px;
+height: 16px;
+
+font-family: 'Helvetica Neue';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 16px;
+/* identical to box height, or 100% */
+
+text-align: center;
+
+/* gray-1 */
+
+color: #000000;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+/* 群体公平性 */
+.group_echarts_div{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 24px;
+margin-top: 32px;
+width: 960px;
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+/* 群体-单个属性框样式 */
+.attr_echarts_div{
+    display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+width: 960px;
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+/* 群体-属性标题框样式 */
+.attr_title_div{
+    display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 0px;
+gap: 4px;
+
+width: 960px;
+height: 64px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+.attr_title_div h3{
+    font-family: 'HONORSansCN-Bold';
+    flex-direction: column;
+    margin-bottom: 0px;
+font-size: 28px;
+line-height: 36px;
+/* identical to box height, or 129% */
+
+display: flex;
+align-items: center;
+text-align: center;
+
+color: rgba(0, 0, 0, 0.9);
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+}
+.attr_title_div p{
+    font-family: 'HONOR Sans CN';
+    flex-direction: column;
+    margin-bottom: 0px;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+
+display: flex;
+align-items: center;
+text-align: center;
+
+/* gray-3 */
+
+color: #6C7385;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+}
+.group_echart_content{
+    display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+width: 960px;
+height: 358px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+/* 左边直方图 */
+.group_left_echart{
+    width: 480px;
+    height: 358px;
+    float: left;
+
+}
+/* 右边直方图 */
+.group_right_echart{
+    width: 480px;
+    height: 358px;
+    float: right;
+}
+/* 热力图框总样式 */
+.heat_content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    gap: 16px;
+
+    width: 960px;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+/* 热力图标题样式 */
+.heat_content h3{
+font-family: 'HONOR Sans CN';
+font-size: 24px;
+line-height: 32px;
+font-weight: 700;
+margin-top:24px;
+/* identical to box height, or 133% */
+
+display: flex;
+align-items: center;
+text-align: center;
+
+/* 文字色/light/fontgray4-title */
+
+color: rgba(0, 0, 0, 0.9);
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 1;
+}
+/* 热力图画布大小 */
+.heat_canvas{
+    width: 960px;
+    /* max-height: 930px;
+    min-height: 213px; */
+}
+/* 占比图画布大小 */
+#pro_tree{
+    width: 960px;
+    height: 600px;
+    /* min-height: 200px;
+    max-height: 600px; */
+}
 </style>

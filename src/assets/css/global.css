@@ -534,3 +534,38 @@ order: 1;
 align-self: stretch;
 flex-grow: 0;
 }
+/* 功能icon样式 */
+.paramIcom{
+    display: inline;
+    width: 36px;
+    height: 36px;
+    margin: auto 10px 10px auto;
+}
+/* 模型单选样式 */
+.ant-radio-wrapper{
+    margin: 0px 0px 24px 0px;
+    font-size: 20px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    color: #000000;;
+    line-height: 28px;
+    background: #F2F4F9;
+    height: 60px;
+    border-radius: 4px;
+    padding: 16px 32px 16px 24px;
+}
+/* 选项标题样式 */
+.mainParamName{
+    height: 28px;
+
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 28px;
+    /* identical to box height, or 140% */
+    margin: 24px 0px;
+
+    color: #000000;
+}

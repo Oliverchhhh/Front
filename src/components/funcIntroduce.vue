@@ -10,7 +10,7 @@
             <!-- 介绍主体 -->
             <div class="functitle">
                 <!-- icon展示 -->
-                <img :src="funcDesText.imgpath" :alt="funcDesText.name">
+                <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                 <!-- 功能名称 -->
                 <h3>{{ funcDesText.name }}</h3>
             </div>
@@ -87,14 +87,10 @@ background-repeat:no-repeat;
     margin-left: 36.31px;
     text-align: left;
 }
-/* 功能icon样式 */
-.functitle img{
-    display: inline;
-    width: 36px;
-    height: 36px;
-    margin: auto 10px 1px auto;
 
-/* 功能标题正文样式 */}
+
+
+/* 功能标题正文样式 */
 .functitle h3{
     display: inline;
     margin-top: 38px;
