@@ -242,7 +242,7 @@ export default {
         /* 获取结果 */ 
         getData(){
             var that = this;
-            that.$axios.get('http://127.0.0.1:24109/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
                 that.result=data;
             });
@@ -252,7 +252,7 @@ export default {
             debugger;
             var that = this;
             that.logflag = false;
-            that.$axios.get('http://127.0.0.1:24109/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
                 that.logtext = data.data.Log[that.stid];
                 this.$nextTick(()=> {
                     that.logflag = true
@@ -284,6 +284,7 @@ export default {
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
+            debugger;
             /*判断选择*/
             // if (this.senAttrList.length ==0 ){
             //     this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
@@ -302,7 +303,7 @@ export default {
             var that=this;
             
             /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("http://127.0.0.1:24109/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            that.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
                 // that.tid = result.data.Taskid;
                 that.tid = "20230224_1106_d5ab4b1";
@@ -317,7 +318,7 @@ export default {
                     steps:5,
                 tid:that.tid};
                 console.log(postdata)
-                that.$axios.post("http://127.0.0.1:24109/FormalVerification", postdata).then((res) => {
+                that.$axios.post("/api/FormalVerification", postdata).then((res) => {
                     
                     that.logflag = true;
                     

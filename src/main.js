@@ -9,8 +9,7 @@ import '../src/assets/css/global.css'
 import axios from 'axios';
 import './assets/css/font.css'
 Vue.prototype.$axios = axios;
-axios.defaults.baseURL="/"
-// import '../src/assets/css/ui-page.less'
+axios.defaults.baseURL = "/"
 Vue.config.productionTip = false
 Vue.use(Antd);
 /* eslint-disable no-new */

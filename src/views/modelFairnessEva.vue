@@ -517,7 +517,7 @@ export default {
             var that=this;
             var tid = "";
             /* 调用创建主任务接口 */
-            this.$axios.post("http://127.0.0.1:24109/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
                 tid = result.data.Taskid;
                 const postdata={
@@ -527,7 +527,7 @@ export default {
                 staAttrList:JSON.stringify(that.staAttrList),
                 tid:tid};
                 console.log(postdata)
-                that.$axios.post("http://127.0.0.1:24109/DataFairnessEvaluate",postdata).then((res) => {
+                that.$axios.post("/api/DataFairnessEvaluate",postdata).then((res) => {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.logflag = false;
                     that.isShowPublish = true;
