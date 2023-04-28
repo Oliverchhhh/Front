@@ -71,6 +71,12 @@ function drawbar(ID, data, label,name){
         x:'center',
         y:'bottom'
       },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        }
+      },
       grid:{
         x:"8%",
         y:"5%",
@@ -82,6 +88,7 @@ function drawbar(ID, data, label,name){
         data: label,
         axisLabel:{
           show:true,
+          // rotate: '45',
           textStyle:{
             color: "#3E4453;",
             fontSize:12,
@@ -132,11 +139,10 @@ function drawbar(ID, data, label,name){
           data: data,
           type: 'bar',
           showBackground: false,
-          
+          barMaxWidth: '100',
           itemStyle:{
             normal:{
               color:'rgba(11, 85, 244, 0.8)',
-              
               label:{
                 show:true,
                 position:"top",

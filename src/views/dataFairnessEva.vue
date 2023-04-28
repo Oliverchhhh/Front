@@ -503,10 +503,9 @@ export default {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.logflag = false;
                     that.isShowPublish = true;
-                    // 评分后端暂未输出，前端写死
-                    res.data["score"] = 72;
-                    res.data["consistency_score"] = 62;
-                    res.data["group_score"] = 82;
+                    res.data["score"] = res.data["Overall fairness"].toFixed(2)*100;
+                    res.data["consistency_score"] = res.data["Overall individual fairness"].toFixed(2)*100;
+                    res.data["group_score"] =  res.data["Overall group fairness"].toFixed(2)*100;
                     that.result = res.data;
                     that.resultPro(res.data);
                 }).catch((err) => {

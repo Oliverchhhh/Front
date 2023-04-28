@@ -569,3 +569,10 @@ flex-grow: 0;
 
     color: #000000;
 }
+.methodDes .ant-checkbox{
+    display: none
+}
+.ant-checkbox + span {
+    padding-left: 0px;
+    padding-right: 0px;
+}
