@@ -18,6 +18,7 @@
                     <div class="paramTitle" >
                         <!-- 功能标题和执行按钮 -->
                         <!-- icon展示 -->
+                        <!-- <div class="paramIcom" icon="ui-icon-envTestIcon"></div> -->
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                         <!-- 功能名称 -->
                         <h3>{{ funcDesText.name }}</h3>
@@ -28,7 +29,61 @@
                     </div>
                     <a-divider />
                     <div class="inputdiv">
-                        <!-- 输入主体 -->
+                        <!-- 选匹配机制 -->
+                        <div class="matchedSelected">
+                            <p class="mainParamName">请选择系统漏洞匹配机制</p>
+                            <a-radio-group v-model="matchedMethod" @change="onMatchedMethodChange">
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="Hard" >
+                                        严格匹配
+                                    </a-radio>
+                                    <p class="matchedMethodText">匹配精准、耗时短，推荐使用。检测当前系统环境依赖库，严格匹配模式下，依赖库匹配到CVE收录漏洞时，报告潜在漏洞信息。</p>
+                                </div>
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="Soft">
+                                        松散匹配
+                                    </a-radio>
+                                    <p class="matchedMethodText">匹配模糊、耗时长，可选择使用。检测当前系统环境依赖库，松散匹配模式下，依赖库相关的所有CVE漏洞都会被报告为潜在漏洞信息。</p>
+                                </div>
+                            </a-radio-group>
+                        </div>
+                        <!-- 选开发框架 -->
+                        <div class="frameworkSelected">
+                            <p class="mainParamName">请选择开发框架</p>
+                            <a-radio-group v-model="framework" @change="onFrameworkChange" class="frameRadioGroup">
+                                <div class="frameworkDiv">
+                                    <a-radio :style="radioStyle" value="PyTorch" >
+                                        PyTorch
+                                    </a-radio>
+                                    <p class="matchedMethodText">Facebook推出开源的Python机器学习库，专门针对 GPU 加速的深度神经网络编程。</p>
+                                    <div class="frameVersionInput">
+                                        
+                                        <p class="secondTitle">框架版本</p>
+                                        <a-input class="versionInput" placeholder="请在此输入完整的版本号，默认真实版本号：1.7.0，以避免版本号撰写不全引发的匹配错误" v-model="frameversion" :disabled="framework==='PyTorch'?false:true"/>
+                                    </div>
+                                </div>
+                                <div class="frameworkDiv">
+                                    <a-radio :style="radioStyle" value="TensorFlow" >
+                                        TensorFlow
+                                    </a-radio>
+                                    <p class="matchedMethodText">Google推出的机器学习开源框架，主要用于进行机器学习和深度神经网络研究。</p>
+                                    <div class="frameVersionInput">
+                                        <p class="secondTitle">框架版本</p>
+                                        <a-input class="versionInput" placeholder="请在此输入完整的版本号，默认真实版本号：1.13.0，以避免版本号撰写不全引发的匹配错误" v-model="frameversion1" :disabled="framework=='TensorFlow'?false:true"/>
+                                    </div>
+                                </div>
+                                <div class="frameworkDiv">
+                                    <a-radio :style="radioStyle" value="PaddlePaddle" >
+                                        PaddlePaddle
+                                    </a-radio>
+                                    <p class="matchedMethodText">百度研发的开源开放的深度学习平台，涵盖自然语言处理、计算机视觉、推荐引擎等多个领域。</p>
+                                    <div class="frameVersionInput">
+                                        <p class="secondTitle">框架版本</p>
+                                        <a-input class="versionInput" placeholder="请在此输入完整的版本号，默认真实版本号：2.0.2，以避免版本号撰写不全引发的匹配错误" v-model="frameversion2" :disabled="framework=='PaddlePaddle'?false:true"/>
+                                    </div>
+                                </div>
+                            </a-radio-group>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -37,51 +92,37 @@
                 <showLog :percent="percent" :logtext="logtext"></showLog>
             </div>
             <!-- 结果展示 -->
-            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+            <resultDialog  @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <h1>鲁棒性形式化验证评估结果报告</h1>
+                        <h1>开发环境分析及框架适配</h1>
                     </div>
                 </div>
-                <div class="dialog_publish_main" slot="main">
-                    <!-- 总评分 -->
-                    <div class="result_div">
-                        <div class="g_score_content">
-                            <div class="scorebg">
-                                <div class=" main_top_echarts_con_title ">模型鲁棒性形式化验证总评分</div>
-                                <!-- 显示分数 -->
-                                <p class="g_score"> {{result.score}}</p>
-                                <!-- 显示评估结果 -->
-                                <p class="g_score_evaluate"> {{ result.score_evaluate }}</p>
-                            </div>
-                        </div>
-                        <div class="conclusion">
-                            <p class="result_text"> 模型综合评分为{{result.score}}，是一个{{ result.score_con }}的模型</p>
-                            <p class="result_annotation">评分算法说明</p>
-                        </div>
-                    </div>
-                    
+                <div id="download_page" class="dialog_publish_main" slot="main">
                     <!-- 图表 -->
                     <div class="result_div">
                         
                         <div class="echart_title">
                             
-                            <div class=" main_top_echarts_con_title ">图表标题</div>
-                            <p class="title_annotation">标题说明，可无</p>
+                            <div class=" main_top_echarts_con_title ">完整漏洞报告</div>
                             
                         </div>
                         <div id="rdeva">
                             <!-- 图表 -->
-                            <div id = 'conseva'></div>
+                            <div class = 'bugShowDiv'>
+                                <p v-for="(temp,index) in result" :key="index">{{ temp }}</p>
+                            </div>
                             
                             <div class="conclusion">
-                                <p class="result_text">图表结论</p>
-                                <p class="result_annotation">图表说明</p>
+                                <p class="result_text">1. 当前系统架构为{Linux-Ubuntu}，版本为{20.04.1}，共在当前系统环境中检测到{3}个潜在的CVE漏洞问题，编号分别为{CVE-2020-25651,CVE-2020-25653,CVE-2020-25652}，您可以在 https://cve.mitre.org/cve/search_cve_list.html 查询漏洞详细说明。</p>
+                                <p class="result_text">2. 对于给定框架{Pytorch}的版本{1.7.1}，目前适配结果为{适配失败，请更新Cuda或者更新PyTorch}。</p>
                             </div>
                         </div>
                     </div>
+                    <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
                 </div>
+            
             </resultDialog>
         </a-layout-content>
         <a-layout-footer>
@@ -99,10 +140,11 @@ import func_introduce from "../components/funcIntroduce.vue"
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
+import html2pdf from 'html2pdf.js'
 /* 引入自定义js，结果显示 */
 import {drawclass1pro, drawconseva1, drawbar, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
-import funcicon from "../assets/img/modelEvaIcon.png"
+import funcicon from "../assets/img/envTestIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
 
 const selectSvg = {
@@ -136,9 +178,16 @@ export default {
             radioStyle: {
                 display: 'block',
                 lineHeight: '30px',
+                width: '100%'
             },
-            /* 热力图height*/
-            heat_height:"213px",
+            /* 匹配机制选中值 */
+            matchedMethod:"Hard" ,
+            /* 开发框架选中值*/
+            framework:"PyTorch", 
+            /* 框架版本号 */
+            frameversion:"1.7.0", 
+            frameversion1:"1.13.0",
+            frameversion2:"2.0.2",
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -156,20 +205,21 @@ export default {
             /* 功能介绍模块信息 */
             funcDesText:{
                 /* 功能名称 */
-                name:"功能名称",
+                name:"开发环境分析及框架适配",
                 /* 功能icon，需先引入 */
                 imgpath:funcicon,
                 /* 功能背景图片，需先引入 */
                 bgimg:bgimg,
                 /* 功能介绍下的总介绍 */
-                destext:"功能总介绍",
+                destext:"检测开发环境潜在漏洞，判断与开发框架版本适配度",
                 /* 背景介绍 */
-                backinfo:"背景介绍，功能详细介绍",
+                backinfo:"使用系统开发环境分析技术，对当前开发环境操作系统下的系统架构信息、依赖库版本、AI开发框架依赖与版本等关键信息进行分析与记录，并与CVE开源漏洞库对比，以检测其中的潜在漏洞问题。\
+                对于用户指定开发框架，判断当前环境是否可以使用该框架功能。",
                 /* 亮点介绍 */
                 highlight:[
-                    "功能亮点1",
-                    "功能亮点2",
-                    "功能亮点3"
+                    "开发环境分析支持主流操作系统Windows, Linux, CentOS",
+                    "系统漏洞匹配机制支持严格匹配和松散匹配两种模式",
+                    "开发框架适配功能支持PyTorch, TensorFlow, PaddlePaddle等主流开发框架",
                 ]
             },
             /* 结果弹窗状态信息 */
@@ -199,44 +249,45 @@ export default {
             }
         }
     },
+    created() {
+        document.title = '开发环境分析及框架适配';
+        },
     methods: { 
         /* 关闭结果窗口 */
         closeDialog(){
             this.isShowPublish=false;
             //把绑定的弹窗数组 设为false即可关闭弹窗
         },
+        onMatchedMethodChange(e){
+            // 修改匹配机制
+            console.log('radio checked', e.target.value);
+        },
+        // 修改开发框架
+        onFrameworkChange(e){
+            console.log('radio checked', e.target.value);
+        },
+        // 导出报告
+        exportResult(){
+            if (confirm("您确认下载该pdf文件吗？") ){
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
+                // 输出pdf尺寸为download_page大小
+                var element = document.getElementById("download_page");
+                const opt = {
+                    margin:[10, 20, 10, 20],
+                    filename:this.tid+'.pdf',
+                    image:{type:'jpeg',quality:1},
+                    html2canvas:{scale:5},
+                    jsPDF:{unit:'mm',format:'a4', orientation:'portrait'}
+                };
+                html2pdf().from(element).set(opt).save();
+            }
+        },
         /* result 处理*/
         resultPro(res){
-            debugger;
+
             var that = this;
             // 总分判断
-            if(that.result.score > 80){
-                that.result.score_evaluate = "优秀";
-                that.result.score_con = "公平";
-            }else if(that.result.score > 60 && that.result.score <=80){
-                that.result.score_evaluate = "良好";
-                that.result.score_con = "较公平";
-            }else{
-                that.result.score_evaluate = "差";
-                that.result.score_con = "较不公平";
-            }
-            that.result["Consistency"]=res.Consistency.toFixed(2);
-            that.result["Proportion"]=res.Proportion;
             
-            //得分图
-            drawconseva1("conseva",that.result["Consistency"]);
-            if( that.result["Consistency"]>0.9 )
-            {
-                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，高于标准线0.9，故该数据集从个体公平性方面分析结果为公平数据集";
-            }
-            else if( that.result["Consistency"]<=0.9 && that.result["Consistency"]>=0.6 )
-            {
-                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，高于标准线0.6，故该数据集从个体公平性方面分析结果为较公平数据集";
-            }
-            else( that.result["Consistency"]<0.6 )
-            {
-                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，低于标准线0.6，故该数据集从个体公平性方面分析结果为相对不公平数据集";
-            }
             
         },
         /* 获取结果 */ 
@@ -249,7 +300,6 @@ export default {
         },
         /* 获取日志 */ 
         getLog(){
-            debugger;
             var that = this;
             that.logflag = false;
             that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
@@ -285,39 +335,32 @@ export default {
         /* 点击评估触发事件 */
         dataEvaClick(){
             /*判断选择*/
-            // if (this.senAttrList.length ==0 ){
-            //     this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
-            //     return 0;
-            // };
-            // if (this.tarAttrList.length ==0 ){
-            //     this.$message.warning('请在数据集里面至少选择一项目标属性！',3);
-            //     return 0;
-            // };
-            // if (this.staAttrList.length ==0 ){
-            //     this.$message.warning('请在数据集里面至少选择一项统计属性！',3);
-            //     return 0;
-            // };
-            /* 日志框显示 */ 
-            
+            var frameworkVersion;
+            if(this.framework == "PyTorch"){
+                frameworkVersion = this.frameversion;
+            }else if(this.framework == "TensorFlow"){
+                frameworkVersion = this.frameversion1;
+            }else if(this.framework == "PaddlePaddle"){
+                frameworkVersion = this.frameversion2;
+            }else{
+                this.$message.warning('请选择一项开发框架！',3);
+            }
+            if(frameworkVersion == ""){
+                this.$message.warning('请输入开发框架版本号',3);
+            }
             var that=this;
-            
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
-                // that.tid = result.data.Taskid;
-                that.tid = "20230224_1106_d5ab4b1";
-                
+                that.tid = result.data.Taskid;         
                 /* 请求体 postdata*/
                 const postdata={
-                    dataset:"cifar",
-                    model:"resnet18",
-                    size:3,
-                    up_eps:0.08,
-                    down_eps:0.02,
-                    steps:5,
-                tid:that.tid};
+                    matchmethod:that.matchedMethod,
+                    frameworkname:that.framework,
+                    frameversion:frameworkVersion,
+                    tid:that.tid};
                 console.log(postdata)
-                that.$axios.post("/api/FormalVerification", postdata).then((res) => {
+                that.$axios.post("/api/EnvTest/ETParamSet", postdata).then((res) => {
                     
                     that.logflag = true;
                     
@@ -328,8 +371,8 @@ export default {
                     // that.result = res.data;
                     // that.resultPro(res.data);
                     // 异步任务
-                    that.stid =  res.data.stid;
-                    that.logclk = self.setInterval(that.getLog, 5);
+                    that.stid =  res.data.EnvTestid;
+                    that.logclk = self.setInterval(that.getLog, 50);
                     // that.stid="S20230224_1106_368e295"
                     that.clk = self.setInterval(that.update, 5);
                 }).catch((err) => {
@@ -417,7 +460,153 @@ text-align: left;
     height: 700px;
     overflow: auto;
 }
+/* 匹配机制样式 */
+.matchedSelected{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    /* gap: 16px; */
 
+    width: 1104px;
+    /* height: 228px; */
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 0;
+}
+.frameRadioGroup{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+
+width: 1104px;
+height: 632px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+.frameworkDiv{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+
+width: 1104px;
+height: 200px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+/* 版本参数模块样式 */
+.frameVersionInput{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 12px 24px;
+gap: 8px;
+
+width: 1104px;
+height: 94px;
+flex: none;
+order: 2;
+flex-grow: 0;
+}
+.versionInput{
+    height: 40px;
+    padding: 0px 0px 0px 16px;
+    font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+color: #B4B9C5;
+background: #F2F4F9;
+border-radius: 4px;
+}
+.frameVersionInput p{
+    font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 22px;
+color: #3E4453;
+margin-bottom: 0px;
+}
+/* 单选按钮width */
+.ant-radio-group{
+    width: 100%;
+}
+.matchedDes{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+
+width: 1104px;
+height: 106px;
+
+border-radius: 4px;
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+}
+/* 匹配机制解释样式 */
+.matchedMethodText{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 24px;
+    width: 1104px;
+    height: 46px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 22px;
+    color: #3E4453;
+    margin-bottom: 0px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+/* 开发框架样式 */
+.frameworkSelected{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+/* gap: 24px; */
+margin-top: 24px;
+width: 1104px;
+height: 684px;
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+}
+.ant-radio-wrapper{
+    margin-bottom: 0px;
+}
 /* 图表名称样式 */
 .echart_title{
     display: flex;
@@ -425,13 +614,7 @@ flex-direction: column;
 align-items: center;
 padding: 0px 120px;
 gap: 4px;
-
 width: 960px;
-height: 62px;
-
-
-/* Inside auto layout */
-
 flex: none;
 order: 0;
 align-self: stretch;
@@ -444,25 +627,24 @@ position: absolute;
 display: flex;
 width: 1080px;
 }
-.g_score_content{
+.result_div{
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0px 120px;
-    gap: 20px;
+flex-direction: column;
+align-items: center;
+padding: 0px 60px;
+gap: 24px;
 
-    width: 960px;
-    height: 366px;
+width: 1080px;
+height: 1134px;
 
 
-    /* Inside auto layout */
+/* Inside auto layout */
 
-    flex: none;
-    order: 0;
-    align-self: stretch;
-    flex-grow: 0;
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
 }
-
 /* 结果文字样式 */
 .resultext{
     width: 100%;
@@ -473,27 +655,81 @@ width: 1080px;
     font-weight: 400;
     margin-top: -40px;
 }
+/* 漏洞展示报告 */
+.bugShowDiv{
+    display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 24px;
+
+width: 960px;
+height: 776px;
+
+/* gray-2 */
+
+background: #3E4453;
+border-radius: 4px;
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+}
 /* 得分图div */
 #rdeva{
     display: flex;
 flex-direction: column;
 align-items: center;
 padding: 0px;
-
+gap: 24px;
 width: 960px;
-height: 414px;
-
-
-/* Inside auto layout */
-
 flex: none;
 order: 1;
 flex-grow: 0
 }
 /* 得分图echart */
-#conseva{
-    width: 300px;
-    height:300px;
-}
+.conclusion{
+    box-sizing: border-box;
 
+/* Auto layout */
+
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: left;
+padding: 24px;
+gap: 8px;
+
+width: 960px;
+/* height: 144px; */
+
+/* gray-7 */
+
+background: #F2F4F9;
+border-radius: 4px;
+
+/* Inside auto layout */
+
+flex: none;
+order: 2;
+flex-grow: 0;
+}
+.result_text{
+    width: 912px;
+/* height: 96px; */
+
+font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+text-align: left;
+color: #000000;
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+}
 </style>

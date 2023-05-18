@@ -199,6 +199,9 @@ export default {
             }
         }
     },
+    created() {
+        document.title = '异常数据检测';
+        },
     methods: { 
         /* 关闭结果窗口 */
         closeDialog(){

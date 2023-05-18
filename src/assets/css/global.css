@@ -576,3 +576,24 @@ flex-grow: 0;
     padding-left: 0px;
     padding-right: 0px;
 }
+/* 导出报告按钮样式 */
+.exportResultBtn{
+    display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px 45px;
+gap: 4px;
+position: absolute;
+height: 50px;
+left: calc(50% - 248px/2);
+bottom: 40px;
+background: #0B55F4;
+border-radius: 6px;
+font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 400;
+font-size: 22px;
+line-height: 22px;
+color: #FFFFFF;
+}

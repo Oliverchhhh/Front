@@ -8,6 +8,7 @@ import router from './router'
 import '../src/assets/css/global.css'
 import axios from 'axios';
 import './assets/css/font.css'
+import "../static/css/ui-page.less"
 Vue.prototype.$axios = axios;
 axios.defaults.baseURL = "/"
 Vue.config.productionTip = false

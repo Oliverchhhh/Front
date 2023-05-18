@@ -5,7 +5,7 @@
         <!-- transition 这里可以加一些简单的动画效果 -->
         <transition name="drop">
             <!--style 通过props 控制内容的样式 -->
-            <div class="dialog-content" v-if="isShow" @click.stop="_stopPropagation($event)">
+            <div  class="dialog-content" v-if="isShow" @click.stop="_stopPropagation($event)">
                 <div class="dialog_head back">
                     <!--弹窗头部 title-->
                     <div class="close_button">
@@ -16,7 +16,9 @@
                 <div class="dialog_main" >
                 <!--弹窗的内容-->
                     <slot name="main">弹窗内容</slot>
+                    
                 </div>
+                
             </div>
         </transition>
     </div>

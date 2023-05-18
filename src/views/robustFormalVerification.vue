@@ -200,6 +200,9 @@ export default {
             }
         }
     },
+    created() {
+        document.title = '鲁棒性形式化验证';
+        },
     methods: { 
         /* 关闭结果窗口 */
         closeDialog(){

@@ -303,6 +303,9 @@ export default {
         // that.resultPro();
         // that.callbackpro(0);
     },
+    created() {
+        document.title = '数据集公平性评估';
+        },
     methods: { 
         callbackpro(val) {
             console.log("callbackval",val);

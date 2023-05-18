@@ -199,6 +199,9 @@ export default {
             }
         }
     },
+    created() {
+        document.title = '后门攻击评估';
+        },
     methods: { 
         /* 关闭结果窗口 */
         closeDialog(){

@@ -12,18 +12,18 @@
     .svg-fac(@name) {
       &-@{name} {
         .common();
-        background: url("~@/assets/ui-icon/@{name}.svg") no-repeat center;
+        background: url("../ui-icon/@{name}.svg") no-repeat center;
       }
     }
     .png-fac(@name) {
       &-@{name} {
         .common();
-        background: url("~@/assets/img/@{name}.png") no-repeat center;
+        background: url("../img/@{name}.png") no-repeat center;
       }
     }
    
     .svg-fac(logo); // logo
    
     // png
-    .png-fac(dataEvaIcon);
+    .png-fac(envTestIcon);
   }

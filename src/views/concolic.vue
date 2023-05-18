@@ -198,6 +198,9 @@ export default {
             }
         }
     },
+    created() {
+        document.title = '测试样本自动生成';
+        },
     methods: { 
         /* 关闭结果窗口 */
         closeDialog(){

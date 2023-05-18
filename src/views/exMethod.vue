@@ -200,6 +200,9 @@ export default {
             }
         }
     },
+    created() {
+        document.title = '攻击机理分析';
+        },
     methods: { 
         /* 关闭结果窗口 */
         closeDialog(){
