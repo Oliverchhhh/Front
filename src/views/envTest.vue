@@ -92,14 +92,18 @@
                 <showLog :percent="percent" :logtext="logtext"></showLog>
             </div>
             <!-- 结果展示 -->
-            <resultDialog  @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+            <resultDialog  @on-close="closeDialog" 
+                :isShow="isShowPublish" 
+                v-show="isShowPublish"
+                ref="report_pdf"
+                >
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                         <h1>开发环境分析及框架适配</h1>
                     </div>
                 </div>
-                <div id="download_page" class="dialog_publish_main" slot="main">
+                <div class="dialog_publish_main" slot="main">
                     <!-- 图表 -->
                     <div class="result_div">
                         
@@ -111,12 +115,12 @@
                         <div id="rdeva">
                             <!-- 图表 -->
                             <div class = 'bugShowDiv'>
-                                <p v-for="(temp,index) in result" :key="index">{{ temp }}</p>
+                                <pre>{{ Risk }}</pre>
                             </div>
                             
                             <div class="conclusion">
-                                <p class="result_text">1. 当前系统架构为{Linux-Ubuntu}，版本为{20.04.1}，共在当前系统环境中检测到{3}个潜在的CVE漏洞问题，编号分别为{CVE-2020-25651,CVE-2020-25653,CVE-2020-25652}，您可以在 https://cve.mitre.org/cve/search_cve_list.html 查询漏洞详细说明。</p>
-                                <p class="result_text">2. 对于给定框架{Pytorch}的版本{1.7.1}，目前适配结果为{适配失败，请更新Cuda或者更新PyTorch}。</p>
+                                <p class="result_text">{{ result1 }}</p>
+                                <p class="result_text">{{ result2 }}</p>
                             </div>
                         </div>
                     </div>
@@ -141,8 +145,7 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 import html2pdf from 'html2pdf.js'
-/* 引入自定义js，结果显示 */
-import {drawclass1pro, drawconseva1, drawbar, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
+
 /* 引入图片 */
 import funcicon from "../assets/img/envTestIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
@@ -185,9 +188,10 @@ export default {
             /* 开发框架选中值*/
             framework:"PyTorch", 
             /* 框架版本号 */
-            frameversion:"1.7.0", 
-            frameversion1:"1.13.0",
-            frameversion2:"2.0.2",
+            frameversionInput:"",
+            frameversion:"", 
+            frameversion1:"",
+            frameversion2:"",
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -200,8 +204,7 @@ export default {
             /* 进度 */
             percent:10,
             /* 日志内容，调用日志接口获取 */
-            logtext:["开始执行","执行结束"],
-            dataname:["German","Adult","Compas"],
+            logtext:[],
             /* 功能介绍模块信息 */
             funcDesText:{
                 /* 功能名称 */
@@ -226,6 +229,9 @@ export default {
             isShowPublish:false,
             /* 评估结果 */
             result:{},
+            Risk:{},
+            result1:"",
+            result2:"",
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
@@ -266,29 +272,46 @@ export default {
         onFrameworkChange(e){
             console.log('radio checked', e.target.value);
         },
-        // 导出报告
-        exportResult(){
-            if (confirm("您确认下载该pdf文件吗？") ){
-                document.body.scrollTop = document.documentElement.scrollTop = 0;
-                // 输出pdf尺寸为download_page大小
-                var element = document.getElementById("download_page");
-                const opt = {
-                    margin:[10, 20, 10, 20],
-                    filename:this.tid+'.pdf',
-                    image:{type:'jpeg',quality:1},
-                    html2canvas:{scale:5},
-                    jsPDF:{unit:'mm',format:'a4', orientation:'portrait'}
-                };
-                html2pdf().from(element).set(opt).save();
-            }
+       exportResult(){
+        // debugger
+        if (confirm("您确认下载该pdf文件吗？") ){
+            // document.body.scrollTop = document.documentElement.scrollTop = 0;
+            // 输出pdf尺寸为download_page大小
+            var element = document.getElementById("download_page");
+            // var element = this.$refs.report_pdf;
+            const opt = {
+                margin:[10, 20, 10, 20],
+                filename:this.tid+'.pdf',
+                image:{type:'jpeg',quality:1},
+                html2canvas:{scale:5},
+                jsPDF:{unit:'mm',format:'a4', orientation:'portrait'}
+            };
+            // this.$refs.report_pdf.generatePdf();
+            // html2pdf(element)
+            html2pdf().from(element).set(opt).save();
+            // var worker1= html2pdf().set(opt).from(element);
+            // worker1.save();
+            // worker1.toPdf().outputPdf('datauristring').then((res)=>{
+            //     setPdf(res)
+            // });
+        }
         },
         /* result 处理*/
         resultPro(res){
-
+            // debugger;
             var that = this;
-            // 总分判断
-            
-            
+            that.Risk =that.result.result.EnvTest.detection_result.Risk;
+            // that.Risk=JSON.stringify(JSON.parse(that.Risk),null,4);
+            if (that.result.result.EnvTest.detection_result['CVE Amount'] !=0){
+                var temp = '编号分别为'+that.result.result.EnvTest.detection_result['CVE list'].toString()+'，您可以在 https://cve.mitre.org/cve/search_cve_list.html 查询漏洞详细说明'
+                that.result1="1. 当前系统架构为"+that.result.result.EnvTest.detection_result['System Architecture']+"，共在当前系统环境中检测到"+that.result.result.EnvTest.detection_result['CVE Amount']+"个潜在的CVE漏洞问题,"+ temp;
+            }else{
+                var temp = "暂未检测到潜在的CVE漏洞问题";
+                that.result1="1. 当前系统架构为"+that.result.result.EnvTest.detection_result['System Architecture']+"，"+temp;
+                that.Risk="已对目标环境内"+that.result.result.EnvTest.detection_result['Number Of Libs']+"个依赖库进行分析比对，暂未检测到潜在的CVE漏洞问题"
+            }
+            var temp2 = that.result.result.EnvTest.detection_result['Framework Adaptation Result'].indexOf("Not supported")==-1?'适配成功':'适配失败，请更新Cuda或者更新'+that.framework;
+            that.result2="2. 对于给定框架"+that.framework+"的版本"+that.frameversionInput+"，目前适配结果为" + temp2;
         },
         /* 获取结果 */ 
         getData(){
@@ -301,18 +324,23 @@ export default {
         /* 获取日志 */ 
         getLog(){
             var that = this;
-            that.logflag = false;
+            if(that.percent < 99){
+                that.percent += 1;
+            }
+            
+            // that.logflag = false;
             that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
                 that.logtext = data.data.Log[that.stid];
-                this.$nextTick(()=> {
-                    that.logflag = true
-                })  
+                // this.$nextTick(()=> {
+                //     that.logflag = true
+                // })  
             });
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
             if (this.result.data.stop) {
                 // 关闭日志显示
+                this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
                 clearInterval(this.clk);
@@ -344,10 +372,13 @@ export default {
                 frameworkVersion = this.frameversion2;
             }else{
                 this.$message.warning('请选择一项开发框架！',3);
+                return 0;
             }
             if(frameworkVersion == ""){
                 this.$message.warning('请输入开发框架版本号',3);
+                return 0;
             }
+            this.frameversionInput = frameworkVersion;
             var that=this;
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
@@ -372,9 +403,9 @@ export default {
                     // that.resultPro(res.data);
                     // 异步任务
                     that.stid =  res.data.EnvTestid;
-                    that.logclk = self.setInterval(that.getLog, 50);
+                    that.logclk = self.setInterval(that.getLog, 3000);
                     // that.stid="S20230224_1106_368e295"
-                    that.clk = self.setInterval(that.update, 5);
+                    that.clk = self.setInterval(that.update, 3000);
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -661,7 +692,12 @@ flex-grow: 0;
 flex-direction: row;
 align-items: flex-start;
 padding: 24px;
-
+font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 28px;
+color: #FFFFFF;
 width: 960px;
 height: 776px;
 
@@ -676,6 +712,14 @@ flex: none;
 order: 1;
 align-self: stretch;
 flex-grow: 0;
+}
+.bugShowDiv pre{
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+  text-align: left;
 }
 /* 得分图div */
 #rdeva{
