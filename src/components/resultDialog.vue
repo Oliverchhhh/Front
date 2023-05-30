@@ -5,13 +5,7 @@
         <!-- transition 这里可以加一些简单的动画效果 -->
         <transition name="drop">
             <!--style 通过props 控制内容的样式 -->
-            <div 
-                id="download_page" 
-                class="dialog-content" 
-                v-if="isShow" 
-                @click.stop="_stopPropagation($event)" 
-                
-            >
+            <div  class="dialog-content" v-if="isShow" @click.stop="_stopPropagation($event)">
                 <div class="dialog_head back">
                     <!--弹窗头部 title-->
                     <div class="close_button">
@@ -24,14 +18,12 @@
                     <slot name="main">弹窗内容</slot>
                     
                 </div>
+                
             </div>
         </transition>
-        
     </div>
 </template>
-
 <script>
-// import html2pdf from 'html2pdf.js'
 export default {
     name:"resultDialog",
     props: {
@@ -67,8 +59,9 @@ export default {
         //下padding
         type: Number,
         default:47
+        }
         },
-        },
+    // props:["is-show","top-distance"],
     methods: {
         closeMyself() {
         this.$emit("on-close");
@@ -77,28 +70,7 @@ export default {
         _stopPropagation(ev){
             var _this = this;
             ev.stopPropagation();
-        },
-        // 导出报告
-        // async exportResult(){
-        //     if (confirm("您确认下载该pdf文件吗？") ){
-        //         document.body.scrollTop = document.documentElement.scrollTop = 0;
-        //         // 输出pdf尺寸为download_page大小
-        //         var element = document.getElementById("download_page");
-        //         const opt = {
-        //             margin:[10, 20, 10, 20],
-        //             filename:'111.pdf',
-        //             image:{type:'jpeg',quality:1},
-        //             html2canvas:{scale:5},
-        //             jsPDF:{unit:'mm',format:'a4', orientation:'portrait'}
-        //         };
-        //         await html2pdf().from(element).set(opt).save();
-        //         // worker1= html2pdf().set(opt).from(element);
-        //         // worker1.save();
-        //         // worker1.toPdf().outputPdf('datauristring').then((res)=>{
-        //         //     setPdf(res)
-        //         // });
-        //     }
-        // },
+        }
     }
 }
 
@@ -177,11 +149,6 @@ border-radius: 8px;
     width: 143px;
     height: 50px;
  }
-.fot{
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    line-height: var(--footer-height);
-}
+
  
 </style>

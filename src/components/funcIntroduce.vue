@@ -46,7 +46,8 @@ width: 1200px;
 margin: 80px auto auto auto;
 margin-left: 360px;
 margin-right: 360px;
-background-image: url("../assets/img/funcBackground.png");
+/* background-image: url("../assets/img/funcBackground.png"); */
+background-image: url("~@/assets/img/funcBackground.png");
 background-color: #FFFFFF;
 background-position: 122px 43px;
 background-size: 1000px 538px;
