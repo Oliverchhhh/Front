@@ -275,7 +275,6 @@ export default {
        exportResult(){
         // debugger
         if (confirm("您确认下载该pdf文件吗？") ){
-            // document.body.scrollTop = document.documentElement.scrollTop = 0;
             // 输出pdf尺寸为download_page大小
             var element = document.getElementById("download_page");
             // var element = this.$refs.report_pdf;
@@ -286,14 +285,9 @@ export default {
                 html2canvas:{scale:5},
                 jsPDF:{unit:'mm',format:'a4', orientation:'portrait'}
             };
-            // this.$refs.report_pdf.generatePdf();
-            // html2pdf(element)
+
             html2pdf().from(element).set(opt).save();
-            // var worker1= html2pdf().set(opt).from(element);
-            // worker1.save();
-            // worker1.toPdf().outputPdf('datauristring').then((res)=>{
-            //     setPdf(res)
-            // });
+
         }
         },
         /* result 处理*/
@@ -392,15 +386,7 @@ export default {
                     tid:that.tid};
                 console.log(postdata)
                 that.$axios.post("/api/EnvTest/ETParamSet", postdata).then((res) => {
-                    
                     that.logflag = true;
-                    
-                    /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示，异步任务返回stid */
-                    // 同步任务
-                    // that.logflag = false;
-                    // that.isShowPublish = true;
-                    // that.result = res.data;
-                    // that.resultPro(res.data);
                     // 异步任务
                     that.stid =  res.data.EnvTestid;
                     that.logclk = self.setInterval(that.getLog, 3000);

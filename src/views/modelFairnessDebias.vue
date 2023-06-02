@@ -38,7 +38,22 @@
                                 3 Hidden-layer FCN
                             </a-radio>
                         </div>
-                        <!-- 选算法 -->
+                        <!-- 选优化算法 -->
+                        <div class="selectDebiasMethod">
+                            <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择公平性提升算法</p>
+                            <a-radio-group v-model="debiasMethodValue"  @change="onChangeDebiasMethod($event)">
+                                <div class="debiasModule" v-for="(temp,index) in debiasMethod" :key="index">
+                                    <a-radio :style="radioStyle" :value="index" :disabled="debiasDisabled[index]" >
+                                        {{ temp.name }}
+                                    </a-radio>
+                                    <div class="formulaDes" v-if="debiasMethodValue===index">
+                                        {{temp.name}}：{{ temp.des }}
+
+                                    </div>
+                                </div>
+                            </a-radio-group>
+                        </div>
+                        <!-- 选评估算法 -->
                         <div class="selectMethod">
                             <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择评估算法（可多选）</p>
                             <div class="methodDes">
@@ -81,7 +96,7 @@
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <h1>模型公平性评估结果报告</h1>
+                        <h1>模型公平性提升结果报告</h1>
                     </div>
                 </div>
                 <div class="dialog_publish_main" slot="main">
@@ -91,12 +106,12 @@
                             <div class="scorebg">
                                 <div class=" main_top_echarts_con_title ">模型公平性总评分</div>
                             
-                                <p class="g_score"> {{result.score}}</p>
-                                <p class="g_score_evaluate"> {{ result.score_evaluate }}</p>
+                                <p class="g_score"> {{res.score.aft}}</p>
+                                <p class="g_score_evaluate"> {{ res.score_evaluate.aft }}</p>
                             </div>
                         </div>
                         <div class="conclusion">
-                            <p class="result_text">模型综合评分为{{result.score}}，是一个{{ result.score_con }}的模型</p>
+                            <p class="result_text">模型综合评分为{{res.score.aft}}，是一个{{ res.score_con.aft }}的模型</p>
                             <p class="result_annotation">综合评分计算来源是个体公平性和群体公平性两个维度上的评分</p>
                         </div>
                     </div>
@@ -105,29 +120,29 @@
                         <div class=" main_top_echarts_con_title ">公平性评分详情</div>
                         <div class="two_score">
                             <div class="left_score_label">
-                                <P class="score_text">{{ result.consistency_score }}</P>
+                                <P class="score_text">{{ res.consistency_score.aft }}</P>
                                 <p class="score_lable">个体公平性评估</p>
                             </div>
                             <div class="center_score_label">
-                                <div class="process_bg" ><div class="left_pro" :style="'width:'+result.consistency_score/100*210 +'px'"></div></div>
-                                <div class="process_bg" style="margin-left: -4px;"><div class="right_pro" :style="'width:'+result.group_score/100*210 +'px'"></div></div>
+                                <div class="process_bg" ><div class="left_pro" :style="'width:'+res.consistency_score.aft/100*210 +'px'"></div></div>
+                                <div class="process_bg" style="margin-left: -4px;"><div class="right_pro" :style="'width:'+res.group_score.aft/100*210 +'px'"></div></div>
                             </div>
                             <div class="right_score_label">
-                                <P class="score_text">{{ result.group_score }}</P>
+                                <P class="score_text">{{ res.group_score.aft }}</P>
                                 <p class="score_lable">群体公平性评估</p>
                             </div>
                         </div>
                         <div class="conclusion" style="height: 80px;">
                             <div class="score_description">
-                                <div class="con_score">{{ result.consistency_score }}</div>
-                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">模型个体公平性指标为{{ result.Consistency }}</div>
+                                <div class="con_score">{{ res.consistency_score.aft }}</div>
+                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">模型个体公平性指标为{{ res.Consistency.aft }}</div>
                             </div>
                             
                         </div>
                         <div class="conclusion" style="height: 80px;">
                             <div class="score_description">
-                                <div class="con_score">{{ result.group_score }}</div>
-                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">模型经所选公平性评估算法评估后，综合得分为{{ result.group_score }}</div>
+                                <div class="con_score">{{ res.group_score.aft }}</div>
+                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">模型经所选公平性评估算法评估后，综合得分为{{ res.group_score.aft }}</div>
                             </div>
                         </div>
                     </div>
@@ -136,15 +151,16 @@
                         
                         <div class="echart_title">
                             
-                            <div class=" main_top_echarts_con_title ">个体公平性评估得分</div>
-                            <p class="title_annotation">个体公平性评估是指评估数据集中相似的个体是否有相似的标签或预测结果</p>
+                            <div class=" main_top_echarts_con_title ">个体公平性提升得分</div>
+                            <p class="title_annotation">个体公平性是统计数据集中相似的个体是否有相似的标签或预测结果</p>
                             
                         </div>
-                        <div id="rdeva">
-                            <div id = 'conseva'></div>
+                        <div>
+                            <div id = 'consevaBef'></div>
+                            <div id = 'consevaAft'></div>
                             <div class="conseva_label">consistency</div>
                             <div class="conclusion">
-                                <p class="result_text">{{ consText }}</p>
+                                <p class="result_text">{{ res.consText }}</p>
                                 <p class="result_annotation">个体公平性指标越接近1，模型越公平。</p>
                             </div>
                         </div>
@@ -156,7 +172,7 @@
                     <div class="result_div">
                         <div class="echart_title">
                             
-                            <div class=" main_top_echarts_con_title ">模型群体公平性评估</div>
+                            <div class=" main_top_echarts_con_title ">模型群体公平性提升</div>
                             <p class="title_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
                             
                         </div>
@@ -171,7 +187,7 @@
                                     <div  class="model_group_echart"  :id="temp"></div>
                                 </div>
                                 <div class="conclusion">
-                                    <p class="result_text">{{ grouptext[temp] }}</p>
+                                    <p class="result_text">{{ res.groupText[temp] }}</p>
                                 </div>
                             </div>
                         </div>
@@ -245,7 +261,7 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
-import {drawclass1pro, drawconseva1, drawbar, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
+import {drawconseva, drawbarimproved, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
 import funcicon from "../assets/img/modelEvaIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
@@ -267,7 +283,7 @@ const selectSvg = {
         },
     }
 export default {
-    name:"modelfairnesseva",
+    name:"modelfairnessdebias",
     components:{
         /* 注册组件 */
         navmodule:navmodule,
@@ -282,6 +298,8 @@ export default {
             /* 评估行 */
             rowkey:0,
             colkey:0,
+            /* 选中的提升算法值 */ 
+            debiasMethodValue:"",
             methodDesShow:[false,false,false,false,false,false,false,false],
             evamethod:{
                 "DI":{"name":"Dsiaprate Impact(DI)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>', "des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
@@ -301,17 +319,32 @@ export default {
                 "PRd":{"name":"Precision Difference(PRd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
                 "F1d":{"name":"F1 Score Difference(F1d)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mfrac><mrow><mn>2</mn><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo>+</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac><mo>−</mo><mfrac><mrow><mn>2</mn><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>+</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow></mfrac><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
                 "PE":{"name":"Predictive Equality" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
-                
                 "EOD":{"name":"Equal Odds" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mstyle displaystyle="false" scriptlevel="0"><munder><mo data-mjx-texclass="OP">∑</mo><mrow><mi>y</mi><mo>∈</mo><mo stretchy="false">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false">)</mo></mrow></munder></mstyle></mrow><mrow><mo stretchy="false">|</mo></mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mi>y</mi><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mi>y</mi><mo stretchy="false">)</mo><mo stretchy="false">|</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
                 "PP":{"name":"Predictive Parity" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
                 "EOP":{"name":"Equal Opportunity" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
                 "OMd":{"name":"Overall Misclassification Difference(OMd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
                 "OMr":{"name":"Overall Misclassification Ratio(OMr)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'}
                 },
+                
+            /* 提升算法 */ 
+            debiasMethod:{
+                "Adersarial Debiasing":{'name':'Adversarial Debiasing(FAD)','des':'对抗训练纠偏算法是一种训练过程中的纠偏技术，可以使训练的分类器在最大化预测准确率的同时减少能从其预测结果中与保护属性相关的信息。这种训练算法时公平的，因为无法从它的预测结果中获取到与保护属性相关的信息。','class':['table']},
+                "Reject Option-SPd":{'name':'Reject Option Classification-SPd','des':'一种后处理技术，对于在不确定性最高的决策边界周围的样本，算法会以最小化统计均等差（Statistical parity difference）为目标，给出对劣势群体有利的结果和对优势群体不利的结果，从而缓解模型偏见。','class':['table']},
+                "Reject Option-AOd":{'name':'Reject Option Classification-AOd','des':'一种后处理技术，对于在不确定性最高的决策边界周围的样本，算法会以最小化平均概率差（Average odds difference）为目标，给出对劣势群体有利的结果和对优势群体不利的结果，从而缓解模型偏见','class':['table']},
+                "Reject Option-EOd":{'name':'Reject Option Classification-EOd','des':'一种后处理技术，对于在不确定性最高的决策边界周围的样本，算法会以最小化同等机遇差（Equal opportunity difference）为目标，给出对劣势群体有利的结果和对优势群体不利的结果，从而缓解模型偏见','class':['table']},
+                "Calibrated EOD-fnr":{'name':'Calibrat Edequalized Odds-fnr','des':'一种后处理技术，以使不同种群的预测结果具有相同的fnr（假阴性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
+                "Calibrated EOD-fpr":{'name':'Calibrat Edequalized Odds-fpr','des':'一种后处理技术，以使不同种群的预测结果具有相同的fpr（假阳性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
+                "Calibrated EOD-weighted":{'name':'Calibrat Edequalized Odds-weighted','des':'一种后处理技术，以使不同种群的预测结果具有相同的fnr（假阴性率）和fpr（假阳性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
+                "Domain Independent Training":{'name':'Domain Independent Training','des':'领域独立训练方法受到一种名为“解耦分类器”的技术的启发，通过让模型在训练过程中忽视数据中的偏见信息，从而减少模型对偏见的依赖。优点是可以有效地减少模型的性别偏见','class':['pic','table']},
+                "Domain Adversarial Training":{'name':'Domain Adversarial Training',"des":"领域对抗性训练方法试图通过引入一个对抗性的学习过程来减少模型对偏见的依赖。具体来说，模型在训练过程中不仅要尽可能地准确预测目标标签，还要尽可能地忽视数据中的偏见信息。","class":['pic']},
+                "Domain Conditional Training":{'name':'Domain Conditional Training',"des":"领域条件训练类似于InclusiveFaceNet的训练方式，通过在训练过程中显式地考虑数据中的偏见信息，使模型能够在不同的子群体中都有良好的性能。优点是可以有效地减少模型对偏见的依赖。","class":['pic']},
+                
+            },
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
                 lineHeight: '30px',
+                width:'100%'
             },
             /* 热力图height*/
             heat_height:"213px",
@@ -329,7 +362,7 @@ export default {
             percent:10,
             /* 日志内容 */
             logtext:["开始执行","执行结束"],
-            dataname:["German","Adult","Compas"],
+            dataname:["German","Adult","Compas","Cifar10-S","CelebA"],
             /* 选中数据集序号 */
             dataNameValue:0,
             /* 选中敏感属性列表 */
@@ -341,28 +374,50 @@ export default {
             /* 功能介绍模块信息 */
             funcDesText:{
                 /* 功能名称 */
-                name:"模型公平性评估",
+                name:"模型公平性提升",
                 /* 功能icon，需先引入 */
                 imgpath:funcicon,
                 /* 功能背景图片，需先引入 */
                 bgimg:bgimg,
                 /* 功能介绍下的总介绍 */
-                destext:"模型预测存在偏见，通过公平性评估功能，可视化展示模型预测的偏见情况",
+                destext:"模型预测存在偏见，通过公平性提升功能，缓解模型偏见",
                 /* 背景介绍 */
-                backinfo:"数据集中一般会存在偏见，而模型在训练过程中可能会放大训练数据集中的偏见，甚至产生出新的偏见，而这些偏见最终会导致模型产生带有偏见的预测结果。通过模型公平性评估功能可从不同维度评估模型公平性。",
+                backinfo:"模型公平性提升功能通过对抗训练纠偏技术、领域独立训练、拒绝选项分类、等几率校准等方法缓解模型偏见，使用各类评估方法对提升前后的模型进行公平性评估，直观展示提升效果",
                 /* 亮点介绍 */
                 highlight:[
-                    "支持German，Adult，Compas数据集",
-                    "从群体公平性、个体公平性等两个维度评估模型，可视化展示模型公平性",
-                    "支持27种公平性评估算法，如：Disparate impact，Demographic parity，Predictive equality……"
+                    "支持表格数据集和图片数据集，表格数据集：German，Adult，Compas；图片数据集：CelebA，Cifar10-S",
+                    "支持22种评估算法从群体公平性、个体公平性两大维度对比模型提升前后的公平程度",
+                    "支持8种模型公平性提升算法，如对抗训练纠偏算法、领域独立训练算法、3种拒绝选项分类、3种等几率校准算法"
                 ]
             },
             /* 结果弹窗状态信息 */
             isShowPublish:false,
-            /* 个体公平性结论 */
-            consText:"",
-            /* 群体公平性结论 */
-            grouptext:{},
+            /* 处理后的结果数据 */
+            res:{
+                // 总评分
+                "score":{"bef":null,"aft":null},
+                // 个体公平性评分
+                "consistency_score":{"bef":null,"aft":null},
+                // 群体公平性评分
+                "group_score":{"bef":null,"aft":null},
+                // 评估结论
+                "score_con":{"bef":null,"aft":null},
+                // 评分段
+                "score_evaluate":{"bef":null,"aft":null},
+                // 个体公平性得分
+                "Consistency":{"bef":null,"aft":null},
+                // 个体公平性结论
+                "consText":"",
+                // 群体公平性得分
+                "attrEvaValue":{
+                    "bef":{},
+                    "aft":{}
+                },
+                // 群体公平性评估算法
+                "labels":[],
+                // 群体公平性结论
+                "groupText":{},
+            },
             /* 公平性结果 */
             result:{},
             /* 评估算法选择结果*/
@@ -371,8 +426,22 @@ export default {
             logclk:"", 
             /*主任务id*/ 
             tid:"",
-            }
-        },
+            stid:"",
+            /* 公平性提升算法disable */
+            debiasDisabled:{
+                "Domain Adversarial Training":false,
+                "Domain Conditional Training":false,
+                "Domain Independent Training":false,
+                "Adersarial Debiasing":false,
+                "Reject Option-SPd":false,
+                "Reject Option-AOd":false,
+                "Reject Option-EOd":false,
+                "Calibrated EOD-fnr":false,
+                "Calibrated EOD-fpr":false,
+                "Calibrated EOD-weighted":false,
+            } 
+        }
+    },
     watch:{
         /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
         isShowPublish:{
@@ -387,7 +456,7 @@ export default {
         }
     },
     created() {
-        document.title = '模型公平性评估';
+        document.title = '模型公平性提升';
         },
     mounted(){
         let that=this;
@@ -402,13 +471,39 @@ export default {
                 that.percent = that.percent+1;
             }
             that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                for(let key in data.data.Log){
-                    that.logtext = data.data.Log[key];
-                }
-                this.$nextTick(()=> {
-                    that.logflag = true
-                })  
+                that.logtext = data.data.Log[that.stid];
             });
+        },
+        getData(){
+            var that = this;
+            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+                console.log("dataget:",data);
+                that.result=data;
+            });
+        },
+        /* 停止结果获取循环 */ 
+        stopTimer() {
+            if (this.result.data.stop) {
+                // 关闭日志显示
+                this.percent=100
+                this.logflag = false;
+                // 关闭结果数据获取data
+                clearInterval(this.clk);
+                // 关闭日志获取结果获取
+                clearInterval(this.logclk);
+                // 显示结果窗口
+                this.isShowPublish = true;
+                // 处理结果
+                this.result = this.result.data.result.model_debias;
+                this.resultPro(this.result);
+            }
+        },
+        /* 更新结果*/ 
+        update(){
+            this.getData();
+            try{
+                this.stopTimer();
+            }catch(err){}
         },
         /* 关闭结果窗口 */
         closeDialog(){
@@ -418,6 +513,9 @@ export default {
         onChangeEvaMethod(checkedValues){
             console.log('checked = ', checkedValues);
             this.evaCheckedValues = checkedValues
+        },
+        onChangeDebiasMethod(event){
+            console.log("debiasMethodValue:", this.debiasMethodValue);
         },
         /* 监听数据集选择 */
         clientDatasetSelect(value, senAttrList, tarAttrList, staAttrList){
@@ -430,6 +528,37 @@ export default {
             }else{
                 this.buttonBGColor.background = "#0B55F4";
             };
+            this.debiasDisabled={
+                "Domain Adversarial Training":false,
+                "Domain Conditional Training":false,
+                "Domain Independent Training":false,
+                "Adersarial Debiasing":false,
+                "Reject Option-SPd":false,
+                "Reject Option-AOd":false,
+                "Reject Option-EOd":false,
+                "Calibrated EOD-fnr":false,
+                "Calibrated EOD-fpr":false,
+                "Calibrated EOD-weighted":false,
+            };
+            if( ["Cifar10-S","CelebA"].indexOf(this.dataname[value]) == -1){
+                this.debiasDisabled["Domain Adversarial Training"] = true;
+                this.debiasDisabled["Domain Conditional Training"] = true;
+            }else{
+                this.debiasDisabled={
+                "Domain Adversarial Training":false,
+                "Domain Conditional Training":false,
+                "Domain Independent Training":false,
+                "Adersarial Debiasing":true,
+                "Reject Option-SPd":true,
+                "Reject Option-AOd":true,
+                "Reject Option-EOd":true,
+                "Calibrated EOD-fnr":true,
+                "Calibrated EOD-fpr":true,
+                "Calibrated EOD-weighted":true,
+            };
+            }
+            console.log("this.dataname:",value);
+            console.log("this.debiasDisabled:",this.debiasDisabled);
         },
         /* 鼠标移入评估算法解释框显示*/
         checkboxMouseEnter(index, num){
@@ -446,61 +575,74 @@ export default {
             this.methodDesShow=[false,false,false,false,false,false,false,false];
         },
         /* result 处理*/
-        resultPro(res){
+        resultPro(res1){
             var that = this;
             that.percent=100;
+            that.res["score"]["bef"] = that.result["Overall fairness"][0].toFixed(2)*100;
+            that.res["score"]["aft"] = that.result["Overall fairness"][1].toFixed(2)*100;
+            that.res["consistency_score"]['bef'] = that.result["Overall individual fairness"][0].toFixed(2)*100;
+            that.res["consistency_score"]['aft'] = that.result["Overall individual fairness"][1].toFixed(2)*100;
+            that.res["group_score"]['bef'] =  that.result["Overall group fairness"][0].toFixed(2)*100;
+            that.res["group_score"]['aft'] =  that.result["Overall group fairness"][1].toFixed(2)*100;
             // 总分判断
-            if(that.result.score > 80){
-                that.result.score_evaluate = "优秀";
-                that.result.score_con = "公平";
-            }else if(that.result.score > 60 && that.result.score <=80){
-                that.result.score_evaluate = "良好";
-                that.result.score_con = "较公平";
+            if(that.res.score.bef > 80){
+                that.res.score_evaluate['bef'] = "优秀";
+                that.res.score_con['bef'] = "公平";
+            }else if(that.res.score.bef > 60 && that.res.score.bef <=80){
+                that.res.score_evaluate['bef'] = "良好";
+                that.res.score_con['bef'] = "较公平";
             }else{
-                that.result.score_evaluate = "差";
-                that.result.score_con = "较不公平";
+                that.res.score_evaluate['bef'] = "差";
+                that.res.score_con['bef'] = "较不公平";
             }
-            that.result["Consistency"]=res.Consistency.toFixed(2);
-            that.result["Proportion"]=res.Proportion;
-            
+            // 提升后总分判断
+            if(that.res.score.aft > 80){
+                that.res.score_evaluate['aft'] = "优秀";
+                that.res.score_con['aft'] = "公平";
+            }else if(that.res.score.aft > 60 && that.res.score.aft <=80){
+                that.res.score_evaluate['aft'] = "良好";
+                that.res.score_con['aft'] = "较公平";
+            }else{
+                that.res.score_evaluate['aft'] = "差";
+                that.res.score_con['aft'] = "较不公平";
+            }
+
+            that.res["Consistency"]['bef']=(that.result.Consistency[0]*100).toFixed(2);
+            that.res["Consistency"]['aft']=(that.result.Consistency[1]*100).toFixed(2);
+            that.res["Proportion"]=that.result.Proportion;
+            let cons_sub = (that.res["Consistency"]['aft'] - that.res["Consistency"]['bef']).toFixed(2);
             //得分图
-            drawconseva1("conseva",that.result["Consistency"]);
-            if( that.result["Consistency"]>0.9 )
-            {
-                that.consText="模型的个体公平性得分为"+that.result["Consistency"]+"，高于标准线0.9，故该模型从个体公平性方面分析结果为公平数据集";
-            }
-            else if( that.result["Consistency"]<=0.9 && that.result["Consistency"]>=0.6 )
-            {
-                that.consText="模型的个体公平性得分为"+that.result["Consistency"]+"，高于标准线0.6，故该模型从个体公平性方面分析结果为较公平数据集";
-            }
-            else( that.result["Consistency"]<0.6 )
-            {
-                that.consText="模型的个体公平性得分为"+that.result["Consistency"]+"，低于标准线0.6，故该模型从个体公平性方面分析结果为相对不公平数据集";
-            }
+            drawconseva("consevaBef",that.res["Consistency"]["bef"],"before");
+            drawconseva("consevaAft",that.res["Consistency"]["aft"],"after");
+            
+            that.res.consText = "模型个体公平性提升前得分为" + that.res.Consistency.bef + ",提升后的得分为" + that.res.Consistency.aft + "共提升了" + cons_sub + "分。";
+           
             //直方图
-            var attrEvaValue={};
-            var labels = [];
-            // 初始化diflist和ratiolist
+            // 初始化群体公平性
             for(let attrTemp of that.senAttrList){
-                attrEvaValue[attrTemp] = [];
+                that.res.attrEvaValue['bef'][attrTemp] = [];
+                that.res.attrEvaValue['aft'][attrTemp] = [];
             };
             // 群体评估数据整合
-            for(var key in res){
+            for(var key in that.result){
                 if (key == "Consistency"|| key == "Proportion" || key == "Corelation coefficients"|| key == "stop" || key.indexOf("Overall") != -1 || key.indexOf("score") != -1){
                     continue;
                 }
                 else{
-                    labels.push(key);
-                    for (let attrTemp in res[key]){
-                        attrEvaValue[attrTemp].push(res[key][attrTemp].toFixed(2));
+                    that.res.labels.push(key);
+                    for (let attrTemp in that.result[key][0]){
+                        that.res.attrEvaValue['bef'][attrTemp].push(that.result[key][0][attrTemp].toFixed(2));
+                    };
+                    for (let attrTemp in that.result[key][1]){
+                        that.res.attrEvaValue['aft'][attrTemp].push(that.result[key][1][attrTemp].toFixed(2));
                     }
                 }
             }
             // 画图
             for(let attrTemp of that.senAttrList){
-                drawbar(attrTemp,attrEvaValue[attrTemp],labels,"群体公平性评估指标");
-                that.grouptext[attrTemp]="本次测试敏感属性为"+attrTemp+"，目标属性为"+that.tarAttrList.toString()+"\
-                ，直方图根据"+ labels.toString()+"算法评估结果绘制。"
+                drawbarimproved(attrTemp, that.res.attrEvaValue['bef'][attrTemp], that.res.attrEvaValue['aft'][attrTemp], that.res.labels, "群体公平性评估指标");
+                that.res.groupText[attrTemp]="本次测试敏感属性为"+attrTemp+"，目标属性为"+that.tarAttrList.toString()+"\
+                ，直方图根据"+ that.res.labels.toString()+"算法评估结果绘制。"
             }
             // 占比图
             var data = {
@@ -527,8 +669,6 @@ export default {
                 }
                 data["children"].push(second_children);
             }
-            
-            console.log("centerPng11:",centerPng);
             drawPopGraph("pro_tree", data, centerPng, secondPng)
             // 热力图
             var heatX=[];
@@ -575,11 +715,9 @@ export default {
             drawCorelationHeat("spearman", heatX, spearmanData, spearmanColorList);
             drawCorelationHeat("Kendall", heatX, kendallData, kendallColorList);
             
-
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
-            
             /*判断选择*/
             if (this.senAttrList.length ==0 ){
                 this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
@@ -590,7 +728,7 @@ export default {
                 return 0;
             };
             if (this.tarAttrList.length >1 ){
-                this.$message.warning('模型公平性评估只能选择一项目标属性！',3);
+                this.$message.warning('模型公平性提升只能选择一项目标属性！',3);
                 return 0;
             };
             if (this.staAttrList.length ==0 ){
@@ -599,6 +737,10 @@ export default {
             };
             if (this.evaCheckedValues.length == 0){
                 this.$message.warning('请在评估算法中至少选择一项评估算法！',3);
+                return 0;
+            };
+            if (this.debiasMethodValue == ""){
+                this.$message.warning('请在提升算法中至少选择一项提升算法！',3);
                 return 0;
             }
             this.logflag = true;
@@ -615,22 +757,18 @@ export default {
                 staAttrList:JSON.stringify(that.staAttrList),
                 metrics:JSON.stringify(that.evaCheckedValues),
                 modelname:"3 Hidden-layer FCN",
+                algorithmname:that.debiasMethodValue,
                 tid:that.tid};
                 console.log(postdata)
                 that.percent = 40;
-                that.logclk = self.setInterval(that.getLog, 10);
-                that.$axios.post("/api/ModelFairnessEvaluate",postdata).then((res) => {
+                
+                that.$axios.post("/api/ModelFairnessDebias",postdata).then((res) => {
+                    that.logflag = true;
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
-                    clearInterval(that.logclk);
-                    that.logflag = false;
+                    that.stid =  res.data.stid;
+                    that.logclk = self.setInterval(that.getLog, 3000);
+                    that.clk = self.setInterval(that.update, 3000);
                     console.log(that.logflag);
-                    that.isShowPublish = true;
-                    // 评分后端暂未输出，前端写死
-                    res.data["score"] = res.data["Overall fairness"].toFixed(2)*100;
-                    res.data["consistency_score"] = res.data["Overall individual fairness"].toFixed(2)*100;
-                    res.data["group_score"] =  res.data["Overall group fairness"].toFixed(2)*100;
-                    that.result = res.data;
-                    that.resultPro(res.data);
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -714,6 +852,26 @@ text-align: left;
     color: #000000;
     margin-right: 8px;
 }
+/* 提升算法模块样式 */
+.debiasMethodDes{
+    /* Auto layout */
+
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+
+width: 1104px;
+height: 516px;
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+}
+.debiasModule{
+    width: 1104px;
+}
 .ant-checkbox-wrapper-checked .checkboxdiv{
     background: #E7F0FD;
     color: #0B55F4;
@@ -728,7 +886,7 @@ text-align: left;
 }
 /* 公式样式 */
 .formulaDes{
-
+    padding: 0px 20px;
     margin-bottom: 10px;
 }
 

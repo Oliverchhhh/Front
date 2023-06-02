@@ -284,7 +284,7 @@ function drawbarimproved( ID, data, data2, label, name){
     },500)
   }
 //公平性评估大
-function drawconseva1(ID, value){
+function drawconseva1(ID, value, color='#0B55F4'){
     var option;
 
     console.log(value);
@@ -298,7 +298,7 @@ function drawconseva1(ID, value){
           max: 1,
           splitNumber: 5,
           itemStyle: {
-            color: '#0B55F4'
+            color: color
           },
           progress: {
             show: true,
@@ -376,24 +376,28 @@ function drawconseva( ID, value, titlename){
           color:"rgba(0, 0, 0, 1)",
           fontSize:18,
         },
-  x:'center',
-  y:280,
-  },
+        x:'center',
+        y:280,
+      },
       series: [
         {
           type: 'gauge',
+          center: ['50%', '60%'],
           minInterval:0.02,
           min:0,
           max:1,
-          radius:100,
+          radius:150,
+          splitNumber: 5,
+          itemStyle: {
+            color: '#0B55F4'
+          },
+          progress: {
+            show: true,
+            width: 10
+          },
           axisLine: {
             lineStyle: {
               width: 10,
-              color: [
-                [0.3, '#fd666d'],
-                [0.7, '#37a2da'],
-                [1, '#67e0e3']
-              ]
             }
           },
           grid: {
@@ -402,36 +406,43 @@ function drawconseva( ID, value, titlename){
             show: true
           },
           pointer: {
-            itemStyle: {
-              color: 'auto'
-            }
+            show:false
           },
           axisTick: {
             distance: -5,
             length: 5,
+            splitNumber: 5,
             lineStyle: {
-              color: '#fff',
-              width: 2
+              color: '#999',
+              width: 1
             }
           },
           splitLine: {
             distance: -5,
-            length: 15,
+            length: 10,
             lineStyle: {
-              color: '#fff',
+              color: '#999',
               width: 2
             }
           },
           axisLabel: {
-            color: 'auto',
+            color: '#999',
             distance: 10,
-            fontSize: 13
+            fontSize: 12
+          },
+          anchor: {
+            show: false
           },
           detail: {
             valueAnimation: true,
-            formatter: 'Consistency\n{value}',
-            color: 'auto',
-            fontSize:15
+            width: '60%',
+            lineHeight: 70,
+            borderRadius: 8,
+            offsetCenter: [0, '0%'],
+            fontSize: 36,
+            fontWeight: 'bolder',
+            formatter: '{value}',
+            color: 'inherit'
           },
           data: [
             {
