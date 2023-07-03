@@ -53,6 +53,17 @@ export default new Router({
       name: 'envTest',
       component: () => import('../views/envTest.vue')
     },
+    // 组装的单神经元覆盖准则页面
+    {
+      path: '/coverage_neural',
+      name: 'coverage_neural',
+      component: () => import('../views/coverage_neural.vue')
+    },
+    {
+      path: '/coverage_layer',
+      name: 'coverage_layer',
+      component: () => import('../views/coverage_layer.vue')
+    },
     // 组装的攻击机理分析页面
     {
       path: '/exMethod',
