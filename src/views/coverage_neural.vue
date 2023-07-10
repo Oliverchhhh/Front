@@ -620,18 +620,6 @@ text-align: left;
     align-self: stretch;
     flex-grow: 0;
 }
-.paramsInput{
-    height: 60px;
-    padding: 0px 0px 0px 16px;
-    font-family: 'HONOR Sans CN';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    /* color: #B4B9C5; */
-    background: #F2F4F9;
-    border-radius: 4px;
-}
 /* 按钮样式 */
 .DataEva{
     float: right;

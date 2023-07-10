@@ -42,8 +42,8 @@
                                     <a-radio :style="radioStyle" value="table" >
                                         abnormal_table.npz
                                     </a-radio>
-                                    <p class="matchedMethodText"><span>低维数据：</span>数字形式的、特征维数较少的数据。离群值可视化如图例所示。</p>
-                                    <p class="matchedMethodText">示例：</p>
+                                    <p class="matchedMethodText"><span>低维数据：</span>指数字形式的、特征维数较少的数据。检测离群点或异常值是数据挖掘的核心问题之一，数据的爆发式增长要求我们能够及时筛选出其中存在问题的数据并予以剔除。</p>
+                                    <p class="matchedMethodText">示例：随机生成正态化的二维样本，模拟存在离群异常数据的低维数据，并进行检测。</p>
                                     <div class="demoData" >
                                         <img class="onedemo" src="../assets/img/abnormal_table_demo.png">
                                     </div>
@@ -56,12 +56,15 @@
                                     <a-radio :style="radioStyle" value="txt_encode" >
                                         THUCNews格式异常文本
                                     </a-radio>
-                                    <p class="matchedMethodText"><span>THUCNews：</span>检测文本中的错误编码，并进行清洗</p>
-                                    <p class="matchedMethodText">示例：</p>
+                                    <p class="matchedMethodText"><span>THUCNews：</span>由清华大学自然语言处理实验室推出的根据新浪新闻RSS订阅频道2005~2011年间的历史数据筛选过滤生成，包含74万篇新闻文档（2.19 GB），并划分出14个分类类别：财经、彩票、房产、股票、家居、教育、科技、社会、时尚、时政、体育、星座、游戏、娱乐。</p>
+                                    <p class="matchedMethodText">示例：检测文本中的错误编码，并进行清洗</p>
                                     <div class="demoData" >
-                                        Ħ��������GPON��FTTH�б�EPON��������
+                                        <p>
+                                            Ħ��������GPON��FTTH�б�EPON��������
                                         ������ �ߣ�³����
                                         ����2009�꣬�ڹ��ڹ��ͭ�˵Ļ��������£�Ħ������Я���ڹ����г����Ѿ���÷ḻ��Ӫ�����GPON�����������
+                                        </p>
+                                        
                                     </div>
                                     
                                 </div>
@@ -69,10 +72,14 @@
                                     <a-radio :style="radioStyle" value="txt_format">
                                         THUCNews待标点清洗文本
                                     </a-radio>
-                                    <p class="matchedMethodText"><span>THUCNews：</span>将文本数据的标点符号进行清洗，便于后续处理</p>
-                                    <p class="matchedMethodText">示例：</p>
+                                    <p class="matchedMethodText"><span>THUCNews：</span>由清华大学自然语言处理实验室推出的根据新浪新闻RSS订阅频道2005~2011年间的历史数据筛选过滤生成，包含74万篇新闻文档（2.19 GB），并划分出14个分类类别：财经、彩票、房产、股票、家居、教育、科技、社会、时尚、时政、体育、星座、游戏、娱乐。</p>
+                                    <p class="matchedMethodText">示例：将文本数据的标点符号进行清洗，便于后续处理</p>
                                     <div class="demoData" >
-                                        昨日上海天然橡胶期货价格再度大幅上扬，在收盘前1小时，大量场外资金涌入，主力1003合约强劲飙升很快升穿21000 元/吨整数关口，终盘报收于21,400元/吨，上涨2.27%，较前一日结算价上涨475元/吨，成交量为736,816手，持仓量为225,046 手。当日整体市场增仓3.4万余手。
+                                        <p>
+                                            昨日上海天然橡胶期货价格再度大幅上扬，在收盘前1小时，大量场外资金涌入，主力1003合约强劲飙升很快升穿21000
+                                            元/吨整数关口，终盘报收于21,400元/吨，上涨2.27%，较前一日结算价上涨475元/吨，成交量为736,816手，持仓量为225,046 手。当日整体市场增仓3.4万余手。
+
+                                        </p>
                                     </div>
                                 </div>
                             </a-radio-group>
@@ -594,6 +601,7 @@ text-align: left;
     order: 0;
     align-self: stretch;
     flex-grow: 0;
+    margin: 1% 0;
 }
 .matchedMethodText{
     /* display: flex; */
@@ -626,6 +634,11 @@ text-align: left;
     gap: 10px;
     /* justify-content: space-around; */
     margin-bottom: 20px;
+    /* background: aliceblue; */
+}
+
+.demoData p{
+    background: aliceblue;
 }
 .demoData img{
     /* position: absolute; */
