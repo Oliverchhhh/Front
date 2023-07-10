@@ -10,14 +10,14 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      "/":{
+      "/api":{
         // ws:true,
         // 后端服务器路径
         target:"http://127.0.0.1:24109/",
         // target:"http://10.15.201.88:14580/",
         changeOrigin:true,
         pathRewrite: {
-        "^/":""}
+        "^/api":""}
       }
     },
 

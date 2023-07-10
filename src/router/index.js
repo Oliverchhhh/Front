@@ -6,11 +6,11 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
-    // {
-    //   path:"/",
-    //   // 重定向
-    //   redirect:'/dataFairnessEva'
-    // },
+    {
+      path:"/",
+      // 重定向
+      redirect:'/inject'
+    },
     // 组装的数据公平性评估页面
     {
       path: '/dataFairnessEva',
@@ -76,9 +76,19 @@ export default new Router({
       path: '/robustFormalVerification',
       name: 'robustFormalVerification',
       component: () => import('../views/robustFormalVerification.vue')
-    }
-
-    
+    },
+  // 组装的故障注入页面
+  {
+    path: '/inject',
+    name: 'inject',
+    component: () => import('../views/inject.vue')
+  },
+  // 组装的形式化验证页面
+  {
+    path: '/FormalVerfy',
+    name: 'FormalVerfy',
+    component: () => import('../views/FormalVerfy.vue')
+  },
   ]
   
 })

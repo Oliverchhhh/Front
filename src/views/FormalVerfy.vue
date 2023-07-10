@@ -1,0 +1,1330 @@
+<template>
+     <div>
+        <a-layout>
+            <!-- 顶部菜单栏 -->
+        <a-layout-header>
+            <!-- 导航栏 -->
+            <navmodule/>
+        </a-layout-header>
+        <a-layout-content>
+            <!-- 功能介绍 -->
+            <func_introduce :funcDesText="funcDesText"></func_introduce>
+            <!-- 参数配置 -->
+            <div class="paramCon">
+                <!-- 参数配置容器 -->
+                <h2 class="subTitle" >参数配置</h2>
+                <div class="moduleSwitch">
+                    <a-radio-group v-model="mode" default-value="safe" @change="moduleChange" size="large">
+                        <a-radio-button value="safe">
+                            安全性
+                        </a-radio-button>
+                        <a-radio-button value="consistency">
+                            一致性
+                        </a-radio-button>
+                        <a-radio-button value="reach">
+                            可达性
+                        </a-radio-button>
+                    </a-radio-group>
+                </div>
+                <div class="funcParam">
+                    <div class="paramTitle" >
+                        <!-- 功能标题和执行按钮 -->
+                        <!-- icon展示 -->
+                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="modeMsg[mode].name">
+                        <!-- 功能名称 -->
+                        <h3>{{ modeMsg[mode].name }}</h3>
+                        <a-button v-if="mode==='safe'" class="DataEva" @click="safeEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                            <a-icon type="security-scan" />
+                            评估
+                        </a-button>
+                        <a-button v-if="mode==='consistency'" class="DataEva" @click="consistencyEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                            <a-icon type="security-scan" />
+                            评估
+                        </a-button>
+                        <a-button v-if="mode==='reach'" class="DataEva" @click="reachEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                            <a-icon type="security-scan" />
+                            评估
+                        </a-button>
+                    </div>
+                    <a-divider />
+                    <div v-if="mode==='safe'" class="inputdiv">
+                        <!-- 安全性 -->
+                        <!-- 上传样本 -->
+                        <div class="uploadImg">
+                            <p class="mainParamName">上传样本</p>
+                            <div class="uploadDiv">
+                                <a-upload
+                                    name="avatar"
+                                    list-type="picture-card"
+                                    class="avatar-uploader"
+                                    :show-upload-list="false"
+                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                                    :before-upload="beforeUpload"
+                                    @change="handleChange"
+                                >
+                                    <img v-if="imageUrl" :src="imageUrl" alt="avatar" class="uploadShowImage"/>
+                                    <div v-else>
+                                    <a-icon :type="loading ? 'loading' : 'plus'" style="font-size: 19px;" />
+                                    <div class="ant-upload-text">
+                                        上传图片
+                                    </div>
+                                    </div>
+                                </a-upload>
+                            </div>
+                        </div>
+                        <!-- 选择数据集 -->
+                        <div class="datasetSelected">
+                            <p class="mainParamName">请选择样本所属数据集</p>
+                            <a-radio-group v-model="datasetChoice" class="colummRadio" @change="onDatasetChoiceChange">
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="mnist">
+                                        MNIST
+                                    </a-radio>
+                                    <p class="matchedMethodText"><span>MNIST数据集：</span>是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。</p>
+                                    <p class="matchedMethodText">图例：</p>
+                                    <div class="demoData" >
+                                        <div v-for="(item, index) in MNIST_imgs" :key="index">
+                                            <img :src="item.imgUrl">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="cifar10" >
+                                        CIFAR10
+                                    </a-radio>
+                                    <p class="matchedMethodText"><span>CIFAR10数据集：</span>是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。</p>
+                                    <p class="matchedMethodText">图例：</p>
+                                    <div class="demoData" >
+                                        <div v-for="(item, index) in CIFAR10_imgs" :key="index">
+                                            <img :src="item.imgUrl">
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </a-radio-group>
+                        </div>
+                        <!-- 选择模型 -->
+                        <div class="modelSelected">
+                            <p class="mainParamName">请选择深度学习模型</p>
+                            <a-radio-group v-model="modelChoice" class="colummRadio" @change="onDatasetChoiceChange">
+                                <a-radio :style="radioStyle" value="cnn_7layer_bn">
+                                    CNN
+                                </a-radio>
+                                <a-radio :style="radioStyle" value="Resnet">
+                                    ResNet
+                                </a-radio>
+                                <a-radio :style="radioStyle" value="Densenet">
+                                    DenseNet
+                                </a-radio>
+                                <a-radio :style="radioStyle" value="Wide Resnet">
+                                    Wide ResNet
+                                </a-radio>
+                            </a-radio-group>
+                        </div>
+                        <!-- 设置攻击强度 -->
+                        <div class="attackIntensity">
+                            <p class="mainParamName">请输入攻击强度</p>
+                            <a-input class="paramsInput" placeholder="请输入浮点数：0-1.0" @change="onAttackIntensityChange"/>
+                        </div>
+                    </div>
+                    <div v-if="mode==='consistency'" class="inputdiv">
+                        <!-- 一致性 -->
+                        <!-- 上传样本 -->
+                        <div class="uploadImg">
+                            <p class="mainParamName">上传样本</p>
+                            <div class="uploadDiv">
+                                <a-upload
+                                    name="avatar"
+                                    list-type="picture-card"
+                                    class="avatar-uploader"
+                                    :show-upload-list="false"
+                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                                    :before-upload="beforeUpload"
+                                    @change="handleChange"
+                                >
+                                    <img v-if="imageUrl" :src="imageUrl" alt="avatar" class="uploadShowImage"/>
+                                    <div v-else>
+                                    <a-icon :type="loading ? 'loading' : 'plus'" style="font-size: 19px;" />
+                                    <div class="ant-upload-text">
+                                        上传图片
+                                    </div>
+                                    </div>
+                                </a-upload>
+                            </div>
+                        </div>
+                        <!-- 选择数据集 -->
+                        <div class="datasetSelected">
+                            <p class="mainParamName">请选择样本所属数据集</p>
+                            <a-radio-group v-model="datasetChoice" class="colummRadio" @change="onDatasetChoiceChange">
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="mnist">
+                                        MNIST
+                                    </a-radio>
+                                    <p class="matchedMethodText"><span>MNIST数据集：</span>是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。</p>
+                                    <p class="matchedMethodText">图例：</p>
+                                    <div class="demoData" >
+                                        <div v-for="(item, index) in MNIST_imgs" :key="index">
+                                            <img :src="item.imgUrl">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="cifar10" >
+                                        CIFAR10
+                                    </a-radio>
+                                    <p class="matchedMethodText"><span>CIFAR10数据集：</span>是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。</p>
+                                    <p class="matchedMethodText">图例：</p>
+                                    <div class="demoData" >
+                                        <div v-for="(item, index) in CIFAR10_imgs" :key="index">
+                                            <img :src="item.imgUrl">
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </a-radio-group>
+                        </div>
+                        <!-- 选择模型 -->
+                        <div class="modelSelected">
+                            <p class="mainParamName">请选择深度学习模型</p>
+                            <a-radio-group v-model="modelChoice" class="colummRadio" @change="onDatasetChoiceChange">
+                                <a-radio :style="radioStyle" value="vgg16_bn">
+                                    VGG16
+                                </a-radio>
+                                <a-radio :style="radioStyle" value="resnet18">
+                                    ResNet18
+                                </a-radio>
+                            </a-radio-group>
+                        </div>
+                    </div>
+                    <div v-if="mode==='reach'" class="inputdiv">
+                        <!-- 可达性 -->
+                        <div class="uploadImg">
+                            <p class="mainParamName">上传样本</p>
+                            <div class="uploadDiv">
+                                <a-upload
+                                    name="avatar"
+                                    list-type="picture-card"
+                                    class="avatar-uploader"
+                                    :show-upload-list="false"
+                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                                    :before-upload="beforeUpload"
+                                    @change="handleChange"
+                                >
+                                    <img v-if="imageUrl" :src="imageUrl" alt="avatar" class="uploadShowImage"/>
+                                    <div v-else>
+                                    <a-icon :type="loading ? 'loading' : 'plus'" style="font-size: 19px;" />
+                                    <div class="ant-upload-text">
+                                        上传图片
+                                    </div>
+                                    </div>
+                                </a-upload>
+                            </div>
+                        </div>
+                        <!-- 选择数据集 -->
+                        <div class="datasetSelected">
+                            <p class="mainParamName">请选择样本所属数据集</p>
+                            <a-radio-group v-model="datasetChoice" class="colummRadio" @change="onDatasetChoiceChange">
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="mnist">
+                                        MNIST
+                                    </a-radio>
+                                    <p class="matchedMethodText"><span>MNIST数据集：</span>是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。</p>
+                                    <p class="matchedMethodText">图例：</p>
+                                    <div class="demoData" >
+                                        <div v-for="(item, index) in MNIST_imgs" :key="index">
+                                            <img :src="item.imgUrl">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="cifar10" >
+                                        CIFAR10
+                                    </a-radio>
+                                    <p class="matchedMethodText"><span>CIFAR10数据集：</span>是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。</p>
+                                    <p class="matchedMethodText">图例：</p>
+                                    <div class="demoData" >
+                                        <div v-for="(item, index) in CIFAR10_imgs" :key="index">
+                                            <img :src="item.imgUrl">
+                                        </div>
+                                    </div>
+                                </div>
+                            </a-radio-group>
+                        </div>
+                        <!-- 选择模型 -->
+                        <div class="modelSelected">
+                            <p class="mainParamName">请选择深度学习模型</p>
+                            <!-- <a-radio :style="radioStyle" value="cnn_7layer_bn" defaultChecked disabled>
+                                CNN-3layer
+                            </a-radio> -->
+                            <a-radio-group v-model="modelChoice" class="colummRadio" @change="onDatasetChoiceChange">
+                                <a-radio :style="radioStyle" value="cnn_7layer_bn" defaultChecked disabled>
+                                    CNN-3layer
+                                </a-radio>
+                            </a-radio-group>
+                        </div>
+                        <!-- 设置样本真实类别 -->
+                        <div class="attackIntensity">
+                            <p class="mainParamName">请选择样本的真实类别</p>
+                            <div class="matchedDes">
+                                <a-select
+                                    placeholder="请选择样本的真实类别"
+                                    option-filter-prop="children"
+                                    v-model="trueLabel"
+                                    :filter-option="filterOptionTrueLabel"
+                                    @focus="handleFocusTrueLabel"
+                                    @blur="handleBlurTrueLabel"
+                                    @change="trueLableSelectChange"
+                                >
+                                    <a-select-option v-for="(temp,index) in modeMsg.reach.label[datasetChoice]" :value="index">
+                                        {{ temp }}
+                                    </a-select-option>
+                                </a-select>
+                            </div>
+                        </div>
+                        <div class="attackIntensity">
+                            <p class="mainParamName">请选择目标类别</p>
+                            <div class="matchedDes">
+                                <a-select
+                                    placeholder="请选择目标类别"
+                                    option-filter-prop="children"
+                                    v-model="tarLabel"
+                                    :filter-option="filterOptionTarLabel"
+                                    @focus="handleFocusTarLabel"
+                                    @blur="handleBlurTarLabel"
+                                    @change="tarLabelSelectChange"
+                                >
+                                    <a-select-option v-for="(temp,index) in modeMsg.reach.label[datasetChoice]" :value="index">
+                                        {{ temp }}
+                                    </a-select-option>
+                                </a-select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 日志展示 -->
+            <div v-if="logflag">
+                <showLog :percent="percent" :logtext="logtext"></showLog>
+            </div>
+            <!-- 结果展示 -->
+            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+                <!-- 安全性评估报告 -->
+                <div slot="header" v-if="mode=='safe'">
+                    <div class="dialog_title">
+                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                        <h1>安全性评估报告</h1>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main" v-if="mode=='safe'">
+                    <div class="paramShow">
+                        <a-row >
+                            <a-col :span="6" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">样本：</span><img class="paramShowSample" :src="imageUrl" alt="sample"/></p>
+                                </div>
+                            </a-col>
+                            <a-col :span="6" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">样本所属数据集：</span><span class="paramValue">{{ datasetChoice }}</span></p>
+                                </div>
+                            </a-col>
+                            <a-col :span="6" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">深度学习模型：</span><span class="paramValue">{{ modelChoice }}</span></p>
+                                </div>
+                            </a-col>
+                            <a-col :span="6" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">攻击强度：</span><span class="paramValue">{{ epsilon }}</span></p>
+                                </div>
+                            </a-col>
+                        </a-row>
+                    </div>
+                    <!-- 总评分 -->
+                    <div class="reportContent">
+                        <div class="classification">
+                            <p class=" main_top_echarts_con_title ">正常分类结果</p>
+                            <div class="conclusion">
+                                <p class="result_text">{{ modeMsg.reach.label[datasetChoice][result["predicted"]] }}</p>
+                            </div>
+                        </div>
+                        <div class="result_div_notop">
+                            <p class=" main_top_echarts_con_title ">解释可视化展示(IBP)</p>
+                            <div class="IBPChart">
+
+                                <!-- 图表 -->
+                                <div id='IBP'></div>
+                                
+                                <div class="conclusion">
+                                    <p class="result_text">注入后平均准确率: </p>
+                                    <p class="result_text">注入前准确率: %</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="result_div_notop">
+                            <p class=" main_top_echarts_con_title ">解释可视化展示(CROWN-IBP)</p>
+                            <div class="IBPChart">
+
+                                <!-- 图表 -->
+                                <div id='CROWN'></div>
+                                
+                                <div class="conclusion">
+                                    <p class="result_text">注入后平均准确率: </p>
+                                    <p class="result_text">注入前准确率: %</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="exportResultBtn" @click="exportResult("download_page")"><a-icon type="upload" />导出报告内容</button>
+                </div>
+                
+            </resultDialog>
+        </a-layout-content>
+        <a-layout-footer>
+
+        </a-layout-footer>
+        </a-layout>
+     </div>
+</template>
+<script>
+/* 引入组件，导航栏 */
+import navmodule from "../components/nav.vue";
+/* 引入组件，功能介绍 */
+import func_introduce from "../components/funcIntroduce.vue"
+/* 引入组件，日志显示 */
+import showLog from "../components/showLog.vue"
+/* 引入组件，结果显示 */
+import resultDialog from "../components/resultDialog.vue"
+/* 引入自定义js，结果显示 */
+import {drawIntervalBar,exportResult} from "../assets/js/drawEcharts.js"
+/* 引入图片 */
+import funcicon from "../assets/img/modelEvaIcon.png"
+import bgimg from "../assets/img/modelEvaBackground.png"
+
+const selectSvg = {
+        template:`
+        <svg t="1680138013828" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4354" width="128" height="128"><path d="M534.869333 490.496a1403.306667 1403.306667 0 0 0 50.858667-25.813333c16.042667-8.618667 29.013333-15.061333 38.570667-19.029334 9.557333-3.925333 17.066667-6.058667 22.869333-6.058666 9.557333 0 17.749333 3.2 24.917333 10.026666 6.826667 6.826667 10.581333 15.061333 10.581334 25.088 0 5.76-1.706667 11.818667-5.12 17.92-3.413333 6.101333-7.168 10.069333-10.922667 11.861334-35.157333 14.677333-74.410667 25.429333-116.736 31.872 7.850667 7.168 17.066667 17.237333 28.330667 29.781333 11.264 12.544 17.066667 18.986667 17.749333 20.053333 4.096 6.101333 9.898667 13.653333 17.408 22.613334 7.509333 8.96 12.629333 15.786667 15.36 20.778666 2.730667 5.034667 4.437333 11.093333 4.437333 18.304a33.706667 33.706667 0 0 1-9.898666 24.021334 33.834667 33.834667 0 0 1-25.6 10.410666c-10.24 0-22.186667-8.618667-35.157334-25.472-12.970667-16.512-30.037333-46.933333-50.517333-91.050666-20.821333 39.424-34.816 65.962667-41.642667 78.506666-7.168 12.544-13.994667 22.186667-20.48 28.672a30.976 30.976 0 0 1-22.528 9.685334 32.256 32.256 0 0 1-25.258666-11.093334 35.413333 35.413333 0 0 1-9.898667-23.68c0-7.893333 1.365333-13.653333 4.096-17.578666 25.258667-35.84 51.541333-67.413333 78.848-93.568a756.650667 756.650667 0 0 1-61.44-12.544 383.061333 383.061333 0 0 1-57.685333-20.48c-3.413333-1.749333-6.485333-5.717333-9.557334-11.818667a30.208 30.208 0 0 1-5.12-16.853333 32.426667 32.426667 0 0 1 10.581334-25.088 33.152 33.152 0 0 1 24.234666-10.026667c6.485333 0 14.677333 2.133333 24.576 6.101333 9.898667 4.266667 22.186667 10.026667 37.546667 18.261334 15.36 7.893333 32.426667 16.853333 51.882667 26.538666-3.413333-18.261333-6.485333-39.082667-8.874667-62.378666-2.389333-23.296-3.413333-39.424-3.413333-48.042667 0-10.752 3.072-19.712 9.557333-27.264A30.677333 30.677333 0 0 1 512.341333 341.333333c9.898667 0 18.090667 3.925333 24.576 11.477334 6.485333 7.893333 9.557333 17.92 9.557334 30.464 0 3.584-0.682667 10.410667-1.365334 20.48-0.682667 10.368-2.389333 22.570667-4.096 36.906666-2.048 14.677333-4.096 31.146667-6.144 49.834667z" fill="#FF3838" p-id="4355"></path></svg>
+        `,
+    };
+    const selectIcon = {
+        template: `
+            <a-icon :component="selectSvg" />
+        `,
+        data() {
+            return {
+                selectSvg,
+            };
+        },
+    }
+function getBase64(img, callback) {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);
+}
+export default {
+    name:"advAttack",
+    components:{
+        /* 注册组件 */
+        navmodule:navmodule,
+        func_introduce:func_introduce,
+        showLog:showLog,
+        resultDialog:resultDialog,
+        selectIcon,
+    },
+    data(){
+        return{
+            /* 单选按钮样式 */
+            radioStyle: {
+                display: 'block',
+                lineHeight: '30px',
+            },
+            /* 评估按钮样式和状态 */
+            buttonBGColor:{
+                background:"#0B55F4",
+                color:"#FFFFFF"
+            },
+            // 按钮是否置灰
+            disStatus:false,
+            /* 日志框是否显示，false不显示，true显示，默认不显示 */
+            logflag:false,
+            /* 进度 */
+            percent:10,
+            /* 日志内容，调用日志接口获取 */
+            logtext:[],
+            datasetChoice: "",
+            MNIST_imgs:[
+                {imgUrl:require('../assets/img/mnist0.jpg'),name:'mnist0'},
+                {imgUrl:require("../assets/img/mnist1.jpg"),name:'mnist1'},
+                {imgUrl:require("../assets/img/mnist2.jpg"),name:'mnist2'},
+                {imgUrl:require("../assets/img/mnist3.jpg"),name:'mnist3'},
+                {imgUrl:require("../assets/img/mnist4.jpg"),name:'mnist4'},
+                {imgUrl:require("../assets/img/mnist5.jpg"),name:'mnist5'},
+                {imgUrl:require("../assets/img/mnist6.jpg"),name:'mnist6'},
+                {imgUrl:require("../assets/img/mnist7.jpg"),name:'mnist7'},
+                {imgUrl:require("../assets/img/mnist8.jpg"),name:'mnist8'},
+                {imgUrl:require("../assets/img/mnist9.jpg"),name:'mnist9'},
+                ],
+            CIFAR10_imgs:[
+                {imgUrl:require('../assets/img/cifar100.jpg'),name:'mnist0'},
+                {imgUrl:require("../assets/img/cifar101.jpg"),name:'mnist1'},
+                {imgUrl:require("../assets/img/cifar102.jpg"),name:'mnist2'},
+                {imgUrl:require("../assets/img/cifar103.jpg"),name:'mnist3'},
+                {imgUrl:require("../assets/img/cifar104.jpg"),name:'mnist4'},
+                {imgUrl:require("../assets/img/cifar105.jpg"),name:'mnist5'},
+                {imgUrl:require("../assets/img/cifar106.jpg"),name:'mnist6'},
+                {imgUrl:require("../assets/img/cifar107.jpg"),name:'mnist7'},
+                {imgUrl:require("../assets/img/cifar108.jpg"),name:'mnist8'},
+                {imgUrl:require("../assets/img/cifar109.jpg"),name:'mnist9'},
+                ],
+            /* 功能介绍模块信息 */
+            funcDesText:{
+                /* 功能名称 */
+                name:"形式化验证",
+                /* 功能icon，需先引入 */
+                imgpath:funcicon,
+                /* 功能背景图片，需先引入 */
+                bgimg:bgimg,
+                /* 功能介绍下的总介绍 */
+                destext:"形式化验证从安全性 一致性 可达性三个方面验证模型",
+                /* 背景介绍 */
+                backinfo:"深度学习模型在任意扰动的作用下可能出现输出不符合预期的情况，形式化验证通过模型特征安全性验证、模型一致性验证、输出空间可达性验证，并可视化展示模型在对一个使用场景下的输出是否符合预期",
+                /* 亮点介绍 */
+                highlight:[
+                    "模型特征安全性验证：基于线性松弛的扰动技术，实现多种AI系统的安全特性的快速验证",
+                    "模型知识一致性验证：实现对目标模型在原始模型上的特征重构技术，并对模型在知识空间的一致性进行量化分析",
+                    "输出空间可达性验证：针对深度学习模型的控制系统，AI系统的可达性验证目标是计算神经网络系统的输出的可达集合"
+                ]
+            },
+            modeMsg:{"safe":{"ID":"safe","name":"安全性","modellist":["cnn_7layer_bn","Densenet","Resnet","Wide Resnet"],"dataset":["mnist","cifar10"]},
+            "consistency":{"ID":"consistency","name":"一致性","modellist":["resnet18","vgg16_bn"],"dataset":["mnist","cifar10"]},
+            "reach":{"ID":"reach","name":"可达性","modellist":["CNN-3layer"],"dataset":["mnist","cifar10"],
+                "label":{"mnist":{
+                            1:"数字1",
+                            2:"数字2",
+                            3:"数字3",
+                            4:"数字4",
+                            5:"数字5",
+                            6:"数字6",
+                            7:"数字7",
+                            8:"数字8",
+                            9:"数字9",
+                            10:"数字0",
+                        },
+                        "cifar10":{
+                            1:"飞机",
+                            2:"汽车",
+                            3:"鸟类",
+                            4:"猫",
+                            5:"鹿",
+                            6:"狗",
+                            7:"青蛙",
+                            8:"马",
+                            9:"船",
+                            10:"卡车",
+                        }
+                    }
+                }
+            },
+            epsilon:-1.0,
+            modelChoice:"",
+            // 当前页面
+            mode:"safe",
+            /* 结果弹窗状态信息 */
+            isShowPublish:false,
+            /* 评估结果 */
+            result:{},
+            /* 主任务id */ 
+            tid:"",
+            /* 子任务id */ 
+            stid:"",
+            /* 异步任务结果查循环clock */
+            clk:"",
+            /* 日志查询clock*/
+            logclk:"", 
+            // 上传图片状态
+            loading:false,
+            imageUrl: '',
+            trueLabel:"1",
+            tarLabel:"2"
+            }
+        },
+    watch:{
+        /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
+        isShowPublish:{
+            immediate:true,
+            handler(v){
+                if(v){
+                    this.noScroll();
+                }else{
+                    this.canScroll();
+                }
+            }
+        }
+    },
+    created() {
+        document.title = '形式化验证';
+        this.modelChoice = this.modeMsg[this.mode].modellist[0];
+        this.datasetChoice = this.modeMsg[this.mode].dataset[0];
+        },
+    methods: { 
+        // 切换页面
+        moduleChange(e){
+            console.log('radio checked', e.target.value);
+            this.modelChoice = this.modeMsg[this.mode].modellist[0];
+            this.datasetChoice = this.modeMsg[this.mode].dataset[0];
+            this.imageUrl="";
+            this.tid="";
+            this.logflag=false;
+            this.logtext=[];
+            this.loading=false;
+            this.percent=10;
+            this.logclk="";
+            this.trueLabel = "1";
+            this.tarLabel = "2";
+            this.result = {};
+        },
+        handleChange(info) {
+            if (info.file.status === 'uploading') {
+                this.loading = true;
+                return;
+            }
+            if (info.file.status === 'done') {
+                // Get this url from response in real world.
+                getBase64(info.file.originFileObj, imageUrl => {
+                this.imageUrl = imageUrl;
+                this.loading = false;
+                });
+            }
+            console.log(this.imageUrl);
+        },
+        beforeUpload(file) {
+            const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+            if (!isJpgOrPng) {
+                this.$message.error('You can only upload JPG/png file!');
+            }
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isLt2M) {
+                this.$message.error('Image must smaller than 2MB!');
+            }
+            return isJpgOrPng && isLt2M;
+        },
+        // 选择数据集
+        onDatasetChoiceChange(e){
+            // 修改选择数据集
+            console.log('radio checked', e.target.value);
+            this.trueLabel="1";
+            this.tarLabel = "2";
+        },
+        onAttackIntensityChange(e) {
+            if (e.target.value != "") {
+                console.log('input epsilon: ', e.target.value);
+                this.epsilon = e.target.value;   
+            } 
+            console.log(this.epsilon); 
+        },
+
+        trueLableSelectChange(value) {
+            this.trueLabel=value
+            if(this.trueLabel == this.tarLabel){
+                this.$message.warning('真实类别不能与目标类别相同，请重新选择',3);
+            }
+            console.log(`trueLabel: ${this.trueLabel}`);
+        },
+        handleBlurTrueLabel() {
+            console.log('blur');
+        },
+        handleFocusTrueLabel() {
+            console.log('focus');
+        },
+        filterOptionTrueLabel(input, option) {
+            return (
+                option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            );
+        },
+
+        tarLabelSelectChange(value) {
+            this.tarLabel=value
+            if(this.trueLabel == this.tarLabel){
+                this.$message.warning('目标类别不能与真实类别相同，请重新选择',3);
+            }
+            console.log(`tarLabel: ${this.tarLabel}`);
+        },
+        handleBlurTarLabel() {
+            console.log('blur');
+        },
+        handleFocusTarLabel() {
+            console.log('focus');
+        },
+        filterOptionTarLabel(input, option) {
+            return (
+                option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            );
+        },
+        /* 关闭结果窗口 */
+        closeDialog(){
+            this.isShowPublish=false;
+            //把绑定的弹窗数组 设为false即可关闭弹窗
+        },
+        /* result 处理*/
+        resultPro(res){
+            debugger;
+            var that = this;
+            // 总分判断
+        },
+        /* 获取结果 */ 
+        getData(){
+            var that = this;
+            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+                console.log("dataget:",data);
+                that.result=data;
+            });
+        },
+        /* 获取日志 */ 
+        getLog(){
+            // debugger;
+            var that = this;
+            that.logflag = false;
+            that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
+                that.logtext = data.data.Log[that.stid];
+                this.$nextTick(()=> {
+                    that.logflag = true
+                })  
+            });
+        },
+        /* 停止结果获取循环 */ 
+        stopTimer() {
+            if (this.result.data.stop) {
+                // 关闭日志显示
+                this.logflag = false;
+                // 关闭结果数据获取data
+                clearInterval(this.clk);
+                // 关闭日志获取结果获取
+                clearInterval(this.logclk);
+                // 显示结果窗口
+                this.isShowPublish = true;
+                // 处理结果
+                this.result = this.result.data;
+                this.resultPro(this.result);
+            }
+        },
+        /* 更新结果*/ 
+        update(){
+            this.getData();
+            try{
+                this.stopTimer();
+            }catch(err){}
+        },
+        /* 点击安全评估触发事件 */
+        safeEvaClick(){
+            debugger;
+            /*判断选择*/
+            if (this.imageUrl == "" ){
+                this.$message.warning('请上传jpg/png样本图片！',3);
+                return 0;
+            };
+            if (this.datasetChoice == "" ){
+                this.$message.warning('请选择数据集！',3);
+                return 0;
+            };
+            if (this.modelChoice == "" ){
+                this.$message.warning('请选择深度学习模型！',3);
+                return 0;
+            };
+            if (this.epsilon <0 ||  this.epsilon > 1.0){
+                this.$message.warning('请输入攻击强度，范围0-1.0！',3);
+                return 0;
+            };
+            var that=this;
+            /* 调用创建主任务接口，需开启后端程序 */
+            that.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+                console.log(result);
+                that.tid = result.data.Taskid;
+                // that.tid = "20230224_1106_d5ab4b1";
+                /* 请求体 postdata*/
+                const postdata={
+                    dataset:that.datasetChoice,
+                    net:that.modelChoice,
+                    eps:that.epsilon,
+                    pic:that.imageUrl,
+                    tid:that.tid
+                };
+                console.log(postdata)
+                that.percent = 40;
+                that.logflag = true;
+                // that.logclk = self.setInterval(that.getLog, 10);
+                that.$axios.post("/api/auto_verify_img", postdata).then((res) => {
+                    that.isShowPublish=true;
+                    // clearInterval(that.logclk);
+                    that.logflag = false;
+                    that.result = res.data;
+                    console.log(that.result)
+                    var ylabel=Object.values(that.modeMsg.reach.label[that.datasetChoice])
+
+                    drawIntervalBar("IBP",that.result.boundary1,that.result.categories)
+                    drawIntervalBar("CROWN",that.result.boundary2,that.result.categories)
+                    // that.resultPro(res.data);
+                }).catch((err) => {
+                        console.log(err)
+                });
+            }).catch((err) => {
+                console.log(err)
+            });    
+        },
+        /* 点击评估触发事件 */
+        consistencyEvaClick(){
+            debugger;
+            /*判断选择*/
+            if (this.imageUrl == "" ){
+                this.$message.warning('请上传jpg/png样本图片！',3);
+                return 0;
+            };
+            if (this.datasetChoice == "" ){
+                this.$message.warning('请选择数据集！',3);
+                return 0;
+            };
+            if (this.modelChoice == "" ){
+                this.$message.warning('请选择深度学习模型！',3);
+                return 0;
+            };
+            var that=this;
+            /* 调用创建主任务接口，需开启后端程序 */
+            that.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+                console.log(result);
+                that.tid = result.data.Taskid;
+                // that.tid = "20230224_1106_d5ab4b1";
+                /* 请求体 postdata*/
+                const postdata={
+                    dataset:that.datasetChoice,
+                    net:that.modelChoice,
+                    pic:that.imageUrl,
+                    tid:that.tid,
+                    layer:1
+                };
+                console.log(postdata)
+                that.percent = 40;
+                that.logflag = true;
+                // that.logclk = self.setInterval(that.getLog, 10);
+                that.$axios.post("/api/knowledge_consistency", postdata).then((res) => {
+                    
+                    that.logflag = true;
+                    clearInterval(that.logclk);
+                    that.logflag = false;
+                    that.result = res.data;
+                    that.resultPro(res.data);
+                }).catch((err) => {
+                        console.log(err)
+                });
+            }).catch((err) => {
+                console.log(err)
+            });    
+        },
+        /* 点击评估触发事件 */
+        reachEvaClick(){
+            debugger;
+            /*判断选择*/
+            if (this.imageUrl == "" ){
+                this.$message.warning('请上传jpg/png样本图片！',3);
+                return 0;
+            };
+            if (this.datasetChoice == "" ){
+                this.$message.warning('请选择数据集！',3);
+                return 0;
+            };
+            if (this.modelChoice == "" ){
+                this.$message.warning('请选择深度学习模型！',3);
+                return 0;
+            };
+            if (this.trueLabel == "" ){
+                this.$message.warning('请选择样本的真实类别！',3);
+                return 0;
+            };
+            if (this.tarLabel == "" ){
+                this.$message.warning('请选择目标类别！',3);
+                return 0;
+            };
+            if (this.trueLabel == this.tarLabel ){
+                this.$message.warning('真实类别不能与目标类别相同，请重新选择！',3);
+                return 0;
+            };
+            var that=this;
+            /* 调用创建主任务接口，需开启后端程序 */
+            that.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+                console.log(result);
+                that.tid = result.data.Taskid;
+                // that.tid = "20230224_1106_d5ab4b1";
+                /* 请求体 postdata*/
+                const postdata={
+                    dataset:that.datasetChoice,
+                    label:that.trueLabel,
+                    target:that.tarLabel,
+                    pic:that.imageUrl,
+                    tid:that.tid
+                };
+                console.log(postdata)
+                that.percent = 40;
+                that.logflag = true;
+                // that.logclk = self.setInterval(that.getLog, 10);
+                that.$axios.post("/api/reach", postdata).then((res) => {
+                    
+                    that.logflag = true;
+                    clearInterval(that.logclk);
+                    that.logflag = false;
+                    that.result = res.data;
+                    that.resultPro(res.data);
+                }).catch((err) => {
+                        console.log(err)
+                });
+            }).catch((err) => {
+                console.log(err)
+            });     
+        }
+    }
+}
+</script>
+<!-- <style  scoped> -->
+<style scoped>
+
+.paramCon{
+    width: 1200px;
+    margin-left: 360px;
+}
+.funcParam{
+/* 模型公平性评估 */
+box-sizing: border-box;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+width: 1200px;
+height: 824px;
+background: #FFFFFF;
+border: 1px solid #E0E3EB;
+margin: 0px 0px 40px 0px;
+box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
+border-radius: 8px;
+flex: none;
+order: 0;
+flex-grow: 0;
+text-align: left;
+}
+.paramTitle{
+    height:80px;
+    padding: 20px 24px 20px 26px;
+    text-align: left;
+    width: 1200px;
+}
+#funcDes{
+    height: 790px;
+}
+.paramTitle h3{
+    /* height: 48px; */
+    display: inline;
+    margin-top: 38px;
+    width: 279px;
+    height: 36px;
+    font-family: PingFangSC-Semibold;
+    font-size: 24px;
+    color: #333333;
+    letter-spacing: 0;
+    line-height: 48px;
+    font-weight: 600;
+}
+.subTitle{
+    margin-top: -184px;
+}
+.moduleSwitch{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 6px;
+
+    position: absolute;
+    width: 596px;
+    height: 56px;
+    left: calc(50% - 596px/2);
+    margin: -96px auto 40px auto;
+
+    /* gray-6 */
+
+    background: #ECEEF3;
+    border-radius: 3px;
+}
+
+
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+    /* background-color: #1890ff; */
+}
+.ant-radio-button-wrapper{
+    background: none;
+    border: none;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 40px;
+    width: 194px;
+    align-items: center;
+}
+.ant-radio-button-wrapper-checked{
+    background: #FFFFFF;
+    color: #0B55F4;
+}
+.ant-radio-button-checked{
+    color: #0B55F4;
+    border: none;
+}
+.ant-radio-button-wrapper:first-child{
+    border-left: none;
+}
+.ant-radio-button-wrapper:hover {
+    color: #0B55F4;
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+    /* background-color: #1890ff; */
+}
+.ant-radio-group-large{
+    width: 596px;
+}
+.ant-radio-group-large .ant-radio-group-large{
+    width: 194px;
+}
+/* 按钮样式 */
+.DataEva{
+    float: right;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 20px;
+    padding: 0px 24px;
+    font-family: 'Microsoft YaHei';
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 24px;
+    gap: 4px;
+    width: 114px;
+    height: 40px;
+    background: #FFFFFF;
+    border-radius: 6px;
+}
+
+.ant-divider-horizontal{
+    margin: 0 0;
+}
+/* 输入模块div样式 */
+.inputdiv{
+    margin: 0px 48px;
+    height: 700px;
+    overflow: auto;
+}
+.uploadImg{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 24px;
+    margin-top: 48px;
+    width: 1104px;
+    height: 276px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+.mainParamName{
+    margin: 0px 0px;
+}
+
+
+.avatar-uploader > .ant-upload {
+  width: 160px;
+  height: 160px;
+}
+.ant-upload-select-picture-card i {
+  font-size: 32px;
+  width: 19px;
+  height: 19px;
+  color: #0B55F4;
+}
+
+.ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 22px;
+  color: #0B55F4;
+}
+.datasetSelected{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 24px;
+    width: 1104px;
+    margin-top: 48px;
+    /* height: 228px; */
+    /* Inside auto layout */
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 0;
+}
+.ant-radio-wrapper{
+    margin-bottom: 0px;
+}
+
+.ant-upload-picture-card-wrapper{
+    width: auto;
+}
+
+.uploadDiv{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 32px 56px;
+    gap: 4px;
+    
+    width: 1104px;
+    height: 224px;
+    background: #F2F4F9;
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 0;
+}
+.matchedDes{
+    display: flex;
+    flex-direction: column;
+    gap:24px;
+    padding: 0px;
+    width: 1104px;
+    border-radius: 4px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+.demoData{
+    margin-top: -12px;
+    margin-bottom: 24px;
+}
+.matchedMethodText{
+    /* display: flex; */
+    display: block;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px 24px;
+    width: 1104px;
+    /* height: 46px; */
+    height:auto;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 22px;
+    color: #3E4453;
+    margin-bottom: 0px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+.matchedMethodText span{
+    color:#0B55F4
+}
+.modelSelected{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap:24px;
+    margin-top: 48px;
+    width: 1104px;
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 0;
+}
+.modelChoice{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 24px;
+
+    width: 1104px;
+    height: 340px;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 2;
+    align-self: stretch;
+    flex-grow: 0;
+}
+
+.colummRadio{
+    width: 100%;
+    gap: 16px;
+    display: flex;
+    flex-direction: column;
+}
+.attackIntensity{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 24px;
+    width: 1104px;
+    margin-top: 48px;
+    flex: none;
+    order: 3;
+    align-self: stretch;
+    flex-grow: 0;
+}
+.paramShowSample{
+    height:32px;
+    width:32px
+}
+.uploadShowImage{
+    height:160px;
+    width:160px
+}
+.reportContent{
+    height: 1382px;
+    bottom: 130px;
+    top: 166px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    gap: 60px;
+    width: 1080px;
+    left: 0px;
+}
+.IBPChart{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 24px;
+
+width: 960px;
+height: 505px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+#IBP{
+    width: 960px;
+    height: 385px;
+}
+#CROWN{
+    width: 960px;
+    height: 385px;
+}
+.classification{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    gap: 24px;
+
+    width: 960px;
+    height: 132px;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+/* 图表名称样式 */
+.echart_title{
+    display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px 120px;
+gap: 4px;
+
+width: 960px;
+height: 62px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+}
+.dialog_publish_main{
+align-items: center;
+flex-direction: column;
+position: absolute;
+display: flex;
+width: 1080px;
+}
+.g_score_content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px 120px;
+    gap: 20px;
+
+    width: 960px;
+    height: 366px;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+
+/* 结果文字样式 */
+.resultext{
+    width: 100%;
+    /* height: 22px; */
+    font-family: PingFangSC-Regular;
+    font-size: 16px;
+    color: #000000;
+    font-weight: 400;
+    margin-top: -40px;
+}
+/* 得分图div */
+#rdeva{
+    display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+
+width: 960px;
+height: 414px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0
+}
+/* 得分图echart */
+#conseva{
+    width: 300px;
+    height:300px;
+}
+</style>

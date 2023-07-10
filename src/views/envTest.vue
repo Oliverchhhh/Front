@@ -321,13 +321,8 @@ export default {
            if(that.percent < 99){
                that.percent += 1;
            }
-           
-           // that.logflag = false;
            that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
                that.logtext = data.data.Log[that.stid];
-               // this.$nextTick(()=> {
-               //     that.logflag = true
-               // })  
            });
        },
        /* 停止结果获取循环 */ 
