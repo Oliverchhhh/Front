@@ -37,6 +37,7 @@ line-height: 113px;
     height: 48px;
     left: 856px;
     letter-spacing: 16px;
+    left: calc(50% - 264px/2);
 
     font-family: 'PingFang SC';
     font-style: normal;
@@ -274,7 +275,7 @@ border-radius: 2px;
 }
 /* 总分样式 */
 .g_score{
-    width: 106px;
+    /* width: 106px; */
     height: 110px;
 
     font-family: 'HONOR Sans CN';
@@ -682,4 +683,150 @@ flex-grow: 0;
     font-size: 22px;
     line-height: 22px;
     color: #0B55F4;
+}
+/* 数据集示例样式 */
+.demoData{
+    display: flex;
+    margin-left: 20px;
+    gap: 10px;
+    /* justify-content: space-around; */
+    margin-bottom: 20px;
+}
+.demoData img{
+    /* position: absolute; */
+    width: 64px;
+    height: 64px;
+    left: 0px;
+    top: 0px;
+    /* background: url(../assets/img/mnist1.jpg); */
+}
+.matchedDes{
+    display: flex;
+    flex-direction: column;
+    /* align-items: flex-start; */
+    padding: 0px;
+    width: 1104px;
+    /* height: 106px; */
+    border-radius: 4px;
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+.matchedMethodText{
+    /* display: flex; */
+    display: block;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 24px;
+    width: 1104px;
+    /* height: 46px; */
+    height:auto;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 22px;
+    color: #3E4453;
+    margin-bottom: 0px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+.matchedMethodText span{
+    color:#0B55F4
+}
+.ant-select-selection--single{
+    height: 60px;
+    padding: 16px 16px 16px 24px;
+    background: #FFFFFF;
+    border: 1px solid #E0E3EB;
+    border-radius: 4px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 28px;
+}
+p{
+    margin-bottom: 0px;
+}
+/* 上传样本 */
+.ant-upload.ant-upload-select-picture-card{
+    width: 160px;
+    height: 160px;
+}
+.result_div_notop{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    width: 960px;
+    height: 490px;
+}
+.paramContent{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0px;
+    width: 240px;
+    height: 24px;
+}
+.paramName{
+    height: 24px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
+    color: #6C7385;
+}
+.paramValue{
+    height: 24px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
+    color: #000000;
+}
+.paramShow{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+    gap: 12px;
+    position: absolute;
+    width: 1080px;
+    /* height: 108px; */
+    left: 0px;
+    background: #F2F4F9;
+    border-bottom: 1px solid #E0E3EB;
+}
+.reportContent{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    gap: 60px;
+    position: absolute;
+    width: 1080px;
+    left: 0px;
+}
+.paramsInput{
+    height: 60px;
+    padding: 0px 0px 0px 16px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: #B4B9C5;
+    background: #F2F4F9;
+    border-radius: 4px;
 }

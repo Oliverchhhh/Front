@@ -113,7 +113,7 @@ export default{
     width: 1920px;
     height: 496px;
     margin-top:68px;
-    background-image: url("../assets/img/bg.png");
+    background-image: url("~@/assets/img/bg.png");
     background-size: 1920px 496px;
     background-repeat:no-repeat;
 }

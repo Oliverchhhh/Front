@@ -55,9 +55,13 @@
                                         </a-col>
                                         <transition name="fade">
                                             <a-col :span="24" v-show="methodDesShow[index-1]">
-                                                <div class="formulaDes">
+                                                <div class="formulaDes" v-if="rowkey <= 6">
                                                     <span class="formula" v-html="Object.values(evamethod)[rowkey*3+colkey]['formula']"></span>
                                                     <span class="formulaDes" v-html="Object.values(evamethod)[rowkey*3+colkey]['des']"></span>
+                                                </div>
+                                                <div class="formulaDes" v-else-if="rowkey > 6">
+                                                    <span class="formula" v-html="Object.values(evamethod)[18+(rowkey-6)*2+colkey]['formula']"></span>
+                                                    <span class="formulaDes" v-html="Object.values(evamethod)[18+(rowkey-6)*2+colkey]['des']"></span>
                                                 </div>
                                             </a-col>
                                         </transition>

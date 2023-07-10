@@ -88,7 +88,7 @@
                         <div class="conclusion" style="height: 80px;">
                             <div class="score_description">
                                 <div class="con_score">{{ result.group_score }}</div>
-                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">数据集中经 Favorable Rate Difference、Favorable Rate Ratio 算法评估后，综合得分为{{ result.group_score }}</div>
+                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">数据集经 Favorable Rate Difference、Favorable Rate Ratio 算法评估后，综合得分为{{ result.group_score }}</div>
                             </div>
                         </div>
                     </div>
@@ -353,9 +353,16 @@ export default {
             }
             that.result["Consistency"]=res.Consistency.toFixed(2);
             that.result["Proportion"]=res.Proportion;
-            
+            var color='#0B55F4';
+            if (that.result["Consistency"]<=0.3){
+                color = "#F4320B";
+            }else if(that.result["Consistency"]>0.7){
+                color='#07C168';
+            }else{
+                color = '#0B55F4';
+            }
             //得分图
-            drawconseva1("conseva",that.result["Consistency"]);
+            drawconseva1("conseva",that.result["Consistency"],color);
             if( that.result["Consistency"]>0.9 )
             {
                 that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，高于标准线0.9，故该数据集从个体公平性方面分析结果为公平数据集";

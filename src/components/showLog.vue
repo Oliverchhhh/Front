@@ -65,6 +65,7 @@ export default {
   letter-spacing: 0;
   text-align: left;
   margin: 11px 32px 32px 32px;
+  overflow-y: auto;
 }
 .logtext p{
   margin-bottom: 0px;

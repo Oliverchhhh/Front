@@ -284,7 +284,7 @@ function drawbarimproved( ID, data, data2, label, name){
     },500)
   }
 //公平性评估大
-function drawconseva1(ID, value){
+function drawconseva1(ID, value, color='#0B55F4'){
     var option;
 
     console.log(value);
@@ -298,7 +298,7 @@ function drawconseva1(ID, value){
           max: 1,
           splitNumber: 5,
           itemStyle: {
-            color: '#0B55F4'
+            color: color
           },
           progress: {
             show: true,
@@ -376,24 +376,28 @@ function drawconseva( ID, value, titlename){
           color:"rgba(0, 0, 0, 1)",
           fontSize:18,
         },
-  x:'center',
-  y:280,
-  },
+        x:'center',
+        y:280,
+      },
       series: [
         {
           type: 'gauge',
+          center: ['50%', '60%'],
           minInterval:0.02,
           min:0,
           max:1,
-          radius:100,
+          radius:150,
+          splitNumber: 5,
+          itemStyle: {
+            color: '#0B55F4'
+          },
+          progress: {
+            show: true,
+            width: 10
+          },
           axisLine: {
             lineStyle: {
               width: 10,
-              color: [
-                [0.3, '#fd666d'],
-                [0.7, '#37a2da'],
-                [1, '#67e0e3']
-              ]
             }
           },
           grid: {
@@ -402,36 +406,43 @@ function drawconseva( ID, value, titlename){
             show: true
           },
           pointer: {
-            itemStyle: {
-              color: 'auto'
-            }
+            show:false
           },
           axisTick: {
             distance: -5,
             length: 5,
+            splitNumber: 5,
             lineStyle: {
-              color: '#fff',
-              width: 2
+              color: '#999',
+              width: 1
             }
           },
           splitLine: {
             distance: -5,
-            length: 15,
+            length: 10,
             lineStyle: {
-              color: '#fff',
+              color: '#999',
               width: 2
             }
           },
           axisLabel: {
-            color: 'auto',
+            color: '#999',
             distance: 10,
-            fontSize: 13
+            fontSize: 12
+          },
+          anchor: {
+            show: false
           },
           detail: {
             valueAnimation: true,
-            formatter: 'Consistency\n{value}',
-            color: 'auto',
-            fontSize:15
+            width: '60%',
+            lineHeight: 70,
+            borderRadius: 8,
+            offsetCenter: [0, '0%'],
+            fontSize: 36,
+            fontWeight: 'bolder',
+            formatter: '{value}',
+            color: 'inherit'
           },
           data: [
             {
@@ -449,7 +460,7 @@ function drawconseva( ID, value, titlename){
     },500)
   };
   // 热力图
-function drawCorelationHeat(ID, heatX, data, colorList){
+function drawCorelationHeat(ID, heatX, data, colorList,showflag=true, boundarylist=[-1,1]){
   var option;
   var data1 = data.map(function (item) {
     return [item[1], item[0], item[2] || '-'];
@@ -480,8 +491,8 @@ function drawCorelationHeat(ID, heatX, data, colorList){
       }
     },
     visualMap: {
-      min: -1,
-      max: 1,
+      min: boundarylist[0],
+      max: boundarylist[1],
       calculable: true,
       orient: 'horizontal',
       left: 'center',
@@ -496,7 +507,7 @@ function drawCorelationHeat(ID, heatX, data, colorList){
         type: 'heatmap',
         data: data,
         label: {
-          show: true
+          show: showflag
         },
         emphasis: {
           itemStyle: {
@@ -515,6 +526,264 @@ function drawCorelationHeat(ID, heatX, data, colorList){
   },500)
   }
 
+
+function drawLine(ID, legendlist, datadict, xlable){
+  var serieslist=[];
+  for(let i in legendlist){
+    let temp = {};
+    temp["name"] = legendlist[i];
+    temp["type"] = "line";
+    temp["data"] = datadict[legendlist[i]];
+    serieslist.push(temp);
+  }
+  var option;
+  option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+    legend: {
+      data: legendlist,
+      y:"bottom",
+      x:'center',
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '10%',
+      containLabel: true
+    },
+    toolbox: {
+      feature: {
+        saveAsImage: {}
+      }
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: xlable,
+      
+    },
+    yAxis: {
+      type: 'value',
+      name:"准确率%"
+    },
+    series:serieslist
+  }
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+    option && myChartcons.setOption(option);
+  },500)
+}
+
+const copyObj = (obj = {}) => {            //变量先置空
+  let newobj = null;  
+
+  //判断是否需要继续进行递归
+  if (typeof (obj) == 'object' && obj !== null) {
+      newobj = obj instanceof Array ? [] : {};                //进行下一层递归克隆
+      for (var i in obj) {
+          newobj[i] = copyObj(obj[i])
+      }                //如果不是对象直接赋值
+  } else newobj = obj;            
+  return newobj;    
+}
+function dataFormat (data, name, isReverse) {
+let min = []; // 区间的最小值, 堆叠，透明
+let max = []; // 区间的最大值, 堆叠，显示
+let negative = []; // 负值处理，堆叠，显示负值的部分，max仅显示了正值的部分。特殊情况，区间最小值为负值，最大值为正值。
+let minLabel = []; // 显示区间的最小值的 label 数据，在 max 上通过 markpoint 实现，以控制 label 颜色值和显示的柱子颜色值一致，并且显示隐藏有效
+
+// 对数据排序，后面需要找到整组数据中最小值
+let sortData = copyObj(data);
+sortData.sort((a, b) => a[0] - b[0])
+
+data.forEach((item, i) => {
+
+// 取哪个值作为透明底层(从0开始)，[-min, +max]->0不需要透明; [-min, -max]->-max到0填充透明；[+min,+max]->0到+min填充透明
+min.push(item[1] <= 0 ? item[1] : item[0] <= 0 ? 0 : item[0]);
+// 主要处理[-min,+max]情况，填充显示-min的部分。其他情况不需要填充，为0。
+negative.push(item[1] <=0 || item[0] >= 0 ? 0 : item[0]);
+
+// 横向：coord: [offsetx，y]，等同于 xAxis: offsetx, yAxis: y。其中，offsetx 表示偏移值，y 表示bar的索引。
+// 竖向：[x, offsety]
+const coord = isReverse ? [item[0], i] : [i, item[0]];
+minLabel.push({
+value: item[0], // 对值进行格式化
+coord: item[0] || sortData[0][0] ? coord : [], // 当最小值不为0的时候，都要显示
+})
+
+max.push({
+// // 差值作为叠加值，在透明层的数据上叠加。[-min, +max]->0到max,不需要堆叠进行差值计算; [+min, +max]->+max - +min需要计算差值；[-min,-max]->-min - -max需要计算差值
+value: item[1] <=0 ? item[0] - item[1] : item[0] <= 0 ? item[1] : item[1] - item[0],
+range: item, // tooltip 显示
+name, // legend 显示
+label: {
+formatter: '' + item[1], // 最终值作为显示值
+},
+itemStyle: {
+color: item[2]
+}
+})
+})
+
+return {
+min,
+max,
+negative,
+minLabel
+}
+}
+
+// 生成序列数据
+function createSeries (arr, name, showLabel, isReverse) {
+let newSeries = [];
+
+const {min, max, minLabel, negative} = dataFormat(arr, name, isReverse);
+
+const maxPosition = isReverse ? 'right' : 'top';
+const minPosition = isReverse ? 'left' : 'bottom';
+
+newSeries = [
+// 作为堆叠辅助，不显示
+{
+type: 'bar',
+stack: name,
+tooltip: {
+  show: false
+},
+// 透明
+itemStyle: {
+  barBorderColor: 'rgba(0,0,0,0)',
+  color: 'rgba(0,0,0,0)'
+},
+emphasis: {
+  itemStyle: {
+    barBorderColor: 'rgba(0,0,0,0)',
+    color: 'rgba(0,0,0,0)'
+  }
+},
+label: {
+  show: false,
+},
+data: min
+},
+// 当区间[负值，正值]时，用于显示负值的部分
+{
+type: 'bar',
+stack: name,
+name: name, // 名称和max相同，保证柱子统一颜色
+tooltip: {
+  show: false,
+},
+label: {
+  show: false,
+},
+data: negative,
+},
+// 用于显示正值的部分
+{
+type: 'bar',
+stack: name,
+name: name,
+tooltip: {
+  show: true,
+},
+label: {
+  show: showLabel,
+  position: maxPosition,
+},
+markPoint: {
+  symbol: 'rect',
+  // 图形上面的小头隐藏
+  symbolSize: 0.000000000000001,
+  label: {
+    show: showLabel,
+    position: minPosition,
+  },
+  data: minLabel
+},
+data: max,
+}
+]
+
+return newSeries;
+}
+function drawIntervalBar(ID, data1, category){
+  var isReverse = true;
+var showLabel = true;
+const name = [
+  '置信度', 
+];
+const data= [];
+data.push(data1);
+let series = [];
+data.forEach((item, i) => {
+  series = [...series, ...createSeries(item, name[i], showLabel, isReverse)]
+})
+
+let yAxis = {
+  type: 'value'
+}
+
+let xAxis = {
+  type: 'category',
+  axisLine: {
+    onZero: false
+  },
+  splitLine: {
+    show: false
+  },
+  data: category
+}
+
+if (isReverse) {
+  [xAxis, yAxis] = [yAxis, xAxis];
+}
+
+let option = {
+  title: {
+    text: '类别',
+  },
+  color: ['dodgerblue', 'violet', 'orange'],
+  legend: {
+    data: name
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: { // 坐标轴指示器，坐标轴触发有效
+      type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+    },
+    formatter: function (params) {
+      var html = '';
+      var axisValue = '';
+      params.forEach(item => {
+        axisValue = item.axisValue;
+        const range = item.data.range;
+        html += item.marker + item.name + ': ' + range[0] + ' ~ ' + range[1] + '<br/>';
+      })
+      const {name, data: {range}} = params[0];
+      return axisValue + '<br/>' + html;
+    }
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: xAxis,
+  yAxis: yAxis,
+  series: series
+};
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+    option && myChartcons.setOption(option);
+  },500)
+}
 import G6 from '@antv/g6';
 function drawPopGraph(ID, data, centerPng, secondPng){
   
@@ -714,6 +983,90 @@ function drawPopGraph(ID, data, centerPng, secondPng){
   },500)
 }
 
+function drawStackedLine(ID, data,legendInfo, label, name){
+  var option;
+  option = {
+    title: {
+      text: name,
+      textStyle:{
+        fontFamily : 'HONOR Sans CN',
+        fontStyle:'normal',
+        fontWeight:700,
+        fontSize:14,
+        color:"#000000"
+      },
+      x:'center',
+      y:'bottom',
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    legend: {
+      data: legendInfo
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    toolbox: {
+      feature: {
+        saveAsImage: {}
+      }
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: label
+    },
+    yAxis: {
+      type: 'value',
+      min:0,
+      max:1,
+    },
+    series: [
+      {
+        name: legendInfo[0],
+        type: 'line',
+        // stack: 'Total',
+        data: data[0]
+      },
+      {
+        name: legendInfo[1],
+        type: 'line',
+        // stack: 'Total',
+        data: data[1]
+      }
+    ]
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+    option && myChartcons.setOption(option);
+},500)
+
+}
+
+function exportResult(ID){
+  // debugger
+  if (confirm("您确认下载该pdf文件吗？") ){
+      // 输出pdf尺寸为download_page大小
+      var element = document.getElementById(ID);
+      // var element = this.$refs.report_pdf;
+      const opt = {
+          margin:[10, 20, 10, 20],
+          filename:this.tid+'.pdf',
+          image:{type:'jpeg',quality:1},
+          html2canvas:{scale:5},
+          jsPDF:{unit:'mm',format:'a4', orientation:'portrait'}
+      };
+
+      html2pdf().from(element).set(opt).save();
+
+  }
+}
 export {
   drawclass1pro,
   drawbar,
@@ -722,4 +1075,8 @@ export {
   drawconseva,
   drawCorelationHeat,
   drawPopGraph,
+  drawLine,
+  drawIntervalBar,
+  drawStackedLine,
+  exportResult
 }

@@ -9,7 +9,7 @@ export default new Router({
     {
       path:"/",
       // 重定向
-      redirect:'/dataFairnessEva'
+      redirect:'/inject'
     },
     // 组装的数据公平性评估页面
     {
@@ -22,6 +22,18 @@ export default new Router({
       path: '/modelFairnessEva',
       name: 'modelfairnesseva',
       component: () => import('../views/modelFairnessEva.vue')
+    },
+    // 组装的模型公平性提升页面
+    {
+      path: '/modelFairnessDebias',
+      name: 'modelfairnessdebias',
+      component: () => import('../views/modelFairnessDebias.vue')
+    },
+    // 组装的模型公平性提升页面
+    {
+      path: '/dataFairnessDebias',
+      name: 'datafairnessdebias',
+      component: () => import('../views/dataFairnessDebias.vue')
     },
     // 组装的对抗攻击页面
     {
@@ -94,9 +106,19 @@ export default new Router({
       path: '/robustFormalVerification',
       name: 'robustFormalVerification',
       component: () => import('../views/robustFormalVerification.vue')
-    }
-
-    
+    },
+  // 组装的故障注入页面
+  {
+    path: '/inject',
+    name: 'inject',
+    component: () => import('../views/inject.vue')
+  },
+  // 组装的形式化验证页面
+  {
+    path: '/FormalVerfy',
+    name: 'FormalVerfy',
+    component: () => import('../views/FormalVerfy.vue')
+  },
   ]
   
 })

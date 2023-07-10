@@ -64,7 +64,7 @@
                 return{
                     labelshow:[true,false,false],
                 /* 单选框默认选中 */
-                dataname:["German","Adult","Compas"],
+                dataname:["German","Adult","Compas","Cifar10-S","CelebA"],
                 value: 0,
                 /* 单选按钮样式 */
                 radioStyle: {
@@ -127,7 +127,53 @@
                 {title:"juv_fel_count",description:"未成年人犯罪数量",chosen:false, type:"sta"},
                 {title:"juv_misd_count",description:"未成年人轻罪数量",chosen:false, type:"sta"},
                 {title:"juv_other_count",description:"未成年人除了重罪或轻罪之外的罪行数量",chosen:false, type:"sta"},
-                ]
+                ],
+            CelebA:[
+                {title:"5_o_Clock_Shadow",description:"是否有五点钟阴影（下巴上的短须）",chosen:false, type:"tar"},
+                {title:"Arched_Eyebrows",description:"是否有拱形眉毛",chosen:false, type:"tar"},
+                {title:"Attractive",description:"是否吸引人",chosen:false, type:"tar"},
+                {title:"Bags_Under_Eyes",description:"是否眼袋明显",chosen:false, type:"tar"},
+                {title:"Bald",description:"是否秃头",chosen:false, type:"tar"},
+                {title:"Bangs",description:"是否有刘海",chosen:false, type:"tar"},
+                {title:"Big_Lips",description:"是否嘴唇丰满",chosen:false, type:"tar"},
+                {title:"Big_Nose",description:"是否鼻子大",chosen:false, type:"tar"},
+                {title:"Black_Hair",description:"是否有黑发",chosen:false, type:"tar"},
+                {title:"Blond_Hair",description:"是否有金发",chosen:false, type:"tar"},
+                {title:"Blurry",description:"图片是否模糊",chosen:false, type:"tar"},
+                {title:"Brown_Hair",description:"是否有棕发",chosen:false, type:"tar"},
+                {title:"Bushy_Eyebrows",description:"是否眉毛浓密",chosen:false, type:"tar"},
+                {title:"Chubby",description:"	是否圆胖",chosen:false, type:"tar"},
+                {title:"Double_Chin",description:"是否有双下巴",chosen:false, type:"tar"},
+                {title:"Eyeglasses",description:"是否戴眼镜",chosen:false, type:"tar"},
+                {title:"Goatee",description:"是否有山羊胡",chosen:false, type:"tar"},
+                {title:"Gray_Hair",description:"是否有灰发",chosen:false, type:"tar"},
+                {title:"Heavy_Makeup",description:"是否化妆浓重",chosen:false, type:"tar"},
+                {title:"High_Cheekbones",description:"是否颧骨高",chosen:false, type:"tar"},
+                {title:"Male",description:"性别是否为男",chosen:true, type:"sen"},
+                {title:"Mouth_Slightly_Open",description:"是否微张嘴",chosen:false, type:"tar"},
+                {title:"Mustache",description:"是否有胡子",chosen:false, type:"tar"},
+                {title:"Narrow_Eyes",description:"是否眼睛狭长",chosen:false, type:"tar"},
+                {title:"No_Beard",description:"是否没有胡须",chosen:false, type:"tar"},
+                {title:"Oval_Face",description:"是否脸形为椭圆形",chosen:false, type:"tar"},
+                {title:"Pale_Skin",description:"是否皮肤苍白",chosen:false, type:"tar"},
+                {title:"Pointy_Nose",description:"是否鼻子尖",chosen:false, type:"tar"},
+                {title:"Receding_Hairline",description:"是否发际线后移",chosen:false, type:"tar"},
+                {title:"Rosy_Cheeks",description:"是否面颊红",chosen:false, type:"tar"},
+                {title:"Sideburns",description:"是否有鬓角",chosen:false, type:"tar"},
+                {title:"Smiling",description:"是否在微笑",chosen:false, type:"tar"},
+                {title:"Straight_Hair",description:"是否直发",chosen:false, type:"tar"},
+                {title:"Wavy_Hair",description:"是否波浪型发型",chosen:false, type:"tar"},
+                {title:"Wearing_Earrings",description:"是否戴耳环",chosen:false, type:"tar"},
+                {title:"Wearing_Hat",description:"是否戴帽子",chosen:false, type:"tar"},
+                {title:"Wearing_Lipstick",description:"是否涂口红",chosen:false, type:"tar"},
+                {title:"Wearing_Necklace",description:"是否戴项链",chosen:false, type:"tar"},
+                {title:"Wearing_Necktie",description:"是否戴领带",chosen:false, type:"tar"},
+                {title:"Young",description:"是否年轻",chosen:true, type:"tar"},
+            ],
+            "Cifar10-S":[
+                {title:"domain",description:"图片的所属领域，灰度图片或彩色图片",chosen:true, type:"sen"},
+                {title:"class",description:"图片中物体类别，10分类包括飞机、轿车、鸟、鹿、青蛙、船只、猫、狗、卡车、马",chosen:true, type:"tar"},
+            ]
                 },
                 /* 敏感属性 */
                 senMockData:[],
@@ -153,8 +199,7 @@
                             {name:"创建日期",value:"1994-11-17"},
                             {name:"相关任务",value:"分类"},
                             {name:"是否缺失",value:"否"}
-                        ],
-                        attrlist:[]
+                        ]
                     },
                     Adult:{
                         name:"Adult数据集",
@@ -185,6 +230,34 @@
                             {name:"相关任务",value:"分类"},
                             {name:"是否缺失",value:"否"}
                         ],
+                    },
+                    "Cifar10-S":{
+                        name:"Cifar10-S数据集",
+                        text:"CIFAR-10S数据集是CIFAR-10数据集的修改版本，包含50,000张32x32的图像，这些图像均匀分布在10个对象类别中。在CIFAR-10S中，每个原始的10个类别都被细分为两个新的领域子类，对应于该类别内的颜色和灰度领域。每个类别的5,000个训练图像在两个领域之间分割为95%到5%；五个类别是95%的颜色，五个类别是95%的灰度。因此，分配给每个领域的图像总数是平衡的。对于测试，创建了标准CIFAR-10测试集的两个副本：一个是颜色（COLOR），一个是灰度（GRAY）。",
+                        href:"https://github.com/princetonvisualai/DomainBiasMitigation",
+                        tabledata:[
+                            {name:"样本数",value:"60000"},
+                            {name:"所属领域",value:"物体识别"},
+                            {name:"分类类型",value:"10分类"},
+                            {name:"标签属性数",value:1},
+                            {name:"发布时间",value:"2020-9"},
+                            {name:"相关任务",value:"分类"},
+                            {name:"是否缺失",value:"否"}
+                        ]
+                    },
+                    "CelebA":{
+                        name:"Cifar10-S数据集",
+                        text:"CelebA数据集是一个大规模的面部属性数据集，包含超过200,000张名人图像，每张图像都有40个属性注释。此数据集的图像覆盖了大的姿态变化和背景杂乱。CelebA具有大的多样性，大量的数量和丰富的注释。",
+                        href:"https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html",
+                        tabledata:[
+                            {name:"样本数",value:"202599"},
+                            {name:"所属领域",value:"人脸识别"},
+                            {name:"分类类型",value:"2分类"},
+                            {name:"标签属性数",value:40},
+                            {name:"发布时间",value:"2015-12"},
+                            {name:"相关任务",value:"分类"},
+                            {name:"是否缺失",value:"是"}
+                        ]
                     }
                 },
             }
