@@ -16,9 +16,9 @@
                 <div class="labelSelection">
                     <router-link to="/coverage_neural"><button class="labelselected">单神经元覆盖准则</button></router-link>
                     <router-link to="/coverage_layer"><button class="labelunselected">神经元层覆盖准则</button></router-link>
-                    <router-link to="/coverage_layer"><button class="labelunselected">重要神经元覆盖准则</button></router-link>
-                    <router-link to="/coverage_layer"><button class="labelunselected">敏感神经元测试准则</button></router-link>
-                    <router-link to="/coverage_layer"><button class="labelunselected">逻辑神经元测试准则</button></router-link>
+                    <router-link to="/coverage_importance"><button class="labelunselected">重要神经元覆盖准则</button></router-link>
+                    <router-link to="/deepsst"><button class="labelunselected">敏感神经元测试准则</button></router-link>
+                    <router-link to="/deeplogic"><button class="labelunselected">逻辑神经元测试准则</button></router-link>
                 </div>
                 <div class="funcParam">
                     <div class="paramTitle" >
@@ -117,7 +117,7 @@
                                 <div v-for="(item, index) in result.img_list" v-show="index==mark" :key="index">
                                     <!-- <iframe class="graph_show" :src="item.imgUrl"></iframe> -->
                                     <img class="graph_show" :src="item.imgUrl" alt="">
-                                    <p>当前覆盖率：{{ item.coverage }}</p>
+                                    <p>当前覆盖率：{{ item.coverage }}%</p>
                                 </div>
                             </div>
                             
@@ -157,7 +157,6 @@ import resultDialog from "../components/resultDialog.vue"
 /* 引入图片 */
 import funcicon from "../assets/img/coverageneuralIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
-import routes from "../router/index.js"
 
 const selectSvg = {
         template:`
@@ -183,8 +182,7 @@ export default {
     func_introduce: func_introduce,
     showLog: showLog,
     resultDialog: resultDialog,
-    selectIcon,
-    Image
+    selectIcon
 },
     data(){
         return{
@@ -254,21 +252,10 @@ export default {
                 ]
             },
             /* 结果弹窗状态信息 */
-            isShowPublish:true,
+            isShowPublish:false,
             /* 评估结果 */
-            result:{
-                img_list:[
-                    {coverage: 0.4406779661016949, imgUrl: require('../assets/img/mnist0.jpg')}, 
-                    {coverage: 0.614406779661017, imgUrl:require('../assets/img/mnist1.jpg')}, 
-                    {coverage: 0.6991525423728814, imgUrl: require('../assets/img/mnist2.jpg')}, 
-                ]  
-                // img_list:[
-                //     {coverage: 0.4406779661016949, imgUrl: '../../static/img/1.pdf'}, 
-                //     {coverage: 0.614406779661017, imgUrl:'../../static/img/2.pdf'}, 
-                //     {coverage: 0.6991525423728814, imgUrl: '../../static/img/3.pdf'}, 
-                // ]          
-            },
-            mark:1,
+            result:{},
+            mark:0,
             res_tmp:{},
             /* 主任务id */ 
             tid:"",
@@ -305,16 +292,29 @@ export default {
         onDatasetChoiceChange(e){
             // 修改选择数据集
             console.log('radio checked', e.target.value);
+            if (e.target.value == "MNIST"){
+                this.modelChoice ="LeNet5";
+                // console.log('radio checked', this.modelChoice);
+            } else {
+                this.modelChoice = "VGG11";
+            }
         },
         onModelChoiceChange(e){
             // 修改选择模型
             console.log('radio checked', e.target.value);
+            if (e.target.value == "LeNet5"){
+                this.datasetChoice ="MNIST";
+                // console.log('radio checked', this.modelChoice);
+            } else {
+                this.datasetChoice = "CIFAR10";
+            }
         },
         onThresholdChange(e){
             // 修改阈值
             if (e.target.value != "") {
-                console.log('Threshold: ', e.target.value);
-                this.thresHold = e.target.value;   
+                // console.log('Threshold: ', e.target.value);
+                this.thresHold = e.target.value;
+                console.log('Threshold: ', this.thresHold);   
             } 
         },
         onImagesNumberChange(e) {
@@ -349,23 +349,28 @@ export default {
         /* result 处理*/
         resultPro(res){
             // debugger;
+            this.result.img_list = res.CoverageNeural.coverage_test_yz.coverage_neural;
+            for(var i=0; i<this.result.img_list.length;i++){
+                this.result.img_list[i]["coverage"] = parseInt(100*this.result.img_list[i]["coverage"])
+            }
+            this.play();
             // this.result["allnumber"] = res.Concolic.allnumber;
             // this.result["newnumber"] = res.Concolic.newnumber;
             // this.result.demopath = res.Concolic.demopath;
         },
         autoPlay(){
-            debugger;
+            // debugger;
             this.mark++;
-            if (this.mark == length(result.img_list)){
+            if (this.mark == this.result.img_list.length){
                 this.mark=0
             }
         },
-        play(){
-            setInterval(this.autoPlay, 2500)
+        play:function(){
+            setInterval(this.autoPlay, 2000)
         },
         /* 获取结果 */ 
         getData(){
-            // debugger
+            // debugger;
             var that = this;
             that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
@@ -436,16 +441,16 @@ export default {
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 that.tid = result.data.Taskid;
-                // that.tid = "20230530_0948_0c0a104";
+                // that.tid = "20230704_1005_b7ded86";
                 
                 /* 请求体 postdata*/
                 const postdata={
-                    dataname:that.datasetChoice,
-                    modelname:that.modelChoice,
-                    norm: that.constraintChoice,
-                    times: that.RunTimes,
+                    dataset:that.datasetChoice,
+                    model:that.modelChoice,
+                    k: that.thresHold,
+                    N: that.imageNumber,
                     tid:that.tid};
-                that.$axios.post("/Concolic/SamGenParamGet", postdata).then((res) => {
+                that.$axios.post("/UnitTest/CoverageNeuralParamSet", postdata).then((res) => {
                     
                     that.logflag = true;
                     // console.log(res);
@@ -456,7 +461,7 @@ export default {
                     // that.result = res.data;
                     // that.resultPro(res.data);
                     // 异步任务
-                    // that.stid="S20230530_0948_ee4c3bc"
+                    // that.stid="S20230704_1005_94cec6f"
                     that.stid =  res.data.stid;
                     that.logclk = self.setInterval(that.getLog, 500);
                     that.clk = self.setInterval(that.update, 500);
@@ -467,7 +472,10 @@ export default {
                 console.log(err)
             });    
         }
-    }
+    },
+    // mounted:function(){
+    //     this.play()
+    // }
 }
 </script>
 <!-- <style  scoped> -->

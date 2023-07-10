@@ -156,6 +156,7 @@ import resultDialog from "../components/resultDialog.vue"
 /* 引入图片 */
 import funcicon from "../assets/img/coverageneuralIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
+import routes from "../router/index.js"
 
 const selectSvg = {
         template:`

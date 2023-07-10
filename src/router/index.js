@@ -59,10 +59,29 @@ export default new Router({
       name: 'coverage_neural',
       component: () => import('../views/coverage_neural.vue')
     },
+    // 组装的神经层覆盖准则页面
     {
       path: '/coverage_layer',
       name: 'coverage_layer',
       component: () => import('../views/coverage_layer.vue')
+    },
+    // 组装的重要神经元覆盖准则页面
+    {
+      path: '/coverage_importance',
+      name: 'coverage_importance',
+      component: () => import('../views/coverage_importance.vue')
+    },
+    // 组装的敏感神经元测试准则页面
+    {
+      path: '/deepsst',
+      name: 'deepsst',
+      component: () => import('../views/deepsst.vue')
+    },
+    // 组装的逻辑神经元测试准则页面
+    {
+      path: '/deeplogic',
+      name: 'deeplogic',
+      component: () => import('../views/deeplogic.vue')
     },
     // 组装的攻击机理分析页面
     {

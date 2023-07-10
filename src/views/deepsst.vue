@@ -15,9 +15,9 @@
                 <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
                 <div class="labelSelection">
                     <router-link to="/coverage_neural"><button class="labelunselected">单神经元覆盖准则</button></router-link>
-                    <router-link to="/coverage_layer"><button class="labelselected">神经元层覆盖准则</button></router-link>
+                    <router-link to="/coverage_layer"><button class="labelunselected">神经元层覆盖准则</button></router-link>
                     <router-link to="/coverage_importance"><button class="labelunselected">重要神经元覆盖准则</button></router-link>
-                    <router-link to="/deepsst"><button class="labelunselected">敏感神经元测试准则</button></router-link>
+                    <router-link to="/deepsst"><button class="labelselected">敏感神经元测试准则</button></router-link>
                     <router-link to="/deeplogic"><button class="labelunselected">逻辑神经元测试准则</button></router-link>
                 </div>
                 <div class="funcParam">
@@ -39,19 +39,6 @@
                             <p class="mainParamName">请选择数据集</p>
                             <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
                                 <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="CIFAR10" >
-                                        CIFAR10
-                                    </a-radio>
-                                    <p class="matchedMethodText"><span>CIFAR10数据集：</span>是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。</p>
-                                    <p class="matchedMethodText">图例：</p>
-                                    <div class="demoData" >
-                                        <div v-for="(item, index) in CIFAR10_imgs" :key="index">
-                                            <img :src="item.imgUrl">
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-                                <div class="matchedDes">
                                     <a-radio :style="radioStyle" value="MNIST">
                                         MNIST
                                     </a-radio>
@@ -69,22 +56,28 @@
                             <p class="mainParamName">请选择模型</p>
                             <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
                                 <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="VGG11" >VGG11</a-radio>
-                                    <a-radio :style="radioStyle" value="VGG13" >VGG13</a-radio>
-                                    <a-radio :style="radioStyle" value="VGG19" >VGG19</a-radio>
-                                    <a-radio :style="radioStyle" value="ResNet18" >ResNet18</a-radio>
-                                    <a-radio :style="radioStyle" value="ResNet34" >ResNet34</a-radio>
                                     <a-radio :style="radioStyle" value="LeNet5">LeNet5</a-radio>
                                 </div>
                             </a-radio-group>
                         </div>
-                        <div class="thresholdSet">
-                            <p class="mainParamName">请输入神经元激活阈值</p>
-                            <a-input id="param_runtimes" class="paramsInput" placeholder="神经元激活值应该排在该层神经元的前多少位，范围[0,1]，默认值0.1" @change="onThresholdChange"/>
+                        <div class="npyfile">
+                            <p class="mainParamName">选择/上传敏感度文件</p>
+                            <a-checkbox-group v-model="fileChoice">
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="npp.npy" checked>npp.npy</a-radio>
+                                    <a-radio :style="radioStyle" value="mnn.npy" checked>mnn.npy</a-radio>
+                                </div>
+                            </a-checkbox-group>
                         </div>
-                        <div class="imagesTested">
-                            <p class="mainParamName">请输入测试图片数量</p>
-                            <a-input id="param_runtimes" class="paramsInput" placeholder="请输入测试图片数量，范围是[1,10000]" @change="onImagesNumberChange"/>
+                        <div class="sliderSelected">
+                            <div class="sliderParams">
+                                <p class="mainParamName">请选择修改神经元比例</p>
+                                <a-row>
+                                    <a-slider v-model="PertubeChoice" :min="0.01" :max="0.3" :step="0.01"  :marks="marks"/>
+                                    <a-input-number v-model="PertubeChoice" :min="0.01" :max="0.3" :step="0.01" :formatter="(value) => `${100*value}%`"/>
+                                </a-row>
+                                
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -98,7 +91,7 @@
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <h1>神经层覆盖准则</h1>
+                        <h1>敏感神经元测试准则</h1>
                     </div>
                 </div>
                 <div id="download_page" class="dialog_publish_main" slot="main">
@@ -108,25 +101,19 @@
                             <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
                             <p class="result_annotation">数据集：{{ datasetChoice }}</p>
                             <p class="result_annotation">模型：{{ modelChoice }}</p>
-                            <p class="result_annotation">神经元激活阈值：{{ thresHold }}</p>
-                            <p class="result_annotation">测试图片数量：{{ imageNumber }}</p>
+                            <p class="result_annotation">敏感度文件：{{ fileChoice }}</p>
+                            <p class="result_annotation">修改神经元比例：{{ PertubeChoice*100 }}%</p>
                         </div>
-                        <div class=" main_top_echarts_con_title ">神经层覆盖测试准则</div>
+                        <div class=" main_top_echarts_con_title ">敏感神经元测试样例</div>
                         <div id="rdeva">
                             <div class="box">
-                                <div v-for="(item, index) in result.img_list" v-show="index==mark" :key="index">
-                                    <!-- <iframe class="graph_show" :src="item.imgUrl"></iframe> -->
-                                    <img class="graph_show" :src="item.imgUrl" alt="">
-                                    <p>当前覆盖率：{{ item.coverage }}%</p>
+                                <div class="graph_show" v-for="(item, index) in result.img_list" :key="index">
+                                    <img :src="item" alt="">
                                 </div>
                             </div>
-                            
-                            <!-- <div v-for="item in img_list" :key="item">>
-                                <p>当前覆盖率：{{  }}</p>
-                                <img class="" >
-                            </div> -->
                             <div class="conclusion">
-                                <p class="result_text">理论上经过充分测试的模型覆盖率应该接近100%，如果覆盖率小于80%，则模型存在安全隐患的可能性较大。由于深度网络参数过多，图片里进行压缩显示，每个圆点代表多个神经元，圆点的深度代表对应神经元被激活的比例，深蓝色为全部激活。对于超大模型，只显示前20层的激活情况，但覆盖率数值对应整个模型。</p>
+                                <p class="result_text">共生成测试样例{{ result.number }}张，模型鲁棒性{{ result.res}} </p>
+                                <p class="result_text">*生成样本越多，鲁棒性越差(500以内算优，500到5000算中，5000以外算差)</p>
                             </div>
                         </div>
                     </div>
@@ -142,6 +129,10 @@
         </a-layout>
      </div>
 </template>
+<script src="../assets/js/convnetdraw.js"></script>
+<script type="text/javascript">
+
+</script>
 <script>
 /* 引入组件，导航栏 */
 import navmodule from "../components/nav.vue";
@@ -156,6 +147,7 @@ import resultDialog from "../components/resultDialog.vue"
 /* 引入图片 */
 import funcicon from "../assets/img/coverageneuralIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
+import { defineComponent, ref } from 'vue';
 
 const selectSvg = {
         template:`
@@ -173,16 +165,24 @@ const selectIcon = {
     },
 }
 
+const marks = ref({
+                0.01:"1%",
+                0.3:"30%"
+            })
+
 export default {
     name:"concolic",
     components:{
-        /* 注册组件 */
+    /* 注册组件 */
     navmodule: navmodule,
     func_introduce: func_introduce,
     showLog: showLog,
     resultDialog: resultDialog,
-    selectIcon
+    selectIcon,marks
     },
+    // setup(){
+        
+    // },
     data(){
         return{
             /* 单选按钮样式 */
@@ -190,7 +190,7 @@ export default {
                 display: 'block',
                 lineHeight: '30px',
             },
-            datasetChoice: "CIFAR10",
+            datasetChoice: "MNIST",
             MNIST_imgs:[
                 {imgUrl:require('../assets/img/mnist0.jpg'),name:'mnist0'},
                 {imgUrl:require("../assets/img/mnist1.jpg"),name:'mnist1'},
@@ -203,21 +203,10 @@ export default {
                 {imgUrl:require("../assets/img/mnist8.jpg"),name:'mnist8'},
                 {imgUrl:require("../assets/img/mnist9.jpg"),name:'mnist9'},
                 ],
-            CIFAR10_imgs:[
-                {imgUrl:require('../assets/img/cifar100.jpg'),name:'mnist0'},
-                {imgUrl:require("../assets/img/cifar101.jpg"),name:'mnist1'},
-                {imgUrl:require("../assets/img/cifar102.jpg"),name:'mnist2'},
-                {imgUrl:require("../assets/img/cifar103.jpg"),name:'mnist3'},
-                {imgUrl:require("../assets/img/cifar104.jpg"),name:'mnist4'},
-                {imgUrl:require("../assets/img/cifar105.jpg"),name:'mnist5'},
-                {imgUrl:require("../assets/img/cifar106.jpg"),name:'mnist6'},
-                {imgUrl:require("../assets/img/cifar107.jpg"),name:'mnist7'},
-                {imgUrl:require("../assets/img/cifar108.jpg"),name:'mnist8'},
-                {imgUrl:require("../assets/img/cifar109.jpg"),name:'mnist9'},
-                ],
-            modelChoice: "VGG11",
-            thresHold: "",
-            imageNumber: "",
+            modelChoice: "LeNet5",
+            fileChoice: ["npp.npy", "mnn.npy"],
+            PertubeChoice:0.05,
+            marks,
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -291,30 +280,10 @@ export default {
         onDatasetChoiceChange(e){
             // 修改选择数据集
             console.log('radio checked', e.target.value);
-            if (e.target.value == "MNIST"){
-                this.modelChoice ="LeNet5";
-                // console.log('radio checked', this.modelChoice);
-            } else {
-                this.modelChoice = "VGG11";
-            }
         },
         onModelChoiceChange(e){
             // 修改选择模型
             console.log('radio checked', e.target.value);
-            if (e.target.value == "LeNet5"){
-                this.datasetChoice ="MNIST";
-                // console.log('radio checked', this.modelChoice);
-            } else {
-                this.datasetChoice = "CIFAR10";
-            }
-        },
-        onThresholdChange(e){
-            // 修改阈值
-            if (e.target.value != "") {
-                // console.log('Threshold: ', e.target.value);
-                this.thresHold = e.target.value;   
-                console.log('Threshold: ', this.thresHold);   
-            } 
         },
         onImagesNumberChange(e) {
             // 修改测试图像数量
@@ -348,22 +317,18 @@ export default {
         /* result 处理*/
         resultPro(res){
             debugger;
-            this.result.img_list = res.CoverageLayer.coverage_test_yz.coverage_layer;
-            for(var i=0; i<this.result.img_list.length;i++){
-                this.result.img_list[i]["coverage"] = parseInt(100*this.result.img_list[i]["coverage"])
+            // this.PertubeChoice = parseInt(100*this.PertubeChoice)
+            this.result.number = res.DeepSst.SampleNum;
+            if(this.result.number<500) {
+                this.result.res = "强"
+            } else if(this.result.number<5000) {
+                this.result.res = "中等"
+            } else {
+                this.result.res = "差"
             }
-            this.play();
+            this.result.img_list  = res.DeepSst.SampleForPre;
         },
-        autoPlay(){
-            // debugger;
-            this.mark++;
-            if (this.mark == this.result.img_list.length){
-                this.mark=0
-            }
-        },
-        play:function(){
-            setInterval(this.autoPlay, 2000)
-        },
+
         /* 获取结果 */ 
         getData(){
             // debugger
@@ -391,7 +356,7 @@ export default {
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            // debugger;
+            debugger;
             // var that = this;
             if (this.res_tmp.data.stop) {
                 // 关闭日志显示
@@ -421,32 +386,25 @@ export default {
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
-            // debugger
+            debugger
             /*判断选择*/
-            if(this.thresHold==""){
-                this.$message.warning("请输入神经元激活阈值！",3);
-                return ;
-            }
-            if(this.imageNumber==""){
-                this.$message.warning("请输入测试图片数量！",3);
-                return ;
-            }
+
             /* 备份 */ 
             var that = this;
             
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-                that.tid = result.data.Taskid;
-                // that.tid = "20230530_0948_0c0a104";
+                // that.tid = result.data.Taskid;
+                that.tid = "20230710_0947_cb6f9b5";
                 
                 /* 请求体 postdata*/
                 const postdata={
                     dataset:that.datasetChoice,
                     model:that.modelChoice,
-                    k: that.thresHold,
-                    N: that.imageNumber,
+                    pertube: that.PertubeChoice,
+                    m_dir: "",
                     tid:that.tid};
-                that.$axios.post("/UnitTest/CoverageLayerParamSet", postdata).then((res) => {
+                that.$axios.post("/UnitTest/DeepSstParamSet", postdata).then((res) => {
                     
                     that.logflag = true;
                     // console.log(res);
@@ -457,8 +415,8 @@ export default {
                     // that.result = res.data;
                     // that.resultPro(res.data);
                     // 异步任务
-                    // that.stid="S20230530_0948_ee4c3bc"
-                    that.stid =  res.data.stid;
+                    that.stid="S20230710_0947_86ed575"
+                    // that.stid =  res.data.stid;
                     that.logclk = self.setInterval(that.getLog, 500);
                     that.clk = self.setInterval(that.update, 500);
                 }).catch((err) => {
@@ -599,7 +557,7 @@ text-align: left;
     flex-grow: 0;
 }
 
-.constraintSelected{
+.npyfile{
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -613,18 +571,24 @@ text-align: left;
     align-self: stretch;
     flex-grow: 0;
 }
-.paramsInput{
-    height: 60px;
-    padding: 0px 0px 0px 16px;
-    font-family: 'HONOR Sans CN';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    /* color: #B4B9C5; */
-    background: #F2F4F9;
-    border-radius: 4px;
+
+.ant-row{
+    width: 50%;
+    /* margin:10px; */
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
 }
+
+.ant-slider{
+    width: 50%;
+    margin: 10px 20px;
+}
+.ant-input-number{
+    width: 15%;
+}
+
 /* 按钮样式 */
 .DataEva{
     float: right;
@@ -676,10 +640,18 @@ text-align: left;
     margin-top: 0;
 }
 
+.box {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 900px;
+}
 
 .graph_show {
-    width: 400px;
-    height: 400px;
+    width: 300px;
+    height: 300px;
 }
 
 
