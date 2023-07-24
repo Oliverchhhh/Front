@@ -95,6 +95,24 @@ export default new Router({
       name: 'deeplogic',
       component: () => import('../views/deeplogic.vue')
     },
+    // 组装的开发框架安全结构度量
+    {
+      path: '/frameworkTest',
+      name: 'frameworkTest',
+      component: () => import('../views/frameworkTest.vue')
+    },
+    // 组装的模型模块化开发
+    {
+      path: '/modularDevelop',
+      name: 'modularDevelop',
+      component: () => import('../views/modularDevelop.vue')
+    },
+    // 组装的模型安全度量
+    {
+      path: '/modelMeasure',
+      name: 'modelMeasure',
+      component: () => import('../views/modelMeasure.vue')
+    },
     // 组装的攻击机理分析页面
     {
       path: '/exMethod',

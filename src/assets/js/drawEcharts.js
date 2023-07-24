@@ -1048,6 +1048,145 @@ function drawStackedLine(ID, data,legendInfo, label, name){
 },500)
 
 }
+ 
+// 重要神经元覆盖测试图
+function drawImportanceCoverage(ID, data) {
+  console.log(data);
+  var inc_option;
+  var reldraw = data;
+  var xdada = Array(reldraw['0'].length).fill('');
+  console.log(xdada);
+
+  inc_option = {
+      baseOption: {
+          textStyle: {
+              fontSize: 15,
+          },
+          timeline: {
+              axisType: 'category',
+              autoPlay: true,
+              playInterval: 1000,
+              data: ['0%', '25%', '50%', '75%', '100%'],
+              label: {
+                  formatter: function (s) {
+                      return s;
+                  }
+              }
+          },
+          dataZoom: [
+              {
+                  type: 'inside'
+              },
+          ],
+          tooltip: {},
+          legend: {
+              left: 'right',
+              data: ['重要性']
+          },
+          calculable: true,
+          grid: {
+              top: 80,
+              bottom: 100,
+              tooltip: {
+                  trigger: 'axis',
+                  axisPointer: {
+                      type: 'shadow',
+                      label: {
+                          show: true,
+                          formatter: function (params) {
+                              return params.value.replace('\n', '');
+                          }
+                      }
+                  }
+              }
+          },
+          xAxis: [
+              {
+                  type: 'category',
+                  axisLabel: { interval: 0 },
+                  data: xdada,
+                  splitLine: { show: false },
+                  name: '神经元'
+              }
+          ],
+          yAxis: [
+              {
+                  type: 'value',
+                  name: '重要性'
+              }
+          ],
+          series: [{ name: '重要性', type: 'bar' }]
+      },
+      options: [
+          {
+              title: { text: '开始运行' },
+              series: [{ data: reldraw['0'] }]
+          },
+          {
+              title: { text: '运行25%' },
+              series: [{ data: reldraw['1'] }]
+          },
+          {
+              title: { text: '运行50%' },
+              series: [{ data: reldraw['2'] }]
+          },
+          {
+              title: { text: '运行75%' },
+              series: [{ data: reldraw['3'] }]
+          },
+          {
+              title: { text: '运行结束' },
+              series: [{ data: reldraw['4'] }]
+          }
+      ]
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+        inc_option && myChartcons.setOption(inc_option);
+    },500)
+    
+}
+
+function drawAcc_or_loss(ID, data, title){
+  console.log(data);
+  var option;
+  option = {
+    legend: {
+      data: title
+    },
+    xAxis: {
+      type: 'category',
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        name: title[0],
+        data:data[0],
+        type: 'line',
+        smooth: true
+      },
+      {
+        name: title[1],
+        data:data[1],
+        type: 'line',
+        smooth: true
+      },
+    ]
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+        option && myChartcons.setOption(option);
+    },500)
+
+}
+
+
 
 function exportResult(ID){
   // debugger
@@ -1078,5 +1217,6 @@ export {
   drawLine,
   drawIntervalBar,
   drawStackedLine,
-  exportResult
+  exportResult, drawImportanceCoverage,
+  drawAcc_or_loss
 }

@@ -15,10 +15,10 @@
                 <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
                 <div class="labelSelection">
                     <router-link to="/coverage_neural"><button class="labelunselected">单神经元覆盖准则</button></router-link>
-                    <router-link to="/coverage_layer"><button class="labelselected">神经元层覆盖准则</button></router-link>
+                    <router-link to="/coverage_layer"><button class="labelunselected">神经元层覆盖准则</button></router-link>
                     <router-link to="/coverage_importance"><button class="labelunselected">重要神经元覆盖准则</button></router-link>
                     <router-link to="/deepsst"><button class="labelunselected">敏感神经元测试准则</button></router-link>
-                    <router-link to="/deeplogic"><button class="labelunselected">逻辑神经元测试准则</button></router-link>
+                    <router-link to="/deeplogic"><button class="labelselected">逻辑神经元测试准则</button></router-link>
                 </div>
                 <div class="funcParam">
                     <div class="paramTitle" >
@@ -52,13 +52,13 @@
                                     
                                 </div>
                                 <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="MNIST">
-                                        MNIST
+                                    <a-radio :style="radioStyle" value="FashionMNIST">
+                                        FashionMNIST
                                     </a-radio>
-                                    <p class="matchedMethodText"><span>MNIST数据集：</span>是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。</p>
+                                    <p class="matchedMethodText"><span>FashionMNIST数据集：</span>由Zalando Research创建，包含了10个不同类别的服装和配件图像。这些类别包括T恤、裤子、套衫、连衣裙、外套、凉鞋、衬衫、运动鞋、包和踝靴。每个类别有6000张训练图像和1000张测试图像，总计70000张图像。每张图像的分辨率为28x28像素，灰度图像。</p>
                                     <p class="matchedMethodText">图例：</p>
                                     <div class="demoData" >
-                                        <div v-for="(item, index) in MNIST_imgs" :key="index">
+                                        <div v-for="(item, index) in FashionMNIST_imgs" :key="index">
                                             <img :src="item.imgUrl">
                                         </div>
                                     </div>
@@ -69,22 +69,11 @@
                             <p class="mainParamName">请选择模型</p>
                             <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
                                 <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="VGG11" >VGG11</a-radio>
-                                    <a-radio :style="radioStyle" value="VGG13" >VGG13</a-radio>
-                                    <a-radio :style="radioStyle" value="VGG19" >VGG19</a-radio>
+                                    <a-radio :style="radioStyle" value="VGG16" >VGG16</a-radio>
                                     <a-radio :style="radioStyle" value="ResNet18" >ResNet18</a-radio>
                                     <a-radio :style="radioStyle" value="ResNet34" >ResNet34</a-radio>
-                                    <a-radio :style="radioStyle" value="LeNet5">LeNet5</a-radio>
                                 </div>
                             </a-radio-group>
-                        </div>
-                        <div class="thresholdSet">
-                            <p class="mainParamName">请输入神经元激活阈值</p>
-                            <a-input id="param_runtimes" class="paramsInput" placeholder="神经元激活值应该排在该层神经元的前多少位，范围[0,1]，默认值0.1" @change="onThresholdChange"/>
-                        </div>
-                        <div class="imagesTested">
-                            <p class="mainParamName">请输入测试图片数量</p>
-                            <a-input id="param_runtimes" class="paramsInput" placeholder="请输入测试图片数量，范围是[1,10000]" @change="onImagesNumberChange"/>
                         </div>
                     </div>
                 </div>
@@ -98,7 +87,7 @@
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <h1>神经层覆盖准则</h1>
+                        <h1>逻辑神经元测试准则</h1>
                     </div>
                 </div>
                 <div id="download_page" class="dialog_publish_main" slot="main">
@@ -108,8 +97,6 @@
                             <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
                             <p class="result_annotation">数据集：{{ datasetChoice }}</p>
                             <p class="result_annotation">模型：{{ modelChoice }}</p>
-                            <p class="result_annotation">神经元激活阈值：{{ thresHold }}</p>
-                            <p class="result_annotation">测试图片数量：{{ imageNumber }}</p>
                         </div>
                         <div class=" main_top_echarts_con_title ">神经层覆盖测试准则</div>
                         <div id="rdeva">
@@ -120,11 +107,6 @@
                                     <p>当前覆盖率：{{ item.coverage }}%</p>
                                 </div>
                             </div>
-                            
-                            <!-- <div v-for="item in img_list" :key="item">>
-                                <p>当前覆盖率：{{  }}</p>
-                                <img class="" >
-                            </div> -->
                             <div class="conclusion">
                                 <p class="result_text">理论上经过充分测试的模型覆盖率应该接近100%，如果覆盖率小于80%，则模型存在安全隐患的可能性较大。由于深度网络参数过多，图片里进行压缩显示，每个圆点代表多个神经元，圆点的深度代表对应神经元被激活的比例，深蓝色为全部激活。对于超大模型，只显示前20层的激活情况，但覆盖率数值对应整个模型。</p>
                             </div>
@@ -175,7 +157,7 @@ const selectIcon = {
 }
 
 export default {
-    name:"concolic",
+    name:"deeplogic",
     components:{
         /* 注册组件 */
     navmodule: navmodule,
@@ -192,17 +174,17 @@ export default {
                 lineHeight: '30px',
             },
             datasetChoice: "CIFAR10",
-            MNIST_imgs:[
-                {imgUrl:require('../assets/img/mnist0.jpg'),name:'mnist0'},
-                {imgUrl:require("../assets/img/mnist1.jpg"),name:'mnist1'},
-                {imgUrl:require("../assets/img/mnist2.jpg"),name:'mnist2'},
-                {imgUrl:require("../assets/img/mnist3.jpg"),name:'mnist3'},
-                {imgUrl:require("../assets/img/mnist4.jpg"),name:'mnist4'},
-                {imgUrl:require("../assets/img/mnist5.jpg"),name:'mnist5'},
-                {imgUrl:require("../assets/img/mnist6.jpg"),name:'mnist6'},
-                {imgUrl:require("../assets/img/mnist7.jpg"),name:'mnist7'},
-                {imgUrl:require("../assets/img/mnist8.jpg"),name:'mnist8'},
-                {imgUrl:require("../assets/img/mnist9.jpg"),name:'mnist9'},
+            FashionMNIST_imgs:[
+                {imgUrl:require('../assets/img/fashionmnist0.png'),name:'fashionmnist0'},
+                {imgUrl:require("../assets/img/fashionmnist1.png"),name:'fashionmnist1'},
+                {imgUrl:require("../assets/img/fashionmnist2.png"),name:'fashionmnist2'},
+                {imgUrl:require("../assets/img/fashionmnist3.png"),name:'fashionmnist3'},
+                {imgUrl:require("../assets/img/fashionmnist4.png"),name:'fashionmnist4'},
+                {imgUrl:require("../assets/img/fashionmnist5.png"),name:'fashionmnist5'},
+                {imgUrl:require("../assets/img/fashionmnist6.png"),name:'fashionmnist6'},
+                {imgUrl:require("../assets/img/fashionmnist7.png"),name:'fashionmnist7'},
+                {imgUrl:require("../assets/img/fashionmnist8.png"),name:'fashionmnist8'},
+                {imgUrl:require("../assets/img/fashionmnist9.png"),name:'fashionmnist9'},
                 ],
             CIFAR10_imgs:[
                 {imgUrl:require('../assets/img/cifar100.jpg'),name:'mnist0'},
@@ -217,8 +199,6 @@ export default {
                 {imgUrl:require("../assets/img/cifar109.jpg"),name:'mnist9'},
                 ],
             modelChoice: "VGG11",
-            thresHold: "",
-            imageNumber: "",
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -255,7 +235,6 @@ export default {
             isShowPublish:false,
             /* 评估结果 */
             result:{},
-            mark:0,
             res_tmp:{},
             /* 主任务id */ 
             tid:"",
@@ -292,37 +271,10 @@ export default {
         onDatasetChoiceChange(e){
             // 修改选择数据集
             console.log('radio checked', e.target.value);
-            if (e.target.value == "MNIST"){
-                this.modelChoice ="LeNet5";
-                // console.log('radio checked', this.modelChoice);
-            } else {
-                this.modelChoice = "VGG11";
-            }
         },
         onModelChoiceChange(e){
             // 修改选择模型
             console.log('radio checked', e.target.value);
-            if (e.target.value == "LeNet5"){
-                this.datasetChoice ="MNIST";
-                // console.log('radio checked', this.modelChoice);
-            } else {
-                this.datasetChoice = "CIFAR10";
-            }
-        },
-        onThresholdChange(e){
-            // 修改阈值
-            if (e.target.value != "") {
-                // console.log('Threshold: ', e.target.value);
-                this.thresHold = e.target.value;   
-                console.log('Threshold: ', this.thresHold);   
-            } 
-        },
-        onImagesNumberChange(e) {
-            // 修改测试图像数量
-            if (e.target.value != "") {
-                console.log('ImagesNumber: ', e.target.value);
-                this.imageNumber = e.target.value;   
-            } 
         },
         downloadGeneration(){
             if (confirm("您确认下载生成测试样本？") ) {
@@ -353,17 +305,6 @@ export default {
             for(var i=0; i<this.result.img_list.length;i++){
                 this.result.img_list[i]["coverage"] = parseInt(100*this.result.img_list[i]["coverage"])
             }
-            this.play();
-        },
-        autoPlay(){
-            // debugger;
-            this.mark++;
-            if (this.mark == this.result.img_list.length){
-                this.mark=0
-            }
-        },
-        play:function(){
-            setInterval(this.autoPlay, 2000)
         },
         /* 获取结果 */ 
         getData(){
@@ -385,9 +326,6 @@ export default {
             that.logflag = true;
             that.$axios.get('/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
                 that.logtext = data.data.Log[that.stid];
-                // this.$nextTick(()=> {
-                //     that.logflag = true
-                // });  
             });
         },
         /* 停止结果获取循环 */ 
@@ -416,22 +354,11 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
-        // 切换页面
-        changeSelectPage(){
-
-        },
         /* 点击评估触发事件 */
         dataEvaClick(){
             // debugger
             /*判断选择*/
-            if(this.thresHold==""){
-                this.$message.warning("请输入神经元激活阈值！",3);
-                return ;
-            }
-            if(this.imageNumber==""){
-                this.$message.warning("请输入测试图片数量！",3);
-                return ;
-            }
+
             /* 备份 */ 
             var that = this;
             
@@ -444,8 +371,6 @@ export default {
                 const postdata={
                     dataset:that.datasetChoice,
                     model:that.modelChoice,
-                    k: that.thresHold,
-                    N: that.imageNumber,
                     tid:that.tid};
                 that.$axios.post("/UnitTest/CoverageLayerParamSet", postdata).then((res) => {
                     

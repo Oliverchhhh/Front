@@ -171,7 +171,7 @@ const marks = ref({
             })
 
 export default {
-    name:"concolic",
+    name:"deepsst",
     components:{
     /* 注册组件 */
     navmodule: navmodule,

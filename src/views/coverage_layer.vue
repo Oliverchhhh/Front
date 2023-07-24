@@ -174,7 +174,7 @@ const selectIcon = {
 }
 
 export default {
-    name:"concolic",
+    name:"coverage_layer",
     components:{
         /* 注册组件 */
     navmodule: navmodule,

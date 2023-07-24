@@ -175,7 +175,7 @@ const selectIcon = {
 }
 
 export default {
-    name:"concolic",
+    name:"coverage_neural",
     components:{
     /* 注册组件 */
     navmodule: navmodule,

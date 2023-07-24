@@ -26,11 +26,11 @@
             <img :src="item.imgUrl" :alt="item.name">
             </td>
         </tr>
-        <tr>
+        <!-- <tr>
           <td v-for="(item, index) in Group_3" :key="index">
             <img :src="item.imgUrl" :alt="item.name">
         </td> 
-        </tr>
+        </tr> -->
       </table>
     </div>
   </template>

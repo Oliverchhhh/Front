@@ -108,6 +108,12 @@ line-height: 113px;
     height: 24px;
     border-width: 3px;
 }
+
+.ant-checkbox-inner{
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+}
  /*滚动条设置  */
   ::-webkit-scrollbar
   {
@@ -208,6 +214,19 @@ border-radius: 2px;
     width: 12px;
     height: 12px;
 }
+
+.ant-checkbox-checked .ant-checkbox-inner{
+    border-color: #0B55F4;
+}
+.checkboxbackground:hover .ant-checkbox-inner{
+    border-color: #0B55F4;
+}
+.ant-checkbox-inner::after{
+    background-color: #0B55F4;
+    width: 12px;
+    height: 12px;
+}
+
 /* 结果标题框样式 */
 .dialog_title{
     height: 40px;
@@ -515,46 +534,46 @@ flex-grow: 0;
 }
 .score_description{
     display: flex;
-flex-direction: row;
-justify-content: center;
-align-items: center;
-padding: 0px;
-gap: 8px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    gap: 8px;
 
-width: 638px;
-height: 32px;
+    width: 638px;
+    height: 32px;
 
 
-/* Inside auto layout */
+    /* Inside auto layout */
 
-flex: none;
-order: 0;
-flex-grow: 0;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
 }
 .con_score{
     width: 38px;
     display: inline;
-height: 32px;
+    height: 32px;
 
-font-family: 'HONORSansCN-Bold';
-/* font-family: 'MiSans'; */
-/* font-family: "HONOR Sans CN"; */
-font-style: normal;
-font-weight: 700;
-font-size: 24px;
-line-height: 32px;
-/* identical to box height, or 133% */
+    font-family: 'HONORSansCN-Bold';
+    /* font-family: 'MiSans'; */
+    /* font-family: "HONOR Sans CN"; */
+    font-style: normal;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 32px;
+    /* identical to box height, or 133% */
 
-/* blue-3 */
+    /* blue-3 */
 
-color: #0B55F4;
+    color: #0B55F4;
 
 
-/* Inside auto layout */
+    /* Inside auto layout */
 
-flex: none;
-order: 0;
-flex-grow: 0;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
 }
 /* 标题下的说明文字 */
 .title_annotation{
@@ -604,6 +623,21 @@ flex-grow: 0;
     border-radius: 4px;
     padding: 16px 32px 16px 24px;
 }
+/* 开发框架多选样式 */
+.ant-checkbox-wrapper{
+    /* margin: 0px 0px 24px 0px; */
+    font-size: 20px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    color: #000000;;
+    line-height: 28px;
+    background: #F2F4F9;
+    height: 60px;
+    border-radius: 4px;
+    padding: 16px 32px 16px 24px;
+}
+
 /* 选项标题样式 */
 .mainParamName{
     height: 28px;
