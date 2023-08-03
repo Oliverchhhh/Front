@@ -389,7 +389,7 @@ export default {
                that.$axios.post("/EnvTest/ETParamSet", postdata).then((res) => {
                    that.logflag = true;
                    // 异步任务
-                   that.stid =  res.data.EnvTestid;
+                   that.stid =  res.data.Stid;
                    that.logclk = self.setInterval(that.getLog, 3000);
                    // that.stid="S20230224_1106_368e295"
                    that.clk = self.setInterval(that.update, 3000);

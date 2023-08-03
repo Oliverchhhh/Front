@@ -18,7 +18,6 @@
                    <div class="paramTitle" >
                        <!-- 功能标题和执行按钮 -->
                        <!-- icon展示 -->
-                       <!-- <div class="paramIcom" icon="ui-icon-envTestIcon"></div> -->
                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                        <!-- 功能名称 -->
                        <h3>{{ funcDesText.name }}</h3>
@@ -29,81 +28,58 @@
                    </div>
                    <a-divider />
                    <div class="inputdiv">
-                       <!-- 选模型 -->
-                       <div class="datasetSelected">
-                            <p class="mainParamName">请选择数据集</p>
-                            <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
-                                <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="CIFAR10" >
-                                        CIFAR10
-                                    </a-radio>
-                                    <p class="matchedMethodText"><span>CIFAR10数据集：</span>是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。</p>
-                                    <p class="matchedMethodText">图例：</p>
-                                    <div class="demoData" >
-                                        <div v-for="(item, index) in CIFAR10_imgs" :key="index">
-                                            <img :src="item.imgUrl">
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-                            </a-radio-group>
-                        </div>
-                        <!-- class待修改 -->
-                        <div class="modelSelected"> 
-                            <p class="mainParamName">请选择自然样本生成策略</p>
-                            <a-checkbox-group v-model="naturalChoice" @change="x">
-                                <div class="matchedDes">
-                                    <a-checkbox :style="radioStyle" value="">改变亮度</a-checkbox>
-                                    <a-checkbox :style="radioStyle" value="">改变对比度</a-checkbox>
-                                    <a-checkbox :style="radioStyle" value="">改变饱和度</a-checkbox>
-                                    <a-checkbox :style="radioStyle" value="">添加高斯噪声</a-checkbox>
-                                </div>
-                            </a-checkbox-group>
-                        </div>
-                        <!-- class待修改 -->
-                        <div class="modelSelected">
-                            <p class="mainParamName">请选择对抗样本生成策略</p>
-                            <a-checkbox-group v-model="advChoice" @change="x">
-                                <div class="matchedDes">
-                                    <a-checkbox :style="radioStyle" value="FGSM">FGSM</a-checkbox>
-                                    <p class="matchedMethodText">Fast Gradient Sign Method(FGSM)快速梯度符号法是一种简单而有效的生成对抗样本的方法，其工作方式如下：在给定输入数据后，利用已训练的模型输出预测并计算损失函数的梯度，然后使用梯度的符号来创建使损失最大化的新数据。</p>
-                                    <a-checkbox :style="radioStyle" value="PGD">PGD</a-checkbox>
-                                    <p class="matchedMethodText">Projected Gradient Descent(PGD)投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声。</p>
-                                    <a-checkbox :style="radioStyle" value="BIM">BIM</a-checkbox>
-                                    <p class="matchedMethodText">Basic Iterative Method(BIM)迭代式FGSM是对FGSM的改进方法，主要的改进有两点，其一是FGSM方法是一步完成的，而BIM方法通过多次迭代来寻找对抗样本；其次，为了避免迭代过程中出现超出有效值的情况出现，使用了一个修建方法严格限制像素值的范围在$$$$\left[X_{i j}-\epsilon, X_{i j}+\epsilon\right] $$$$内。</p>
-                                    <a-checkbox :style="radioStyle" value="JSMA">JSMA</a-checkbox>
-                                    <p class="matchedMethodText">Jacobian-based Saliency Map Attack(JSMA)是一种基于前向梯度的对抗样本生成算法，属于对抗攻击中的 定向攻击 （即要求对抗样本经过model预测指定的类别）。</p>
-                                    <a-checkbox :style="radioStyle" value="DeepFool">DeepFool</a-checkbox>
-                                    <p class="matchedMethodText">DeepFool方法的出发点是想要精确的度量模型对于对抗样本的鲁棒性，为此提出了鲁棒性定义和计算方法。最终使用该计算方法生成对抗样本。</p>
-                                </div>
-                            </a-checkbox-group>
-                        </div>
-                        <div class="modelSelected">
-                            <p class="mainParamName">请选择模型类型</p>
+                       <!-- 选匹配机制 -->
+                       <div class="frameworkSelected">
+                           <p class="mainParamName">请选择测试开发框架（不少于3种）</p>
+                           <a-checkbox-group v-model="framework" @change="onFrameworkChange">
+                               <div class="matchedDes">
+                                   <a-checkbox :style="radioStyle" value="TensorFlow" >
+                                       TensorFlow
+                                   </a-checkbox>
+                                   <p class="matchedMethodText">Google推出的机器学习开源框架，主要用于进行机器学习和深度神经网络研究。</p>
+                               </div>
+                               <div class="matchedDes">
+                                   <a-checkbox :style="radioStyle" value="PyTorch">
+                                       PyTorch
+                                   </a-checkbox>
+                                   <p class="matchedMethodText">Facebook推出开源的Python机器学习库，专门针对 GPU 加速的深度神经网络编程。</p>
+                               </div>
+                               <div class="matchedDes">
+                                   <a-checkbox :style="radioStyle" value="PaddlePaddle">
+                                        PaddlePaddle
+                                   </a-checkbox>
+                                   <p class="matchedMethodText">百度研发的开源开放的深度学习平台，涵盖自然语言处理、计算机视觉、推荐引擎等多个领域。</p>
+                               </div>
+                               <div class="matchedDes">
+                                   <a-checkbox :style="radioStyle" value="CNTK">
+                                        CNTK
+                                   </a-checkbox>
+                                   <p class="matchedMethodText">微软开发的分布式深度学习工具包，可以实现跨多个 GPU 和服务器的自动微分和并行化随机梯度下降，为大规模数据下的生产与部署做好了准备</p>
+                               </div>
+                               <div class="matchedDes">
+                                   <a-checkbox :style="radioStyle" value="Theano">
+                                    Theano
+                                   </a-checkbox>
+                                   <p class="matchedMethodText">蒙特利尔大学开发的机器学习工具包，可以在CPU\GPU上高效地执行阵运算，是最早诞生的开源机器学习框架之一。</p>
+                               </div>
+                           </a-checkbox-group>
+                       </div>
+                       <div class="modelSelected">
+                            <p class="mainParamName">请选择模型</p>
                             <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
                                 <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="AlexNet">AlexNet</a-radio>
-                                    <a-radio :style="radioStyle" value="VGG16">VGG16</a-radio>
-                                    <a-radio :style="radioStyle" value="ResNet18">ResNet18</a-radio>
-                                    <a-radio :style="radioStyle" value="ResNet50">ResNet50</a-radio>
-                                    <a-radio :style="radioStyle" value="InceptionV3">Inception V3</a-radio>
+                                    <a-radio :style="radioStyle" value="VGG" >VGG</a-radio>
+                                    <p class="matchedMethodText">vgg对应可触发框架安全漏洞的VGG10模型，相较VGG16标准模型，该模型层数较少。</p>
+                                </div>
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="ResNet" >ResNet</a-radio>
+                                    <p class="matchedMethodText">ResNet对应可触发框架安全漏洞的ResNet34模型，相较ResNet50标准模型，该模型层数较少。</p>
+                                </div>
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="LeNet">LeNet</a-radio>
+                                    <p class="matchedMethodText">LeNet对应可触发框架安全漏洞的LeNet5模型。</p>
                                 </div>
                             </a-radio-group>
-                        </div>
-                        
-                        <!-- class待修改 -->
-                        <div class="modelSelected">
-                            <p class="mainParamName">请选择模型安全度量维度xx</p>
-                            <a-checkbox-group v-model="measureChoice" @change="x">
-                                <div class="matchedDes">
-                                    <a-checkbox :style="radioStyle" value="general">泛化性</a-checkbox>
-                                    <p class="matchedMethodText">泛化性解释</p>
-                                    <a-checkbox :style="radioStyle" value="security">安全性</a-checkbox>
-                                    <p class="matchedMethodText">安全性解释</p>
-                                    <a-checkbox :style="radioStyle" value="robustness">鲁棒性</a-checkbox>
-                                    <p class="matchedMethodText">鲁棒性解释</p>
-                                </div>
-                            </a-checkbox-group>
                         </div>
                    </div>
                </div>
@@ -121,31 +97,37 @@
                <div slot="header">
                    <div class="dialog_title">
                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                       <h1>AI模型安全度量</h1>
+                       <h1>开发框架安全结构度量</h1>
                    </div>
                </div>
                <div class="dialog_publish_main" slot="main">
                    <!-- 图表 -->
                    <div class="result_div">
                         <div class="conclusion_info">
-                            <!-- 显示输入信息 -->
-                            <p class="result_annotation">xxxx：{{  }}</p>
-                            <p class="result_annotation">xxxx：{{  }}</p>
+                            <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
+                            <p class="result_annotation">检测框架：</p>
+                            <div class="result_annotation result_pro"><p v-for="(item, index) in framework" :key="index">{{item}}</p></div>
+                            <!-- <p class="result_annotation">当前系统Cuda版本：{{ result.result.EnvTest.detection_result['Current Cuda Version'] }}</p> -->
+                            <p class="result_annotation">待检测模型：{{ modelChoice }}</p>
                         </div>
-                       <div class="echart_title">
-                           
-                           <div class=" main_top_echarts_con_title ">完整漏洞报告</div>
-                           
+                       <div class="echart_title">         
+                           <div class=" main_top_echarts_con_title ">触发漏洞样本展示</div>                    
                        </div>
+                       <div>
+                            <resultTable :tableHead="tablehead" :tableBody="tablebody"></resultTable>
+                       </div>
+                       <div class="echart_title">
+                           <div class=" main_top_echarts_con_title ">模型漏洞层定位</div>
+                       </div>
+                       
                        <div id="rdeva">
                            <!-- 图表 -->
-                           <div class = 'bugShowDiv'>
-                               <pre>{{ Risk }}</pre>
+                           <div class="box">
+                                <img id="model_img" :src="model_url">
                            </div>
-                           
                            <div class="conclusion">
-                               <p class="result_text">{{ result1 }}</p>
-                               <p class="result_text">{{ result2 }}</p>
+                                <p>存在漏洞的开发框架为</p> <p v-for="(item, index) in bugger_backend" :key="index">{{ item }}</p><p>，</p>
+                                <p>定位漏洞层为 {{ buggy_layer}}</p>
                            </div>
                        </div>
                    </div>
@@ -170,9 +152,10 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 import html2pdf from 'html2pdf.js'
+import resultTable from "../components/resultsTable.vue"
 
 /* 引入图片 */
-import funcicon from "../assets/img/modelMeasure.png"
+import funcicon from "../assets/img/frameworkTestIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
 
 const selectSvg = {
@@ -191,7 +174,7 @@ const selectSvg = {
        },
    }
 export default {
-   name:"envTest",
+   name:"frameworkTest",
    components:{
        /* 注册组件 */
        navmodule:navmodule,
@@ -199,6 +182,8 @@ export default {
        showLog:showLog,
        resultDialog:resultDialog,
        selectIcon,
+       resultTable: resultTable
+    //   ResultsTable,
    },
    data(){
        return{
@@ -208,18 +193,9 @@ export default {
                lineHeight: '30px',
                width: '100%'
            },
-           CIFAR10_imgs:[
-                {imgUrl:require('../assets/img/cifar100.jpg'),name:'mnist0'},
-                {imgUrl:require("../assets/img/cifar101.jpg"),name:'mnist1'},
-                {imgUrl:require("../assets/img/cifar102.jpg"),name:'mnist2'},
-                {imgUrl:require("../assets/img/cifar103.jpg"),name:'mnist3'},
-                {imgUrl:require("../assets/img/cifar104.jpg"),name:'mnist4'},
-                {imgUrl:require("../assets/img/cifar105.jpg"),name:'mnist5'},
-                {imgUrl:require("../assets/img/cifar106.jpg"),name:'mnist6'},
-                {imgUrl:require("../assets/img/cifar107.jpg"),name:'mnist7'},
-                {imgUrl:require("../assets/img/cifar108.jpg"),name:'mnist8'},
-                {imgUrl:require("../assets/img/cifar109.jpg"),name:'mnist9'},
-                ],
+           /* 开发框架选中值*/
+           framework:["PyTorch","TensorFlow","PaddlePaddle", "CNTK"], 
+           modelChoice:"VGG", 
            /* 评估按钮样式和状态 */
            buttonBGColor:{
                background:"#0B55F4",
@@ -230,32 +206,39 @@ export default {
            /* 日志框是否显示，false不显示，true显示，默认不显示 */
            logflag:false,
            /* 进度 */
-           percent:1,
+           percent:10,
            /* 日志内容，调用日志接口获取 */
            logtext:[],
            /* 功能介绍模块信息 */
            funcDesText:{
                /* 功能名称 */
-               name:"AI模型安全度量",
+               name:"开发框架安全结构度量",
                /* 功能icon，需先引入 */
                imgpath:funcicon,
                /* 功能背景图片，需先引入 */
                bgimg:bgimg,
                /* 功能介绍下的总介绍 */
-               destext:"提出AI模型安全度量指标，有效评估AI模型安全性",
+               destext:"检测开发框架漏洞，定位并可视化漏洞层",
                /* 背景介绍 */
-               backinfo:"设计图像亮度、对比度等方式以及平移、旋转、仿射等变换的自然样本生成策略、FGSM、BIM、JSMA等多种算法的对抗样本生成对抗样本生成策略，提出AI模型安全性度量指标，构建AI系统自然/对抗样本自动化测试框架，对AI模型的安全性进行有效评估。",
+               backinfo:"基于多AI开发框架对模型输出结果进行交叉验证，并对可能存在漏洞问题的开发框架进行判断。对于存在漏洞问题的开发框架，进行进一步的检测与分析，判断开发框架安全漏洞具体在模型的哪一层以及哪一个操作中，并对检测结果进行可视化输出。",
                /* 亮点介绍 */
                highlight:[
-                   "支持深度学习模型类型5种，模型参数规模≥100万",
-                   "提出AI模型安全性度量指标：泛化性、安全性、鲁棒性",
-                   "设计自然样本、对抗样本生成策略，构建AI系统自然/对抗样本自动化测试框架",
+                   "利用CIFAR10数据集，3种深度学习模型VGG、ResNet与LeNet，实现了高通用性、高准确率、高效率的AI开发框架安全结构度量方法",
+                   "开发框架安全结构度量支持主流开发框架5种：TensorFlow、CNTK、Theano、PaddlePaddle、PyTorch",
+                   "AI框架漏洞检测平均误报率≤3%，优于现有国内外开发框架安全度量技术",
                ]
            },
            /* 结果弹窗状态信息 */
            isShowPublish:false,
            /* 评估结果 */
            result:{},
+           res_tmp: {},
+           normal_backend: {},
+           bugger_backend: {},
+           buggy_layer: "",
+           model_url: "",
+           tablehead: [],
+           tablebody: [],
            /* 主任务id */ 
            tid:"",
            /* 子任务id */ 
@@ -280,7 +263,7 @@ export default {
        }
    },
    created() {
-       document.title = 'AI模型安全度量';
+       document.title = '开发框架安全结构度量';
        },
    methods: { 
        /* 关闭结果窗口 */
@@ -289,12 +272,12 @@ export default {
            //把绑定的弹窗数组 设为false即可关闭弹窗
        },
        onModelChoiceChange(e){
-           // 修改模型选择
+           // 修改匹配机制
            console.log('radio checked', e.target.value);
        },
-       // 修改数据集
-       onDatasetChoiceChange(e){
-           console.log('radio checked', e.target.value);
+       // 修改开发框架
+       onFrameworkChange(e){
+           console.log('radio checked', e);
        },
       exportResult(){
        // debugger
@@ -316,15 +299,83 @@ export default {
        },
        /* result 处理*/
        resultPro(res){
-           // debugger;
-           var that = this;
-       },
+            // debugger;
+            var that = this;
+            that.result = res.FrameworkTest;
+            that.tablehead = ["触发样本", "正确标签",]
+            that.tablebody = []
+            var generate_fig_number = that.result.generate_figure.length;
+            for(var i=0; i<generate_fig_number; i++) {
+                var res = "figure-"+String(i);
+                that.result[res]["path"] = that.result.out_path +"/"+ that.result[res]["path"].split("/")[1];
+                var error_frame = that.result[res]["path"].split("bgbk")[1].slice(0,-6);
+                // 构造表格【行】
+                // var tablebody_tr = ["<img :src='{{that.result[res]['path']}}'>", that.result[res]["ground_truth"]];
+                var tablebody_tr = [that.result[res]['path'], that.result[res]["ground_truth"]];
+                for(var j=0;j<that.result.normal_backend.length;j++){
+                    tablebody_tr.push(that.result[res]["normal_backend_result"]);
+                };
+                tablebody_tr.push(that.result[res]["buggy_backend_result"])
+                // console.log(tablebody_tr);
+                // 将表格【行】添加到表格主题中
+                debugger;
+                that.tablebody.push(tablebody_tr);
+            };
+            for(var i in that.result.normal_backend) {
+                switch(that.result.normal_backend[i]) {
+                    case 'torch':
+                        that.result.normal_backend[i]='Pytorch';
+                        break;
+                    case 'theano':
+                        that.result.normal_backend[i] = "Theano";
+                        break;
+                    case 'paddle':
+                        that.result.normal_backend[i] = "PaddlePaddle";
+                        break;
+                    case 'tensorflow':
+                        that.result.normal_backend[i] = 'TensorFlow';
+                        break;
+                    case 'cntk':
+                        that.result.normal_backend[i] = 'CNTK';
+                        break;
+                }
+                // 将所需值添加到tablehead
+                that.tablehead.push(that.result.normal_backend[i]);
+            }
+            for(var i in that.result.buggy_backend) {
+                var temp_var = that.result.buggy_backend[i];
+                switch(that.result.buggy_backend[i]) {
+                    case 'torch':
+                        that.result.buggy_backend[i]='Pytorch';
+                        break;
+                    case 'theano':
+                        that.result.buggy_backend[i] = "Theano";
+                        break;
+                    case 'paddle':
+                        that.result.buggy_backend[i] = "PaddlePaddle";
+                        break;
+                    case 'tensorflow':
+                        that.result.buggy_backend[i] = 'TensorFlow';
+                        break;
+                    case 'cntk':
+                        that.result.buggy_backend[i] = 'CNTK';
+                        break;
+                }
+                if (temp_var == error_frame) {
+                that.tablehead.push(that.result.buggy_backend[i]);
+                };
+            };
+            that.normal_backend = that.result.normal_backend;
+            that.bugger_backend = that.result.buggy_backend;
+            that.buggy_layer = that.result.buggy_layer["0"];
+            that.model_url = that.result.out_path+"/model.png";       
+        },
        /* 获取结果 */ 
        getData(){
            var that = this;
            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                console.log("dataget:",data);
-               that.result=data;
+               that.res_tmp=data;
            });
        },
        /* 获取日志 */ 
@@ -339,7 +390,7 @@ export default {
        },
        /* 停止结果获取循环 */ 
        stopTimer() {
-           if (this.result.data.stop) {
+           if (this.res_tmp.data.stop) {
                // 关闭日志显示
                this.percent=100
                this.logflag = false;
@@ -350,8 +401,8 @@ export default {
                // 显示结果窗口
                this.isShowPublish = true;
                // 处理结果
-               this.result = this.result.data;
-               this.resultPro(this.result);
+            //    this.result = this.result.data;
+               this.resultPro(this.res_tmp.data.result);
            }
        },
        /* 更新结果*/ 
@@ -364,27 +415,26 @@ export default {
        /* 点击评估触发事件 */
        dataEvaClick(){
            /*判断选择*/
-
+           if(this.framework.length<3){
+                alert("至少选择3种开发框架！");
+           }
            var that=this;
            /* 调用创建主任务接口，需开启后端程序 */
            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-               console.log(result);
-               that.tid = result.data.Taskid;         
+               that.tid = result.data.Taskid;   
                /* 请求体 postdata*/
                const postdata={
-                // 待修改
-                   matchmethod:that.matchedMethod,
-                   frameworkname:that.framework,
-                   frameversion:frameworkVersion,
-                   tid:that.tid};
-               console.log(postdata)
-               that.$axios.post("/EnvTest/ETParamSet", postdata).then((res) => { // 待修改
-                   that.logflag = true;
+                    framework:that.framework,
+                    model: that.modelChoice, 
+                    tid:that.tid};
+            //    console.log(postdata)
+               that.$axios.post("/FWTest/FrameworkTestParamSet", postdata).then((res) => {
+                    // debugger;
+                    that.logflag = true;
                    // 异步任务
-                   that.stid =  res.data.EnvTestid;
-                   that.logclk = self.setInterval(that.getLog, 3000);
-                   // that.stid="S20230224_1106_368e295"
-                   that.clk = self.setInterval(that.update, 3000);
+                    that.stid =  res.data.stid;
+                    that.logclk = self.setInterval(that.getLog, 3000);
+                    that.clk = self.setInterval(that.update, 3000);
                }).catch((err) => {
                        console.log(err)
                });
@@ -471,7 +521,7 @@ text-align: left;
    overflow: auto;
 }
 /* 匹配机制样式 */
-.matchedSelected{
+.frameworkSelected{
    display: flex;
    flex-direction: column;
    align-items: flex-start;
@@ -489,98 +539,7 @@ text-align: left;
    align-self: stretch;
    flex-grow: 0;
 }
-.frameRadioGroup{
-   display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-gap: 16px;
 
-width: 1104px;
-height: 632px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 1;
-flex-grow: 0;
-}
-.frameworkDiv{
-   display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-
-width: 1104px;
-height: 200px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-flex-grow: 0;
-}
-/* 版本参数模块样式 */
-.frameVersionInput{
-   display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 12px 24px;
-gap: 8px;
-
-width: 1104px;
-height: 94px;
-flex: none;
-order: 2;
-flex-grow: 0;
-}
-.versionInput{
-   height: 40px;
-   padding: 0px 0px 0px 16px;
-   font-family: 'HONOR Sans CN';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    /* color: #B4B9C5; */
-    color: #000000;
-    background: #F2F4F9;
-    border-radius: 4px;
-    }
-.frameVersionInput p{
-   font-family: 'HONOR Sans CN';
-font-style: normal;
-font-weight: 400;
-font-size: 16px;
-line-height: 22px;
-color: #3E4453;
-margin-bottom: 0px;
-}
-/* 单选按钮width */
-.ant-radio-group{
-   width: 100%;
-}
-
-.matchedDes{
-   display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0px;
-    gap: 10px;
-    width: 1104px;
-    height: fit-content;
-
-    border-radius: 4px;
-
-    /* Inside auto layout */
-
-    flex: none;
-    order: 0;
-    align-self: stretch;
-    flex-grow: 0;
-}
 .modelSelected{
     display: flex;
     flex-direction: column;
@@ -596,80 +555,76 @@ margin-bottom: 0px;
     flex-grow: 0;
 }
 
+.ant-radio-wrapper{
+    margin-bottom: 0;
+}
 
-.datasetSelected{
-    display: flex;
+/* 单选按钮width */
+.ant-radio-group{
+   width: 100%;
+}
+.matchedDes{
+   display: flex;
     flex-direction: column;
     align-items: flex-start;
     padding: 0px;
-    /* gap: 16px; */
-    width: 1104px;
-    /* height: 228px; */
-    /* Inside auto layout */
-    flex: none;
-    order: 1;
-    align-self: stretch;
-    flex-grow: 0;
-}
 
-/* 匹配机制解释样式 */
-.matchedMethodText{
-    /* display: flex; */
-    display: block;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 12px 24px;
     width: 1104px;
-    /* height: 46px; */
-    height:auto;
-    font-family: 'HONOR Sans CN';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 22px;
-    color: #3E4453;
-    margin-bottom: 0px;
+    height: 120px;
+
+    border-radius: 4px;
+
+    /* Inside auto layout */
+
     flex: none;
     order: 0;
     align-self: stretch;
     flex-grow: 0;
 }
-.matchedMethodText span{
-    color:#0B55F4
-}
-
-.demoData{
-    display: flex;
-    margin-left: 20px;
-    gap: 10px;
-    /* justify-content: space-around; */
-    margin-bottom: 20px;
+/* 匹配机制解释样式 */
+.matchedMethodText{
+   display: flex;
+   flex-direction: column;
+   align-items: flex-start;
+   padding: 12px 24px;
+   width: 1104px;
+   height: 46px;
+   font-family: 'HONOR Sans CN';
+   font-style: normal;
+   font-weight: 400;
+   font-size: 14px;
+   line-height: 22px;
+   color: #3E4453;
+   margin-bottom: 0px;
+   flex: none;
+   order: 0;
+   align-self: stretch;
+   flex-grow: 0;
 }
 /* 开发框架样式 */
-.frameworkSelected{
-   display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-/* gap: 24px; */
-margin-top: 24px;
-width: 1104px;
-height: 684px;
-flex: none;
-order: 2;
-align-self: stretch;
-flex-grow: 0;
-}
-.ant-radio-wrapper{
-   margin-bottom: 0px;
-}
+    .frameworkSelected{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    /* gap: 24px; */
+    margin-top: 24px;
+    width: 1104px;
+    height: 684px;
+    flex: none;
+    order: 2;
+    align-self: stretch;
+    flex-grow: 0;
+    }
 
-.ant-checkbox-wrapper{
-    margin-left: 0;
-}
-.ant-checkbox-wrapper span {
-    padding-left: 8px;
-    padding-right: 8px;
+.result_pro{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 0 -20px;
 }
 
 .conclusion_info{
@@ -717,7 +672,7 @@ width: 1080px;
     gap: 24px;
 
     width: 1080px;
-    height: 1134px;
+    /* height: 1134px; */
 
 
     /* Inside auto layout */
@@ -728,51 +683,7 @@ width: 1080px;
     flex-grow: 0;
     margin: auto;
 }
-/* 结果文字样式 */
-.resultext{
-   width: 100%;
-   /* height: 22px; */
-   font-family: PingFangSC-Regular;
-   font-size: 16px;
-   color: #000000;
-   font-weight: 400;
-   margin-top: -40px;
-}
-/* 漏洞展示报告 */
-.bugShowDiv{
-   display: flex;
-flex-direction: row;
-align-items: flex-start;
-padding: 24px;
-font-family: 'HONOR Sans CN';
-font-style: normal;
-font-weight: 400;
-font-size: 16px;
-line-height: 28px;
-color: #FFFFFF;
-width: 960px;
-height: 776px;
 
-/* gray-2 */
-
-background: #3E4453;
-border-radius: 4px;
-
-/* Inside auto layout */
-
-flex: none;
-order: 1;
-align-self: stretch;
-flex-grow: 0;
-}
-.bugShowDiv pre{
- white-space: pre-wrap;
- white-space: -moz-pre-wrap;
- white-space: -pre-wrap;
- white-space: -o-pre-wrap;
- word-wrap: break-word;
- text-align: left;
-}
 /* 得分图div */
 #rdeva{
    display: flex;
@@ -785,6 +696,19 @@ flex: none;
 order: 1;
 flex-grow: 0
 }
+
+.box{
+    height: 350px;
+    width: 960px;
+    /* overflow: overlay; */
+    overflow-y: scroll;
+}
+#model_img {
+    height: auto;
+    width: 500px;
+    overflow: hidden;
+}
+ 
 /* 得分图echart */
 .conclusion{
    box-sizing: border-box;
@@ -792,7 +716,7 @@ flex-grow: 0
 /* Auto layout */
 
 display: flex;
-flex-direction: column;
+flex-direction: row;
 justify-content: center;
 align-items: left;
 padding: 24px;

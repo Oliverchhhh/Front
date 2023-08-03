@@ -1,72 +1,52 @@
 <template>
-    <div id="sampletable">
-      <table>
-        <tr class="firstrow">
-          <td>原始样本</td>
-          <td>二值化差异</td>
-          <td>动态符号测试生成样本</td>
-        </tr>
-        <!-- <tr>
-          <td  v-for="(item, index) in list" :key="index">
-            <img :src="item">
-            </td>
-        </tr> -->
-        <tr>
-          <td v-for="(item, index) in Group_0" :key="index">
-            <img :src="item.imgUrl" :alt="item.name">
-        </td>
-        </tr>
-        <tr>
-          <td  v-for="(item, index) in Group_1" :key="index">
-            <img :src="item.imgUrl" :alt="item.name">
-            </td>
-        </tr>
-        <tr>
-          <td v-for="(item, index) in Group_2" :key="index">
-            <img :src="item.imgUrl" :alt="item.name">
-            </td>
-        </tr>
-        <!-- <tr>
-          <td v-for="(item, index) in Group_3" :key="index">
-            <img :src="item.imgUrl" :alt="item.name">
-        </td> 
-        </tr> -->
-      </table>
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th v-for="(item, index) in tableHead" :key="index">{{ item }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item, index) in tableBody" :key="index">
+                    <!-- 判断为html标签就设置为图像格式，为普通字符串就填充表格 -->
+                    <td v-for="(it, ind) in item" :key="ind" v-if="checkImg(it)==true"><img :src="it"></td>
+                    <td v-for="(it, ind) in item" :key="ind" v-if="checkImg(it)==false">{{ it }}</td>
+                </tr>
+
+            </tbody>
+        </table>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'SampleTable',
-    // props: ["list"],
-    data() {
-        return{
-            Group_0:[
-                {imgUrl:require('../../static/img/sample00.png'),name:'0_init'},
-                {imgUrl:require("../../static/img/sample01.png"),name:'0_diff'},
-                {imgUrl:require("../../static/img/sample02.png"),name:'0_new'}
-            ],
-            Group_1:[
-                {imgUrl:require('../../static/img/sample10.png'),name:'1_init'},
-                {imgUrl:require("../../static/img/sample11.png"),name:'1_diff'},
-                {imgUrl:require("../../static/img/sample12.png"),name:'1_new'}
-            ],
-            Group_2:[
-                {imgUrl:require('../../static/img/sample20.png'),name:'2_init'},
-                {imgUrl:require("../../static/img/sample21.png"),name:'2_diff'},
-                {imgUrl:require("../../static/img/sample22.png"),name:'2_new'}
-            ],
-            Group_3:[
-                {imgUrl:require('../../static/img/sample30.png'),name:'3_init'},
-                {imgUrl:require("../../static/img/sample31.png"),name:'3_diff'},
-                {imgUrl:require("../../static/img/sample32.png"),name:'3_new'}
-            ]
+</template>
+
+<script>
+// import func from 'vue-editor-bridge'
+    export default{
+        name: "resultTable",
+        props: {
+            tableHead: {
+                type: Array,
+                default: ["1", "2", "3", "4"]
+            },
+            tableBody: {
+                type: Array,
+                default: []
+            }
+        },
+        methods:  {
+            checkImg(imgPath) {
+                // debugger;
+                if(imgPath[0]=="/") {
+                    console.log('here!');
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         }
     }
-  }
-  </script>
-  
-  <style scoped>
+</script>
+
+<style>
   table {
     font-family: 'HONOR Sans CN';
     font-style: normal;
@@ -77,9 +57,14 @@
     width: 100%;
     table-layout: fixed;
   }
-  .firstrow{
-   background-color: #F2F4F9; 
+
+  thead{
+    border: 1px solid #E0E3EB;
+    background-color: #E0E3EB;
+    height: 50px;
+; 
   }
+
   td {
     border: 1px solid #E0E3EB;
     padding: 10px;
@@ -87,8 +72,8 @@
   }
   
   img {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
   }
 
   /* 每个小方格 height 148 width 320 */

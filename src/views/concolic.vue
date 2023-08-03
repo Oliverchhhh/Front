@@ -168,7 +168,7 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
-import SampleTable from "../components/resultsTable.vue"
+import SampleTable from "../components/resultsTable_.vue"
 /* 引入图片 */
 import funcicon from "../assets/img/concolicIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
