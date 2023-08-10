@@ -80,11 +80,11 @@
                         </div>
                         <div class="thresholdSet">
                             <p class="mainParamName">请输入神经元激活阈值</p>
-                            <a-input id="param_runtimes" class="paramsInput" placeholder="请输入神经元被激活的阈值，默认值为 0，范围是[0,＋∞]" @change="onThresholdChange"/>
+                            <a-input id="" class="paramsInput" placeholder="请输入神经元被激活的阈值，默认值为 0，范围是[0,＋∞]" @change="onThresholdChange"/>
                         </div>
                         <div class="imagesTested">
                             <p class="mainParamName">请输入测试图片数量</p>
-                            <a-input id="param_runtimes" class="paramsInput" placeholder="请输入测试图片数量，范围是[1,10000]" @change="onImagesNumberChange"/>
+                            <a-input id="" class="paramsInput" placeholder="请输入测试图片数量，范围是[1,10000]" @change="onImagesNumberChange"/>
                         </div>
                     </div>
                 </div>

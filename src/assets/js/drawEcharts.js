@@ -1186,6 +1186,107 @@ function drawAcc_or_loss(ID, data, title){
 
 }
 
+function draw_score_polar(ID, data, title){
+  console.log(data);
+  let colorList = ['#126BFE', '#5E0BF4', '#FE7E07'];
+  let visualMapPiecesData = [];
+  for (var i = 0; i < title.length; i++) {
+    visualMapPiecesData.push({
+      value: data[i],
+      label: title[i],
+      color: colorList[i]
+    });
+  }
+  debugger;
+  var option;
+  option = {
+    title: [
+      {
+        // text: '模型安全度量结果'
+      }
+    ],
+    polar: {
+      center: ['50%', '50%'],
+      radius: [50, '80%']
+    },
+    angleAxis: {
+      max: 0.5,
+      startAngle: 90,
+      axisLine: {
+        show: false
+      },
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        show: false
+      },
+      splitLine: {
+        show: false
+      },
+      clockwise: false
+    },
+    radiusAxis: {
+      type: 'category',
+      data: title,
+      z: 100,
+      axisLine: {
+        show: false
+      },
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        show: false
+      },
+      splitLine: {
+        show: false
+      }
+    },
+    tooltip: {
+      show: true,
+      trigger: 'item'
+    },
+    visualMap: {
+      top: 40,
+      x: 'left',
+      orient: 'vertical',
+      textStyle: {
+        color: '#000'
+      },
+      pieces: visualMapPiecesData,
+      outOfRange: {
+        color: '#999'
+      }
+    },
+    series: {
+      type: 'bar',
+      data: data,
+      coordinateSystem: 'polar'
+      // label: {
+      //   show: true,
+      //   position: 'left',
+      //   formatter: '{b}: {c}'
+      // },
+      // itemStyle: {
+      //   normal: {
+      //     // 定制显示（按顺序）
+      //     color: function (params) {
+      //       return colorList[params.dataIndex]
+      //     }
+      //         }}
+    }
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+        option && myChartcons.setOption(option);
+    },500)
+
+}
+
+
 
 
 function exportResult(ID){
@@ -1218,5 +1319,6 @@ export {
   drawIntervalBar,
   drawStackedLine,
   exportResult, drawImportanceCoverage,
-  drawAcc_or_loss
+  drawAcc_or_loss,
+  draw_score_polar
 }

@@ -51,32 +51,40 @@
                         <!-- class待修改 -->
                         <div class="modelSelected"> 
                             <p class="mainParamName">请选择自然样本生成策略</p>
-                            <a-checkbox-group v-model="naturalChoice" @change="x">
+                            <a-radio-group v-model="naturalChoice" @change="onNaturesChange">
                                 <div class="matchedDes">
-                                    <a-checkbox :style="radioStyle" value="">改变亮度</a-checkbox>
-                                    <a-checkbox :style="radioStyle" value="">改变对比度</a-checkbox>
-                                    <a-checkbox :style="radioStyle" value="">改变饱和度</a-checkbox>
-                                    <a-checkbox :style="radioStyle" value="">添加高斯噪声</a-checkbox>
+                                    <a-radio :style="radioStyle" value="brightness">改变亮度</a-radio>
+                                    <a-radio :style="radioStyle" value="contrast">改变对比度</a-radio>
+                                    <a-radio :style="radioStyle" value="saturation">改变饱和度</a-radio>
+                                    <a-radio :style="radioStyle" value="GaussianBlur">添加高斯噪声</a-radio>
                                 </div>
-                            </a-checkbox-group>
+                            </a-radio-group>
+                        </div>
+                        <div class="nat_argsSet" >
+                            <p class="mainParamName">请输入自然样本扰动强度</p>
+                            <a-input v-model="naturalArgs" class="paramsInput" placeholder="请输入自然样本扰动强度，建议范围是[0.1,1]" @change="onNatArgsChange"/>
                         </div>
                         <!-- class待修改 -->
                         <div class="modelSelected">
                             <p class="mainParamName">请选择对抗样本生成策略</p>
-                            <a-checkbox-group v-model="advChoice" @change="x">
+                            <a-radio-group v-model="advChoice" @change="onAdvChange">
                                 <div class="matchedDes">
-                                    <a-checkbox :style="radioStyle" value="FGSM">FGSM</a-checkbox>
+                                    <a-radio :style="radioStyle" value="FGSM">FGSM</a-radio>
                                     <p class="matchedMethodText">Fast Gradient Sign Method(FGSM)快速梯度符号法是一种简单而有效的生成对抗样本的方法，其工作方式如下：在给定输入数据后，利用已训练的模型输出预测并计算损失函数的梯度，然后使用梯度的符号来创建使损失最大化的新数据。</p>
-                                    <a-checkbox :style="radioStyle" value="PGD">PGD</a-checkbox>
+                                    <a-radio :style="radioStyle" value="PGD">PGD</a-radio>
                                     <p class="matchedMethodText">Projected Gradient Descent(PGD)投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声。</p>
-                                    <a-checkbox :style="radioStyle" value="BIM">BIM</a-checkbox>
-                                    <p class="matchedMethodText">Basic Iterative Method(BIM)迭代式FGSM是对FGSM的改进方法，主要的改进有两点，其一是FGSM方法是一步完成的，而BIM方法通过多次迭代来寻找对抗样本；其次，为了避免迭代过程中出现超出有效值的情况出现，使用了一个修建方法严格限制像素值的范围在$$$$\left[X_{i j}-\epsilon, X_{i j}+\epsilon\right] $$$$内。</p>
-                                    <a-checkbox :style="radioStyle" value="JSMA">JSMA</a-checkbox>
-                                    <p class="matchedMethodText">Jacobian-based Saliency Map Attack(JSMA)是一种基于前向梯度的对抗样本生成算法，属于对抗攻击中的 定向攻击 （即要求对抗样本经过model预测指定的类别）。</p>
-                                    <a-checkbox :style="radioStyle" value="DeepFool">DeepFool</a-checkbox>
+                                    <a-radio :style="radioStyle" value="BIM">BIM</a-radio>
+                                    <p class="matchedMethodText">Basic Iterative Method(BIM)迭代式FGSM是对FGSM的改进方法，主要的改进有两点，其一是FGSM方法是一步完成的，而BIM方法通过多次迭代来寻找对抗样本；其次，为了避免迭代过程中出现超出有效值的情况出现，使用了一个修建方法严格限制像素值的范围在[X<sub>xj</sub>-&epsilon;, X<sub>xj</sub>+&epsilon;]内。</p>
+                                    <!-- <a-radio :style="radioStyle" value="JSMA">JSMA</a-radio>
+                                    <p class="matchedMethodText">Jacobian-based Saliency Map Attack(JSMA)是一种基于前向梯度的对抗样本生成算法，属于对抗攻击中的 定向攻击 （即要求对抗样本经过model预测指定的类别）。</p> -->
+                                    <a-radio :style="radioStyle" value="DeepFool">DeepFool</a-radio>
                                     <p class="matchedMethodText">DeepFool方法的出发点是想要精确的度量模型对于对抗样本的鲁棒性，为此提出了鲁棒性定义和计算方法。最终使用该计算方法生成对抗样本。</p>
                                 </div>
-                            </a-checkbox-group>
+                            </a-radio-group>
+                        </div>
+                        <div class="nat_argsSet">
+                            <p class="mainParamName">请输入对抗样本扰动强度</p>
+                            <a-input v-model="advArgs" class="paramsInput" placeholder="请输入对抗样本扰动强度，建议范围是[0.1,0.5]" @change="onAdvArgsChange"/>
                         </div>
                         <div class="modelSelected">
                             <p class="mainParamName">请选择模型类型</p>
@@ -86,22 +94,22 @@
                                     <a-radio :style="radioStyle" value="VGG16">VGG16</a-radio>
                                     <a-radio :style="radioStyle" value="ResNet18">ResNet18</a-radio>
                                     <a-radio :style="radioStyle" value="ResNet50">ResNet50</a-radio>
-                                    <a-radio :style="radioStyle" value="InceptionV3">Inception V3</a-radio>
+                                    <a-radio :style="radioStyle" value="Inception">Inception V3</a-radio>
                                 </div>
                             </a-radio-group>
                         </div>
                         
                         <!-- class待修改 -->
                         <div class="modelSelected">
-                            <p class="mainParamName">请选择模型安全度量维度xx</p>
-                            <a-checkbox-group v-model="measureChoice" @change="x">
+                            <p class="mainParamName">请选择模型安全度量维度</p>
+                            <a-checkbox-group v-model="measureChoice" @change="onMeasureMethodChange">
                                 <div class="matchedDes">
-                                    <a-checkbox :style="radioStyle" value="general">泛化性</a-checkbox>
-                                    <p class="matchedMethodText">泛化性解释</p>
-                                    <a-checkbox :style="radioStyle" value="security">安全性</a-checkbox>
-                                    <p class="matchedMethodText">安全性解释</p>
+                                    <a-checkbox :style="radioStyle" value="generalization">泛化性</a-checkbox>
+                                    <p class="matchedMethodText">以模型预测相似数据集STL10的成功率作为泛化性能指标</p>
+                                    <a-checkbox :style="radioStyle" value="safety">安全性</a-checkbox>
+                                    <p class="matchedMethodText">以模型成功防御对抗攻击样本的成功率作为模型受到恶意攻击时的安全性指标</p>
                                     <a-checkbox :style="radioStyle" value="robustness">鲁棒性</a-checkbox>
-                                    <p class="matchedMethodText">鲁棒性解释</p>
+                                    <p class="matchedMethodText">以模型不受自然噪声样本影响的成功率作为模型在自然场景下遇到扰动和噪声时的鲁棒性指标</p>
                                 </div>
                             </a-checkbox-group>
                         </div>
@@ -129,25 +137,33 @@
                    <div class="result_div">
                         <div class="conclusion_info">
                             <!-- 显示输入信息 -->
-                            <p class="result_annotation">xxxx：{{  }}</p>
-                            <p class="result_annotation">xxxx：{{  }}</p>
+                            <p class="result_annotation">数据集：{{ datasetChoice }}</p>
+                            <p class="result_annotation">度量模型：{{ modelChoice }}</p>
+                            <p class="result_annotation">自然样本生成策略：{{ naturalChoice }}</p><p class="result_annotation">自然样本扰动强度：{{ naturalArgs }}</p>
+                            <p class="result_annotation">对抗样本生成策略：{{ advChoice }}</p><p class="result_annotation">对抗样本扰动强度：{{ advArgs }}</p>
+                            <div class="result_annotation result_pro">模型度量维度：
+                                <div v-for="(item, index) in measureChoice " :key="index"> 
+                                    <p v-show="item=='generalization' ">泛化性</p>
+                                    <p v-show="item=='safety' ">安全性</p>
+                                    <p v-show="item=='robustness' ">鲁棒性</p>
+                                </div>             
+                            </div>
                         </div>
-                       <div class="echart_title">
-                           
-                           <div class=" main_top_echarts_con_title ">完整漏洞报告</div>
-                           
-                       </div>
-                       <div id="rdeva">
-                           <!-- 图表 -->
-                           <div class = 'bugShowDiv'>
-                               <pre>{{ Risk }}</pre>
-                           </div>
-                           
-                           <div class="conclusion">
-                               <p class="result_text">{{ result1 }}</p>
-                               <p class="result_text">{{ result2 }}</p>
-                           </div>
-                       </div>
+                       <div class="echart_title">            
+                            <div class=" main_top_echarts_con_title ">模型安全度量结果</div>
+                            <div  class="" id="score_echart" style="width: 450px;height: 450px;"></div>
+                            <div class="conclusion">
+                                <p class="result_text">各属性数值&gt;0.50为属性优秀，0.15~0.50为属性良好，数值&lt;0.15为属性缺乏 </p>
+                            </div>
+                        </div>
+                        <div id="rdeva">
+                            <!-- 图表 -->
+                            <div class=" main_top_echarts_con_title ">样本示例</div>
+                            <img  class="sample_img" :src="sampleImg">
+                            <div class="conclusion">
+                                <p class="result_text">图示每行分别为8张原始样本、自然策略 {{ naturalChoice }} 生成样本、对抗策略 {{ advChoice }} 生成样本 </p>
+                            </div>
+                        </div>
                    </div>
                    <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
                </div>
@@ -170,6 +186,7 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 import html2pdf from 'html2pdf.js'
+import {draw_score_polar} from "../assets/js/drawEcharts.js"
 
 /* 引入图片 */
 import funcicon from "../assets/img/modelMeasure.png"
@@ -198,7 +215,7 @@ export default {
        func_introduce:func_introduce,
        showLog:showLog,
        resultDialog:resultDialog,
-       selectIcon,
+       selectIcon, draw_score_polar
    },
    data(){
        return{
@@ -208,6 +225,13 @@ export default {
                lineHeight: '30px',
                width: '100%'
            },
+           datasetChoice: "CIFAR10",
+           naturalChoice: "GaussianBlur",
+           naturalArgs: "0.1",
+           advChoice: "FGSM",
+           advArgs: "0.2",
+           modelChoice:"VGG16",
+           measureChoice:["generalization", "safety", "robustness"],
            CIFAR10_imgs:[
                 {imgUrl:require('../assets/img/cifar100.jpg'),name:'mnist0'},
                 {imgUrl:require("../assets/img/cifar101.jpg"),name:'mnist1'},
@@ -256,6 +280,8 @@ export default {
            isShowPublish:false,
            /* 评估结果 */
            result:{},
+           sampleImg: "",
+        //    sampleImg: "../../static/img/sample.png",
            /* 主任务id */ 
            tid:"",
            /* 子任务id */ 
@@ -283,115 +309,161 @@ export default {
        document.title = 'AI模型安全度量';
        },
    methods: { 
-       /* 关闭结果窗口 */
-       closeDialog(){
-           this.isShowPublish=false;
-           //把绑定的弹窗数组 设为false即可关闭弹窗
-       },
-       onModelChoiceChange(e){
-           // 修改模型选择
-           console.log('radio checked', e.target.value);
-       },
-       // 修改数据集
-       onDatasetChoiceChange(e){
-           console.log('radio checked', e.target.value);
-       },
-      exportResult(){
-       // debugger
-       if (confirm("您确认下载该pdf文件吗？") ){
-           // 输出pdf尺寸为download_page大小
-           var element = document.getElementById("download_page");
-           // var element = this.$refs.report_pdf;
-           const opt = {
-               margin:[10, 20, 10, 20],
-               filename:this.tid+'.pdf',
-               image:{type:'jpeg',quality:1},
-               html2canvas:{scale:5},
-               jsPDF:{unit:'mm',format:'a4', orientation:'portrait'}
-           };
+        /* 关闭结果窗口 */
+        closeDialog(){
+            this.isShowPublish=false;
+            //把绑定的弹窗数组 设为false即可关闭弹窗
+        },
+        onModelChoiceChange(e){
+            // 修改模型选择
+            console.log('radio checked', e.target.value);
+        },
+        // 修改数据集
+        onDatasetChoiceChange(e){
+            console.log('radio checked', e.target.value);
+        },
+        // 修改自然样本生成策略
+        onNaturesChange(e){
+            console.log('radio checked', e.target.value);
+        },
+        // 修改自然样本扰动强度
+        onNatArgsChange(e) {
+            if (e.target.value != "") {
+                console.log('Nature Args: ', this.naturalArgs);   
+            } 
+        },
+        // 修改对抗样本生成策略
+        onAdvChange(e){
+            console.log('radio checked', e.target.value);
+        },
+        // 修改对抗样本扰动强度
+        onAdvArgsChange(e) {
+            if (e.target.value != "") {
+                console.log('Adv Args: ', this.advArgs);   
+            } 
+        },
+        onMeasureMethodChange(e) {
+            console.log('checkbox checked', e);
+        },
+        exportResult(){
+        // debugger
+            if (confirm("您确认下载该pdf文件吗？") ){
+                // 输出pdf尺寸为download_page大小
+                var element = document.getElementById("download_page");
+                // var element = this.$refs.report_pdf;
+                const opt = {
+                    margin:[10, 20, 10, 20],
+                    filename:this.tid+'.pdf',
+                    image:{type:'jpeg',quality:1},
+                    html2canvas:{scale:5},
+                    jsPDF:{unit:'mm',format:'a4', orientation:'portrait'}
+                };
 
-           html2pdf().from(element).set(opt).save();
+                html2pdf().from(element).set(opt).save();
 
-       }
-       },
-       /* result 处理*/
-       resultPro(res){
-           // debugger;
-           var that = this;
-       },
-       /* 获取结果 */ 
-       getData(){
-           var that = this;
-           that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
-               console.log("dataget:",data);
-               that.result=data;
-           });
-       },
-       /* 获取日志 */ 
-       getLog(){
-           var that = this;
-           if(that.percent < 99){
-               that.percent += 1;
-           }
-           that.$axios.get('/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-               that.logtext = data.data.Log[that.stid];
-           });
-       },
-       /* 停止结果获取循环 */ 
-       stopTimer() {
-           if (this.result.data.stop) {
-               // 关闭日志显示
-               this.percent=100
-               this.logflag = false;
-               // 关闭结果数据获取data
-               clearInterval(this.clk);
-               // 关闭日志获取结果获取
-               clearInterval(this.logclk);
-               // 显示结果窗口
-               this.isShowPublish = true;
-               // 处理结果
-               this.result = this.result.data;
-               this.resultPro(this.result);
-           }
-       },
-       /* 更新结果*/ 
-       update(){
-           this.getData();
-           try{
-               this.stopTimer();
-           }catch(err){}
-       },
-       /* 点击评估触发事件 */
-       dataEvaClick(){
-           /*判断选择*/
-
-           var that=this;
-           /* 调用创建主任务接口，需开启后端程序 */
-           this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-               console.log(result);
-               that.tid = result.data.Taskid;         
-               /* 请求体 postdata*/
-               const postdata={
-                // 待修改
-                   matchmethod:that.matchedMethod,
-                   frameworkname:that.framework,
-                   frameversion:frameworkVersion,
-                   tid:that.tid};
-               console.log(postdata)
-               that.$axios.post("/EnvTest/ETParamSet", postdata).then((res) => { // 待修改
-                   that.logflag = true;
-                   // 异步任务
-                   that.stid =  res.data.EnvTestid;
-                   that.logclk = self.setInterval(that.getLog, 3000);
-                   // that.stid="S20230224_1106_368e295"
-                   that.clk = self.setInterval(that.update, 3000);
-               }).catch((err) => {
-                       console.log(err)
-               });
-           }).catch((err) => {
-               console.log(err)
-           });    
-       }
+            }
+        },
+        /* result 处理*/
+        resultPro(res){
+            debugger; 
+            this.result.score = [];
+            this.result.method = [];
+            // this.sampleImg = res.ModelMeasure.result;
+            if("robustness" in res.ModelMeasure) {
+                this.result.method.push("鲁棒性");
+                this.result.score.push(parseFloat(res.ModelMeasure["robustness"].toFixed(2)));
+            }
+            if("generalization" in res.ModelMeasure) {
+                this.result.method.push("泛化性");
+                this.result.score.push(parseFloat(res.ModelMeasure["generalization"].toFixed(2)));
+            }
+            if("safety" in res.ModelMeasure) {
+                this.result.method.push("安全性");
+                this.result.score.push(parseFloat(res.ModelMeasure["safety"].toFixed(2)));
+            }
+            draw_score_polar("score_echart", this.result.score, this.result.method);  
+        },
+        /* 获取结果 */ 
+        getData(){
+            var that = this;
+            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+                console.log("dataget:",data);
+                that.result=data;
+            });
+        },
+        /* 获取日志 */ 
+        getLog(){   
+            var that = this;
+            if(that.percent < 99){
+                that.percent += 1;
+            }
+            // debugger;
+            that.$axios.get('/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
+                that.logtext = data.data.Log[that.stid];
+            });
+        },
+        /* 停止结果获取循环 */ 
+        stopTimer() {
+            if (this.result.data.stop) {
+                // 关闭日志显示
+                this.percent=100
+                this.logflag = false;
+                // 关闭结果数据获取data
+                clearInterval(this.clk);
+                // 关闭日志获取结果获取
+                clearInterval(this.logclk);
+                // 显示结果窗口
+                this.isShowPublish = true;
+                // 处理结果
+                this.resultPro(this.result.data.result);
+            }
+        },
+        /* 更新结果*/ 
+        update(){
+            this.getData();
+            try{
+                this.stopTimer();
+            }catch(err){}
+        },
+        /* 点击评估触发事件 */
+        dataEvaClick(){
+            
+            /*判断选择*/
+            if(this.naturalChoice =="" | this.naturalArgs=="" | this.advChoice== "" | this.advArgs == "" | this.modelChoice == "" | this.measureChoice == ""){
+                alert("必选项未选择，请选择后重试！");
+                return;
+            }
+            var that=this;
+            /* 调用创建主任务接口，需开启后端程序 */
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+                console.log(result);
+                that.tid = result.data.Taskid;      
+                // that.tid = "20230809_1002_71431bf";   
+                /* 请求体 postdata*/
+                const postdata={
+                    // 待修改
+                    dataset:that.datasetChoice,
+                    model:that.modelChoice,
+                    naturemethod: that.naturalChoice,
+                    natureargs: that.naturalArgs,
+                    advmethod: that.advChoice,
+                    advargs: that.advArgs,
+                    measuremethod:that.measureChoice,
+                    tid:that.tid};
+                // console.log(postdata)
+                that.$axios.post("/MSTest/ModelMeasureParamSet", postdata).then((res) => { 
+                    that.logflag = true;
+                    // 异步任务
+                    that.stid =  res.data.stid;
+                    that.logclk = self.setInterval(that.getLog, 3000);
+                    that.clk = self.setInterval(that.update, 3000);
+                }).catch((err) => {
+                        console.log(err)
+                });
+            }).catch((err) => {
+                console.log(err)
+            });    
+        }
    }
 }
 </script>
@@ -676,6 +748,7 @@ flex-grow: 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
     padding: 20px;
@@ -687,6 +760,16 @@ flex-grow: 0;
     background: #F2F4F9;
     border-radius: 4px;
     
+}
+
+.result_pro{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    /* margin: 0 0 0 -20px; */
 }
 
 /* 图表名称样式 */
@@ -717,7 +800,7 @@ width: 1080px;
     gap: 24px;
 
     width: 1080px;
-    height: 1134px;
+    height: 1200px;
 
 
     /* Inside auto layout */
@@ -776,15 +859,21 @@ flex-grow: 0;
 /* 得分图div */
 #rdeva{
    display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px;
-gap: 24px;
-width: 960px;
-flex: none;
-order: 1;
-flex-grow: 0
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    gap: 10px;
+    width: 960px;
+    flex: none;
+    order: 1;
+    flex-grow: 0
 }
+
+.sample_img {
+    width: fit-content;
+    height: 300px;
+}
+
 /* 得分图echart */
 .conclusion{
    box-sizing: border-box;
