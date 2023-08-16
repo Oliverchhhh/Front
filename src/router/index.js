@@ -11,6 +11,18 @@ export default new Router({
       // 重定向
       redirect:'/inject'
     },
+    // 组装的homme_index页面
+    // {
+    //   path: '/homme_index',
+    //   name: 'homme_index',
+    //   component: () => import('../views/homme_index.vue')
+    // },
+    // 组装的homme_menu页面
+    {
+      path: '/homme_menu',
+      name: 'homme_menu',
+      component: () => import('../views/homme_menu.vue')
+    },
     // 组装的数据公平性评估页面
     {
       path: '/dataFairnessEva',
