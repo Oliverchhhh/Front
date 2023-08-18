@@ -231,7 +231,7 @@ import {drawAcc_or_loss} from "../assets/js/drawEcharts.js"
 import html2pdf from 'html2pdf.js'
 
 /* 引入图片 */
-import funcicon from "../assets/img/modularDevelop.png"
+import funcicon from "../assets/img/modularDevelopIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
 
 const selectSvg = {

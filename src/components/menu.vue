@@ -15,18 +15,6 @@
       <p class="block_title">数据</p>
       <!-- 数据类功能block -->
       <div class="funcs">
-        <!-- 异常数据检测 -->
-        <ifreme @click.native="goFuncPage('/dataClean')">
-          <div slot="func_icon">
-            <!-- 图片 -->
-            <img class="icon_img" src="../assets/img/dataCleanIcon.png">
-          </div>
-          <!-- 功能名 -->
-          <div slot="header" class="func_name">异常数据检测</div>
-          <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">分析AI系统常见异常数据来源及类型，基于置信学习等多种技术修复异常数据，实现自动化的数据集清洗及量化评估，生成异常检测效果分析报告及清洁的数据集</div>
-        </ifreme>
-
         <!-- 测试样本自动生成 -->
         <ifreme @click.native="goFuncPage('/concolic')">
           <div slot="func_icon">
@@ -36,23 +24,34 @@
           <!-- 功能名 -->
           <div slot="header" class="func_name">测试样本自动生成</div>
           <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">基于动态符号执行，通过执行具体输入用例获取模型神经元状态，并通过模拟模型计算原理构造约束变量，计算能激活特定未被激活过的新神经元的测试用例</div>
+          <div slot="des_func" class="func_des">基于动态符号执行，通过执行具体输入用例获取模型神经元状态，并通过模拟模型计算原理构造约束变量，生成特定未被激活过的新神经元的测试用例</div>
         </ifreme>
         <!-- 数据公平性评估 -->
-        <ifreme  @click.native="goFuncPage('')">
+        <ifreme  @click.native="goFuncPage('/dataFairnessEva')">
           <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/dataEvaIcon.png">
+            <img class="icon_img" src="../assets/img/dataFairEvalIcon.png">
           </div>
           <div slot="header" class="func_name">数据公平性评估</div>
-          <div slot="des_func" class="func_des">数据集和深度学习模型预测会存在偏见，通过公平性评估算法，对数据集和模型的公平性进行评估，可视化展示评估结果</div>
+          <div slot="des_func" class="func_des">【待修改】数据集和深度学习模型预测会存在偏见，通过公平性评估算法，对数据集和模型的公平性进行评估，可视化展示评估结果</div>
         </ifreme>
         <!-- 数据公平性提升 -->
-        <ifreme>
+        <ifreme @click.native="goFuncPage('/dataFairnessDebias')"> 
           <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/数据集提升.png">
+            <img class="icon_img" src="../assets/img/dataFairDebiasIcon.png">
           </div>
           <div slot="header" class="func_name">数据公平性提升</div>
           <div slot="des_func" class="func_des">基于公平表征学习和数据重赋权等方法对数据集进行纠偏，从群体和个体公平性两个维度对提升前后的数据集进行评估对比</div>
+        </ifreme>
+        <!-- 异常数据检测 -->
+        <ifreme @click.native="goFuncPage('/dataClean')">
+          <div slot="func_icon">
+            <!-- 图片 -->
+            <img class="icon_img" src="../assets/img/dataCleanIcon.png">
+          </div>
+          <!-- 功能名 -->
+          <div slot="header" class="func_name">异常数据检测</div>
+          <!-- 功能描述 -->
+          <div slot="des_func" class="func_des">分析AI系统常见异常数据来源及类型，基于置信学习等多种技术修复异常数据，实现自动化的数据集清洗及量化评估</div>
         </ifreme>
       </div>
       
@@ -62,139 +61,135 @@
       <p class="block_subtitle">评估</p>
       <!-- 模型类功能block -->
       <div class="funcs">
-        <ifreme>
+        <ifreme @click.native="goFuncPage('/modelMeasure')">
           <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/modularDevelop.png">
+            <img class="icon_img" src="../assets/img/modelMeasureIcon.png">
           </div>
-          <a-icon ></a-icon>
-          <div slot="header" class="func_name">AI模型模块化开发</div>
-          <div slot="des_func" class="func_des">基于模块化的思想，为给定任务功能进行组件式构建、自动化训练并保存模型，并可视化显示模型的各项性能指标</div>
-        </ifreme>
-        <ifreme>
-          <div slot="func_icon">
-            <img class="icon_img" src="">
-          </div>
-          <div slot="header" class="func_name">形式化验证</div>
-          <div slot="des_func" class="func_des">【描述占位】占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位</div>
-        </ifreme>
-        <ifreme>
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/modelEvaIcon.png">
-          </div>
-          <a-icon ></a-icon>
-          <div slot="header" class="func_name">模型公平性评估</div>
-          <div slot="des_func" class="func_des">【描述占位】占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位</div>
-        </ifreme>
-        <ifreme>
-          <div slot="func_icon">
-            <img class="icon_img" src="">
-          </div>
-          <div slot="header" class="func_name">模型对抗性测试</div>
-          <div slot="des_func" class="func_des">【描述占位】占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位</div>
-        </ifreme>
-        <ifreme>
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/modelMeasure.png">
-          </div>
-          <a-icon ></a-icon>
           <div slot="header" class="func_name">AI模型安全度量</div>
-          <div slot="des_func" class="func_des">分析AI系统常见异常数据来源及类型，基于置信学习等多种技术修复异常数据，实现自动化的数据集清洗及量化评估，生成异常检测效果分析报告及清洁的数据集</div>
+          <div slot="des_func" class="func_des">对模型进行安全性、鲁棒性、泛化性度量，评估模型对对抗攻击的防御效果、对自然噪声的健壮能力、相似任务的泛化性能</div>
         </ifreme>
-        <ifreme>
+        <ifreme @click.native="goFuncPage('/advAttack')">
           <div slot="func_icon">
-            <img class="icon_img" src="">
+            <img class="icon_img" src="../assets/img/advAttackEvalIcon.png">
+          </div>
+          <div slot="header" class="func_name">对抗攻击评估</div>
+          <div slot="des_func" class="func_des">【待修改】汇总主流多种对抗攻击方法，评估并展示攻击对深度学习模型带来的影响</div>
+        </ifreme>
+        <ifreme @click.native="goFuncPage('/backdoor')">
+          <div slot="func_icon">
+            <img class="icon_img" src="../assets/img/bkAttackEvalIcon.png">
           </div>
           <div slot="header" class="func_name">后门攻击评估</div>
-          <div slot="des_func" class="func_des">【描述占位】占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位</div>
+          <div slot="des_func" class="func_des">【待修改】多种投毒攻击方法对深度学习数据和模型进行攻击，可视化评估投毒攻击影响</div>
         </ifreme>
-        <ifreme>
+        <ifreme @click.native="goFuncPage('')">
           <div slot="func_icon">
-            <img class="icon_img" src="">
+            <img class="icon_img" src="../assets/img/advTestIcon.png">
           </div>
-          <a-icon ></a-icon>
-          <div slot="header" class="func_name">对抗攻击评估</div>
-          <div slot="des_func" class="func_des">【描述占位】占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位</div>
+          <div slot="header" class="func_name">模型对抗性测试</div>
+          <div slot="des_func" class="func_des">【待修改描述、跳转页】自动化生成特定场景下的AI模型对抗测试方案，从而对AI模型的鲁棒性进行评估</div>
         </ifreme>
+        <ifreme @click.native="goFuncPage('/modelFairnessEva')">
+          <div slot="func_icon">
+            <img class="icon_img" src="../assets/img/modelFairEvalIcon.png">
+          </div>
+          <div slot="header" class="func_name">模型公平性评估</div>
+          <div slot="des_func" class="func_des">【待修改】数据集和深度学习模型预测会存在偏见，通过公平性评估算法，对数据集和模型的公平性进行评估，可视化展示评估结果</div>
+        </ifreme>
+        <ifreme @click.native="goFuncPage('/robustFormalVerification')">
+          <div slot="func_icon">
+            <img class="icon_img" src="../assets/img/formalVerifyIcon.png">
+          </div>
+          <div slot="header" class="func_name">形式化验证</div>
+          <div slot="des_func" class="func_des">基于扰动分析和特征解释可视化方法，对模型进行安全性、一致性、可达性三个维度的形式化验证，从严格统计角度验证模型安全性能</div>
+        </ifreme>    
       </div>
 
       <p class="block_subtitle">加固</p>
       <div class="funcs">
-        <ifreme>
+        <ifreme @click.native="goFuncPage('')">
           <div slot="func_icon">
-            <img class="icon_img" src="">
-          </div>
-          <a-icon ></a-icon>
-          <div slot="header" class="func_name">模型公平性提升</div>
-          <div slot="des_func" class="func_des">【描述占位】占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位</div>
-        </ifreme>
-        <ifreme>
-          <div slot="func_icon">
-            <img class="icon_img" src="">
-          </div>
-          <div slot="header" class="func_name">模型鲁棒性训练</div>
-          <div slot="des_func" class="func_des">【描述占位】占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位</div>
-        </ifreme>
-        <ifreme>
-          <div slot="func_icon">
-            <img class="icon_img" src="">
-          </div>
-          <a-icon ></a-icon>
-          <div slot="header" class="func_name">后门攻击防御</div>
-          <div slot="des_func" class="func_des">【描述占位】占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位</div>
-        </ifreme>
-        <ifreme>
-          <div slot="func_icon">
-            <img class="icon_img" src="">
+            <img class="icon_img" src="../assets/img/advDefenseIcon.png">
           </div>
           <div slot="header" class="func_name">对抗攻击防御</div>
-          <div slot="des_func" class="func_des">【描述占位】占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位</div>
+          <div slot="des_func" class="func_des">【待修改跳转页】从对抗样本检测、对抗噪声擦除和模型防御力增强等三个角度阻截对抗样本的攻击，并使神经网络模型在面对对抗样本时仍能发挥正常功能</div>
         </ifreme>
-        <ifreme>
+        <ifreme @click.native="goFuncPage('')">
           <div slot="func_icon">
-            <img class="icon_img" src="">
+            <img class="icon_img" src="../assets/img/bkDefenseIcon.png">
           </div>
-          <a-icon ></a-icon>
+          <div slot="header" class="func_name">后门攻击防御</div>
+          <div slot="des_func" class="func_des">【待修改跳转页】后门攻击防御包括后门检测和后门逆向，力求做到发现后门并还原后门的效果，使后门攻击的威胁大大降低</div>
+        </ifreme>
+        <ifreme  @click.native="goFuncPage('')">
+          <div slot="func_icon">
+            <img class="icon_img" src="../assets/img/robustTrainingIcon.png">
+          </div>
+          <div slot="header" class="func_name">模型鲁棒性训练</div>
+          <div slot="des_func" class="func_des">【待修改跳转页】通过可认证鲁棒训练、对抗训练等方式来对AI模型进行安全加固，提升模型在对抗样本攻击下的鲁棒性</div>
+        </ifreme>
+        <ifreme  @click.native="goFuncPage('/modelFairnessDebias')">
+          <div slot="func_icon">
+            <img class="icon_img" src="../assets/img/modelFairDebiasIcon.png">
+          </div>
+          <div slot="header" class="func_name">模型公平性提升</div>
+          <div slot="des_func" class="func_des">模型决策会存在偏见，通过公平性提升算法，提升模型的公平性，减少偏见，可视化展示提升前后对比</div>
+        </ifreme>
+        <ifreme  @click.native="goFuncPage('')">
+          <div slot="func_icon">
+            <img class="icon_img" src="../assets/img/crowdDefenseIcon.png">
+          </div>
           <div slot="header" class="func_name">模型群智化防御</div>
-          <div slot="des_func" class="func_des">【描述占位】占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位</div>
+          <div slot="des_func" class="func_des">【待修改描述、跳转页】实现对模型的多种攻击与防御方法的群智化防御模块</div>
         </ifreme>
       </div>
     </div>
+
+
     <div class="block" ref="block2">
       <p class="block_title">算法</p>
       <!-- 算法类功能block -->
       <div class="funcs">
-        <ifreme>
+        <ifreme @click.native="goFuncPage('/modularDevelop')">
+          <div slot="func_icon">
+            <img class="icon_img" src="../assets/img/modularDevelopIcon.png">
+          </div>
+
+          <div slot="header" class="func_name">AI模型模块化开发</div>
+          <div slot="des_func" class="func_des">基于模块化的思想，为给定任务功能进行组件式构建、自动化训练并保存模型，并可视化显示模型的各项性能指标</div>
+        </ifreme>
+        <ifreme @click.native="goFuncPage('/coverage_neural')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/coverageneuralIcon.png">
           </div>
-          <a-icon ></a-icon>
           <div slot="header" class="func_name">标准化单元测试</div>
-          <div slot="des_func" class="func_des">分析AI系统常见异常数据来源及类型，基于置信学习等多种技术修复异常数据，实现自动化的数据集清洗及量化评估，生成异常检测效果分析报告及清洁的数据集</div>
+          <div slot="des_func" class="func_des">评估模型训练效果时容易出现模型行中的某些行为无法被测试到的情况，提出制定多测试准则的标准化AI模型单元测试方法，全面评估模型训练效果</div>
         </ifreme>
-        <ifreme>
+        <ifreme @click.native="goFuncPage('/exMethod')">
           <div slot="func_icon">
-            <img class="icon_img" src="">
+            <img class="icon_img" src="../assets/img/exMethodIcon.png">
           </div>
           <div slot="header" class="func_name">攻击机理分析</div>
-          <div slot="des_func" class="func_des">【描述占位】占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位</div>
+          <div slot="des_func" class="func_des">研究各类对抗性攻击的生成与作用机理，即误导模型的内在原因，建立易于人类理解的解释方法，为安全性验证与防御策略构建等工作提供理论指导</div>
         </ifreme>
       </div>
     </div>
+
+
     <div class="block" ref="block3">
       <p class="block_title">开发框架</p>
       <!-- 开发框架类功能block -->
       <div class="funcs">
         <!-- AI开发框架安全结构度量 -->
-        <ifreme>
+        <ifreme @click.native="goFuncPage('/frameworkTest')">
           <div slot="func_icon">
             <!-- 图片 -->
             <img class="icon_img" src="../assets/img/frameworkTestIcon.png">
           </div>
-          <a-icon ></a-icon>
           <!-- 功能名 -->
           <div slot="header" class="func_name">AI开发框架安全结构度量</div>
           <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">检测存在安全漏洞的的开发框架，进一步检测分析，定位开发框架漏洞在模型中的具体层</div>
+          <div slot="des_func" class="func_des">通过交叉验证等手段检测存在安全漏洞的的开发框架，进一步检测分析，定位开发框架漏洞在模型中的具体层</div>
         </ifreme>
       </div>
     </div>
@@ -203,16 +198,15 @@
       <!-- 开发框架类功能block -->
       <div class="funcs">
         <!-- AI开发框架安全结构度量 -->
-        <ifreme>
+        <ifreme @click.native="goFuncPage('/envTest')">
           <div slot="func_icon">
             <!-- 图片 -->
             <img class="icon_img" src="../assets/img/envTestIcon.png">
           </div>
-          <a-icon ></a-icon>
           <!-- 功能名 -->
-          <div slot="header" class="func_name">系统环境分析与框架适配</div>
+          <div slot="header" class="func_name">开发环境分析与框架适配</div>
           <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">采集目标模型在目标平台上运行产生的功耗/电磁信息，形成曲线数据。输入功耗或电磁曲线数据文件，分别进行不同的侧信道攻击分析</div>
+          <div slot="des_func" class="func_des">对当前开发环境操作系统下的系统架构信息、依赖库版本、AI开发框架依赖与版本等关键信息进行分析与记录，检测其中的潜在漏洞问题</div>
         </ifreme>
       </div>
     </div>
@@ -222,27 +216,26 @@
       <!-- 硬件类功能block -->
       <div class="funcs">
         <!-- 侧信道分析 -->
-        <ifreme>
+        <ifreme  @click.native="goFuncPage('')">
           <div slot="func_icon">
             <!-- 图片：待替换 -->
-            <img class="icon_img" src="../assets/img/slidechannelAnalysisIcon.png"> 
+            <img class="icon_img" src="../assets/img/sideAnalysisIcon.png"> 
           </div>
-          <a-icon ></a-icon>
           <!-- 功能名 -->
           <div slot="header" class="func_name">侧信道分析</div>
           <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">采集目标模型在目标平台上运行产生的功耗/电磁信息，形成曲线数据。输入功耗或电磁曲线数据文件，分别进行不同的侧信道攻击分析</div>
+          <div slot="des_func" class="func_des">【待修改跳转页】采集目标模型在目标平台上运行产生的功耗/电磁信息，形成曲线数据。输入功耗或电磁曲线数据文件，分别进行不同的侧信道攻击分析</div>
         </ifreme>
         <!-- 故障注入 -->
-        <ifreme>
+        <ifreme @click.native="goFuncPage('')">
           <div slot="func_icon">
             <!-- 图片：待替换 -->
-            <img class="icon_img" src="../assets/img/FaultInjectIcon.png">
+            <img class="icon_img" src="../assets/img/faultInjectIcon.png">
           </div>
           <!-- 功能名 -->
           <div slot="header" class="func_name">故障注入</div>
           <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">利用高精度、变强度时钟毛刺故障对多种深度学习模型进行攻击，高精度故障注入评估过程使用可视化方式，展示故障攻击对深度学习模型输出的影响</div>
+          <div slot="des_func" class="func_des">【待修改跳转页】利用时钟毛刺故障对多种深度学习模型进行攻击，高精度故障注入评估过程使用可视化方式，展示故障攻击对深度学习模型输出的影响</div>
         </ifreme>
       </div>
     </div>

@@ -189,7 +189,7 @@ import html2pdf from 'html2pdf.js'
 import {draw_score_polar} from "../assets/js/drawEcharts.js"
 
 /* 引入图片 */
-import funcicon from "../assets/img/modelMeasure.png"
+import funcicon from "../assets/img/modelMeasureIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
 
 const selectSvg = {

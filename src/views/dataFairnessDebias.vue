@@ -228,7 +228,7 @@ import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
 import {drawconseva, drawbarimproved, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
-import funcicon from "../assets/img/modelEvaIcon.png"
+import funcicon from "../assets/img/modelFairDebiasIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
 import centerPng from "../assets/img/center.png"
 import secondPng from "../assets/img/second.png"
