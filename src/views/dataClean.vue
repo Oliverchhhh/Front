@@ -179,7 +179,7 @@ export default {
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
-            stid:"",
+            stidlist:{},
             /* 异步任务结果查循环clock */
             clk:"",
             /* 日志查询clock*/
@@ -252,14 +252,20 @@ export default {
         },
         /* 获取日志 */ 
         getLog(){
-            debugger;
+            // debugger
             var that = this;
-            that.logflag = false;
-            that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                that.logtext = data.data.Log[that.stid];
-                this.$nextTick(()=> {
-                    that.logflag = true
-                })  
+            if(that.percent < 99){
+               that.percent += 1;
+            }
+            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
             });
         },
         /* 停止结果获取循环 */ 
@@ -331,7 +337,7 @@ export default {
                     // that.result = res.data;
                     // that.resultPro(res.data);
                     // 异步任务
-                    that.stid =  res.data.stid;
+                    that.stidlist =  res.data.stid;
                     that.logclk = self.setInterval(that.getLog, 5);
                     // that.stid="S20230224_1106_368e295"
                     that.clk = self.setInterval(that.update, 5);
@@ -352,25 +358,7 @@ export default {
     width: 1200px;
     margin-left: 360px;
 }
-.funcParam{
-/* 模型公平性评估 */
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-width: 1200px;
-height: 824px;
-background: #FFFFFF;
-border: 1px solid #E0E3EB;
-margin: 0px 0px 40px 0px;
-box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
-border-radius: 8px;
-flex: none;
-order: 0;
-flex-grow: 0;
-text-align: left;
-}
+
 .paramTitle{
     height:80px;
     padding: 20px 24px 20px 26px;
@@ -414,12 +402,7 @@ text-align: left;
 .ant-divider-horizontal{
     margin: 0 0;
 }
-/* 输入模块div样式 */
-.inputdiv{
-    margin: 0px 48px;
-    height: 700px;
-    overflow: auto;
-}
+
 
 /* 图表名称样式 */
 .echart_title{

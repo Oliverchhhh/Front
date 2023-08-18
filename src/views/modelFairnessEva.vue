@@ -46,10 +46,10 @@
                                     <a-row  type="flex" justify="space-around" v-for="index in 8">
                                         <a-col :span="index > 6 ? 12:8" v-for="num in (index > 6 ? 2:3)">
                                             <a-checkbox  v-if="index > 6 && (18+(index-7)*2+num-1<22)" :value=Object.keys(evamethod)[18+(index-7)*2+num-1] >
-                                                <div :class="18+(index-7)*2+num-1>19 ? 'checkboxdivlen':'checkboxdiv'" @mouseenter="checkboxMouseEnter(index, num)" @mouseleave="checkboxMouseLeave(index, num)">{{ Object.values(evamethod)[18+(index-7)*2+num-1]["name"] }}</div>
+                                                <div :class="18+(index-7)*2+num-1>17 ? 'checkboxdivlen':'checkboxdiv'" @mouseenter="checkboxMouseEnter(index, num)" >{{ Object.values(evamethod)[18+(index-7)*2+num-1]["name"] }}</div>
                                             </a-checkbox>
                                             <a-checkbox  v-else-if="index <= 6 " :value=Object.keys(evamethod)[(index-1)*3+num-1] >
-                                                <div :class="(index-1)*3+num-1>19 ? 'checkboxdivlen':'checkboxdiv'" @mouseenter="checkboxMouseEnter(index, num)" @mouseleave="checkboxMouseLeave(index, num)">{{ Object.values(evamethod)[(index-1)*3+num-1]["name"] }}</div>
+                                                <div :class="(index-1)*3+num-1>17 ? 'checkboxdivlen':'checkboxdiv'" @mouseenter="checkboxMouseEnter(index, num)" >{{ Object.values(evamethod)[(index-1)*3+num-1]["name"] }}</div>
                                             </a-checkbox>
                                             
                                         </a-col>
@@ -84,7 +84,7 @@
                         <h1>模型公平性评估结果报告</h1>
                     </div>
                 </div>
-                <div class="dialog_publish_main" slot="main">
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
                     <!-- 总评分 -->
                     <div class="result_div">
                         <div class="g_score_content">
@@ -224,11 +224,14 @@
                         </div>
                         
                     </div>
+                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                    <a-icon type="upload" />  导出报告内容
+                    </a-button>
                 </div>
             </resultDialog>
         </a-layout-content>
         <a-layout-footer>
-
         </a-layout-footer>
         </a-layout>
      </div>
@@ -246,11 +249,13 @@ import showLog from "../components/showLog.vue"
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
 import {drawclass1pro, drawconseva1, drawbar, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
+// import {getLog} from "../assets/js/getData.js"
 /* 引入图片 */
 import funcicon from "../assets/img/modelEvaIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
 import centerPng from "../assets/img/center.png"
 import secondPng from "../assets/img/second.png"
+
 const selectSvg = {
         template:`
         <svg t="1680138013828" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4354" width="128" height="128"><path d="M534.869333 490.496a1403.306667 1403.306667 0 0 0 50.858667-25.813333c16.042667-8.618667 29.013333-15.061333 38.570667-19.029334 9.557333-3.925333 17.066667-6.058667 22.869333-6.058666 9.557333 0 17.749333 3.2 24.917333 10.026666 6.826667 6.826667 10.581333 15.061333 10.581334 25.088 0 5.76-1.706667 11.818667-5.12 17.92-3.413333 6.101333-7.168 10.069333-10.922667 11.861334-35.157333 14.677333-74.410667 25.429333-116.736 31.872 7.850667 7.168 17.066667 17.237333 28.330667 29.781333 11.264 12.544 17.066667 18.986667 17.749333 20.053333 4.096 6.101333 9.898667 13.653333 17.408 22.613334 7.509333 8.96 12.629333 15.786667 15.36 20.778666 2.730667 5.034667 4.437333 11.093333 4.437333 18.304a33.706667 33.706667 0 0 1-9.898666 24.021334 33.834667 33.834667 0 0 1-25.6 10.410666c-10.24 0-22.186667-8.618667-35.157334-25.472-12.970667-16.512-30.037333-46.933333-50.517333-91.050666-20.821333 39.424-34.816 65.962667-41.642667 78.506666-7.168 12.544-13.994667 22.186667-20.48 28.672a30.976 30.976 0 0 1-22.528 9.685334 32.256 32.256 0 0 1-25.258666-11.093334 35.413333 35.413333 0 0 1-9.898667-23.68c0-7.893333 1.365333-13.653333 4.096-17.578666 25.258667-35.84 51.541333-67.413333 78.848-93.568a756.650667 756.650667 0 0 1-61.44-12.544 383.061333 383.061333 0 0 1-57.685333-20.48c-3.413333-1.749333-6.485333-5.717333-9.557334-11.818667a30.208 30.208 0 0 1-5.12-16.853333 32.426667 32.426667 0 0 1 10.581334-25.088 33.152 33.152 0 0 1 24.234666-10.026667c6.485333 0 14.677333 2.133333 24.576 6.101333 9.898667 4.266667 22.186667 10.026667 37.546667 18.261334 15.36 7.893333 32.426667 16.853333 51.882667 26.538666-3.413333-18.261333-6.485333-39.082667-8.874667-62.378666-2.389333-23.296-3.413333-39.424-3.413333-48.042667 0-10.752 3.072-19.712 9.557333-27.264A30.677333 30.677333 0 0 1 512.341333 341.333333c9.898667 0 18.090667 3.925333 24.576 11.477334 6.485333 7.893333 9.557333 17.92 9.557334 30.464 0 3.584-0.682667 10.410667-1.365334 20.48-0.682667 10.368-2.389333 22.570667-4.096 36.906666-2.048 14.677333-4.096 31.146667-6.144 49.834667z" fill="#FF3838" p-id="4355"></path></svg>
@@ -279,6 +284,8 @@ export default {
     },
     data(){
         return{
+            htmlTitle: '模型公平性评估报告',
+            stidlist:{},
             /* 评估行 */
             rowkey:0,
             colkey:0,
@@ -389,25 +396,24 @@ export default {
     created() {
         document.title = '模型公平性评估';
         },
-    mounted(){
-        let that=this;
-        
-    },
     methods: {
         /* 获取日志 */ 
         getLog(){
+            debugger
             var that = this;
-            // that.logflag = false;
             if(that.percent < 99){
-                that.percent = that.percent+1;
+               that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                for(let key in data.data.Log){
-                    that.logtext = data.data.Log[key];
+            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                console.log("log:",data)
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
                 }
-                this.$nextTick(()=> {
-                    that.logflag = true
-                })  
             });
         },
         /* 关闭结果窗口 */
@@ -437,13 +443,6 @@ export default {
             this.colkey = num - 1;
             this.methodDesShow=[false,false,false,false,false,false,false,false];
             this.methodDesShow[this.rowkey]=true;
-        },
-        /* 鼠标移出评估算法解释框不显示*/
-        checkboxMouseLeave(index, num){
-            this.rowkey = index - 1;
-            this.colkey = num - 1;
-
-            this.methodDesShow=[false,false,false,false,false,false,false,false];
         },
         /* result 处理*/
         resultPro(res){
@@ -579,7 +578,8 @@ export default {
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
-            
+            this.logtext=[]
+            this.percent=0
             /*判断选择*/
             if (this.senAttrList.length ==0 ){
                 this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
@@ -618,7 +618,11 @@ export default {
                 tid:that.tid};
                 console.log(postdata)
                 that.percent = 40;
-                that.logclk = self.setInterval(that.getLog, 10);
+                that.logclk = setInterval(() => {
+                    that.getLog();
+                },200)
+                
+                that.percent=50
                 that.$axios.post("/api/ModelFairnessEvaluate",postdata).then((res) => {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     clearInterval(that.logclk);
@@ -648,25 +652,6 @@ export default {
     width: 1200px;
     margin-left: 360px;
 }
-.funcParam{
-/* 模型公平性评估 */
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-width: 1200px;
-height: 824px;
-background: #FFFFFF;
-border: 1px solid #E0E3EB;
-margin: 0px 0px 40px 0px;
-box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
-border-radius: 8px;
-flex: none;
-order: 0;
-flex-grow: 0;
-text-align: left;
-}
 .paramTitle{
     height:80px;
     padding: 20px 24px 20px 26px;
@@ -675,7 +660,7 @@ text-align: left;
 }
 .methodDes{
     width: 1104px;
-    height: 714px;
+    /* height: 714px; */
     text-align: center;
 }
 .checkboxdiv{
@@ -778,12 +763,7 @@ text-align: left;
 .ant-divider-horizontal{
     margin: 0 0;
 }
-/* 输入模块div样式 */
-.inputdiv{
-    margin: 0px 48px;
-    height: 700px;
-    overflow: auto;
-}
+
 
 /* 图表名称样式 */
 .echart_title{

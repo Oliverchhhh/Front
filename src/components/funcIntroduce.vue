@@ -117,7 +117,7 @@ ul{
 }
 .HLInfo{
     /* width: 160px; */
-    height: 36px;
+    /* height: 36px; */
     font-family: PingFangSC-Regular;
     font-size: 16px;
     color: #5A7DA9;

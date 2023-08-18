@@ -8,11 +8,18 @@ import router from './router'
 import '../src/assets/css/global.css'
 import axios from 'axios';
 import './assets/css/font.css'
-import "../static/css/ui-page.less"
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+
+// save html to pdf
+import htmlToPdf from './util/htmlToPdf'
+Vue.use(htmlToPdf)
+
 Vue.prototype.$axios = axios;
 axios.defaults.baseURL = "/"
 Vue.config.productionTip = false
 Vue.use(Antd);
+Vue.use(ElementUI);
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

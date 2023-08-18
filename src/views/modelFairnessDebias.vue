@@ -61,10 +61,10 @@
                                     <a-row  type="flex" justify="space-around" v-for="index in 8">
                                         <a-col :span="index > 6 ? 12:8" v-for="num in (index > 6 ? 2:3)">
                                             <a-checkbox  v-if="index > 6 && (18+(index-7)*2+num-1<22)" :value=Object.keys(evamethod)[18+(index-7)*2+num-1] >
-                                                <div :class="18+(index-7)*2+num-1>19 ? 'checkboxdivlen':'checkboxdiv'" @mouseenter="checkboxMouseEnter(index, num)" @mouseleave="checkboxMouseLeave(index, num)">{{ Object.values(evamethod)[18+(index-7)*2+num-1]["name"] }}</div>
+                                                <div :class="18+(index-7)*2+num-1>17 ? 'checkboxdivlen':'checkboxdiv'" @mouseenter="checkboxMouseEnter(index, num)" >{{ Object.values(evamethod)[18+(index-7)*2+num-1]["name"] }}</div>
                                             </a-checkbox>
                                             <a-checkbox  v-else-if="index <= 6 " :value=Object.keys(evamethod)[(index-1)*3+num-1] >
-                                                <div :class="(index-1)*3+num-1>19 ? 'checkboxdivlen':'checkboxdiv'" @mouseenter="checkboxMouseEnter(index, num)" @mouseleave="checkboxMouseLeave(index, num)">{{ Object.values(evamethod)[(index-1)*3+num-1]["name"] }}</div>
+                                                <div :class="(index-1)*3+num-1>17 ? 'checkboxdivlen':'checkboxdiv'" @mouseenter="checkboxMouseEnter(index, num)">{{ Object.values(evamethod)[(index-1)*3+num-1]["name"] }}</div>
                                             </a-checkbox>
                                             
                                         </a-col>
@@ -99,7 +99,7 @@
                         <h1>模型公平性提升结果报告</h1>
                     </div>
                 </div>
-                <div class="dialog_publish_main" slot="main">
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
                     <!-- 总评分 -->
                     <div class="result_div">
                         <div class="g_score_content">
@@ -240,6 +240,10 @@
                         </div>
                         
                     </div>
+                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
                 </div>
             </resultDialog>
         </a-layout-content>
@@ -295,6 +299,7 @@ export default {
     },
     data(){
         return{
+            htmlTitle: '模型公平性提升报告',
             /* 评估行 */
             rowkey:0,
             colkey:0,
@@ -361,7 +366,7 @@ export default {
             /* 进度 */
             percent:10,
             /* 日志内容 */
-            logtext:["开始执行","执行结束"],
+            logtext:[],
             dataname:["German","Adult","Compas","Cifar10-S","CelebA"],
             /* 选中数据集序号 */
             dataNameValue:0,
@@ -426,7 +431,7 @@ export default {
             logclk:"", 
             /*主任务id*/ 
             tid:"",
-            stid:"",
+            stidlist:[],
             /* 公平性提升算法disable */
             debiasDisabled:{
                 "Domain Adversarial Training":false,
@@ -465,13 +470,21 @@ export default {
     methods: {
         /* 获取日志 */ 
         getLog(){
+            // debugger
             var that = this;
-            // that.logflag = false;
             if(that.percent < 99){
-                that.percent = that.percent+1;
+               that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                that.logtext = data.data.Log[that.stid];
+            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                // console.log("log:", data)
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
             });
         },
         getData(){
@@ -483,19 +496,29 @@ export default {
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            if (this.result.data.stop) {
+            if (this.result.data.stop == 1) {
                 // 关闭日志显示
                 this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
                 clearInterval(this.clk);
+                this.clk=null
                 // 关闭日志获取结果获取
                 clearInterval(this.logclk);
+                this.logclk = null
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
                 this.result = this.result.data.result.model_debias;
                 this.resultPro(this.result);
+            }else if(this.result.data.stop == 2){
+                this.percent=100
+                // 关闭结果数据获取data
+                clearInterval(this.clk);
+                this.clk=null
+                // 关闭日志获取结果获取
+                clearInterval(this.logclk);
+                this.logclk = null
             }
         },
         /* 更新结果*/ 
@@ -566,13 +589,6 @@ export default {
             this.colkey = num - 1;
             this.methodDesShow=[false,false,false,false,false,false,false,false];
             this.methodDesShow[this.rowkey]=true;
-        },
-        /* 鼠标移出评估算法解释框不显示*/
-        checkboxMouseLeave(index, num){
-            this.rowkey = index - 1;
-            this.colkey = num - 1;
-
-            this.methodDesShow=[false,false,false,false,false,false,false,false];
         },
         /* result 处理*/
         resultPro(res1){
@@ -765,9 +781,13 @@ export default {
                 that.$axios.post("/api/ModelFairnessDebias",postdata).then((res) => {
                     that.logflag = true;
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
-                    that.stid =  res.data.stid;
-                    that.logclk = self.setInterval(that.getLog, 3000);
-                    that.clk = self.setInterval(that.update, 3000);
+                    that.stidlist =  {"ModelFairnessDebias":res.data.stid};
+                    that.logclk = setInterval(() => {
+                        that.getLog();
+                    },2000)
+                    that.clk = setInterval(() => {
+                            that.update();
+                        },6000)
                     console.log(that.logflag);
                 }).catch((err) => {
                         console.log(err)
@@ -786,25 +806,6 @@ export default {
     width: 1200px;
     margin-left: 360px;
 }
-.funcParam{
-/* 模型公平性评估 */
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-width: 1200px;
-height: 824px;
-background: #FFFFFF;
-border: 1px solid #E0E3EB;
-margin: 0px 0px 40px 0px;
-box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
-border-radius: 8px;
-flex: none;
-order: 0;
-flex-grow: 0;
-text-align: left;
-}
 .paramTitle{
     height:80px;
     padding: 20px 24px 20px 26px;
@@ -813,7 +814,7 @@ text-align: left;
 }
 .methodDes{
     width: 1104px;
-    height: 714px;
+    /* height: 714px; */
     text-align: center;
 }
 .checkboxdiv{
@@ -936,13 +937,6 @@ flex-grow: 0;
 .ant-divider-horizontal{
     margin: 0 0;
 }
-/* 输入模块div样式 */
-.inputdiv{
-    margin: 0px 48px;
-    height: 700px;
-    overflow: auto;
-}
-
 /* 图表名称样式 */
 .echart_title{
     display: flex;

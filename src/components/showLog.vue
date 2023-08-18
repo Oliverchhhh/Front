@@ -8,14 +8,27 @@
       <a-progress :percent="percent" status="active" />
       <!-- 日志 -->
       <div class="logtext" >
-          <p v-for="(temp,index) in logtext" :key="index">{{ temp }}</p>
+          <div v-for="(temp,index) in logtext" :key="'log'+index">
+            <p v-if="typeof(logtext[index]) == 'object'" v-for="(content, j) in logtext[index]" :key="'text'+j">{{ content }}</p>
+            <p v-else> {{ temp }}</p>
+          </div>
       </div>
   </div>
 </template>
 <script>
 export default {
   name:"showLog",
-  props:["percent","logtext"],
+  props:{
+    percent:{default:0},
+    logtext:{
+      default:() =>[["2023-08-14 14:50:40,289 [INFO]  Msg: [数据集获取]：获取imagenet数据集正常样本已完成.",
+      "2023-08-14 14:50:40,290 [INFO]  Msg: [加载被解释模型]：准备加载被解释模型vgg11",
+      "2023-08-14 14:50:50,767 [INFO]  Msg: [加载被解释模型]：被解释模型vgg11已加载完成"],
+      ["2023-08-14 14:50:40,289 [INFO]  Msg: [数据集获取]：获取imagenet数据集正常样本已完成.",
+      "2023-08-14 14:50:40,290 [INFO]  Msg: [加载被解释模型]：准备加载被解释模型vgg11",
+      "2023-08-14 14:50:50,767 [INFO]  Msg: [加载被解释模型]：被解释模型vgg11已加载完成"]]
+    }
+  },
   data(){
       return{
           j:0,
@@ -30,7 +43,7 @@ export default {
   background: #272C35;
   border-radius: 8px;
   margin-left: 360px;
-  margin-bottom: 20px;
+  margin-top: 40px;
 }
 .logtitle{
   padding: 28px 32px;

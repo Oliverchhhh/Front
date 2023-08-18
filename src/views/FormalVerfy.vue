@@ -317,7 +317,7 @@
                         <h1>安全性评估报告</h1>
                     </div>
                 </div>
-                <div class="dialog_publish_main" slot="main" v-if="mode=='safe'">
+                <div class="dialog_publish_main" slot="main" v-if="mode=='safe'" id="pdfDom">
                     <div class="paramShow">
                         <a-row >
                             <a-col :span="6" >
@@ -345,7 +345,7 @@
                     <!-- 总评分 -->
                     <div class="reportContent">
                         <div class="classification">
-                            <p class=" main_top_echarts_con_title ">正常分类结果</p>
+                            <p class=" main_top_echarts_con_title ">正常样本分类结果</p>
                             <div class="conclusion">
                                 <p class="result_text">{{ modeMsg.reach.label[datasetChoice][result["predicted"]] }}</p>
                             </div>
@@ -358,8 +358,9 @@
                                 <div id='IBP'></div>
                                 
                                 <div class="conclusion">
-                                    <p class="result_text">注入后平均准确率: </p>
-                                    <p class="result_text">注入前准确率: %</p>
+                                    <p class="result_text">如上柱状图，在预测分类为{{ modeMsg.reach.label[datasetChoice][result["predicted"]] }}的图像上，
+                                        设置噪声强度为{{epsilon}},
+                                        验证模型的安全性，输出区域存在一定的重叠，对应安全特征存在且在风险</p>
                                 </div>
                             </div>
                         </div>
@@ -371,13 +372,188 @@
                                 <div id='CROWN'></div>
                                 
                                 <div class="conclusion">
-                                    <p class="result_text">注入后平均准确率: </p>
-                                    <p class="result_text">注入前准确率: %</p>
+                                    <p class="result_text">如上柱状图，在预测分类为{{ modeMsg.reach.label[datasetChoice][result["predicted"]+1] }}的图像上，
+                                        设置噪声强度为{{epsilon}},
+                                        验证模型的安全性，输出区域存在一定的重叠，对应安全特征存在且在风险</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <button class="exportResultBtn" @click="exportResult("download_page")"><a-icon type="upload" />导出报告内容</button>
+                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                        <a-icon type="upload" />导出报告内容
+                        </a-button>
+                </div>
+
+                <!-- 一致性报告 -->
+                <div slot="header" v-if="mode=='consistency'">
+                    <div class="dialog_title">
+                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                        <h1>一致性评估报告</h1>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main" v-if="mode=='consistency'" id="pdfDom">
+                    <div class="paramShow">
+                        <a-row >
+                            <a-col :span="8" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">样本：</span><img class="paramShowSample" :src="imageUrl" alt="sample"/></p>
+                                </div>
+                            </a-col>
+                            <a-col :span="8" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">样本所属数据集：</span><span class="paramValue">{{ datasetChoice }}</span></p>
+                                </div>
+                            </a-col>
+                            <a-col :span="8" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">深度学习模型：</span><span class="paramValue">{{ modelChoice }}</span></p>
+                                </div>
+                            </a-col>
+                        </a-row>
+                    </div>
+                    <!-- 总评分 -->
+                    <div class="reportContentCon">
+                        <div class="g_score_content">
+                            <div class="scorebg">
+                                <div class=" main_top_echarts_con_title ">模型一致性评分</div>
+                            
+                                <p class="g_score_2">{{ result["l2"] }}</p>
+                                <!-- {{res.score.aft}} -->
+                                <!-- <p class="g_score_evaluate"> {{ res.score_evaluate.aft }}</p> -->
+                            </div>
+                        </div>
+                        <div class="result_div_notop">
+                            <p class=" main_top_echarts_con_title ">一致性输出展示</p>
+                            <!-- <div class="IBPChart"> -->
+
+                                <!-- 图表 -->
+                            <div class='featureImgDiv'>
+                                <div class="imgShowtable">
+                                    <div class="imageTitle">
+                                        <p>Input</p>
+                                    </div>
+                                    <div class="imageContent"> 
+                                        <div class="imgbg">
+                                            <img :src="'../..'+result.input"  />
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <div class="imgShowtable">
+                                    <div class="imageTitle">
+                                        <p>Target</p>
+                                    </div>
+                                    <div class="imageContent"> 
+                                        <div class="imgbg">
+                                            <img :src="'../..'+result.target"  />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="imgShowtable">
+                                    <div class="imageTitle">
+                                        <p>Output</p>
+                                    </div>
+                                    <div class="imageContent"> 
+                                        <div class="imgbg">
+                                            <img :src="'../..'+result.output"  />
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <div class="imgShowtable">
+                                    <div class="imageTitle">
+                                        <p>Delta</p>
+                                    </div>
+                                    <div class="imageContent"> 
+                                        <div class="imgbg">
+                                            <img :src="'../..'+result.delta"  />
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                                
+                            <div class="conclusion">
+                                <p class="result_text">如图，针对CIFAR10数据集测试图像输出特征图像，待验证模型的特征图像，
+                                    通过特征转换模型得到的图像，以及两个图像的差别。主要对比待验证模型的特征图像和转换模型输出的目标图像，
+                                    用以代表两个模型的知识特征，可以看出两个模型的知识特征对比差距不大，但是仍存在部分区域上的特征不一致的现象。</p>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                        <a-icon type="upload" />导出报告内容
+                        </a-button>
+                </div>
+                <!-- 可达性报告 -->
+                <div slot="header" v-if="mode=='reach'">
+                    <div class="dialog_title">
+                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                        <h1>可达性评估报告</h1>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main" v-if="mode=='reach'" id="pdfDom">
+                    <div class="paramShow">
+                        <a-row >
+                            <a-col :span="8" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">样本：</span><img class="paramShowSample" :src="imageUrl" alt="sample"/></p>
+                                </div>
+                            </a-col>
+                            <a-col :span="8" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">样本所属数据集：</span><span class="paramValue">{{ datasetChoice }}</span></p>
+                                </div>
+                            </a-col>
+                            <a-col :span="8" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">深度学习模型：</span><span class="paramValue">{{ modelChoice }}</span></p>
+                                </div>
+                            </a-col>
+                        </a-row>
+                    </div>
+                    <!-- 总评分 -->
+                    <div class="reportContentCon">
+                        <div class="g_score_content">
+                            <div class="scorebg">
+                                <div class=" main_top_echarts_con_title ">模型真实类别到目标类别的可达性评分</div>
+                            
+                                <p class="g_score_2">{{result["l2"]}}</p>
+                            </div>
+                        </div>
+                        <div class="result_div_notop">
+                            <p class=" main_top_echarts_con_title ">真实类别到目标类别的可达区域展示</p>
+                            <!-- <div class="IBPChart"> -->
+
+                                <!-- 图表 -->
+                            <div class='reachImgDiv'>
+                                <div class="imgShowtable">
+                                    <div class="imageTitle">
+                                        <p>Input</p>
+                                    </div>
+                                    <div class="imageContent"> 
+                                        <div class="imgbg">
+                                            <img src='../../static/output/sample00.png'  />
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                                
+                            <div class="conclusion">
+                                <p class="result_text">如图，针对CIFAR10数据集测试图像输出特征图像，待验证模型的特征图像，
+                                    通过特征转换模型得到的图像，以及两个图像的差别。主要对比待验证模型的特征图像和转换模型输出的目标图像，
+                                    用以代表两个模型的知识特征，可以看出两个模型的知识特征对比差距不大，但是仍存在部分区域上的特征不一致的现象。</p>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                        <a-icon type="upload" />导出报告内容
+                        </a-button>
                 </div>
                 
             </resultDialog>
@@ -398,9 +574,9 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
-import {drawIntervalBar,exportResult} from "../assets/js/drawEcharts.js"
+import {drawIntervalBar} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
-import funcicon from "../assets/img/modelEvaIcon.png"
+import funcicon from "../assets/img/formalVerifyIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
 
 const selectSvg = {
@@ -435,6 +611,7 @@ export default {
     },
     data(){
         return{
+            htmlTitle:"形式化验证报告",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
@@ -501,44 +678,44 @@ export default {
             "consistency":{"ID":"consistency","name":"一致性","modellist":["resnet18","vgg16_bn"],"dataset":["mnist","cifar10"]},
             "reach":{"ID":"reach","name":"可达性","modellist":["CNN-3layer"],"dataset":["mnist","cifar10"],
                 "label":{"mnist":{
-                            1:"数字1",
-                            2:"数字2",
-                            3:"数字3",
-                            4:"数字4",
-                            5:"数字5",
-                            6:"数字6",
-                            7:"数字7",
-                            8:"数字8",
-                            9:"数字9",
-                            10:"数字0",
+                            0:"数字1",
+                            1:"数字2",
+                            2:"数字3",
+                            3:"数字4",
+                            4:"数字5",
+                            5:"数字6",
+                            6:"数字7",
+                            7:"数字8",
+                            8:"数字9",
+                            9:"数字0",
                         },
                         "cifar10":{
-                            1:"飞机",
-                            2:"汽车",
-                            3:"鸟类",
-                            4:"猫",
-                            5:"鹿",
-                            6:"狗",
-                            7:"青蛙",
-                            8:"马",
-                            9:"船",
-                            10:"卡车",
+                            0:"飞机",
+                            1:"汽车",
+                            2:"鸟类",
+                            3:"猫",
+                            4:"鹿",
+                            5:"狗",
+                            6:"青蛙",
+                            7:"马",
+                            8:"船",
+                            9:"卡车",
                         }
                     }
                 }
             },
             epsilon:-1.0,
-            modelChoice:"",
+            modelChoice:"consistency",
             // 当前页面
             mode:"safe",
             /* 结果弹窗状态信息 */
-            isShowPublish:false,
+            isShowPublish:true,
             /* 评估结果 */
             result:{},
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
-            stid:"",
+            stidlist:"",
             /* 异步任务结果查循环clock */
             clk:"",
             /* 日志查询clock*/
@@ -669,7 +846,7 @@ export default {
         },
         /* result 处理*/
         resultPro(res){
-            debugger;
+            // debugger;
             var that = this;
             // 总分判断
         },
@@ -683,14 +860,20 @@ export default {
         },
         /* 获取日志 */ 
         getLog(){
-            // debugger;
+            // debugger
             var that = this;
-            that.logflag = false;
-            that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                that.logtext = data.data.Log[that.stid];
-                this.$nextTick(()=> {
-                    that.logflag = true
-                })  
+            if(that.percent < 99){
+               that.percent += 1;
+            }
+            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
             });
         },
         /* 停止结果获取循环 */ 
@@ -718,7 +901,7 @@ export default {
         },
         /* 点击安全评估触发事件 */
         safeEvaClick(){
-            debugger;
+            // debugger;
             /*判断选择*/
             if (this.imageUrl == "" ){
                 this.$message.warning('请上传jpg/png样本图片！',3);
@@ -753,17 +936,17 @@ export default {
                 console.log(postdata)
                 that.percent = 40;
                 that.logflag = true;
-                // that.logclk = self.setInterval(that.getLog, 10);
+                that.logclk = self.setInterval(that.getLog, 6000);
                 that.$axios.post("/api/auto_verify_img", postdata).then((res) => {
                     that.isShowPublish=true;
-                    // clearInterval(that.logclk);
+                    clearInterval(that.logclk);
                     that.logflag = false;
                     that.result = res.data;
                     console.log(that.result)
                     var ylabel=Object.values(that.modeMsg.reach.label[that.datasetChoice])
 
-                    drawIntervalBar("IBP",that.result.boundary1,that.result.categories)
-                    drawIntervalBar("CROWN",that.result.boundary2,that.result.categories)
+                    drawIntervalBar("IBP",that.result.boundary1,ylabel)
+                    drawIntervalBar("CROWN",that.result.boundary2,ylabel)
                     // that.resultPro(res.data);
                 }).catch((err) => {
                         console.log(err)
@@ -774,7 +957,7 @@ export default {
         },
         /* 点击评估触发事件 */
         consistencyEvaClick(){
-            debugger;
+            // debugger;
             /*判断选择*/
             if (this.imageUrl == "" ){
                 this.$message.warning('请上传jpg/png样本图片！',3);
@@ -805,14 +988,15 @@ export default {
                 console.log(postdata)
                 that.percent = 40;
                 that.logflag = true;
-                // that.logclk = self.setInterval(that.getLog, 10);
+                that.logclk = self.setInterval(that.getLog, 6000);
                 that.$axios.post("/api/knowledge_consistency", postdata).then((res) => {
-                    
+                    that.isShowPublish=true;
                     that.logflag = true;
                     clearInterval(that.logclk);
                     that.logflag = false;
                     that.result = res.data;
-                    that.resultPro(res.data);
+                    that.result["l2"] = that.result["l2"].toFixed(2);
+                    // that.resultPro(res.data);
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -822,7 +1006,7 @@ export default {
         },
         /* 点击评估触发事件 */
         reachEvaClick(){
-            debugger;
+            // debugger;
             /*判断选择*/
             if (this.imageUrl == "" ){
                 this.$message.warning('请上传jpg/png样本图片！',3);
@@ -865,7 +1049,7 @@ export default {
                 console.log(postdata)
                 that.percent = 40;
                 that.logflag = true;
-                // that.logclk = self.setInterval(that.getLog, 10);
+                // that.logclk = self.setInterval(that.getLog, 6000);
                 that.$axios.post("/api/reach", postdata).then((res) => {
                     
                     that.logflag = true;
@@ -889,25 +1073,6 @@ export default {
 .paramCon{
     width: 1200px;
     margin-left: 360px;
-}
-.funcParam{
-/* 模型公平性评估 */
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-width: 1200px;
-height: 824px;
-background: #FFFFFF;
-border: 1px solid #E0E3EB;
-margin: 0px 0px 40px 0px;
-box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
-border-radius: 8px;
-flex: none;
-order: 0;
-flex-grow: 0;
-text-align: left;
 }
 .paramTitle{
     height:80px;
@@ -1014,19 +1179,12 @@ text-align: left;
 .ant-divider-horizontal{
     margin: 0 0;
 }
-/* 输入模块div样式 */
-.inputdiv{
-    margin: 0px 48px;
-    height: 700px;
-    overflow: auto;
-}
 .uploadImg{
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     padding: 0px;
     gap: 24px;
-    margin-top: 48px;
     width: 1104px;
     height: 276px;
     flex: none;
@@ -1326,5 +1484,94 @@ flex-grow: 0
 #conseva{
     width: 300px;
     height:300px;
+}
+.reportContentCon{
+    display: flex;
+    width: 1080px;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+    margin-top: 168px;
+}
+.g_score_content{
+    width: 1080px;
+}
+.featureImgDiv{
+    display: flex;
+    width: 960px;
+    align-items: flex-start;
+    border-radius: 4px;
+    border: 1px solid #E0E3EB;
+    background: #FFF;
+}
+imgShowtable{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1 0 0;
+    width: 240px;
+    height: 308px;
+}
+.imageTitle{
+    display: flex;
+    height: 68px;
+    padding: 9px 32px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+    border-right: 1px solid #E0E3EB;
+    border-bottom: 1px solid #E0E3EB;
+    background: var(--gray-7, #F2F4F9);
+}
+.imageTitle p{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-shrink: 0;
+    align-self: stretch;
+    color: rgba(0, 0, 0, 0.90);
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+}
+.imageContent{
+    display: flex;
+    height: 240px;
+    padding: 9px 20px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    align-self: stretch;
+    border-right: 1px solid #E0E3EB;
+    border-bottom: 1px solid #E0E3EB;
+    background: #FFF;
+}
+.imgbg{
+    display: flex;
+    width: 200px;
+    height: 200px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    
+}
+.imgbg img{
+    width: 200px;
+    height: 200px;
+}
+.reportContent{
+    margin-top: 133px;
+}
+.reachImgDiv{
+    display: flex;
+    height: 476px;
+    padding: 24px 193px 24px 132px;
+    align-items: center;
+    background: var(--light-neutral-1-bg, #FFF);
 }
 </style>

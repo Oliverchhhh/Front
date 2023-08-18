@@ -1,6 +1,6 @@
 <template>
 <div class="datasetselect">
-    <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择数据集</p>
+    <p class="mainParamNameNotop"><select-icon :stlye="{width:'4px'}" />请选择数据集</p>
     <!-- 折叠面板 -->
     <template>
         <!-- 单选组件 选中哪个显示哪个数据集信息 -->

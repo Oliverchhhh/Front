@@ -45,7 +45,7 @@
                         <h1>数据集公平性评估结果报告</h1>
                     </div>
                 </div>
-                <div class="dialog_publish_main" slot="main">
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
                     <!-- 总评分 -->
                     <div class="result_div">
                         <div class="g_score_content">
@@ -187,6 +187,10 @@
                         </div>
                         
                     </div>
+                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
                 </div>
             </resultDialog>
         </a-layout-content>
@@ -209,6 +213,7 @@ import showLog from "../components/showLog.vue"
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
 import {drawclass1pro, drawconseva1, drawbar, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
+// import {getLog} from "../assets/js/getData.js"
 /* 引入图片 */
 import funcicon from "../assets/img/dataEvaIcon.png"
 import bgimg from "../assets/img/dataEvaBackground.png"
@@ -226,6 +231,8 @@ export default {
     },
     data(){
         return{
+            htmlTitle: '数据集公平性评估报告',
+            stidlist:{},
             /* 热力图height*/
             heat_height:"213px",
             /* 评估按钮样式和状态 */
@@ -241,7 +248,7 @@ export default {
             /* 进度 */
             percent:10,
             /* 日志内容 */
-            logtext:["开始执行","执行结束"],
+            logtext:[],
             dataname:["German","Adult","Compas"],
             /* 选中数据集序号 */
             dataNameValue:0,
@@ -284,6 +291,7 @@ export default {
                 "consistency_score":60,
                 "group_score":70,}
             }
+            
         },
     watch:{
         /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
@@ -298,15 +306,27 @@ export default {
             }
         }
     },
-    mounted(){
-        let that=this;
-        // that.resultPro();
-        // that.callbackpro(0);
-    },
     created() {
         document.title = '数据集公平性评估';
         },
     methods: { 
+        /* 获取日志 */ 
+        getLog(){
+            var that = this;
+            if(that.percent < 99){
+               that.percent += 1;
+            }
+            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = Object.values(data.data.Log).slice(-1)[0];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
+            });
+        },
         callbackpro(val) {
             console.log("callbackval",val);
             if(!(this.staAttrList[val] in this.result["Proportion"])){
@@ -338,7 +358,6 @@ export default {
         },
         /* result 处理*/
         resultPro(res){
-            debugger;
             var that = this;
             // 总分判断
             if(that.result.score > 80){
@@ -481,7 +500,8 @@ export default {
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
-            
+            this.logtext=[]
+            this.percent=0
             /*判断选择*/
             if (this.senAttrList.length ==0 ){
                 this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
@@ -509,15 +529,21 @@ export default {
                 staAttrList:JSON.stringify(that.staAttrList),
                 tid:tid};
                 console.log(postdata)
+                that.logclk = setInterval(() => {
+                    that.getLog();
+                },200)
+                that.percent=50
                 that.$axios.post("/api/DataFairnessEvaluate",postdata).then((res) => {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
-                    that.logflag = false;
+                    that.percent=100
                     that.isShowPublish = true;
                     res.data["score"] = res.data["Overall fairness"].toFixed(2)*100;
                     res.data["consistency_score"] = res.data["Overall individual fairness"].toFixed(2)*100;
                     res.data["group_score"] =  res.data["Overall group fairness"].toFixed(2)*100;
                     that.result = res.data;
                     that.resultPro(res.data);
+                    that.logflag = false;
+                    clearInterval(that.logclk);
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -535,25 +561,7 @@ export default {
     width: 1200px;
     margin-left: 360px;
 }
-.funcParam{
-/* 模型公平性评估 */
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-width: 1200px;
-height: 824px;
-background: #FFFFFF;
-border: 1px solid #E0E3EB;
-margin: 0px 0px 40px 0px;
-box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
-border-radius: 8px;
-flex: none;
-order: 0;
-flex-grow: 0;
-text-align: left;
-}
+
 .paramTitle{
     height:80px;
     padding: 20px 24px 20px 26px;
@@ -601,12 +609,6 @@ text-align: left;
 }
 .ant-divider-horizontal{
     margin: 0 0;
-}
-/* 输入模块div样式 */
-.inputdiv{
-    margin: 0px 48px;
-    height: 700px;
-    overflow: auto;
 }
 
 /* 图表名称样式 */

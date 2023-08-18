@@ -63,7 +63,7 @@
                         <h1>数据集公平性提升结果报告</h1>
                     </div>
                 </div>
-                <div class="dialog_publish_main" slot="main">
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
                     <!-- 总评分 -->
                     <div class="result_div">
                         <div class="g_score_content">
@@ -205,6 +205,10 @@
                         </div>
                         
                     </div>
+                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      <a-icon type="upload" />导出报告内容
+                    </a-button>
                 </div>
             </resultDialog>
         </a-layout-content>
@@ -260,6 +264,7 @@ export default {
     },
     data(){
         return{
+            htmlTitle: '数据集公平性提升报告',
             /* 评估行 */
             rowkey:0,
             colkey:0,
@@ -360,7 +365,7 @@ export default {
             logclk:"", 
             /*主任务id*/ 
             tid:"",
-            stid:"",
+            stidlist:{},
             /* 公平性提升算法disable */
             debiasDisabled:{
                 "LFR":false,
@@ -391,13 +396,20 @@ export default {
     methods: {
         /* 获取日志 */ 
         getLog(){
+            // debugger
             var that = this;
-            // that.logflag = false;
             if(that.percent < 99){
-                that.percent = that.percent+1;
+               that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                that.logtext = data.data.Log[that.stid];
+            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
             });
         },
         getData(){
@@ -646,9 +658,13 @@ export default {
                 that.$axios.post("/api/DataFairnessDebias",postdata).then((res) => {
                     that.logflag = true;
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
-                    that.stid =  res.data.stid;
-                    that.logclk = self.setInterval(that.getLog, 3000);
-                    that.clk = self.setInterval(that.update, 3000);
+                    that.stidlist =  {"DataFairnessDebias":res.data.stid};
+                    that.logclk = setInterval(() => {
+                        that.getLog();
+                    },2000)
+                    that.clk = setInterval(() => {
+                            that.update();
+                        },6000)
                     console.log(that.logflag);
                 }).catch((err) => {
                         console.log(err)
@@ -667,25 +683,7 @@ export default {
     width: 1200px;
     margin-left: 360px;
 }
-.funcParam{
-/* 模型公平性评估 */
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-width: 1200px;
-height: 824px;
-background: #FFFFFF;
-border: 1px solid #E0E3EB;
-margin: 0px 0px 40px 0px;
-box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
-border-radius: 8px;
-flex: none;
-order: 0;
-flex-grow: 0;
-text-align: left;
-}
+
 .paramTitle{
     height:80px;
     padding: 20px 24px 20px 26px;
@@ -816,12 +814,6 @@ flex-grow: 0;
 
 .ant-divider-horizontal{
     margin: 0 0;
-}
-/* 输入模块div样式 */
-.inputdiv{
-    margin: 0px 48px;
-    height: 700px;
-    overflow: auto;
 }
 
 /* 图表名称样式 */

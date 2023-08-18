@@ -56,7 +56,7 @@ function drawclass1pro(ID, mydata, classname, dataname){
     },500)
 }
 //敏感属性1直方图 difference id=class1Difference
-function drawbar(ID, data, label,name){
+function drawbar(ID, data, label, name='',xname='', yname=''){
     var option;
     option = {
       title:{
@@ -79,18 +79,19 @@ function drawbar(ID, data, label,name){
       },
       grid:{
         x:"8%",
-        y:"5%",
+        y:"10%",
         x2:"10%",
         y2:"15%",
       },
       xAxis: {
         type: 'category',
+        name:xname,
         data: label,
         axisLabel:{
           show:true,
           // rotate: '45',
           textStyle:{
-            color: "#3E4453;",
+            color: "#3E4453",
             fontSize:12,
             fontFamily : 'HONOR Sans CN',
           fontStyle:'normal',
@@ -105,6 +106,7 @@ function drawbar(ID, data, label,name){
         }
       },
       yAxis: {
+        name:yname,
         type: 'value',
         min:0,
         max:1,
@@ -1067,6 +1069,131 @@ function exportResult(ID){
 
   }
 }
+
+function drawLineBar(ID, detect_rate, label, no_defense_accuracy=[]){
+  const colors = ['#5470C6', '#91CC75'];
+  const option = {
+    color: colors,
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'cross'
+        }
+    },
+    grid:{
+      x:"8%",
+      y:"10%",
+      x2:"10%",
+      y2:"15%",
+    },
+    legend: {
+      textStyle:{
+        color: "#3E4453",
+        fontSize:12,
+        fontFamily : 'HONOR Sans CN',
+        fontStyle:'normal',
+        fontWeight:400,
+      },
+      right: "10%",
+      data: ['防御前的模型分类精度', '防御后的模型分类精度']
+    },
+    xAxis: [
+        {
+            name: '算法名称',
+            // nameLocation: 'center',
+            nameGap: 40,
+            textStyle:{
+              color: "#3E4453;",
+              fontSize:12,
+              fontFamily : 'HONOR Sans CN',
+              fontStyle:'normal',
+              fontWeight:400,
+            },
+            type: 'category',
+            axisTick: {
+                alignWithLabel: true
+            },
+            axisLabel: {
+                rotate: 20,
+                textStyle:{
+                  color: "#3E4453;",
+                  fontSize:12,
+                  fontFamily : 'HONOR Sans CN',
+                  fontStyle:'normal',
+                  fontWeight:400,
+                },
+            },
+            data: label,
+
+        }
+    ],
+    yAxis: {
+        name: '模型分类精度',
+        // nameLocation: 'center',
+        nameGap: 40,
+        axisLine: { show:false,lineStyle: { color: '#B4B9C5' } },
+        splitLine: { lineStyle: { color: '#E0E3EB' ,type:'solid'} },
+        type: 'value',
+        axisLabel: {
+            
+            textStyle:{
+              color: "#6C7385",
+              fontSize:12,
+              fontFamily : 'HONOR Sans CN',
+            fontStyle:'normal',
+            fontWeight:400,
+            }
+        },
+        min: 0,
+        max: 1,
+        interval: 0.2,
+    },
+    series: [
+        {
+            data: detect_rate,
+            name: '防御后的模型分类精度',
+            type: 'bar',
+            animationDuration: 3000,
+            itemStyle: {
+                normal: {
+                    color: '#5470C6'
+                },
+                emphasis: {
+                    color: '#37D2D4'
+                }
+            },
+            showBackground: true,
+            backgroundStyle: {
+                color: 'rgba(180, 180, 180, 0.2)'
+            }
+        },
+        {
+            data: no_defense_accuracy,
+            name: '防御前的模型分类精度',
+            type: 'line',
+            animationDuration: 3000,
+            itemStyle: {
+                normal: {
+                    color: 'red'
+                },
+                emphasis: {
+                    color: '#37D2D4'
+                }
+            },
+            showBackground: true,
+            backgroundStyle: {
+                color: 'rgba(180, 180, 180, 0.2)'
+            }
+        }
+    ]
+};
+setTimeout(function(){
+  var myChartcons = echarts.init(document.getElementById(ID));
+  window.addEventListener("resize", function () {
+      myChartcons.resize()});
+  option && myChartcons.setOption(option);
+},500)
+}
 export {
   drawclass1pro,
   drawbar,
@@ -1078,5 +1205,6 @@ export {
   drawLine,
   drawIntervalBar,
   drawStackedLine,
-  exportResult
+  exportResult,
+  drawLineBar
 }

@@ -31,7 +31,7 @@
                    <div class="inputdiv">
                        <!-- 选匹配机制 -->
                        <div class="matchedSelected">
-                           <p class="mainParamName">请选择系统漏洞匹配机制</p>
+                           <p class="mainParamNameNotop">请选择系统漏洞匹配机制</p>
                            <a-radio-group v-model="matchedMethod" @change="onMatchedMethodChange">
                                <div class="matchedDes">
                                    <a-radio :style="radioStyle" value="Hard" >
@@ -103,7 +103,7 @@
                        <h1>开发环境分析及框架适配</h1>
                    </div>
                </div>
-               <div class="dialog_publish_main" slot="main">
+               <div class="dialog_publish_main" slot="main" id="pdfDom">
                    <!-- 图表 -->
                    <div class="result_div">
                        
@@ -124,7 +124,10 @@
                            </div>
                        </div>
                    </div>
-                   <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
+                   <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
                </div>
            
            </resultDialog>
@@ -144,8 +147,6 @@ import func_introduce from "../components/funcIntroduce.vue"
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
-import html2pdf from 'html2pdf.js'
-
 /* 引入图片 */
 import funcicon from "../assets/img/envTestIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
@@ -177,6 +178,7 @@ export default {
    },
    data(){
        return{
+        htmlTitle:"开发环境分析及框架适配报告",
            /* 单选按钮样式 */
            radioStyle: {
                display: 'block',
@@ -235,7 +237,7 @@ export default {
            /* 主任务id */ 
            tid:"",
            /* 子任务id */ 
-           stid:"",
+           stidlist:"",
            /* 异步任务结果查循环clock */
            clk:"",
            /* 日志查询clock*/
@@ -317,14 +319,22 @@ export default {
        },
        /* 获取日志 */ 
        getLog(){
-           var that = this;
-           if(that.percent < 99){
+            // debugger
+            var that = this;
+            if(that.percent < 99){
                that.percent += 1;
-           }
-           that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-               that.logtext = data.data.Log[that.stid];
-           });
-       },
+            }
+            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
+            });
+        },
        /* 停止结果获取循环 */ 
        stopTimer() {
            if (this.result.data.stop) {
@@ -383,7 +393,7 @@ export default {
                that.$axios.post("/api/EnvTest/ETParamSet", postdata).then((res) => {
                    that.logflag = true;
                    // 异步任务
-                   that.stid =  res.data.EnvTestid;
+                   that.stidlist =  res.data.EnvTestid;
                    that.logclk = self.setInterval(that.getLog, 3000);
                    // that.stid="S20230224_1106_368e295"
                    that.clk = self.setInterval(that.update, 3000);
@@ -403,25 +413,6 @@ export default {
 .paramCon{
    width: 1200px;
    margin-left: 360px;
-}
-.funcParam{
-/* 模型公平性评估 */
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-width: 1200px;
-height: 824px;
-background: #FFFFFF;
-border: 1px solid #E0E3EB;
-margin: 0px 0px 40px 0px;
-box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
-border-radius: 8px;
-flex: none;
-order: 0;
-flex-grow: 0;
-text-align: left;
 }
 .paramTitle{
    height:80px;
@@ -466,12 +457,7 @@ text-align: left;
 .ant-divider-horizontal{
    margin: 0 0;
 }
-/* 输入模块div样式 */
-.inputdiv{
-   margin: 0px 48px;
-   height: 700px;
-   overflow: auto;
-}
+
 /* 匹配机制样式 */
 .matchedSelected{
    display: flex;
@@ -647,7 +633,7 @@ padding: 0px 60px;
 gap: 24px;
 
 width: 1080px;
-height: 1134px;
+/* height: 1134px; */
 
 
 /* Inside auto layout */

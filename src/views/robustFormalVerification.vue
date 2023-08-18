@@ -30,7 +30,7 @@
                     <div class="inputdiv">
                         <!-- 选数据集 -->
                         <div class="datasetSelected">
-                            <p class="mainParamName">请选择数据集</p>
+                            <p class="mainParamNameNotop">请选择数据集</p>
                             <a-radio-group v-model="dataset" @change="onFrameworkChange" class="datasetRadioGroup">
                                 <div class="datasetDiv">
                                     <a-radio :style="radioStyle" value="mnist" >
@@ -134,7 +134,7 @@
                         <h1>鲁棒性形式化验证评估结果报告</h1>
                     </div>
                 </div>
-                <div class="dialog_publish_main" slot="main">
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
                     <!-- <div class="paramShow">
                         <div class="col">
                             <div>
@@ -177,6 +177,10 @@
                             </div>
                         </div>
                     </div>
+                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                    <a-icon type="upload" />导出报告内容
+                    </a-button>
                 </div>
             </resultDialog>
         </a-layout-content>
@@ -228,6 +232,7 @@ export default {
     },
     data(){
         return{
+            htmlTitle:"鲁棒性形式化验证报告",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
@@ -300,7 +305,7 @@ export default {
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
-            stid:"",
+            stidlist:"",
             /* 异步任务结果查循环clock */
             clk:"",
             /* 日志查询clock*/
@@ -488,7 +493,7 @@ export default {
                 // 
                 // 启动任务
                 that.$axios.post("/api/FormalVerification", postdata).then((res) => {
-                    that.stid =  res.data.stid;
+                    that.stidlist =  {"formalverfy":res.data.stid};
                     that.logclk = self.setInterval(that.getLog, 1000);
                     that.logflag = true;
                     that.clk = self.setInterval(that.update, 6000);
@@ -508,25 +513,6 @@ export default {
 .paramCon{
     width: 1200px;
     margin-left: 360px;
-}
-.funcParam{
-/* 模型公平性评估 */
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-width: 1200px;
-height: 824px;
-background: #FFFFFF;
-border: 1px solid #E0E3EB;
-margin: 0px 0px 40px 0px;
-box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
-border-radius: 8px;
-flex: none;
-order: 0;
-flex-grow: 0;
-text-align: left;
 }
 .paramTitle{
     height:80px;
@@ -581,13 +567,6 @@ text-align: left;
 .ant-divider-horizontal{
     margin: 0 0;
 }
-/* 输入模块div样式 */
-.inputdiv{
-    margin: 0px 48px;
-    height: 700px;
-    overflow: auto;
-}
-
 /* 图表名称样式 */
 .echart_title{
     display: flex;

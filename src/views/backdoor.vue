@@ -2,91 +2,62 @@
      <div>
         <a-layout>
             <!-- 顶部菜单栏 -->
-        <a-layout-header>
-            <!-- 导航栏 -->
-            <navmodule/>
-        </a-layout-header>
-        <a-layout-content>
-            <!-- 功能介绍 -->
-            <func_introduce :funcDesText="funcDesText"></func_introduce>
-            <!-- 参数配置 -->
-            <div class="paramCon">
-                <!-- 参数配置容器 -->
-                <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
-                
-                <div class="funcParam">
-                    <div class="paramTitle" >
-                        <!-- 功能标题和执行按钮 -->
-                        <!-- icon展示 -->
-                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <!-- 功能名称 -->
-                        <h3>{{ funcDesText.name }}</h3>
-                        <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
-                            <a-icon type="security-scan" />
-                            评估
-                        </a-button>
-                    </div>
-                    <a-divider />
-                    <div class="inputdiv">
-                        <!-- 输入主体 -->
-                    </div>
-                </div>
-            </div>
-            <!-- 日志展示 -->
-            <div v-if="logflag">
-                <showLog :percent="percent" :logtext="logtext"></showLog>
-            </div>
-            <!-- 结果展示 -->
-            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
-                <div slot="header">
-                    <div class="dialog_title">
-                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <h1>鲁棒性形式化验证评估结果报告</h1>
-                    </div>
-                </div>
-                <div class="dialog_publish_main" slot="main">
-                    <!-- 总评分 -->
-                    <div class="result_div">
-                        <div class="g_score_content">
-                            <div class="scorebg">
-                                <div class=" main_top_echarts_con_title ">模型鲁棒性形式化验证总评分</div>
-                                <!-- 显示分数 -->
-                                <p class="g_score"> {{result.score}}</p>
-                                <!-- 显示评估结果 -->
-                                <p class="g_score_evaluate"> {{ result.score_evaluate }}</p>
-                            </div>
-                        </div>
-                        <div class="conclusion">
-                            <p class="result_text"> 模型综合评分为{{result.score}}，是一个{{ result.score_con }}的模型</p>
-                            <p class="result_annotation">评分算法说明</p>
-                        </div>
-                    </div>
+            <a-layout-header>
+                <!-- 导航栏 -->
+                <navmodule/>
+            </a-layout-header>
+            <a-layout-content>
+                <!-- 功能介绍 -->
+                <func_introduce :funcDesText="funcDesText"></func_introduce>
+                <!-- 参数配置 -->
+                <div class="paramCon">
+                    <!-- 参数配置容器 -->
+                    <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
                     
-                    <!-- 图表 -->
-                    <div class="result_div">
-                        
-                        <div class="echart_title">
-                            
-                            <div class=" main_top_echarts_con_title ">图表标题</div>
-                            <p class="title_annotation">标题说明，可无</p>
-                            
+                    <div class="funcParam">
+                        <div class="paramTitle" >
+                            <!-- 功能标题和执行按钮 -->
+                            <!-- icon展示 -->
+                            <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                            <!-- 功能名称 -->
+                            <h3>{{ funcDesText.name }}</h3>
+                            <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                                <a-icon type="security-scan" />
+                                评估
+                            </a-button>
                         </div>
-                        <div id="rdeva">
-                            <!-- 图表 -->
-                            <div id = 'conseva'></div>
-                            
-                            <div class="conclusion">
-                                <p class="result_text">图表结论</p>
-                                <p class="result_annotation">图表说明</p>
-                            </div>
+                        <a-divider />
+                        <div class="inputdiv">
+                            <!-- 输入主体 -->
+                            <div class="mainParamNameNotop">请选择数据集</div>
+                            <DataSetCard style="width: 1104px; margin-bottom: 16px;" v-for="(info, index) in dataSetInfo"
+                                :key="'Dataset' + index" v-bind="info" :indexInParent="index" @selectDataset="changeDataset"
+                                :checked="index == selectedDataset">
+                            </DataSetCard>
+                            <div class="mainParamName48">请选择模型</div>
+                            <ModelCard style="width: 1104px;margin-bottom: 16px;" v-for="(info, index) in modelInfo" :key="'Model' + index"
+                                v-bind="info" :indexInParent="index" @selectModel="changeModel"
+                                :checked="index == selectedModel">
+                            </ModelCard>
+                            <div class="mainParamName48">投毒方法</div>
+                            <MethodCard style="width: 1104px;" v-for="(info, index) in methodInfo" :key="'Method' + index"
+                                v-bind="info" :indexInParent="index" :attack_type="'backdoor'" :dataset="selectedDataset" @updateAttributes="updataMethodAttributes" 
+                                @selectMethod="updateMethod" :checked="selectedMethod.indexOf(methodInfo[index].id) > -1">
+                            </MethodCard>
+                            <!-- resultVisible -->
+                            <BackdoorEval :is-show="resultVisible" :result="result" :postData="postData" @on-close="() => { resultVisible = !resultVisible }">
+                            </BackdoorEval>
                         </div>
                     </div>
                 </div>
-            </resultDialog>
-        </a-layout-content>
-        <a-layout-footer>
+                <!-- 日志展示 -->
+                <div v-if="logflag">
+                    <showLog :percent="percent" :logtext="logtext"></showLog>
+                </div>
+            </a-layout-content>
+            <a-layout-footer class="layoutFooter">
 
-        </a-layout-footer>
+            </a-layout-footer>
         </a-layout>
      </div>
 </template>
@@ -99,11 +70,15 @@ import func_introduce from "../components/funcIntroduce.vue"
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
-/* 引入自定义js，结果显示 */
-import {drawclass1pro, drawconseva1, drawbar, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
+
 /* 引入图片 */
-import funcicon from "../assets/img/modelEvaIcon.png"
+import funcicon from "../assets/img/backdoorEvaIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
+
+import DataSetCard from "../components/card/DataSetCard.vue"
+import ModelCard from "../components/card/ModelCard.vue"
+import MethodCard from "../components/card/MethodCard.vue";
+import BackdoorEval from "./dialog/BackdoorEval.vue";
 
 const selectSvg = {
         template:`
@@ -129,6 +104,10 @@ export default {
         showLog:showLog,
         resultDialog:resultDialog,
         selectIcon,
+        DataSetCard,
+        ModelCard,
+        MethodCard,
+        BackdoorEval,
     },
     data(){
         return{
@@ -137,8 +116,6 @@ export default {
                 display: 'block',
                 lineHeight: '30px',
             },
-            /* 热力图height*/
-            heat_height:"213px",
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -151,44 +128,212 @@ export default {
             /* 进度 */
             percent:10,
             /* 日志内容，调用日志接口获取 */
-            logtext:["开始执行","执行结束"],
-            dataname:["German","Adult","Compas"],
+            logtext:[],
             /* 功能介绍模块信息 */
             funcDesText:{
                 /* 功能名称 */
-                name:"功能名称",
+                name: "后门攻击评估",
                 /* 功能icon，需先引入 */
                 imgpath:funcicon,
                 /* 功能背景图片，需先引入 */
                 bgimg:bgimg,
                 /* 功能介绍下的总介绍 */
-                destext:"功能总介绍",
+                destext:"多种投毒攻击方法对深度学习数据和模型进行攻击，可视化评估投毒攻击影响",
                 /* 背景介绍 */
-                backinfo:"背景介绍，功能详细介绍",
+                backinfo:"人工智能系统相较于传统的计算机系统来说，它最大的特点就是需要用海量的大数据来训练模型。\
+                攻击者会通过数据投毒的方式，在训练数据集中插入一些带毒样本对模型进行恶意攻击，\
+                当有毒数据被攻击者激活后,会使本身在良性样本上表现良好的模型的预测性能发生恶意转化。后门攻击评估可以有效评估攻击效果。",
                 /* 亮点介绍 */
                 highlight:[
-                    "功能亮点1",
-                    "功能亮点2",
-                    "功能亮点3"
+                    "支持多种主流的后门攻击算法，如基础的Backdoor Attack、Clean-Label Backdoor Attack、Clean Label Feature Collision Attack、Adversarial Backdoor Embedding等",
+                    "支持用户自主设定投毒比例、投毒样式的宽高位置等信息，调试入门门槛低",
                 ]
             },
-            /* 结果弹窗状态信息 */
-            isShowPublish:false,
             /* 评估结果 */
             result:{},
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
-            stid:"",
+            stidlist:{},
             /* 异步任务结果查循环clock */
             clk:"",
             /* 日志查询clock*/
-            logclk:"", 
-            }
-        },
-    watch:{
+            logclk: "",
+            // 数据集信息
+            dataSetInfo: [
+            {
+                    name: "CIFAR10",
+                    class:['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck'],
+                    description: "是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。",
+                    pictureSrcs: [
+                        [require('../assets/img/cifar100.jpg'), 
+                        require('../assets/img/cifar101.jpg'),
+                        require('../assets/img/cifar102.jpg'), 
+                        require('../assets/img/cifar103.jpg'), 
+                        require('../assets/img/cifar104.jpg'), 
+                        require('../assets/img/cifar105.jpg'), 
+                        require('../assets/img/cifar106.jpg'),
+                        require('../assets/img/cifar107.jpg'),
+                        require('../assets/img/cifar108.jpg'),
+                        require('../assets/img/cifar109.jpg')],
+                        ],
+                },
+                {
+                    name: "MNIST",
+                    description: "是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。",
+                    class:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'],
+                    pictureSrcs: [
+                        [require("../assets/img/mnist0.jpg"),
+                        require('../assets/img/mnist1.jpg'),
+                        require('../assets/img/mnist2.jpg'), 
+                        require('../assets/img/mnist3.jpg'), 
+                        require('../assets/img/mnist4.jpg'), 
+                        require('../assets/img/mnist5.jpg'), 
+                        require('../assets/img/mnist6.jpg'),
+                        require('../assets/img/mnist7.jpg'),
+                        require('../assets/img/mnist8.jpg'),
+                        require('../assets/img/mnist9.jpg'),],
+                    ],
+                },
+               
+            ],
+            selectedDataset: 0,
+            modelInfo: [
+                {
+                    name: "ResNet18",
+                    layer:18
+                },
+                {
+                    name: "ResNet34",
+                    layer:34
+                },
+                {
+                    name: "ResNet50",
+                    layer:50
+                },
+                {
+                    name: "ResNet101",
+                    layer:101
+                },
+                {
+                    name: "ResNet152",
+                    layer:152
+                },
+            ],
+            selectedModel: 0,
+            methodInfo: [
+                {
+                    name: "Backdoor Attack",
+                    id:"PoisoningAttackBackdoor",
+                    description: "该方法使用数据投毒的方法，向训练集中的数据添加特别的后门特征（修改特定位置的像素值或者添加小的特殊图形），并且将这些数据的标签设置为目标标签。当模型在经过以上投毒后的训练集上训练后，在干净的样本上仍然可以保持较高的准确率，但是当输入的样本出现以上添加的后门特征时，模型会以较高的概率将输入样本分类到提前设定的目标标签中",
+                    attributes: [
+                        [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                        { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        ],
+                        [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
+                    ]
+                },
+                {
+                    name: "Clean-Label Backdoor Attack L1",
+                    id:"PoisoningAttackCleanLabelBackdoorL1",
+                    description: "其基本思路是仅仅在攻击设定的目标标签类中的样本中添加后门，从而保证添加后门的样本能够保持原本正确的标签，避免了对于标签的修改，从而保证攻击的隐蔽性。由于这样以来，后门样本在训练过程中涉及到的样本类大大减少，很大程度上减少了后门特征被学习到的可能性。为了保证这种攻击方式下仍然具有较好的效果，论文中提出了两种方法来增强目标类学习训练过程中对于后门特征的依赖。支持L1 norm范数",
+                    attributes: [
+                        [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                        { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        ],
+                        [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
+                        [
+                        { name: "扰动系数", key:"eps", defaultNumber: 0.031, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.001},
+                        { name: "步长参数", key:"eps_step", defaultNumber: 0.01, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                        { name: "最大迭代次数", key:"max_iter", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 100, step:1},
+                        ]
+                    ]
+                },
+                {
+                    name: "Clean-Label Backdoor Attack L2",
+                    id:"PoisoningAttackCleanLabelBackdoorL2",
+                    description: "其基本思路是仅仅在攻击设定的目标标签类中的样本中添加后门，从而保证添加后门的样本能够保持原本正确的标签，避免了对于标签的修改，从而保证攻击的隐蔽性。由于这样以来，后门样本在训练过程中涉及到的样本类大大减少，很大程度上减少了后门特征被学习到的可能性。为了保证这种攻击方式下仍然具有较好的效果，论文中提出了两种方法来增强目标类学习训练过程中对于后门特征的依赖。支持L1 norm范数",
+                    attributes: [
+                        [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                        { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        ],
+                        [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
+                        [
+                        { name: "扰动系数", key:"eps", defaultNumber: 0.031, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.001},
+                        { name: "步长参数", key:"eps_step", defaultNumber: 0.01, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                        { name: "最大迭代次数", key:"max_iter", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 100, step:1},
+                        ]
+                    ]
+                },
+                {
+                    name: "Clean-Label Backdoor Attack Linf",
+                    id:"PoisoningAttackCleanLabelBackdoorLinf",
+                    description: "其基本思路是仅仅在攻击设定的目标标签类中的样本中添加后门，从而保证添加后门的样本能够保持原本正确的标签，避免了对于标签的修改，从而保证攻击的隐蔽性。由于这样以来，后门样本在训练过程中涉及到的样本类大大减少，很大程度上减少了后门特征被学习到的可能性。为了保证这种攻击方式下仍然具有较好的效果，论文中提出了两种方法来增强目标类学习训练过程中对于后门特征的依赖。支持L1 norm范数",
+                    attributes: [
+                    [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                        { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        ],
+                        [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
+                        [
+                        { name: "扰动系数", key:"eps", defaultNumber: 0.031, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.001},
+                        { name: "步长参数", key:"eps_step", defaultNumber: 0.01, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                        { name: "最大迭代次数", key:"max_iter", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 100, step:1},
+                        ]
+                    ]
+                },
+                {
+                    name: "Clean Label Feature Collision Attack",
+                    id:"FeatureCollisionAttack",
+                    description: "算法是在保持样本数据和标签正确对应下的数据投毒攻击，在训练阶段选择需要攻击的目标数据和基本类，经过投毒攻击以后，在推理阶段出现该目标数据时，会被分类到基本类中。方法中的目标类数据指的是攻击方法所针对的攻击实体",
+                    attributes: [
+                    [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                        { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        ],
+                        [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
+                        [
+                        { name: "标识特征层", key:"feature_layer", defaultNumber: 3, number: 0, type: "inputNumber" , min: 0, max: 18, step:1},
+                        { name: "优化方法的学习率", key:"learning_rate", defaultNumber: 0.01, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                        { name: "学习率的衰变系数", key:"decay_coeff", defaultNumber: 0.5, number: 0, type: "inputNumber" , min: 0, max: 1, step:0.1},
+                        ],
+                        [
+                        { name: "攻击停止阈值", key:"stopping_tol", defaultNumber: 0.0001, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.0001},
+                        { name: "对象改变停止阈值", key:"obj_threshold", defaultNumber: 0, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.0001},
+                        { name: "旧对象值数目", key:"num_old_obj", defaultNumber: 40, number: 0, type: "inputNumber" , min: 0, max: 100, step:1}
+                        ],
+                        [
+                        { name: "相似系数", key:"similarity_coeff", defaultNumber: 256, number: 0, type: "inputNumber" , min: 0, max: 1000, step:1},
+                        { name: "最大迭代次数", key:"max_iter", defaultNumber: 120, number: 0, type: "inputNumber" , min: 0, max: 1000, step:1},
+                        { name: "水印透明度", key:"watermark", defaultNumber: 0, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.001}
+                        ]
+                    ]
+                },
+                {
+                    name: "Adversarial Backdoor Embedding",
+                    id:"PoisoningAttackAdversarialEmbedding",
+                    description: "对于一个被基本后门攻击方法攻击的模型，该方法通过一个对抗的模型结构和一个新的目标函数来将模型在被添加后门的全体训练样本上重新训练，在保证模型在干净样本上分类准确度的基础上，减少模型在干净样本和后门样本上潜空间上的特征差异",
+                    attributes: [
+                        [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                        { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        ],
+                        [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
+                    ],
+                },
+            ],
+            selectedMethod:["PoisoningAttackBackdoor"],
+            selectedAttributes: {},
+            resultVisible: false,
+            postData:{},
+        }
+    },
+    watch: {
         /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
-        isShowPublish:{
+        resultVisible:{
             immediate:true,
             handler(v){
                 if(v){
@@ -201,46 +346,22 @@ export default {
     },
     created() {
         document.title = '后门攻击评估';
+        
         },
     methods: { 
         /* 关闭结果窗口 */
         closeDialog(){
-            this.isShowPublish=false;
+            this.resultVisible=false;
             //把绑定的弹窗数组 设为false即可关闭弹窗
         },
-        /* result 处理*/
-        resultPro(res){
-            debugger;
-            var that = this;
-            // 总分判断
-            if(that.result.score > 80){
-                that.result.score_evaluate = "优秀";
-                that.result.score_con = "公平";
-            }else if(that.result.score > 60 && that.result.score <=80){
-                that.result.score_evaluate = "良好";
-                that.result.score_con = "较公平";
+
+        updateMethod(index, checked){
+            if (checked == true){
+                this.selectedMethod.push(this.methodInfo[index].id)
             }else{
-                that.result.score_evaluate = "差";
-                that.result.score_con = "较不公平";
+                this.selectedMethod.splice(this.selectedMethod.indexOf(this.methodInfo[index].id),1)
             }
-            that.result["Consistency"]=res.Consistency.toFixed(2);
-            that.result["Proportion"]=res.Proportion;
-            
-            //得分图
-            drawconseva1("conseva",that.result["Consistency"]);
-            if( that.result["Consistency"]>0.9 )
-            {
-                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，高于标准线0.9，故该数据集从个体公平性方面分析结果为公平数据集";
-            }
-            else if( that.result["Consistency"]<=0.9 && that.result["Consistency"]>=0.6 )
-            {
-                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，高于标准线0.6，故该数据集从个体公平性方面分析结果为较公平数据集";
-            }
-            else( that.result["Consistency"]<0.6 )
-            {
-                that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，低于标准线0.6，故该数据集从个体公平性方面分析结果为相对不公平数据集";
-            }
-            
+            console.log(this.selectedMethod)
         },
         /* 获取结果 */ 
         getData(){
@@ -252,14 +373,20 @@ export default {
         },
         /* 获取日志 */ 
         getLog(){
-            debugger;
+            // debugger
             var that = this;
-            that.logflag = false;
-            that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                that.logtext = data.data.Log[that.stid];
-                this.$nextTick(()=> {
-                    that.logflag = true
-                })  
+            if(that.percent < 99){
+               that.percent += 1;
+            }
+            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
             });
         },
         /* 停止结果获取循环 */ 
@@ -271,11 +398,13 @@ export default {
                 clearInterval(this.clk);
                 // 关闭日志获取结果获取
                 clearInterval(this.logclk);
-                // 显示结果窗口
-                this.isShowPublish = true;
+                
                 // 处理结果
-                this.result = this.result.data;
-                this.resultPro(this.result);
+                this.result = this.result.data.result;
+                this.result["tid"] = this.tid
+                this.result["stidlist"] = this.stidlist
+                // 显示结果窗口
+                this.resultVisible = !this.resultVisible
             }
         },
         /* 更新结果*/ 
@@ -286,61 +415,93 @@ export default {
             }catch(err){}
         },
         /* 点击评估触发事件 */
-        dataEvaClick(){
-            /*判断选择*/
-            // if (this.senAttrList.length ==0 ){
-            //     this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
-            //     return 0;
-            // };
-            // if (this.tarAttrList.length ==0 ){
-            //     this.$message.warning('请在数据集里面至少选择一项目标属性！',3);
-            //     return 0;
-            // };
-            // if (this.staAttrList.length ==0 ){
-            //     this.$message.warning('请在数据集里面至少选择一项统计属性！',3);
-            //     return 0;
-            // };
-            /* 日志框显示 */ 
-            
-            var that=this;
-            
-            /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+        dataEvaClick() {
+            this.postData={}
+            this.percent = 10
+            let dataset = this.dataSetInfo[this.selectedDataset].name;
+            let model = this.modelInfo[this.selectedModel].name
+            if(this.selectedMethod.length == 0){
+                this.$message.warning('请至少选择一项投毒方法！',3);
+                return
+            }
+            // 检查各个方法的参数
+            for(let i = 0; i < this.selectedMethod.length; i ++){
+                if (!(this.selectedMethod[i] in this.selectedAttributes)){
+                    let attributes_dict = {}
+                    let info =[]
+                    for( let methodnum = 0 ; methodnum < this.methodInfo.length; methodnum++){
+                        if (this.methodInfo[methodnum].id == this.selectedMethod[i]){
+                            info = this.methodInfo[methodnum].attributes
+                            break
+                        }
+                    }
+                    for(let i = 0; i < info.length; i++) {
+                        for(let j = 0; j < info[i].length; j++) {
+                        attributes_dict[info[i][j].key] = info[i][j].defaultNumber
+                        }
+                    }
+                    attributes_dict["trigger"]=[0 , 0, 4, 0]
+                    this.postData[this.selectedMethod[i]] = attributes_dict
+                }else{
+                    this.postData[this.selectedMethod[i]] = this.selectedAttributes[this.selectedMethod[i]]
+                }
+            }
+            this.logtext = [];
+            this.logflag = true;
+            var that = this;
+            // that.tid = "20230728_0834_667a417"
+            // that.stid = "S20230728_0834_a98cca5"
+            // that.logclk = self.setInterval(that.getLog, 20000);
+            // that.clk = self.setInterval(that.update, 300);
+            // return
+            that.$axios.post("/api/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
-                // that.tid = result.data.Taskid;
-                that.tid = "20230224_1106_d5ab4b1";
-                
+                that.tid = result.data.Taskid;
+                that.logclk = self.setInterval(that.getLog, 20000);
                 /* 请求体 postdata*/
-                const postdata={
-                    dataset:"cifar",
-                    model:"resnet18",
-                    size:3,
-                    up_eps:0.08,
-                    down_eps:0.02,
-                    steps:5,
-                tid:that.tid};
-                console.log(postdata)
-                that.$axios.post("/api/FormalVerification", postdata).then((res) => {
+                that.postData["Dataset"] = dataset
+                that.postData["Model"] = model
+                that.postData["Method"] = JSON.stringify(this.selectedMethod)
+                that.postData["Taskid"] = that.tid
+                console.log(that.postData)
+                that.$axios.post("/api/Attack/BackdoorAttack", that.postData).then((res) => {
+                    that.stidlist =  {"backdoor":res.data.stid};
+                    that.clk = self.setInterval(that.update, 30000);
                     
-                    that.logflag = true;
                     
-                    /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示，异步任务返回stid */
-                    // 同步任务
-                    // that.logflag = false;
-                    // that.isShowPublish = true;
-                    // that.result = res.data;
-                    // that.resultPro(res.data);
-                    // 异步任务
-                    that.stid =  res.data.stid;
-                    that.logclk = self.setInterval(that.getLog, 5);
-                    // that.stid="S20230224_1106_368e295"
-                    that.clk = self.setInterval(that.update, 5);
                 }).catch((err) => {
-                        console.log(err)
+                    console.log(err);
+                    clearInterval(that.logclk);
                 });
             }).catch((err) => {
                 console.log(err)
-            });    
+            });
+            
+        },
+        // 更换数据集
+        changeDataset(index) {
+            this.selectedDataset = index
+            for(let i =0 ;i < this.methodInfo.length;i++){
+                if (this.methodInfo[i].attributes[1][0].key == "target"){
+                    this.methodInfo[i].attributes[1][0].valuelist = this.dataSetInfo[index].class
+                }
+                
+            }
+            
+            
+        },
+        // 更换模型
+        changeModel(index) {
+            this.selectedModel = index
+            if (this.methodInfo[4].attributes[2][0].key == "feature_layer"){
+                this.methodInfo[4].attributes[2][0].max = this.modelInfo[this.selectedModel].layer
+            }
+        },
+        // 更新方法参数
+        updataMethodAttributes(index, attributes_dict) {
+
+            this.selectedAttributes[this.methodInfo[index].id] = attributes_dict
+            
         }
     }
 }
@@ -352,32 +513,18 @@ export default {
     width: 1200px;
     margin-left: 360px;
 }
-.funcParam{
-/* 模型公平性评估 */
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-width: 1200px;
-height: 824px;
-background: #FFFFFF;
-border: 1px solid #E0E3EB;
-margin: 0px 0px 40px 0px;
-box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
-border-radius: 8px;
-flex: none;
-order: 0;
-flex-grow: 0;
-text-align: left;
-}
 .paramTitle{
     height:80px;
     padding: 20px 24px 20px 26px;
     text-align: left;
     width: 1200px;
 }
-.paramTitle h3{
+
+.layoutFooter{
+    background: #FFFFFF;
+}
+
+.paramTitle h3 {
     /* height: 48px; */
     display: inline;
     margin-top: 38px;
@@ -414,12 +561,7 @@ text-align: left;
 .ant-divider-horizontal{
     margin: 0 0;
 }
-/* 输入模块div样式 */
-.inputdiv{
-    margin: 0px 48px;
-    height: 700px;
-    overflow: auto;
-}
+
 
 /* 图表名称样式 */
 .echart_title{

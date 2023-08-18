@@ -30,7 +30,7 @@
                     <div class="inputdiv">
                         <!-- 输入主体 -->
                         <div class="datasetSelected">
-                            <p class="mainParamName">请选择数据集</p>
+                            <p class="mainParamNameNotop">请选择数据集</p>
                             <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
                                 <div class="matchedDes">
                                     <a-radio :style="radioStyle" value="CIFAR10" >
@@ -121,7 +121,7 @@
                         <h1>测试样本自动生成</h1>
                     </div>
                 </div>
-                <div id="download_page" class="dialog_publish_main" slot="main">
+                <div id="pdfDom" class="dialog_publish_main" slot="main">
                     <!-- 图表 -->
                     <div class="result_div">
                         <div class=" main_top_echarts_con_title ">样本生成结果示意图</div>
@@ -140,8 +140,9 @@
                     </div>
                     <div>
                         <button class="downloadGenerationBtn" @click="downloadGeneration"><a-icon type="download" />下载生成的测试样本</button>
-                        <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
+                        <button class="exportResultBtn" @click="getPdf()"><a-icon type="upload" />导出报告内容</button>
                     </div>
+
                 </div>
             </resultDialog>
         </a-layout-content>
@@ -195,6 +196,7 @@ export default {
     },
     data(){
         return{
+            htmlTitle:"测试样本自动生成报告",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
@@ -280,7 +282,7 @@ export default {
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
-            stid:"",
+            stidlist:{},
             /* 异步任务结果查循环clock */
             clk:"",
             /* 日志查询clock*/
@@ -361,7 +363,7 @@ export default {
         getData(){
             // debugger
             var that = this;
-            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
                 // that.result=data;
                 that.res_tmp = data;
@@ -369,17 +371,20 @@ export default {
         },
         /* 获取日志 */ 
         getLog(){
-            // debugger;
+            // debugger
             var that = this;
-            if (that.percent<99){
-                that.percent+=1;
+            if(that.percent < 99){
+               that.percent += 1;
             }
-            that.logflag = true;
-            that.$axios.get('/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                that.logtext = data.data.Log[that.stid];
-                // this.$nextTick(()=> {
-                //     that.logflag = true
-                // });  
+            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
             });
         },
         /* 停止结果获取循环 */ 
@@ -420,7 +425,7 @@ export default {
             var that = this;
             
             /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 that.tid = result.data.Taskid;
                 // that.tid = "20230530_0948_0c0a104";
                 
@@ -431,21 +436,12 @@ export default {
                     norm: that.constraintChoice,
                     times: that.RunTimes,
                     tid:that.tid};
-                that.$axios.post("/Concolic/SamGenParamGet", postdata).then((res) => {
+                that.$axios.post("/api/Concolic/SamGenParamGet", postdata).then((res) => {
                     
                     that.logflag = true;
-                    // console.log(res);
-                    /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示，异步任务返回stid */
-                    // 同步任务
-                    // that.logflag = false;
-                    // that.isShowPublish = true;
-                    // that.result = res.data;
-                    // that.resultPro(res.data);
-                    // 异步任务
-                    // that.stid="S20230530_0948_ee4c3bc"
-                    that.stid =  res.data.stid;
-                    that.logclk = self.setInterval(that.getLog, 500);
-                    that.clk = self.setInterval(that.update, 500);
+                    that.stidlist = {"SamGenParamGet": res.data.stid};
+                    that.logclk = self.setInterval(that.getLog, 5000);
+                    that.clk = self.setInterval(that.update, 50000);
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -462,25 +458,6 @@ export default {
 .paramCon{
     width: 1200px;
     margin-left: 360px;
-}
-.funcParam{
-/* 测试样本自动生成 */
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-width: 1200px;
-height: 824px;
-background: #FFFFFF;
-border: 1px solid #E0E3EB;
-margin: 0px 0px 40px 0px;
-box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
-border-radius: 8px;
-flex: none;
-order: 0;
-flex-grow: 0;
-text-align: left;
 }
 .paramTitle{
     height:80px;
@@ -634,12 +611,7 @@ text-align: left;
 .ant-divider-horizontal{
     margin: 0 0;
 }
-/* 输入模块div样式 */
-.inputdiv{
-    margin: 0px 48px;
-    height: 700px;
-    overflow: auto;
-}
+
 
 .title_annotation{
     /* width: 217px;
