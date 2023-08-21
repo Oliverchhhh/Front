@@ -64,14 +64,43 @@
                     </div>
                 </div>
                 <div class="dialog_publish_main" slot="main" id="pdfDom">
+                    <div v-if="Object.keys(postData).length > 0" style="background: var(--gray-7, #F2F4F9);;width: 100%;padding: 24px;">
+                      <a-row >
+                        <a-col :span="2">
+                          <div class="grid-content-name" style="color:#6C7385">数据集:</div>
+        
+                        </a-col>
+                        <a-col :span="4">
+                          <div class="grid-content-value">{{postData.dataname}}</div>
+
+                        </a-col>
+                        <a-col :span="2">
+                          <div class="grid-content-name" style="color:#6C7385">优化算法:</div>
+                        </a-col>
+                        <a-col :span="4">
+                          <div class="grid-content-value">{{postData.datamethod}}</div>
+                        </a-col>
+                      </a-row>
+                    </div>
                     <!-- 总评分 -->
-                    <div class="result_div">
+                    <div class="result_div_notop">
                         <div class="g_score_content">
-                            <div class="scorebg">
-                                <div class=" main_top_echarts_con_title ">数据集公平性总评分</div>
-                            
-                                <p class="g_score"> {{res.score.aft}}</p>
-                                <p class="g_score_evaluate"> {{ res.score_evaluate.aft }}</p>
+                            <div class=" main_top_echarts_con_title ">数据集公平性提升效果</div>
+                            <div class="debias_res">
+                                <div class="debias_res_score">
+                                    <img src="../assets/img/beforeDebias.png" style="width: 360px;margin-top: -40px;"/>
+                                    <p class="g_score"> {{res.score.aft}}</p>
+                                    <p class="g_score_evaluate"> {{ res.score_evaluate.aft }}</p>
+                                    <p>提升前</p>
+                                </div>
+                                <div class="to_aft">
+                                    <img src="../assets/img/toAfter.svg" style="margin-top: -40px;"/>
+                                </div>
+                                <div class="debias_res_score">
+                                    <img src="../assets/img/afterDebias.png" style="width: 360px;margin-top: -40px;"/>
+                                    <p class="g_score"> {{res.score.aft}}</p>
+                                    <p class="g_score_evaluate"> {{ res.score_evaluate.aft }}</p>
+                                </div>
                             </div>
                         </div>
                         <div class="conclusion">
@@ -370,7 +399,8 @@ export default {
             debiasDisabled:{
                 "LFR":false,
                 "Reweighing":false,
-            } 
+            },
+            postData:{}
         }
     },
     watch:{
@@ -622,7 +652,7 @@ export default {
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
-            debugger;
+            // debugger;
             /*判断选择*/
             if (this.senAttrList.length ==0 ){
                 this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
@@ -643,11 +673,24 @@ export default {
             this.logflag = true;
             var that=this;
             that.percent = 20;
+            that.tid = "20230821_1423_c77c72f"
+            that.postData={
+                dataname:that.dataname[that.dataNameValue],
+                senAttrList:JSON.stringify(that.senAttrList),
+                tarAttrList:JSON.stringify(that.tarAttrList),
+                staAttrList:JSON.stringify(that.staAttrList),
+                datamethod:that.debiasMethodValue,
+                tid:that.tid};
+            that.stidlist =  {"DataFairnessDebias":"S20230821_1423_3c57e77"};
+            that.clk = setInterval(() => {
+                that.update();
+            },60)
+            return
             /* 调用创建主任务接口 */
             this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
-                const postdata={
+                that.postData={
                 dataname:that.dataname[that.dataNameValue],
                 senAttrList:JSON.stringify(that.senAttrList),
                 tarAttrList:JSON.stringify(that.tarAttrList),
@@ -841,26 +884,40 @@ flex-direction: column;
 position: absolute;
 display: flex;
 width: 1080px;
+gap: 60px;
 }
 .g_score_content{
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0px 120px;
     gap: 20px;
-
-    width: 960px;
-    height: 366px;
-
-
-    /* Inside auto layout */
-
-    flex: none;
-    order: 0;
     align-self: stretch;
-    flex-grow: 0;
 }
-
+.g_score{
+    margin-top: -280px;
+}
+.g_score_evaluate{
+    margin-left: 156px;
+}
+.debias_res{
+    display: flex;
+    width: 814px;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    row-gap: 20px;
+    flex-wrap: wrap;
+}
+.debias_res_score{
+    width: 360px;
+    height: 321px;
+    flex-shrink: 0;
+}
+.to_aft{
+    width: 78px;
+    height: 35px;
+    flex-shrink: 0;
+}
 /* 结果文字样式 */
 .resultext{
     width: 100%;
