@@ -106,7 +106,13 @@
                <div class="dialog_publish_main" slot="main" id="pdfDom">
                    <!-- 图表 -->
                    <div class="result_div">
-                       
+                        <div class="conclusion_info">
+                            <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
+                            <!-- <p class="result_annotation">当前操作系统架构：{{ result.result.EnvTest.detection_result['System Architecture'] }}，{{ result.result.EnvTest.detection_result['Version Message'] }}</p> -->
+                            <p class="result_annotation">漏洞匹配机制：{{ matchedMethod }}</p>
+                            <!-- <p class="result_annotation">当前系统Cuda版本：{{ result.result.EnvTest.detection_result['Current Cuda Version'] }}</p> -->
+                            <p class="result_annotation">适配开发框架：{{ framework}} {{ frameversionInput }}</p>
+                        </div>
                        <div class="echart_title">
                            
                            <div class=" main_top_echarts_con_title ">完整漏洞报告</div>
@@ -312,7 +318,7 @@ export default {
        /* 获取结果 */ 
        getData(){
            var that = this;
-           that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+           that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                console.log("dataget:",data);
                that.result=data;
            });
@@ -380,7 +386,7 @@ export default {
            this.frameversionInput = frameworkVersion;
            var that=this;
            /* 调用创建主任务接口，需开启后端程序 */
-           this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+           this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                console.log(result);
                that.tid = result.data.Taskid;         
                /* 请求体 postdata*/
@@ -390,10 +396,10 @@ export default {
                    frameversion:frameworkVersion,
                    tid:that.tid};
                console.log(postdata)
-               that.$axios.post("/api/EnvTest/ETParamSet", postdata).then((res) => {
+               that.$axios.post("/EnvTest/ETParamSet", postdata).then((res) => {
                    that.logflag = true;
                    // 异步任务
-                   that.stidlist =  res.data.EnvTestid;
+                   that.stidlist =  {"envTest":res.data.stid}
                    that.logclk = self.setInterval(that.getLog, 3000);
                    // that.stid="S20230224_1106_368e295"
                    that.clk = self.setInterval(that.update, 3000);
@@ -528,14 +534,15 @@ flex-grow: 0;
    height: 40px;
    padding: 0px 0px 0px 16px;
    font-family: 'HONOR Sans CN';
-font-style: normal;
-font-weight: 400;
-font-size: 16px;
-line-height: 24px;
-color: #B4B9C5;
-background: #F2F4F9;
-border-radius: 4px;
-}
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    /* color: #B4B9C5; */
+    color: #000000;
+    background: #F2F4F9;
+    border-radius: 4px;
+    }
 .frameVersionInput p{
    font-family: 'HONOR Sans CN';
 font-style: normal;
@@ -605,6 +612,24 @@ flex-grow: 0;
 .ant-radio-wrapper{
    margin-bottom: 0px;
 }
+
+.conclusion_info{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 20px;
+    gap: 25px;
+    margin-bottom: 20px;
+    width: 1080px;
+    /* gray-7 */
+
+    background: #F2F4F9;
+    border-radius: 4px;
+    
+}
+
 /* 图表名称样式 */
 .echart_title{
    display: flex;
@@ -627,21 +652,22 @@ width: 1080px;
 }
 .result_div{
    display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px 60px;
-gap: 24px;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px 60px;
+    gap: 24px;
 
-width: 1080px;
+    width: 1080px;
 /* height: 1134px; */
 
 
-/* Inside auto layout */
+    /* Inside auto layout */
 
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+    margin: auto;
 }
 /* 结果文字样式 */
 .resultext{

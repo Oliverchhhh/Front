@@ -1,0 +1,66 @@
+<template>
+    <div>
+       <a-layout>
+           <!-- 顶部菜单栏 -->
+       <a-layout-header>
+           <!-- 导航栏 -->
+           <navmodule/>
+       </a-layout-header>
+       <a-layout-content>
+            <div class="pro_bottom">人工智能安全理论及验证平台功能</div>
+            <!-- 功能介绍 -->
+           <func_menu></func_menu>
+           
+       </a-layout-content>
+       <a-layout-footer>
+
+       </a-layout-footer>
+       </a-layout>
+    </div>
+</template>
+<script>
+/* 引入组件，导航栏 */
+import navmodule from "../components/nav_homme.vue";
+
+/* 引入组件，单项功能介绍 */
+import func_menu from "../components/menu.vue"
+
+export default {
+   name:"homme_menu",
+   components:{
+       /* 注册组件 */
+       navmodule:navmodule,
+       func_menu:func_menu 
+   },
+   data(){
+    return {}
+   },
+   created() {
+       document.title = '功能在线体验';
+       },
+   methods: {}
+}
+</script>
+
+<style scoped>
+.ant-layout-content {
+    background: #F3F7FF;
+}
+
+.pro_bottom{
+    font-family: HONOR Sans CN;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 90px;
+    letter-spacing: 0px;
+    text-align: center;
+
+    /* Rectangle 295 */
+    position: absolute;
+    width: 1920px;
+    height: 88px;
+    left: 0px;
+    top: 550px;
+}
+
+</style>

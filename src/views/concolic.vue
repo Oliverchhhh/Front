@@ -102,7 +102,7 @@
                             </a-radio-group>
                         </div>
                         <div class="runtimesSelected">
-                            <p class="mainParamName">请输入执行次数</p>
+                            <p class="mainParamName">请输入动态执行次数</p>
                             <a-input id="param_runtimes" class="paramsInput" placeholder="请输入执行次数，建议<10" @change="onRunTimesChange"/>
                             <p class="matchedMethodText"> 该参数标准调用执行算法的次数。每一次执行从数据集中随机抽取少量种子组合迭代执行动态符合执行测试并生成测试样本。由于算法存在随机性，每次执行可能生成约10-30不等数量的新测试样本。执行次数越大花费时间越长，生成的测试样本数量越多。</p>
                         </div>
@@ -124,6 +124,13 @@
                 <div id="pdfDom" class="dialog_publish_main" slot="main">
                     <!-- 图表 -->
                     <div class="result_div">
+                        <div class="conclusion_info">
+                            <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
+                            <p class="result_annotation">数据集：{{ datasetChoice }}</p>
+                            <p class="result_annotation">模型：{{ modelChoice }}</p>
+                            <p class="result_annotation">约束范式：{{ constraintChoice }}</p>
+                            <p class="result_annotation">动态符号执行次数：{{ RunTimes }}</p>
+                        </div>
                         <div class=" main_top_echarts_con_title ">样本生成结果示意图</div>
                         <div class="echart_title">        
                             <p class="title_annotation">合计生成测试样本数量：{{ result.allnumber }}</p>
@@ -575,18 +582,7 @@ export default {
     align-self: stretch;
     flex-grow: 0;
 }
-.paramsInput{
-    height: 60px;
-    padding: 0px 0px 0px 16px;
-    font-family: 'HONOR Sans CN';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    color: #B4B9C5;
-    background: #F2F4F9;
-    border-radius: 4px;
-}
+
 /* 按钮样式 */
 .DataEva{
     float: right;
@@ -638,6 +634,23 @@ export default {
     flex: none;
     order: 0;
     flex-grow: 0;
+}
+
+
+.conclusion_info{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 20px;
+    gap: 25px;
+    margin-bottom: 20px;
+    width: 1080px;
+    /* gray-7 */
+
+    background: #F2F4F9;
+    border-radius: 4px;
 }
 
 /* 图表名称样式 */

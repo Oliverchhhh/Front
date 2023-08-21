@@ -1050,6 +1050,246 @@ function drawStackedLine(ID, data,legendInfo, label, name){
 },500)
 
 }
+ 
+// 重要神经元覆盖测试图
+function drawImportanceCoverage(ID, data) {
+  console.log(data);
+  var inc_option;
+  var reldraw = data;
+  var xdada = Array(reldraw['0'].length).fill('');
+  console.log(xdada);
+
+  inc_option = {
+      baseOption: {
+          textStyle: {
+              fontSize: 15,
+          },
+          timeline: {
+              axisType: 'category',
+              autoPlay: true,
+              playInterval: 1000,
+              data: ['0%', '25%', '50%', '75%', '100%'],
+              label: {
+                  formatter: function (s) {
+                      return s;
+                  }
+              }
+          },
+          dataZoom: [
+              {
+                  type: 'inside'
+              },
+          ],
+          tooltip: {},
+          legend: {
+              left: 'right',
+              data: ['重要性']
+          },
+          calculable: true,
+          grid: {
+              top: 80,
+              bottom: 100,
+              tooltip: {
+                  trigger: 'axis',
+                  axisPointer: {
+                      type: 'shadow',
+                      label: {
+                          show: true,
+                          formatter: function (params) {
+                              return params.value.replace('\n', '');
+                          }
+                      }
+                  }
+              }
+          },
+          xAxis: [
+              {
+                  type: 'category',
+                  axisLabel: { interval: 0 },
+                  data: xdada,
+                  splitLine: { show: false },
+                  name: '神经元'
+              }
+          ],
+          yAxis: [
+              {
+                  type: 'value',
+                  name: '重要性'
+              }
+          ],
+          series: [{ name: '重要性', type: 'bar' }]
+      },
+      options: [
+          {
+              title: { text: '开始运行' },
+              series: [{ data: reldraw['0'] }]
+          },
+          {
+              title: { text: '运行25%' },
+              series: [{ data: reldraw['1'] }]
+          },
+          {
+              title: { text: '运行50%' },
+              series: [{ data: reldraw['2'] }]
+          },
+          {
+              title: { text: '运行75%' },
+              series: [{ data: reldraw['3'] }]
+          },
+          {
+              title: { text: '运行结束' },
+              series: [{ data: reldraw['4'] }]
+          }
+      ]
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+        inc_option && myChartcons.setOption(inc_option);
+    },500)
+    
+}
+
+function drawAcc_or_loss(ID, data, title){
+  console.log(data);
+  var option;
+  option = {
+    legend: {
+      data: title
+    },
+    xAxis: {
+      type: 'category',
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        name: title[0],
+        data:data[0],
+        type: 'line',
+        smooth: true
+      },
+      {
+        name: title[1],
+        data:data[1],
+        type: 'line',
+        smooth: true
+      },
+    ]
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+        option && myChartcons.setOption(option);
+    },500)
+
+}
+
+function draw_score_polar(ID, data, title){
+  console.log(data);
+  let colorList = ['#126BFE', '#5E0BF4', '#FE7E07'];
+  let visualMapPiecesData = [];
+  for (var i = 0; i < title.length; i++) {
+    visualMapPiecesData.push({
+      value: data[i],
+      label: title[i],
+      color: colorList[i]
+    });
+  }
+  debugger;
+  var option;
+  option = {
+    title: [
+      {
+        // text: '模型安全度量结果'
+      }
+    ],
+    polar: {
+      center: ['50%', '50%'],
+      radius: [50, '80%']
+    },
+    angleAxis: {
+      max: 0.5,
+      startAngle: 90,
+      axisLine: {
+        show: false
+      },
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        show: false
+      },
+      splitLine: {
+        show: false
+      },
+      clockwise: false
+    },
+    radiusAxis: {
+      type: 'category',
+      data: title,
+      z: 100,
+      axisLine: {
+        show: false
+      },
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        show: false
+      },
+      splitLine: {
+        show: false
+      }
+    },
+    tooltip: {
+      show: true,
+      trigger: 'item'
+    },
+    visualMap: {
+      top: 40,
+      x: 'left',
+      orient: 'vertical',
+      textStyle: {
+        color: '#000'
+      },
+      pieces: visualMapPiecesData,
+      outOfRange: {
+        color: '#999'
+      }
+    },
+    series: {
+      type: 'bar',
+      data: data,
+      coordinateSystem: 'polar'
+      // label: {
+      //   show: true,
+      //   position: 'left',
+      //   formatter: '{b}: {c}'
+      // },
+      // itemStyle: {
+      //   normal: {
+      //     // 定制显示（按顺序）
+      //     color: function (params) {
+      //       return colorList[params.dataIndex]
+      //     }
+      //         }}
+    }
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+        option && myChartcons.setOption(option);
+    },500)
+
+}
+
+
+
 
 function exportResult(ID){
   // debugger
@@ -1205,6 +1445,8 @@ export {
   drawLine,
   drawIntervalBar,
   drawStackedLine,
-  exportResult,
-  drawLineBar
+  drawLineBar,
+  exportResult, drawImportanceCoverage,
+  drawAcc_or_loss,
+  draw_score_polar
 }

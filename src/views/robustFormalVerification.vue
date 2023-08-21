@@ -911,8 +911,6 @@ border-radius: 4px;
 flex-direction: column;
 align-items: flex-start;
 padding: 0px;
-/* gap: 24px; */
-margin-top: 24px;
 width: 1104px;
 height: 896px;
 flex: none;

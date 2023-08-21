@@ -9,7 +9,19 @@ export default new Router({
     {
       path:"/",
       // 重定向
-      redirect:'/inject'
+      redirect:'/homme_menu'
+    },
+    // 组装的homme_index页面
+    // {
+    //   path: '/homme_index',
+    //   name: 'homme_index',
+    //   component: () => import('../views/homme_index.vue')
+    // },
+    // 组装的homme_menu页面
+    {
+      path: '/homme_menu',
+      name: 'homme_menu',
+      component: () => import('../views/homme_menu.vue')
     },
     // 组装的数据公平性评估页面
     {
@@ -76,6 +88,54 @@ export default new Router({
       path: '/envTest',
       name: 'envTest',
       component: () => import('../views/envTest.vue')
+    },
+    // 组装的单神经元覆盖准则页面
+    {
+      path: '/coverage_neural',
+      name: 'coverage_neural',
+      component: () => import('../views/coverage_neural.vue')
+    },
+    // 组装的神经层覆盖准则页面
+    {
+      path: '/coverage_layer',
+      name: 'coverage_layer',
+      component: () => import('../views/coverage_layer.vue')
+    },
+    // 组装的重要神经元覆盖准则页面
+    {
+      path: '/coverage_importance',
+      name: 'coverage_importance',
+      component: () => import('../views/coverage_importance.vue')
+    },
+    // 组装的敏感神经元测试准则页面
+    {
+      path: '/deepsst',
+      name: 'deepsst',
+      component: () => import('../views/deepsst.vue')
+    },
+    // 组装的逻辑神经元测试准则页面
+    {
+      path: '/deeplogic',
+      name: 'deeplogic',
+      component: () => import('../views/deeplogic.vue')
+    },
+    // 组装的开发框架安全结构度量
+    {
+      path: '/frameworkTest',
+      name: 'frameworkTest',
+      component: () => import('../views/frameworkTest.vue')
+    },
+    // 组装的模型模块化开发
+    {
+      path: '/modularDevelop',
+      name: 'modularDevelop',
+      component: () => import('../views/modularDevelop.vue')
+    },
+    // 组装的模型安全度量
+    {
+      path: '/modelMeasure',
+      name: 'modelMeasure',
+      component: () => import('../views/modelMeasure.vue')
     },
     // 组装的攻击机理分析页面
     {
