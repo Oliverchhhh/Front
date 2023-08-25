@@ -36,7 +36,7 @@
             checkImg(imgPath) {
                 // debugger;
                 if(imgPath[0]=="/") {
-                    console.log('here!');
+                    // console.log('here!');
                     return true;
                 } else {
                     return false;

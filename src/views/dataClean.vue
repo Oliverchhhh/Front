@@ -32,10 +32,9 @@
                         <div class="datasetSelected">
                             <div class="SelectWithUpload">
                                 <p class="mainParamName">低维数据</p>
-                                <a-button class="uploadDatasetBtn" @click="dataUploadClick">
+                                <a-button class="uploadDatasetBtn" @click="dataUploadButton">
                                     <a-icon type="upload" style="color: #0B55F4;" />上传数据</a-button>
                             </div>
-                            
                             
                             <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
                                 <div class="matchedDes">
@@ -85,8 +84,29 @@
                             </a-radio-group>
                             <div class="SelectWithUpload">
                                 <p class="mainParamName">图像数据</p>
-                                <a-button class="uploadDatasetBtn" @click="dataUploadClick">
+                                <a-button class="uploadDatasetBtn" @click="dataUploadButton">
                                     <a-icon type="upload" style="color: #0B55F4;" />上传数据</a-button>
+                            </div>
+                            <div class="UploadPage" v-show="upload_flag"> 
+                                <div class="UploadPagetitle"> 
+                                    <a-icon type="exclamation-circle" theme="filled" style="color: #0B55F4; font-size: 16px;"/>
+                                    <p class="uploadtiletext">请选择上传的数据类型</p>
+                                </div>
+                                <div class="UploadPageButton"> 
+                                    <label class="UploadDataTyleButton" for="avatar">
+                                        <a-icon type="plus" />
+                                        <p class="buttontitle">CIFAR10</p><p class="buttontext">需处理成CIFAR10数据集.gz格式</p>
+                                    </label>
+                                    <input type="button" name="avatar" class="UploadDataTyleButton">
+                                    <button class="UploadDataTyleButton">
+                                        <a-icon type="plus" />
+                                        <p class="buttontitle">MNIST</p><p class="buttontext">需处理成MNIST数据集.gz格式</p>
+                                    </button>
+                                </div>
+                                <div class="UploadPageCC"> 
+                                    <button class="CancelButton" @click="CancelUpload">取消</button>
+                                    <button class="ConfirmButton" @click="ConfirmUpload">确认</button>
+                                </div>
                             </div>
                             <!-- <p class="mainParamName">图像数据</p> -->
                             <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
@@ -453,10 +473,18 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
-        /* 点击上传触发事件，修改上传标识符和路径 */
-        dataUploadClick(){
-            // 对应上传接口
-            // this.$axios.post()
+        /* 点击上传触发按钮，修改上传标识符，弹出上传界面 */
+        dataUploadButton(){
+            this.upload_flag = 1;
+            // 取消页面滚动
+            this.noScroll();
+        },
+        CancelUpload(){
+            this.upload_flag = 0;
+            this.upload_path = "";
+            this.canScroll();
+        },
+        ConfirmUpload(){
             this.upload_flag = 1;
             this.upload_path = "";
         },
@@ -552,10 +580,12 @@ export default {
     border-radius: 6px;
 }
 
-.ant-divider-horizontal{
-    margin: 0 0;
+/* 输入模块div样式 */
+.inputdiv{
+    margin: 0px 48px;
+    height: 700px;
+    overflow: auto;
 }
-
 
 .datasetSelected{
     display: flex;
@@ -571,6 +601,136 @@ export default {
     align-self: stretch;
     flex-grow: 0;
 }
+
+.uploadDatasetBtn {
+
+}
+
+.UploadPage{
+    top: 30%;
+    left: 35%;
+    width: 480px;
+    height: max-content;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    border: #0B55F4 1px solid;
+    border-radius: 8px;
+    background: #FFFFFF;
+    z-index: 999;
+}
+
+.UploadPagetitle{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 10px;
+    margin: 4% auto;
+}
+
+.uploadtiletext {
+    font-family: HONOR Sans CN;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0em;
+    text-align: left;
+    color: #1D2129;
+}
+
+.UploadPageButton {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    margin: 1% auto;
+    gap: 10px;
+}
+
+.UploadDataTyleButton {
+    width: 200px;
+    height: 140px;
+    border: 1px dashed #8DBBFB;
+    background: #EEF5FF;
+    color: #0B55F4;
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    /* align-content: space-around; */
+    justify-content: center;
+    align-items: center;
+}
+
+.buttontitle {
+    font-family: HONOR Sans CN;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    letter-spacing: 0px;
+    text-align: left;
+}
+
+.buttontext {
+    font-family: HONOR Sans CN;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0em;
+    text-align: left;
+    color:  #618EEF;
+}
+
+.UploadPageCC {
+    margin: 3% 7% 5% auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+}
+
+.CancelButton {
+    /* width: 60px; */
+    /* height: 32px; */
+    padding: 5px 16px 5px 16px;
+    border-radius: 2px;
+    border: none;
+    /* gap: 8px; */
+    background: #F2F4F9;
+    font-family: HONOR Sans CN;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0em;
+    text-align: left;
+    color: #000000;
+}
+
+.ConfirmButton {
+    /* width: 60px; */
+    /* height: 32px; */
+    padding: 5px 16px 5px 16px;
+    border-radius: 2px;
+    border: none;
+    /* gap: 8px */
+    background: #0B55F4;
+    font-family: HONOR Sans CN;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0em;
+    text-align: left;
+    color: #FFFFFF;
+
+}
+
 .matchedDes{
     display: flex;
     flex-direction: column;

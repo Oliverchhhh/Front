@@ -535,7 +535,7 @@
                                     </div>
                                     <div class="imageContent"> 
                                         <div class="imgbg">
-                                            <img src='../../static/output/sample00.png'  />
+                                            <!-- <img src='../../static/output/sample00.png'  /> -->
                                         </div>
                                         
                                     </div>

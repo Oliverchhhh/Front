@@ -135,7 +135,7 @@
           <div slot="header" class="func_name">模型公平性提升</div>
           <div slot="des_func" class="func_des">模型决策会存在偏见，通过公平性提升算法，提升模型的公平性，减少偏见，可视化展示提升前后对比</div>
         </ifreme>
-        <ifreme  @click.native="goFuncPage('')">
+        <ifreme  @click.native="goFuncPage('crowdDefense')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/crowdDefenseIcon.png">
           </div>

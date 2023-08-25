@@ -161,6 +161,12 @@ export default new Router({
     name: 'FormalVerfy',
     component: () => import('../views/FormalVerfy.vue')
   },
+  // 组装的群智化防御
+  {
+    path: '/crowdDefense',
+    name: 'crowdDefense',
+    component: () => import('../views/crowdDefense.vue')
+  },
   ]
   
 })
