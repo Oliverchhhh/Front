@@ -93,17 +93,26 @@
                                     <p class="uploadtiletext">请选择上传的数据类型</p>
                                 </div>
                                 <div class="UploadPageButton"> 
-                                    <label class="UploadDataTyleButton" for="avatar">
-                                        <a-icon type="plus" />
-                                        <p class="buttontitle">CIFAR10</p><p class="buttontext">需处理成CIFAR10数据集.gz格式</p>
-                                    </label>
-                                    <input type="button" name="avatar" class="UploadDataTyleButton">
-                                    <button class="UploadDataTyleButton">
-                                        <a-icon type="plus" />
-                                        <p class="buttontitle">MNIST</p><p class="buttontext">需处理成MNIST数据集.gz格式</p>
-                                    </button>
+                                    <div class="upload_type"> 
+                                        <input style="visibility: hidden;" type="file" id="uFile" name="MNIST" @change="UpFile($event)">
+                                        <label class="UploadDataTyleButton" for="uFile"> 
+                                            <a-icon type="plus" />
+                                            <p class="buttontitle">MNIST</p><p class="buttontext">需处理成MNIST数据集.gz格式</p>
+                                        </label>
+                                    </div>
+                                    <div class="upload_type"> 
+                                        <input style="visibility: hidden;" type="file" id="uFile_" name="CIFAR10" @change="UpFile($event)">
+                                        <label class="UploadDataTyleButton" for="uFile_"> 
+                                            <a-icon type="plus" />
+                                            <p class="buttontitle">CIFAR10</p><p class="buttontext">需处理成CIFAR10数据集.gz格式</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div style="margin: 1% 7%;" v-show="upload_flag && upload_path!=''"> 
+                                    <p class="buttontitle" v-if="upload_flag">{{ upload_success }}</p>
                                 </div>
                                 <div class="UploadPageCC"> 
+                                    <button class="CancelButton" @click="CancelUpload" v-if="upload_flag && upload_path!=''">关闭</button>
                                     <button class="CancelButton" @click="CancelUpload">取消</button>
                                     <button class="ConfirmButton" @click="ConfirmUpload">确认</button>
                                 </div>
@@ -142,6 +151,7 @@
                             
                         </uploadDataset> -->
                     </div>
+                    <!-- </div> -->
                 </div>
             </div>
             <!-- 日志展示 -->
@@ -275,6 +285,10 @@ export default {
             /* 上传标识符和存放路径*/
             upload_flag: 0,
             upload_path: "",
+            // filename: {},
+            post_file: {},
+            upload_success: "",
+            upload_fail: "",
             /* 数据集*/
             MNIST_imgs:[
                 {imgUrl:require('../assets/img/mnist0.jpg'),name:'mnist0'},
@@ -386,6 +400,22 @@ export default {
             // 修改选择数据集
             console.log('radio checked', e.target.value);
         },
+
+        UpFile(e){
+            var that=this;
+            that.noScroll();
+            // var files = document.getElementById('uFile').value;
+            // if (!/\.(gz)$/i.test(files)) {
+            //     this.$message.warning("文件类型必须是.gz,请重新上传")
+            //     return false;
+            // }
+            let file = e.target.files[0];    
+            let param = new FormData();       // 创建form对象    
+            param.append('file', file);       // 通过append向form对象添加数据
+            param.append("type", e.target.name); // 添加form表单中其他数据
+            that.post_file = param;
+        },
+
         exportResult(){
             if (confirm("您确认下载该pdf文件吗？") ){
                 document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -473,7 +503,7 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
-        /* 点击上传触发按钮，修改上传标识符，弹出上传界面 */
+        /* 点击上传触发按钮，弹出上传界面 */
         dataUploadButton(){
             this.upload_flag = 1;
             // 取消页面滚动
@@ -485,8 +515,19 @@ export default {
             this.canScroll();
         },
         ConfirmUpload(){
-            this.upload_flag = 1;
-            this.upload_path = "";
+            var that=this;
+            let config = {
+                headers: {'Content-Type': 'multipart/form-data'}
+            };
+            that.$axios.post("/api/Task/UploadData",that.post_file, config).then((res)=>{
+                that.upload_flag = 1;
+                that.upload_path = res.data.save_dir;
+                console.log(that.upload_path)
+                that.upload_success = "文件上传成功，存放位置为"+that.upload_path;
+                // alert("上传成功，文件位置位于"+that.upload_path)
+                }).catch((err)=>{
+                    console.log(err)
+                })
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
@@ -495,10 +536,10 @@ export default {
             var that=this;
             
             /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
-                // that.tid = result.data.Taskid;
-                that.tid = "20230615_1004_278f3fc";
+                that.tid = result.data.Taskid;
+                // that.tid = "20230615_1004_278f3fc";
                 
                 /* 请求体 postdata*/
                 const postdata={
@@ -652,12 +693,17 @@ export default {
     gap: 10px;
 }
 
+.upload_type {
+    width: 200px;
+}
+
 .UploadDataTyleButton {
     width: 200px;
     height: 140px;
     border: 1px dashed #8DBBFB;
     background: #EEF5FF;
     color: #0B55F4;
+        /* position: absolute; */
     display: flex;
     gap: 8px;
     flex-direction: column;
@@ -665,6 +711,17 @@ export default {
     /* align-content: space-around; */
     justify-content: center;
     align-items: center;
+    z-index: inherit;
+    /* visibility: hidden; */
+}
+.UploadDataTyleButton_ {
+    background: transparent;
+    border: none;
+    /* position: fixed; */
+}
+
+.upbutton {
+    position: relative;
 }
 
 .buttontitle {
