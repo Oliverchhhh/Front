@@ -30,7 +30,7 @@
                     <div class="inputdiv">
                         <!-- 输入主体 -->
                         <div class="datasetSelected">
-                            <p class="mainParamNameNotop">请选择数据集</p>
+                            <p class="mainParamName">请选择数据集</p>
                             <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
                                 <div class="matchedDes">
                                     <a-radio :style="radioStyle" value="CIFAR10" >
@@ -121,7 +121,7 @@
                         <h1>测试样本自动生成</h1>
                     </div>
                 </div>
-                <div id="pdfDom" class="dialog_publish_main" slot="main">
+                <div id="download_page" class="dialog_publish_main" slot="main">
                     <!-- 图表 -->
                     <div class="result_div">
                         <div class="conclusion_info">
@@ -147,9 +147,8 @@
                     </div>
                     <div>
                         <button class="downloadGenerationBtn" @click="downloadGeneration"><a-icon type="download" />下载生成的测试样本</button>
-                        <button class="exportResultBtn" @click="getPdf()"><a-icon type="upload" />导出报告内容</button>
+                        <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
                     </div>
-
                 </div>
             </resultDialog>
         </a-layout-content>
@@ -169,7 +168,7 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
-import SampleTable from "../components/resultsTable.vue"
+import resultTable from "../components/resultsTable.vue"
 /* 引入图片 */
 import funcicon from "../assets/img/concolicIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
@@ -199,11 +198,10 @@ export default {
         showLog:showLog,
         resultDialog:resultDialog,
         selectIcon,
-        SampleTable: SampleTable,
+        resultTable: resultTable
     },
     data(){
         return{
-            htmlTitle:"测试样本自动生成报告",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
@@ -286,6 +284,8 @@ export default {
                 demopath: {}            
             },
             res_tmp:{},
+            tablehead: [],
+            tablebody: [],
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
@@ -361,10 +361,16 @@ export default {
         },
         /* result 处理*/
         resultPro(res){
-            // debugger;
+            debugger;
             this.result["allnumber"] = res.Concolic.allnumber;
             this.result["newnumber"] = res.Concolic.newnumber;
             this.result.demopath = res.Concolic.demopath;
+            this.tablehead = ["原始样本", "二值化差异", "动态符号生成样本"];
+            this.tablebody = [];
+            for (var i=0;i<Object.keys(this.result.demopath).length/3;i++) {
+                var tablebody_tr = [this.result.demopath[i+"_init"], this.result.demopath[i+"_diff"], this.result.demopath[i+"_new"]];
+                this.tablebody.push(tablebody_tr);
+            }
         },
         /* 获取结果 */ 
         getData(){
@@ -378,7 +384,7 @@ export default {
         },
         /* 获取日志 */ 
         getLog(){
-            // debugger
+            // debugger;
             var that = this;
             if(that.percent < 99){
                that.percent += 1;
@@ -465,6 +471,25 @@ export default {
 .paramCon{
     width: 1200px;
     margin-left: 360px;
+}
+.funcParam{
+/* 测试样本自动生成 */
+box-sizing: border-box;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+width: 1200px;
+height: 824px;
+background: #FFFFFF;
+border: 1px solid #E0E3EB;
+margin: 0px 0px 40px 0px;
+box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
+border-radius: 8px;
+flex: none;
+order: 0;
+flex-grow: 0;
+text-align: left;
 }
 .paramTitle{
     height:80px;
@@ -636,7 +661,9 @@ export default {
     flex-grow: 0;
 }
 
-
+.result_div{
+    margin-top: 0;
+}
 .conclusion_info{
     box-sizing: border-box;
     display: flex;

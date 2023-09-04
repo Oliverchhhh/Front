@@ -593,6 +593,19 @@ text-align: left;
     flex-grow: 0;
     }
 
+.ant-checkbox-wrapper{
+    font-size: 20px;
+    font-family:'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    color: #000000;
+    line-height: 28px;
+    background:#F2F4F9;
+    height: 60px;
+    border-radius: 4px;
+    padding: 16px 32px 16px 24px;
+}
+
 .result_pro{
     display: flex;
     flex-direction: row;
