@@ -345,8 +345,7 @@ export default {
 .border-box {
     width: 1000px;
     height: 230px;
-    border-top: 1px solid #d1d3d7;
-    border-left: 1px solid #d1d3d7;
+    border: 1px solid #d1d3d7;
 }
 
 .center-vertical {

@@ -435,7 +435,7 @@
                                     </div>
                                     <div class="imageContent"> 
                                         <div class="imgbg">
-                                            <img :src="'../..'+result.input"  />
+                                            <img :src="'./'+result.input"  />
                                         </div>
                                         
                                     </div>
@@ -446,7 +446,7 @@
                                     </div>
                                     <div class="imageContent"> 
                                         <div class="imgbg">
-                                            <img :src="'../..'+result.target"  />
+                                            <img :src="'./'+result.target"  />
                                         </div>
                                     </div>
                                 </div>
@@ -456,7 +456,7 @@
                                     </div>
                                     <div class="imageContent"> 
                                         <div class="imgbg">
-                                            <img :src="'../..'+result.output"  />
+                                            <img :src="'./'+result.output"  />
                                         </div>
                                         
                                     </div>
@@ -467,7 +467,7 @@
                                     </div>
                                     <div class="imageContent"> 
                                         <div class="imgbg">
-                                            <img :src="'../..'+result.delta"  />
+                                            <img :src="'./'+result.delta"  />
                                         </div>
                                         
                                     </div>
@@ -535,7 +535,7 @@
                                     </div>
                                     <div class="imageContent"> 
                                         <div class="imgbg">
-                                            <img src='../../static/output/sample00.png'  />
+                                            <img src=''  />
                                         </div>
                                         
                                     </div>
@@ -853,7 +853,7 @@ export default {
         /* 获取结果 */ 
         getData(){
             var that = this;
-            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
                 that.result=data;
             });
@@ -865,7 +865,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
                 }else{
@@ -921,7 +921,7 @@ export default {
             };
             var that=this;
             /* 调用创建主任务接口，需开启后端程序 */
-            that.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            that.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 // that.tid = "20230224_1106_d5ab4b1";
@@ -937,7 +937,7 @@ export default {
                 that.percent = 40;
                 that.logflag = true;
                 that.logclk = self.setInterval(that.getLog, 6000);
-                that.$axios.post("/api/auto_verify_img", postdata).then((res) => {
+                that.$axios.post("/auto_verify_img", postdata).then((res) => {
                     that.isShowPublish=true;
                     clearInterval(that.logclk);
                     that.logflag = false;
@@ -973,7 +973,7 @@ export default {
             };
             var that=this;
             /* 调用创建主任务接口，需开启后端程序 */
-            that.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            that.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 // that.tid = "20230224_1106_d5ab4b1";
@@ -989,7 +989,7 @@ export default {
                 that.percent = 40;
                 that.logflag = true;
                 that.logclk = self.setInterval(that.getLog, 6000);
-                that.$axios.post("/api/knowledge_consistency", postdata).then((res) => {
+                that.$axios.post("/knowledge_consistency", postdata).then((res) => {
                     that.isShowPublish=true;
                     that.logflag = true;
                     clearInterval(that.logclk);
@@ -1034,7 +1034,7 @@ export default {
             };
             var that=this;
             /* 调用创建主任务接口，需开启后端程序 */
-            that.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            that.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 // that.tid = "20230224_1106_d5ab4b1";
@@ -1050,7 +1050,7 @@ export default {
                 that.percent = 40;
                 that.logflag = true;
                 // that.logclk = self.setInterval(that.getLog, 6000);
-                that.$axios.post("/api/reach", postdata).then((res) => {
+                that.$axios.post("/reach", postdata).then((res) => {
                     
                     that.logflag = true;
                     clearInterval(that.logclk);

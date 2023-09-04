@@ -396,7 +396,7 @@ export default {
         /* 获取结果 */ 
         getData(){
             var that = this;
-            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
                 that.result=data.data.result.formal_verification;
             });
@@ -408,7 +408,7 @@ export default {
             if(that.percent < 99){
                 that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
                 that.logtext = data.data.Log[that.stid];
             });
         },
@@ -445,7 +445,7 @@ export default {
                 var data_size = 0
 
             /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 if (this.dataset == 'mnist') {
@@ -492,7 +492,7 @@ export default {
                 that.logtext.length = 0;
                 // 
                 // 启动任务
-                that.$axios.post("/api/FormalVerification", postdata).then((res) => {
+                that.$axios.post("/FormalVerification", postdata).then((res) => {
                     that.stidlist =  {"formalverfy":res.data.stid};
                     that.logclk = self.setInterval(that.getLog, 1000);
                     that.logflag = true;

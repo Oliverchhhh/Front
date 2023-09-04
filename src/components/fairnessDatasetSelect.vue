@@ -60,11 +60,15 @@
             dataAttrTranfer:dataAttrTranfer,
             selectIcon,
             },
-            data(){
+        props:{
+            dataname:{
+                default: () =>["German","Adult","Compas","Cifar10-S","CelebA"]},
+        },
+        data(){
                 return{
                     labelshow:[true,false,false],
                 /* 单选框默认选中 */
-                dataname:["German","Adult","Compas","Cifar10-S","CelebA"],
+                
                 value: 0,
                 /* 单选按钮样式 */
                 radioStyle: {

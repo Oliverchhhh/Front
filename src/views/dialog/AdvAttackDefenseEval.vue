@@ -148,12 +148,12 @@ export default {
             // output路径需修改
             selectPicList: [
                 ["原始样本", "噪声", "对抗样本"],
-                [[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"]],
-                [[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"]],
-                [[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"]]
-                // [["./static/output/images/0/clean.jpeg", "pic"], ["./static/output/images/0/noise.jpeg", "pic"], ["./static/output/images/0/adv.jpeg", "pic"]],
-                // [["./static/output/images/1/clean.jpeg", "pic"], ["./static/output/images/1/noise.jpeg", "pic"], ["./static/output/images/1/adv.jpeg", "pic"]]
-                // [["./static/output/images/2/clean.jpeg", "pic"], ["./static/output/images/2/noise.jpeg", "pic"], ["./static/output/images/2/adv.jpeg", "pic"]]
+                // [[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"]],
+                // [[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"]],
+                // [[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"],[require("@/assets/img/third.png"), "pic"]]
+                [["./static/output/images/0/clean.jpeg", "pic"], ["./static/output/images/0/noise.jpeg", "pic"], ["./static/output/images/0/adv.jpeg", "pic"]],
+                [["./static/output/images/1/clean.jpeg", "pic"], ["./static/output/images/1/noise.jpeg", "pic"], ["./static/output/images/1/adv.jpeg", "pic"]]
+                [["./static/output/images/2/clean.jpeg", "pic"], ["./static/output/images/2/noise.jpeg", "pic"], ["./static/output/images/2/adv.jpeg", "pic"]]
             ],
             setCellWidth: [0.33, 0.34, 0.33],
             htmlTitle: 'advAttackDefenseReport'

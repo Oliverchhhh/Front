@@ -29,7 +29,7 @@
                     <a-divider />
                     <div class="inputdiv">
                         <!-- 输入主体 -->
-                        <fairnessDataset @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
+                        <fairnessDataset :dataname="dataname" @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
                     </div>
                 </div>
             </div>
@@ -316,7 +316,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = Object.values(data.data.Log).slice(-1)[0];
                 }else{
@@ -370,27 +370,27 @@ export default {
                 that.result.score_evaluate = "差";
                 that.result.score_con = "较不公平";
             }
-            that.result["Consistency"]=res.Consistency.toFixed(2);
+            that.result["Consistency"]=res.Consistency.toFixed(2)*100;
             that.result["Proportion"]=res.Proportion;
             var color='#0B55F4';
-            if (that.result["Consistency"]<=0.3){
+            if (that.result["Consistency"]<=30){
                 color = "#F4320B";
-            }else if(that.result["Consistency"]>0.7){
+            }else if(that.result["Consistency"]>70){
                 color='#07C168';
             }else{
                 color = '#0B55F4';
             }
             //得分图
             drawconseva1("conseva",that.result["Consistency"],color);
-            if( that.result["Consistency"]>0.9 )
+            if( that.result["Consistency"] > 90 )
             {
                 that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，高于标准线0.9，故该数据集从个体公平性方面分析结果为公平数据集";
             }
-            else if( that.result["Consistency"]<=0.9 && that.result["Consistency"]>=0.6 )
+            else if( that.result["Consistency"] <= 90 && that.result["Consistency"] >= 60 )
             {
                 that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，高于标准线0.6，故该数据集从个体公平性方面分析结果为较公平数据集";
             }
-            else( that.result["Consistency"]<0.6 )
+            else( that.result["Consistency"] < 60 )
             {
                 that.consText=that.dataname[that.dataNameValue]+"数据集的个体公平性得分为"+that.result["Consistency"]+"，低于标准线0.6，故该数据集从个体公平性方面分析结果为相对不公平数据集";
             }
@@ -519,7 +519,7 @@ export default {
             var that=this;
             var tid = "";
             /* 调用创建主任务接口 */
-            this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
                 tid = result.data.Taskid;
                 const postdata={
@@ -533,7 +533,7 @@ export default {
                     that.getLog();
                 },200)
                 that.percent=50
-                that.$axios.post("/api/DataFairnessEvaluate",postdata).then((res) => {
+                that.$axios.post("/DataFairnessEvaluate",postdata).then((res) => {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.percent=100
                     that.isShowPublish = true;

@@ -208,7 +208,7 @@ export default {
     this.res.maxraccmethod = ""
     let pp_asr_serieslist = []
     // output路径
-    let pic_base_path=`/static/output/${this.result.tid}/${this.result.stidlist.backdoor}`
+    let pic_base_path=`./static/output/${this.result.tid}/${this.result.stidlist.backdoor}`
     this.selectPicList=[["0", "1", "2", "3", "4"],]
     for(let temp in this.result.backdoor_attack){
       if( ["stop","tid", "stid"] .indexOf(temp) == -1){
@@ -255,7 +255,7 @@ export default {
     }else{
       this.res["Eva"] = "差"
     }
-    this.res["score_des"] = `${this.postData.Model}模型鲁棒性得分为${this.res.score},是一个较${this.res.Eva}的模型，本次投毒攻击方法有${this.defenseShow(this.postData.method)}，其中${this.res.maxmethod}的攻击效果最佳`
+    this.res["score_des"] = `${this.postData.Model}模型鲁棒性得分为${this.res.score},是一个较${this.res.Eva}的模型，本次投毒攻击方法有${this.defenseShow(this.postData.Method)}，其中${this.res.maxmethod}的攻击效果最佳`
     let pplist = this.result.backdoor_attack[this.res.maxmethod].pp_poison
     // 相同投毒率
     console.log(this.postData)

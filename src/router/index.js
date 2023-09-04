@@ -56,7 +56,7 @@ export default new Router({
     // 组装的对抗防御页面
     {
       path: '/advAttackDefense',
-      name: '/advAttackDefense',
+      name: 'advAttackDefense',
       component: () => import('../views//advAttackDefense.vue')
     },
     // 组装的后门攻击页面
@@ -68,7 +68,7 @@ export default new Router({
     // 组装的后门防御页面
     {
       path: '/backdoorDefense',
-      name: '/backdoorDefense',
+      name: 'backdoorDefense',
       component: () => import('../views//backdoorDefense.vue')
     },
     // 组装的测试样本生成页面

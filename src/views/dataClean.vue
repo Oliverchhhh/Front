@@ -417,7 +417,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
                 }else{
@@ -469,8 +469,8 @@ export default {
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
-                // that.tid = result.data.Taskid;
-                that.tid = "20230615_1004_278f3fc";
+                that.tid = result.data.Taskid;
+                // that.tid = "20230615_1004_278f3fc";
                 
                 /* 请求体 postdata*/
                 const postdata={

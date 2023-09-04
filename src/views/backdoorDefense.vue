@@ -108,75 +108,11 @@
                             <div class="result_div_notop">
                                 <!-- <p class="moduleTitle">攻击样本示例</p> -->
                                 <p class="main_top_echarts_con_title">攻击样本示例</p>
-                                <div class="sampleTable">
-                                    <div class="sampleColumn">
-                                        <div class="sampleTitleCol">
-                                            <p class="sampleTitleText">
-                                                原始样本
-                                            </p>
-                                        </div>
-                                        <!-- output路径需修改 -->
-                                        <div class="samplePicCol">
-                                            <div>
-                                                <img @error="noExistImg" src="/static/output/backdoor/0/clean.jpeg" >
-                                            </div>
-                                        </div>
-                                        <div class="samplePicCol">
-                                            <div>
-                                                <img @error="noExistImg" src="/static/output/backdoor/1/clean.jpeg" >
-                                            </div>
-                                        </div>
-                                        <div class="samplePicCol">
-                                            <div>
-                                                <img @error="noExistImg" src="/static/output/backdoor/2/clean.jpeg" >
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="sampleColumn">
-                                        <div class="sampleTitleCol">
-                                            <p class="sampleTitleText">
-                                                后门触发器
-                                            </p>
-                                        </div>
-                                        <div class="samplePicCol">
-                                            <div>
-                                                <img @error="noExistImg" src="/static/output/backdoor/0/backdoor.jpeg" >
-                                            </div>
-                                        </div>
-                                        <div class="samplePicCol">
-                                            <div>
-                                                <img @error="noExistImg" src="/static/output/backdoor/1/backdoor.jpeg" >
-                                            </div>
-                                        </div>
-                                        <div class="samplePicCol">
-                                            <div>
-                                                <img @error="noExistImg" src="/static/output/backdoor/2/backdoor.jpeg" >
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="sampleColumn">
-                                        <div class="sampleTitleCol">
-                                            <p class="sampleTitleText">
-                                                毒化样本
-                                            </p>
-                                        </div>
-                                        <div class="samplePicCol">
-                                            <div>
-                                                <img @error="noExistImg" src="/static/output/backdoor/0/poisoned.jpeg" >
-                                            </div>
-                                        </div>
-                                        <div class="samplePicCol">
-                                            <div>
-                                                <img @error="noExistImg" src="/static/output/backdoor/1/poisoned.jpeg" >
-                                            </div>
-                                        </div>
-                                        <div class="samplePicCol">
-                                            <div>
-                                                <img @error="noExistImg" src="/static/output/backdoor/2/poisoned.jpeg" >
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <PictureTable key="pictable0" table-id="table0" :header="true" :headerRow="true" :headerColumn="true"
+                                :have-border="true" :content="selectPicList" :single-output="true" :cellWidth="setCellWidth"
+                                cellHeight="140px" class="center-horizon" style="height: 100%;width: 1000px; margin-bottom: 20px;">
+                                </PictureTable>
+                               
                             </div>
                             <div class="result_div_notop">
                                 <p class=" main_top_echarts_con_title ">后门攻击防御效果柱状图</p>
@@ -224,7 +160,7 @@
                                         </div>
                                         <div class="samplePicCol" v-for="(info, index) in NCres.predictTrigger" :key="'predictTrigger'+index">
                                             <div>
-                                                <img :src="info" >
+                                                <img @error="noExistImg" :src="info" >
                                             </div>
                                         </div>
                                     </div>
@@ -259,7 +195,7 @@ import {drawbar} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
 import funcicon from "../assets/img/backdoorDefenseIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
-import errorImg from "../assets/img/logo.png"
+import errorImg from "../assets/img/errorimg.svg"
 import DataSetCard from "../components/card/DataSetCard.vue"
 import ModelCard from "../components/card/ModelCard.vue"
 import MethodCard from "../components/card/MethodCard.vue";
@@ -305,6 +241,11 @@ export default {
                 background: "#0B55F4",
                 color: "#FFFFFF"
             },
+            selectPicList:[["攻击方法", "加噪前", "噪声", "加噪后"],
+            [["./static/output/backdoor/0/clean.jpeg", "pic"], ["./static/output/backdoor/1/clean.jpeg", "pic"], ["./static/output/backdoor/2/clean.jpeg", "pic"]],
+            [["./static/output/backdoor/0/backdoor.jpeg", "pic"], ["./static/output/backdoor/1/backdoor.jpeg", "pic"], ["./static/output/backdoor/2/backdoor.jpeg", "pic"]],
+            [["./static/output/backdoor/0/poisoned.jpeg", "pic"], ["./static/output/backdoor/1/poisoned.jpeg", "pic"], ["./static/output/backdoor/2/poisoned.jpeg", "pic"]],
+        ],
             // 按钮是否置灰
             disStatus: false,
             /* 日志框是否显示，false不显示，true显示，默认不显示 */
@@ -337,9 +278,9 @@ export default {
             },
             // output路径需修改
             NCres:{
-                name:["Neural Cleanse L1","Neural Cleanse L1","Neural Cleanse L1"],
-                trueTrigger:[require("../assets/img/cifar100.jpg"),require("../assets/img/cifar100.jpg"),require("../assets/img/cifar100.jpg")],
-                predictTrigger:[require("../assets/img/cifar100.jpg"),require("../assets/img/cifar100.jpg"),require("../assets/img/cifar100.jpg")]
+                name:["Neural Cleanse L1","Neural Cleanse L2","Neural Cleanse Linf"],
+                trueTrigger:["./static/trigger/l1/trigger.jpeg", "./static/trigger/l2/trigger.jpeg", "./static/trigger/linf/trigger.jpeg"],
+                predictTrigger:["./static/trigger/l1/trigger_predict.jpeg" ,"./static/trigger/l2/trigger_predict.jpeg", "./static/trigger/linf/trigger_predict.jpeg"]
             },
             /* 结果弹窗状态信息 */
             isShowPublish: false,
@@ -496,7 +437,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 if (that.stid==""){
                     that.logtext = Object.values(data.data.Log).slice(-1)[0];
                 }else{
@@ -541,7 +482,7 @@ export default {
             var that = this;
 
             /* 调用创建主任务接口，需开启后端程序 */
-            that.$axios.post("/api/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
+            that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 that.logclk = self.setInterval(that.getLog, 6000);
@@ -555,7 +496,7 @@ export default {
                     tid: that.tid
                 };
                 console.log(this.postData)
-                that.$axios.post("/api/detect", that.postData).then((res) => {
+                that.$axios.post("/detect", that.postData).then((res) => {
                     that.logflag = false;
                     that.result = res.data;
                     console.log(that.result);
@@ -580,20 +521,20 @@ export default {
                     // output路径需修改
                     if ( label.indexOf("Neural Cleanse L1") > -1 ){
                         that.NCres.name.push("Neural Cleanse L1");
-                        let imgpath = "/static/output/trigger/l1/"
+                        let imgpath = "./static/output/trigger/l1/"
                         // require('/static/img/output/sample00.png')
                         that.NCres.trueTrigger.push(imgpath+"trigger.jpeg")
                         that.NCres.predictTrigger.push(imgpath+"trigger_predict.jpeg")
                     }
                     if ( label.indexOf("Neural Cleanse L2") > -1 ){
                         that.NCres.name.push("Neural Cleanse L2");
-                        let imgpath = "/static/output/trigger/l2/"
+                        let imgpath = "./static/output/trigger/l2/"
                         that.NCres.trueTrigger.push(imgpath+"trigger.jpeg")
                         that.NCres.predictTrigger.push(imgpath+"trigger_predict.jpeg")
                     }
                     if ( label.indexOf("Neural Cleanse Linf") > -1 ){
                         that.NCres.name.push("Neural Cleanse Linf");
-                        let imgpath = "/static/output/trigger/linf/"
+                        let imgpath = "./static/output/trigger/linf/"
                         that.NCres.trueTrigger.push(imgpath+"trigger.jpeg")
                         that.NCres.predictTrigger.push(imgpath+"trigger_predict.jpeg")
                     }
@@ -644,7 +585,7 @@ export default {
                 this.methodDescription = this.defensemethodInfo[i][j].description
                 button.style.color = "#0B55F4"
                 button.style.borderColor = "#C8DCFB"
-                button.style.background = "#F2F4F9"
+                button.style.background = "#E7F0FD"
                 this.selectedDefenseMethod.push(this.defensemethodInfo[i][j].id)
             } else {
                 this.methodHoverIndex = -1
@@ -880,7 +821,14 @@ export default {
     background-color: #F2F4F9;
     font-size:20px;
     height:60px;
-    color:#000
+    color:#000;
+    border:0px;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px; 
 }
 .logdiv{
     margin-top: 32px;

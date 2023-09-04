@@ -85,8 +85,9 @@
   font-family: 'PingFang SC';
   font-style: normal;
   font-weight: 400;
-  font-size: 10px;
-  line-height: 18px;
+  font-size: 12px;
+  line-height: 20px;
+
   align-items: center;
 }
 

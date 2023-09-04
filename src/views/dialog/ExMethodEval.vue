@@ -245,7 +245,7 @@ export default {
     getInstanceResult(pictureId){
       // debugger
       let resultList = []
-      let baseURL = `/static/output/${this.tid}/${this.stidlist.feature}/`
+      let baseURL = `./static/output/${this.tid}/${this.stidlist.feature}/`
       // 表头
       let tablehead = ["解释方法", "原始样本"]
       let reskey = [];
@@ -293,7 +293,7 @@ export default {
     getInstanceLayerResult(pictureId, adv_method){
       // debugger
       let resultList = []
-      let baseURL = `/static/output/${this.tid}/${this.stidlist.feature}/`
+      let baseURL = `./static/output/${this.tid}/${this.stidlist.feature}/`
       // 表头
       resultList.push(["卷积层", "原始样本结果", "对抗样本结果", "相似性指数"])
       // 正常样本layer解释
@@ -448,7 +448,7 @@ export default {
           this.attackMethods = this.result.attack_attrbution_analysis.adv_ex.adv_methods
           let temp = []
           for(let i=0;i<this.result.attack_attrbution_analysis.adv_ex.nor.nor_imgs.length;i++){
-            let url = [`/static/output/${this.tid}/${this.stidlist.feature}/` + this.result.attack_attrbution_analysis.adv_ex.nor.nor_imgs[i], 'pic']
+            let url = [`./static/output/${this.tid}/${this.stidlist.feature}/` + this.result.attack_attrbution_analysis.adv_ex.nor.nor_imgs[i], 'pic']
             temp.push(url)
           }
           this.selectedMethod = this.attackMethods[0]

@@ -286,7 +286,7 @@ function drawbarimproved( ID, data, data2, label, name){
     },500)
   }
 //公平性评估大
-function drawconseva1(ID, value, color='#0B55F4'){
+function drawconseva1(ID, value, color='#0B55F4', titlename=''){
     var option;
 
     console.log(value);
@@ -297,7 +297,7 @@ function drawconseva1(ID, value, color='#0B55F4'){
           center: ['50%', '60%'],
           radius:150,
           min: 0,
-          max: 1,
+          max: 100,
           splitNumber: 5,
           itemStyle: {
             color: color
@@ -359,19 +359,8 @@ function drawconseva1(ID, value, color='#0B55F4'){
           ]
         },]
     };
-    setTimeout(function(){
-        var myChartcons = echarts.init(document.getElementById(ID));
-        window.addEventListener("resize", function () {
-            myChartcons.resize()});
-        option && myChartcons.setOption(option);
-    },500)
-  }
-  //个体公平性评估小
-function drawconseva( ID, value, titlename){
-    var option;
-    console.log(value);
-    option = {
-      title:{
+    if(titlename != ''){
+      option["title"] = {
         // show:true,
         text:titlename,
         textStyle:{
@@ -380,87 +369,15 @@ function drawconseva( ID, value, titlename){
         },
         x:'center',
         y:280,
-      },
-      series: [
-        {
-          type: 'gauge',
-          center: ['50%', '60%'],
-          minInterval:0.02,
-          min:0,
-          max:1,
-          radius:150,
-          splitNumber: 5,
-          itemStyle: {
-            color: '#0B55F4'
-          },
-          progress: {
-            show: true,
-            width: 10
-          },
-          axisLine: {
-            lineStyle: {
-              width: 10,
-            }
-          },
-          grid: {
-            left: "1%",
-            right: "1%",
-            show: true
-          },
-          pointer: {
-            show:false
-          },
-          axisTick: {
-            distance: -5,
-            length: 5,
-            splitNumber: 5,
-            lineStyle: {
-              color: '#999',
-              width: 1
-            }
-          },
-          splitLine: {
-            distance: -5,
-            length: 10,
-            lineStyle: {
-              color: '#999',
-              width: 2
-            }
-          },
-          axisLabel: {
-            color: '#999',
-            distance: 10,
-            fontSize: 12
-          },
-          anchor: {
-            show: false
-          },
-          detail: {
-            valueAnimation: true,
-            width: '60%',
-            lineHeight: 70,
-            borderRadius: 8,
-            offsetCenter: [0, '0%'],
-            fontSize: 36,
-            fontWeight: 'bolder',
-            formatter: '{value}',
-            color: 'inherit'
-          },
-          data: [
-            {
-              value: value
-            }
-          ]
-        }
-      ]
-    };
+      }
+    }
     setTimeout(function(){
         var myChartcons = echarts.init(document.getElementById(ID));
         window.addEventListener("resize", function () {
             myChartcons.resize()});
         option && myChartcons.setOption(option);
     },500)
-  };
+  }
   // 热力图
 function drawCorelationHeat(ID, heatX, data, colorList,showflag=true, boundarylist=[-1,1]){
   var option;
@@ -1439,7 +1356,6 @@ export {
   drawbar,
   drawbarimproved,
   drawconseva1,
-  drawconseva,
   drawCorelationHeat,
   drawPopGraph,
   drawLine,

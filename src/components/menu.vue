@@ -96,7 +96,7 @@
           <div slot="header" class="func_name">模型公平性评估</div>
           <div slot="des_func" class="func_des">【待修改】数据集和深度学习模型预测会存在偏见，通过公平性评估算法，对数据集和模型的公平性进行评估，可视化展示评估结果</div>
         </ifreme>
-        <ifreme @click.native="goFuncPage('/robustFormalVerification')">
+        <ifreme @click.native="goFuncPage('/FormalVerfy')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/formalVerifyIcon.png">
           </div>
@@ -107,14 +107,14 @@
 
       <p class="block_subtitle">加固</p>
       <div class="funcs">
-        <ifreme @click.native="goFuncPage('')">
+        <ifreme @click.native="goFuncPage('/advAttackDefense')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/advDefenseIcon.png">
           </div>
           <div slot="header" class="func_name">对抗攻击防御</div>
           <div slot="des_func" class="func_des">【待修改跳转页】从对抗样本检测、对抗噪声擦除和模型防御力增强等三个角度阻截对抗样本的攻击，并使神经网络模型在面对对抗样本时仍能发挥正常功能</div>
         </ifreme>
-        <ifreme @click.native="goFuncPage('')">
+        <ifreme @click.native="goFuncPage('/backdoorDefense')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/bkDefenseIcon.png">
           </div>

@@ -40,7 +40,7 @@
                         <div class="mainParamName48">请选择模型</div>
                         <div style="width: 1104px;margin-bottom: 16px;">
                             <a-upload 
-                            action="/api/ex/uploadModel"
+                            action="/ex/uploadModel"
                             name="ex_upload_model"
                             
                             @change="uploadModel">
@@ -375,7 +375,7 @@ export default {
         /* 获取结果 */ 
         getData(){
             var that = this;
-            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
                 that.result=data;
             });
@@ -387,7 +387,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
                 }else{
@@ -473,7 +473,7 @@ export default {
             // },2000)
             // return 0
             var that = this;
-            that.$axios.post("/api/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
+            that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 // that.logclk = self.setInterval(that.getLog, 20000);
@@ -489,7 +489,7 @@ export default {
                 if(that.selectedDimensionMethod.length > 0){
                     that.postData["VisMethods"] = that.selectedDimensionMethod
                     
-                    that.$axios.post("/api/Attack/AttackDimReduciton", that.postData).then((res) => {
+                    that.$axios.post("/Attack/AttackDimReduciton", that.postData).then((res) => {
                         that.stidlist["dimention"] =  res.data.stid;
                         that.clk = setInterval(() => {
                             that.update();
@@ -502,7 +502,7 @@ export default {
                 if(that.selectedFeatureMethod.length > 0){
                     that.postData["ExMethods"] = that.selectedFeatureMethod
                     that.postData["Use_layer_explain"] = that.layerchecked
-                    that.$axios.post("/api/Attack/AttackAttrbutionAnalysis", that.postData).then((res) => {
+                    that.$axios.post("/Attack/AttackAttrbutionAnalysis", that.postData).then((res) => {
                         that.stidlist["feature"] =  res.data.stid;
                         if(that.clk==""){
                             // that.clk = self.setInterval(that.update, 60000);

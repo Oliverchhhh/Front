@@ -47,8 +47,8 @@
 
                             <div v-for="(methods, i) in defensemethodInfo" :key="i" style="margin-bottom: 16px;">
                                 <a-row :gutter="16" style="height:60px" type="flex">
-                                    <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j">
-                                        <a-button :id="'button' + i + j" style="width: 100%;background-color: #F2F4F9;font-size:20px;height:60px" @click="changeMethods(i,j)"
+                                    <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod" >
+                                        <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
                                             @mouseover="methodButtonOver(i, j)"
                                             @mouseleave="methodnButtonLeave(i, j)"
                                             >{{ method.name }}</a-button>
@@ -383,7 +383,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 if (that.stid==""){
                     that.logtext = Object.values(data.data.Log).slice(-1)[0];
                 }else{
@@ -411,7 +411,7 @@ export default {
             var that = this;
 
             /* 调用创建主任务接口，需开启后端程序 */
-            that.$axios.post("/api/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
+            that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 that.logclk = self.setInterval(that.getLog, 6000);
@@ -425,7 +425,7 @@ export default {
                     tid: that.tid
                 };
                 console.log(this.postData)
-                that.$axios.post("/api/detect", that.postData).then((res) => {
+                that.$axios.post("/detect", that.postData).then((res) => {
                     that.result = res.data;
                     clearInterval(that.logclk);
                     that.getLog();
@@ -521,7 +521,7 @@ export default {
                 this.methodDescription = this.defensemethodInfo[i][j].description
                 button.style.color = "#0B55F4"
                 button.style.borderColor = "#C8DCFB"
-                button.style.background = "#F2F4F9"
+                button.style.background = "#E7F0FD"
                 this.selectedDefenseMethod.push(this.defensemethodInfo[i][j].id)
             } else {
                 this.methodHoverIndex = -1
@@ -586,6 +586,19 @@ export default {
     height: 40px;
     background: #FFFFFF;
     border-radius: 6px;
+}
+.denfenseMethod .ant-btn{
+    width: 100%;
+    background-color: #F2F4F9;
+    height:60px;
+    color:#000;
+    border:0px;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px; 
 }
 
 .ant-divider-horizontal {

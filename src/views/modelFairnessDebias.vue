@@ -30,12 +30,15 @@
                     <div class="inputdiv">
                         <!-- 输入主体 -->
                         <!-- 选数据 -->
-                        <fairnessDataset @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
+                        <fairnessDataset :dataname="dataname" @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
                         <!-- 选模型 -->
                         <div class="model">
                             <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择模型结构</p>
-                            <a-radio :style="radioStyle" defaultChecked disabled>
+                            <a-radio :style="radioStyle" defaultChecked disabled v-if="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) > -1">
                                 3 Hidden-layer FCN
+                            </a-radio>
+                            <a-radio :style="radioStyle" defaultChecked disabled v-else>
+                                Resnet50
                             </a-radio>
                         </div>
                         <!-- 选优化算法 -->
@@ -57,14 +60,14 @@
                         <div class="selectMethod">
                             <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择评估算法（可多选）</p>
                             <div class="methodDes">
-                                <a-checkbox-group @change="onChangeEvaMethod">
+                                <a-checkbox-group @change="onChangeEvaMethod" :disabled ="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) > -1 ? false: true">
                                     <a-row  type="flex" justify="space-around" v-for="index in 8">
                                         <a-col :span="index > 6 ? 12:8" v-for="num in (index > 6 ? 2:3)">
                                             <a-checkbox  v-if="index > 6 && (18+(index-7)*2+num-1<22)" :value=Object.keys(evamethod)[18+(index-7)*2+num-1] >
-                                                <div :class="18+(index-7)*2+num-1>17 ? 'checkboxdivlen':'checkboxdiv'" @mouseenter="checkboxMouseEnter(index, num)" >{{ Object.values(evamethod)[18+(index-7)*2+num-1]["name"] }}</div>
+                                                <div :class="18+(index-7)*2+num-1>17 ? 'checkboxdivlen':'checkboxdiv'" :style="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) > -1 ?'':disablestyle" @mouseenter="checkboxMouseEnter(index, num)" >{{ Object.values(evamethod)[18+(index-7)*2+num-1]["name"] }}</div>
                                             </a-checkbox>
                                             <a-checkbox  v-else-if="index <= 6 " :value=Object.keys(evamethod)[(index-1)*3+num-1] >
-                                                <div :class="(index-1)*3+num-1>17 ? 'checkboxdivlen':'checkboxdiv'" @mouseenter="checkboxMouseEnter(index, num)">{{ Object.values(evamethod)[(index-1)*3+num-1]["name"] }}</div>
+                                                <div :class="(index-1)*3+num-1>17 ? 'checkboxdivlen':'checkboxdiv'" :style="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) > -1 ?'':disablestyle" @mouseenter="checkboxMouseEnter(index, num)">{{ Object.values(evamethod)[(index-1)*3+num-1]["name"] }}</div>
                                             </a-checkbox>
                                             
                                         </a-col>
@@ -82,6 +85,14 @@
                                         </transition>
                                     </a-row>
                                 </a-checkbox-group>
+                                <div v-for="(methods, i) in imgEvaMethod" :key="i" style="margin-bottom: 16px;">
+                                    <a-row :gutter="16" style="height:50px;" type="flex">
+                                        <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod">
+                                            <a-button :id="'button' + i + j"  @click="changeMethods(i,j)" :disabled ="['Cifar10-S','CelebA'].indexOf(dataname[dataNameValue]) > -1 ? false: true">{{ method.name }}</a-button>
+                                        </a-col>
+                                    </a-row>
+                                    <div v-if="methodHoverIndex==i && methodDescription !== ''" style="padding:14px 24px;margin-bottom: 16px;"> {{ methodDescription }} </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -100,23 +111,67 @@
                     </div>
                 </div>
                 <div class="dialog_publish_main" slot="main" id="pdfDom">
+                    <div v-if="Object.keys(postData).length > 0" style="background: var(--gray-7, #F2F4F9);;width: 100%;padding: 24px;">
+                      <a-row >
+                        <a-col :span="2">
+                          <div class="grid-content-name" style="color:#6C7385">数据集:</div>
+        
+                        </a-col>
+                        <a-col :span="4">
+                          <div class="grid-content-value">{{postData.dataname}}</div>
+
+                        </a-col>
+                        <a-col :span="2">
+                          <div class="grid-content-name" style="color:#6C7385">模型结构:</div>
+        
+                        </a-col>
+                        <a-col :span="4">
+                          <div class="grid-content-value">{{postData.modelname}}</div>
+
+                        </a-col>
+                        <a-col :span="2">
+                          <div class="grid-content-name" style="color:#6C7385">评估算法:</div>
+                        </a-col>
+                        <a-col :span="4">
+                          <div class="grid-content-value">{{defenseShow(postData.metrics)}}</div>
+                        </a-col>
+                        <a-col :span="2">
+                          <div class="grid-content-name" style="color:#6C7385">优化算法:</div>
+                        </a-col>
+                        <a-col :span="4">
+                          <div class="grid-content-value">{{postData.algorithmname}}</div>
+                        </a-col>
+                      </a-row>
+                    </div>
                     <!-- 总评分 -->
-                    <div class="result_div">
+                    <div class="result_div_notop">
                         <div class="g_score_content">
-                            <div class="scorebg">
-                                <div class=" main_top_echarts_con_title ">模型公平性总评分</div>
-                            
-                                <p class="g_score"> {{res.score.aft}}</p>
-                                <p class="g_score_evaluate"> {{ res.score_evaluate.aft }}</p>
+                            <div class=" main_top_echarts_con_title ">数据集公平性提升效果</div>
+                            <div class="debias_res">
+                                <div class="debias_res_score">
+                                    <img src="../assets/img/beforeDebias.png" style="width: 360px;margin-top: -40px;"/>
+                                    <p class="g_score"> {{res.score.aft}}</p>
+                                    <p class="g_score_evaluate"> {{ res.score_evaluate.bef }}</p>
+                                    <p class="debias_state">提升前</p>
+                                </div>
+                                <div class="to_aft">
+                                    <img src="../assets/img/toAfter.svg" style="margin-top: -40px;"/>
+                                </div>
+                                <div class="debias_res_score">
+                                    <img src="../assets/img/afterDebias.png" style="width: 360px;margin-top: -40px;"/>
+                                    <p class="g_score"> {{res.score.aft}}</p>
+                                    <p class="g_score_evaluate"> {{ res.score_evaluate.aft }}</p>
+                                    <p class="debias_state">提升后</p>
+                                </div>
                             </div>
                         </div>
                         <div class="conclusion">
-                            <p class="result_text">模型综合评分为{{res.score.aft}}，是一个{{ res.score_con.aft }}的模型</p>
+                            <p class="result_text">模型公平性提升后的综合评分为{{res.score.aft}}，是一个{{ res.score_con.aft }}的模型</p>
                             <p class="result_annotation">综合评分计算来源是个体公平性和群体公平性两个维度上的评分</p>
                         </div>
                     </div>
                     <!-- 评分详情 -->
-                    <div class="result_div">
+                    <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
                         <div class=" main_top_echarts_con_title ">公平性评分详情</div>
                         <div class="two_score">
                             <div class="left_score_label">
@@ -147,7 +202,7 @@
                         </div>
                     </div>
                     <!-- 个体得分图 -->
-                    <div class="result_div">
+                    <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
                         
                         <div class="echart_title">
                             
@@ -156,9 +211,10 @@
                             
                         </div>
                         <div>
-                            <div id = 'consevaBef'></div>
-                            <div id = 'consevaAft'></div>
-                            <div class="conseva_label">consistency</div>
+                            <div class="cons_echart_div">
+                                <div id = 'consevaBef'></div>
+                                <div id = 'consevaAft'></div>
+                            </div>
                             <div class="conclusion">
                                 <p class="result_text">{{ res.consText }}</p>
                                 <p class="result_annotation">个体公平性指标越接近1，模型越公平。</p>
@@ -169,14 +225,14 @@
                     
                     
                     <!-- 群体 -->
-                    <div class="result_div">
+                    <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
                         <div class="echart_title">
                             
                             <div class=" main_top_echarts_con_title ">模型群体公平性提升</div>
                             <p class="title_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
                             
                         </div>
-                        <div class="group_echarts_div">
+                        <div class="group_echarts_div" >
 
                             <div v-for="(temp,index) in senAttrList" class="attr_echarts_div" :key="index">
                                 <div class="attr_title_div">
@@ -192,9 +248,21 @@
                             </div>
                         </div>
                     </div>
+                    <!-- 图片数据集 -->
+                    <div class="result_div" v-if="['Cifar10-S', 'CelebA'].indexOf(postData.dataname) >-1">
+                        <div class="echart_title">
+                            <div class=" main_top_echarts_con_title ">图片数据集提升效果对比图</div>
+                        </div>
+                        <div class="group_echarts_div">
+                            <div  class="model_group_echart"  id="evaBar"></div>
+                            <div class="conclusion">
+                                <p class="result_text">{{ res.groupText["evaBar"] }}</p>
+                            </div>
+                        </div>
+                    </div>
                     <!-- <a-divider>With Text</a-divider> -->
                     <!-- 数据占比 -->
-                    <div class="result_div">
+                    <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
                         <div class="echart_title">
                             <div class=" main_top_echarts_con_title ">数据集中各群体的占比</div>
                         </div>
@@ -205,7 +273,7 @@
                         </div>           
                     </div>
                     <!-- 相关性 -->
-                    <div class="result_div">
+                    <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
                         <div class="echart_title">
                             <div class=" main_top_echarts_con_title ">数据集的各属性之间的相关性</div>
                             <p class="title_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
@@ -240,7 +308,7 @@
                         </div>
                         
                     </div>
-                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;
                     font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
                       导出报告内容
                     </a-button>
@@ -265,7 +333,7 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
-import {drawconseva, drawbarimproved, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
+import {drawconseva1, drawbarimproved, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
 import funcicon from "../assets/img/modelEvaIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
@@ -330,7 +398,19 @@ export default {
                 "OMd":{"name":"Overall Misclassification Difference(OMd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
                 "OMr":{"name":"Overall Misclassification Ratio(OMr)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'}
                 },
-                
+            imgEvaMethod:[
+                [{name:"mPre",description:""},
+                {name:"mFPR",description:""},
+                {name:"mFNR",description:""},
+                {name:"mTNR",description:""},
+                ],[
+                {name:"mTPR",description:""},
+                {name:"mAcc",description:""},
+                {name:"mF1",description:""},
+                {name:"mBA",description:""},
+            ]],
+            methodHoverIndex:-1,
+            methodDescription:'',    
             /* 提升算法 */ 
             debiasMethod:{
                 "Adersarial Debiasing":{'name':'Adversarial Debiasing(FAD)','des':'对抗训练纠偏算法是一种训练过程中的纠偏技术，可以使训练的分类器在最大化预测准确率的同时减少能从其预测结果中与保护属性相关的信息。这种训练算法时公平的，因为无法从它的预测结果中获取到与保护属性相关的信息。','class':['table']},
@@ -340,9 +420,9 @@ export default {
                 "Calibrated EOD-fnr":{'name':'Calibrat Edequalized Odds-fnr','des':'一种后处理技术，以使不同种群的预测结果具有相同的fnr（假阴性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
                 "Calibrated EOD-fpr":{'name':'Calibrat Edequalized Odds-fpr','des':'一种后处理技术，以使不同种群的预测结果具有相同的fpr（假阳性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
                 "Calibrated EOD-weighted":{'name':'Calibrat Edequalized Odds-weighted','des':'一种后处理技术，以使不同种群的预测结果具有相同的fnr（假阴性率）和fpr（假阳性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
-                "Domain Independent Training":{'name':'Domain Independent Training','des':'领域独立训练方法受到一种名为“解耦分类器”的技术的启发，通过让模型在训练过程中忽视数据中的偏见信息，从而减少模型对偏见的依赖。优点是可以有效地减少模型的性别偏见','class':['pic','table']},
-                "Domain Adversarial Training":{'name':'Domain Adversarial Training',"des":"领域对抗性训练方法试图通过引入一个对抗性的学习过程来减少模型对偏见的依赖。具体来说，模型在训练过程中不仅要尽可能地准确预测目标标签，还要尽可能地忽视数据中的偏见信息。","class":['pic']},
-                "Domain Conditional Training":{'name':'Domain Conditional Training',"des":"领域条件训练类似于InclusiveFaceNet的训练方式，通过在训练过程中显式地考虑数据中的偏见信息，使模型能够在不同的子群体中都有良好的性能。优点是可以有效地减少模型对偏见的依赖。","class":['pic']},
+                "domain_independent":{'name':'Domain Independent Training','des':'领域独立训练方法受到一种名为“解耦分类器”的技术的启发，通过让模型在训练过程中忽视数据中的偏见信息，从而减少模型对偏见的依赖。优点是可以有效地减少模型的性别偏见','class':['pic','table']},
+                "domain_discriminative":{'name':'Domain Adversarial Training',"des":"领域对抗性训练方法试图通过引入一个对抗性的学习过程来减少模型对偏见的依赖。具体来说，模型在训练过程中不仅要尽可能地准确预测目标标签，还要尽可能地忽视数据中的偏见信息。","class":['pic']},
+                "uniconf_adv":{'name':'Domain Conditional Training',"des":"领域条件训练类似于InclusiveFaceNet的训练方式，通过在训练过程中显式地考虑数据中的偏见信息，使模型能够在不同的子群体中都有良好的性能。优点是可以有效地减少模型对偏见的依赖。","class":['pic']},
                 
             },
             /* 单选按钮样式 */
@@ -427,6 +507,7 @@ export default {
             result:{},
             /* 评估算法选择结果*/
             evaCheckedValues:[],
+            evaImgCheckedValues:[],
             /* 日志查询clock*/
             logclk:"", 
             /*主任务id*/ 
@@ -434,9 +515,9 @@ export default {
             stidlist:[],
             /* 公平性提升算法disable */
             debiasDisabled:{
-                "Domain Adversarial Training":false,
-                "Domain Conditional Training":false,
-                "Domain Independent Training":false,
+                "domain_discriminative":false,
+                "uniconf_adv":false,
+                "domain_independent":false,
                 "Adersarial Debiasing":false,
                 "Reject Option-SPd":false,
                 "Reject Option-AOd":false,
@@ -444,7 +525,12 @@ export default {
                 "Calibrated EOD-fnr":false,
                 "Calibrated EOD-fpr":false,
                 "Calibrated EOD-weighted":false,
-            } 
+            },
+            postData:{},
+            disablestyle:{
+                'color': 'rgba(0,0,0,.25)',
+                'background-color': '#f5f5f5'
+            }
         }
     },
     watch:{
@@ -463,11 +549,45 @@ export default {
     created() {
         document.title = '模型公平性提升';
         },
+    //在离开页面时执行
+    beforeDestroy() {
+        if(this.clk) { //如果定时器还在运行,关闭定时器
+            clearInterval(this.clk); //关闭
+        }
+        if(this.logclk){
+            clearInterval(this.logclk);
+        }
+    },
     mounted(){
         let that=this;
         
     },
     methods: {
+        // 防御方法参数显示
+        defenseShow(method="[]"){
+            let param = JSON.parse(method);
+            return param.join('、');
+        },
+        changeMethods(i, j) {
+            // debugger;
+            let button = document.getElementById("button" + i + j)
+            if (button.style.color == "") {
+                this.methodHoverIndex = i
+                this.methodDescription = this.imgEvaMethod[i][j].description
+                button.style.color = "#0B55F4"
+                button.style.background = "#E7F0FD"
+                this.evaImgCheckedValues.push(this.imgEvaMethod[i][j].name)
+                
+            } else {
+                this.methodHoverIndex = -1
+                this.methodDescription = ""
+                button.style.color = ""
+                button.style.borderColor = "#C8DCFB"
+                button.style.background = "#F2F4F9"
+                button.blur()
+                this.evaImgCheckedValues.splice(this.evaImgCheckedValues.indexOf(this.imgEvaMethod[i][j].name), 1 )
+            }
+        },
         /* 获取日志 */ 
         getLog(){
             // debugger
@@ -475,7 +595,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 // console.log("log:", data)
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
@@ -489,7 +609,7 @@ export default {
         },
         getData(){
             var that = this;
-            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
                 that.result=data;
             });
@@ -509,7 +629,13 @@ export default {
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
-                this.result = this.result.data.result.model_debias;
+                if (["German","Adult","Compas"].indexOf(this.dataname[this.dataNameValue]) > -1){
+                    this.result = this.result.data.result.model_debias;
+                }
+                else{
+                    this.result = this.result.data.result
+                }
+                
                 this.resultPro(this.result);
             }else if(this.result.data.stop == 2){
                 this.percent=100
@@ -552,9 +678,9 @@ export default {
                 this.buttonBGColor.background = "#0B55F4";
             };
             this.debiasDisabled={
-                "Domain Adversarial Training":false,
-                "Domain Conditional Training":false,
-                "Domain Independent Training":false,
+                "domain_discriminative":false,
+                "uniconf_adv":false,
+                "domain_independent":false,
                 "Adersarial Debiasing":false,
                 "Reject Option-SPd":false,
                 "Reject Option-AOd":false,
@@ -564,13 +690,13 @@ export default {
                 "Calibrated EOD-weighted":false,
             };
             if( ["Cifar10-S","CelebA"].indexOf(this.dataname[value]) == -1){
-                this.debiasDisabled["Domain Adversarial Training"] = true;
-                this.debiasDisabled["Domain Conditional Training"] = true;
+                this.debiasDisabled["domain_discriminative"] = true;
+                this.debiasDisabled["uniconf_adv"] = true;
             }else{
                 this.debiasDisabled={
-                "Domain Adversarial Training":false,
-                "Domain Conditional Training":false,
-                "Domain Independent Training":false,
+                "domain_discriminative":false,
+                "uniconf_adv":false,
+                "domain_independent":false,
                 "Adersarial Debiasing":true,
                 "Reject Option-SPd":true,
                 "Reject Option-AOd":true,
@@ -594,12 +720,13 @@ export default {
         resultPro(res1){
             var that = this;
             that.percent=100;
-            that.res["score"]["bef"] = that.result["Overall fairness"][0].toFixed(2)*100;
-            that.res["score"]["aft"] = that.result["Overall fairness"][1].toFixed(2)*100;
-            that.res["consistency_score"]['bef'] = that.result["Overall individual fairness"][0].toFixed(2)*100;
-            that.res["consistency_score"]['aft'] = that.result["Overall individual fairness"][1].toFixed(2)*100;
-            that.res["group_score"]['bef'] =  that.result["Overall group fairness"][0].toFixed(2)*100;
-            that.res["group_score"]['aft'] =  that.result["Overall group fairness"][1].toFixed(2)*100;
+            if ("Consistency" in that.result){
+                that.res["score"]["bef"] = that.result["Overall fairness"][0].toFixed(2)*100;
+                that.res["score"]["aft"] = that.result["Overall fairness"][1].toFixed(2)*100;
+            }else{
+                that.res["score"]["bef"] = that.result["model_evaluate"]["Overall fairness"].toFixed(2)*100
+                that.res["score"]["aft"] = that.result["model_debias"]["Overall fairness"].toFixed(2)*100
+            }
             // 总分判断
             if(that.res.score.bef > 80){
                 that.res.score_evaluate['bef'] = "优秀";
@@ -622,119 +749,154 @@ export default {
                 that.res.score_evaluate['aft'] = "差";
                 that.res.score_con['aft'] = "较不公平";
             }
-
-            that.res["Consistency"]['bef']=(that.result.Consistency[0]*100).toFixed(2);
-            that.res["Consistency"]['aft']=(that.result.Consistency[1]*100).toFixed(2);
-            that.res["Proportion"]=that.result.Proportion;
-            let cons_sub = (that.res["Consistency"]['aft'] - that.res["Consistency"]['bef']).toFixed(2);
-            //得分图
-            drawconseva("consevaBef",that.res["Consistency"]["bef"],"before");
-            drawconseva("consevaAft",that.res["Consistency"]["aft"],"after");
+            if ("Consistency" in that.result){
+                that.res["consistency_score"]['bef'] = that.result["Overall individual fairness"][0].toFixed(2)*100;
+                that.res["consistency_score"]['aft'] = that.result["Overall individual fairness"][1].toFixed(2)*100;
+                that.res["group_score"]['bef'] =  that.result["Overall group fairness"][0].toFixed(2)*100;
+                that.res["group_score"]['aft'] =  that.result["Overall group fairness"][1].toFixed(2)*100;
+                that.res["Consistency"]['bef']=(that.result.Consistency[0]*100).toFixed(2);
+                that.res["Consistency"]['aft']=(that.result.Consistency[1]*100).toFixed(2);
+                that.res["Proportion"]=that.result.Proportion;
+                let cons_sub = (that.res["Consistency"]['aft'] - that.res["Consistency"]['bef']).toFixed(2);
+                //得分图
+                drawconseva1("consevaBef",that.res["Consistency"]["bef"], '#0B55F4', "Original");
+                drawconseva1("consevaAft",that.res["Consistency"]["aft"], '#0B55F4', "Improved");
+                
+                that.res.consText = "模型个体公平性提升前得分为" + that.res.Consistency.bef + ",提升后的得分为" + that.res.Consistency.aft + "共提升了" + cons_sub + "分。";
             
-            that.res.consText = "模型个体公平性提升前得分为" + that.res.Consistency.bef + ",提升后的得分为" + that.res.Consistency.aft + "共提升了" + cons_sub + "分。";
-           
-            //直方图
-            // 初始化群体公平性
-            for(let attrTemp of that.senAttrList){
-                that.res.attrEvaValue['bef'][attrTemp] = [];
-                that.res.attrEvaValue['aft'][attrTemp] = [];
-            };
-            // 群体评估数据整合
-            for(var key in that.result){
-                if (key == "Consistency"|| key == "Proportion" || key == "Corelation coefficients"|| key == "stop" || key.indexOf("Overall") != -1 || key.indexOf("score") != -1){
-                    continue;
-                }
-                else{
-                    that.res.labels.push(key);
-                    for (let attrTemp in that.result[key][0]){
-                        that.res.attrEvaValue['bef'][attrTemp].push(that.result[key][0][attrTemp].toFixed(2));
-                    };
-                    for (let attrTemp in that.result[key][1]){
-                        that.res.attrEvaValue['aft'][attrTemp].push(that.result[key][1][attrTemp].toFixed(2));
+                //直方图
+                // 初始化群体公平性
+                for(let attrTemp of that.senAttrList){
+                    that.res.attrEvaValue['bef'][attrTemp] = [];
+                    that.res.attrEvaValue['aft'][attrTemp] = [];
+                };
+                // 群体评估数据整合
+                for(var key in that.result){
+                    if (key == "Consistency"|| key == "Proportion" || key == "Corelation coefficients"|| key == "stop" || key.indexOf("Overall") != -1 || key.indexOf("score") != -1){
+                        continue;
+                    }
+                    else{
+                        that.res.labels.push(key);
+                        for (let attrTemp in that.result[key][0]){
+                            that.res.attrEvaValue['bef'][attrTemp].push(that.result[key][0][attrTemp].toFixed(2));
+                        };
+                        for (let attrTemp in that.result[key][1]){
+                            that.res.attrEvaValue['aft'][attrTemp].push(that.result[key][1][attrTemp].toFixed(2));
+                        }
                     }
                 }
-            }
-            // 画图
-            for(let attrTemp of that.senAttrList){
-                drawbarimproved(attrTemp, that.res.attrEvaValue['bef'][attrTemp], that.res.attrEvaValue['aft'][attrTemp], that.res.labels, "群体公平性评估指标");
-                that.res.groupText[attrTemp]="本次测试敏感属性为"+attrTemp+"，目标属性为"+that.tarAttrList.toString()+"\
-                ，直方图根据"+ that.res.labels.toString()+"算法评估结果绘制。"
-            }
-            // 占比图
-            var data = {
-                id: "center_"+that.dataname[that.dataNameValue],
-                label: that.dataname[that.dataNameValue],
-                population: 1,
-                children: []};
-            
-            for (let key in that.result.Proportion){
-                var second_children={
-                    id:"second_"+key,
-                    label:key,
-                    population:1,
-                    children:[]
-                };
-                for( let key1 in that.result.Proportion[key]){
-                    var third_children={
-                    id:key1,
-                    label:key1,
-                    population:that.result.Proportion[key][key1].toFixed(3),
-                    isLeaf: true,
+                // 画图
+                for(let attrTemp of that.senAttrList){
+                    drawbarimproved(attrTemp, that.res.attrEvaValue['bef'][attrTemp], that.res.attrEvaValue['aft'][attrTemp], that.res.labels, "群体公平性评估指标");
+                    that.res.groupText[attrTemp]="本次测试敏感属性为"+attrTemp+"，目标属性为"+that.tarAttrList.toString()+"\
+                    ，直方图根据"+ that.res.labels.toString()+"算法评估结果绘制。"
+                }
+                // 占比图
+                var data = {
+                    id: "center_"+that.dataname[that.dataNameValue],
+                    label: that.dataname[that.dataNameValue],
+                    population: 1,
+                    children: []};
+                
+                for (let key in that.result.Proportion){
+                    var second_children={
+                        id:"second_"+key,
+                        label:key,
+                        population:1,
+                        children:[]
                     };
-                    second_children["children"].push(third_children);
+                    for( let key1 in that.result.Proportion[key]){
+                        var third_children={
+                        id:key1,
+                        label:key1,
+                        population:that.result.Proportion[key][key1].toFixed(3),
+                        isLeaf: true,
+                        };
+                        second_children["children"].push(third_children);
+                    }
+                    data["children"].push(second_children);
                 }
-                data["children"].push(second_children);
+                drawPopGraph("pro_tree", data, centerPng, secondPng)
+                // 热力图
+                var heatX=[];
+                var X_index={}
+                var personData=[];
+                var spearmanData=[];
+                var kendallData=[];
+                var NMIData=[];
+                var x_num = 0
+                for(let temp of that.result["Corelation coefficients"] ){
+                    if(heatX.indexOf(temp["attr"]) == -1){
+                        X_index[temp["attr"]] = x_num;
+                        heatX.push(temp["attr"])
+                        x_num += 1;
+                    }
+                    if(heatX.indexOf(temp["target"]) == -1){
+                        X_index[temp["target"]] = x_num;
+                        heatX.push(temp["target"])
+                        x_num += 1;
+                    }
+                    if(temp.values.pearson != null){
+                        personData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.pearson.toFixed(3)])
+                    }
+                    if(temp.values.spearman != null){
+                        spearmanData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.spearman.toFixed(3)])
+                    }
+                    if(temp.values.kendalltau != null){
+                        kendallData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.kendalltau.toFixed(3)])
+                    }
+                    if(temp.values.mutual_info != null){
+                        NMIData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.mutual_info.toFixed(3)])
+                    }
+                };
+                if(x_num > 5){
+                    that.heat_height = 48 * x_num + "px";
+                }
+                var NMIColorList=["rgba(206, 221, 253, 1)", "rgba(157, 187, 251, 1)", "rgba(60, 119, 246, 1)", "rgba(11, 85, 244, 1)", "rgba(7, 51, 146, 1)"];
+                var spearmanColorList=["rgba(223, 206, 253, 1)", "rgba(191, 157, 251, 1)", "rgba(142, 84, 247, 1)" ,"rgba(94, 11, 244, 1)", "rgba(56, 7, 146, 1)"];
+                var kendallColorList=["rgba(253, 227, 206, 1)", "rgba(251, 199, 157, 1)", "rgba(247, 158, 84, 1)", "rgba(244, 116, 11, 1)", "rgba(146, 70, 7, 1)"];
+                var personColorList=["rgba(253, 206, 236, 1)", "rgba(251, 157, 218, 1)", "rgba(247, 84, 190, 1)", "rgba(244, 11, 162, 1)", "rgba(195, 9, 130, 1)"];
+                // person热力图
+                drawCorelationHeat("NMI", heatX, NMIData, NMIColorList);
+                drawCorelationHeat("person", heatX, personData, personColorList);
+                drawCorelationHeat("spearman", heatX, spearmanData, spearmanColorList);
+                drawCorelationHeat("Kendall", heatX, kendallData, kendallColorList);
             }
-            drawPopGraph("pro_tree", data, centerPng, secondPng)
-            // 热力图
-            var heatX=[];
-            var X_index={}
-            var personData=[];
-            var spearmanData=[];
-            var kendallData=[];
-            var NMIData=[];
-            var x_num = 0
-            for(let temp of that.result["Corelation coefficients"] ){
-                if(heatX.indexOf(temp["attr"]) == -1){
-                    X_index[temp["attr"]] = x_num;
-                    heatX.push(temp["attr"])
-                    x_num += 1;
+            else{
+                that.res.attrEvaValue['bef'] = [];
+                that.res.attrEvaValue['aft'] = [];
+                // 群体评估数据整合
+                for(var key in that.result["model_debias"]){
+                    if (key == "Consistency"|| key == "Proportion" || key == "Corelation coefficients"|| key == "stop" || key.indexOf("Overall") != -1 || key.indexOf("score") != -1){
+                        continue;
+                    }
+                    else{
+                        that.res.labels.push(key);
+                        that.res.attrEvaValue['bef'].push(that.result["model_evaluate"][key].toFixed(2));
+                        that.res.attrEvaValue['aft'].push(that.result["model_debias"][key].toFixed(2));
+                    }
                 }
-                if(heatX.indexOf(temp["target"]) == -1){
-                    X_index[temp["target"]] = x_num;
-                    heatX.push(temp["target"])
-                    x_num += 1;
-                }
-                if(temp.values.pearson != null){
-                    personData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.pearson.toFixed(3)])
-                }
-                if(temp.values.spearman != null){
-                    spearmanData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.spearman.toFixed(3)])
-                }
-                if(temp.values.kendalltau != null){
-                    kendallData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.kendalltau.toFixed(3)])
-                }
-                if(temp.values.mutual_info != null){
-                    NMIData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.mutual_info.toFixed(3)])
-                }
-            };
-            if(x_num > 5){
-                that.heat_height = 48 * x_num + "px";
+                // 画图
+                drawbarimproved("evaBar", that.res.attrEvaValue['bef'], that.res.attrEvaValue['aft'], that.res.labels, "群体公平性评估指标");
+                that.res.groupText["evaBar"]="本次测试结果如上，直方图根据"+ that.res.labels.toString()+"算法评估结果绘制。"
             }
-            var NMIColorList=["rgba(206, 221, 253, 1)", "rgba(157, 187, 251, 1)", "rgba(60, 119, 246, 1)", "rgba(11, 85, 244, 1)", "rgba(7, 51, 146, 1)"];
-            var spearmanColorList=["rgba(223, 206, 253, 1)", "rgba(191, 157, 251, 1)", "rgba(142, 84, 247, 1)" ,"rgba(94, 11, 244, 1)", "rgba(56, 7, 146, 1)"];
-            var kendallColorList=["rgba(253, 227, 206, 1)", "rgba(251, 199, 157, 1)", "rgba(247, 158, 84, 1)", "rgba(244, 116, 11, 1)", "rgba(146, 70, 7, 1)"];
-            var personColorList=["rgba(253, 206, 236, 1)", "rgba(251, 157, 218, 1)", "rgba(247, 84, 190, 1)", "rgba(244, 11, 162, 1)", "rgba(195, 9, 130, 1)"];
-            // person热力图
-            drawCorelationHeat("NMI", heatX, NMIData, NMIColorList);
-            drawCorelationHeat("person", heatX, personData, personColorList);
-            drawCorelationHeat("spearman", heatX, spearmanData, spearmanColorList);
-            drawCorelationHeat("Kendall", heatX, kendallData, kendallColorList);
-            
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
+            this.logtext=[]
+            this.percent=0
+            this.postData={}
+            let evaMethod = []
+            if (["German","Adult","Compas"].indexOf(this.dataname[this.dataNameValue]) > -1){
+                evaMethod = this.evaCheckedValues
+                if (this.debiasMethodValue == 'domain_independent') {
+                    this.debiasMethodValue = "Domain Independent"
+                }
+            }else{
+                evaMethod = this.evaImgCheckedValues
+            }
             /*判断选择*/
+
             if (this.senAttrList.length ==0 ){
                 this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
                 return 0;
@@ -751,7 +913,7 @@ export default {
                 this.$message.warning('请在数据集里面至少选择一项统计属性！',3);
                 return 0;
             };
-            if (this.evaCheckedValues.length == 0){
+            if (evaMethod.length == 0){
                 this.$message.warning('请在评估算法中至少选择一项评估算法！',3);
                 return 0;
             };
@@ -762,33 +924,67 @@ export default {
             this.logflag = true;
             var that=this;
             that.percent = 20;
+            // that.tid = "20230830_1628_d8a6bfe"
+            // that.stidlist =  {"ModelFairnessEvaluate":"S20230830_1628_af12995","ModelFairnessDebias":"S20230830_1628_c8de9ed"};
+            // that.tid = "20230824_1354_e2decbd"
+            // that.stidlist =  {"DataFairnessDebias":"S20230825_1421_8f3bf6f"};
+            // that.postData={
+            //     dataname:that.dataname[that.dataNameValue],
+            //     senAttrList:JSON.stringify(that.senAttrList),
+            //     tarAttrList:that.tarAttrList[0],
+            //     staAttrList:JSON.stringify(that.staAttrList),
+            //     metrics:JSON.stringify(evaMethod),
+            //     modelname:"3 Hidden-layer FCN",
+            //     algorithmname:that.debiasMethodValue,
+            //     tid:that.tid};
+            // that.clk = setInterval(() => {
+            //     that.update();
+            // },6000)
+            // return
             /* 调用创建主任务接口 */
-            this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
-                const postdata={
+                that.postData={
                 dataname:that.dataname[that.dataNameValue],
                 senAttrList:JSON.stringify(that.senAttrList),
                 tarAttrList:that.tarAttrList[0],
                 staAttrList:JSON.stringify(that.staAttrList),
-                metrics:JSON.stringify(that.evaCheckedValues),
+                metrics:JSON.stringify(evaMethod),
                 modelname:"3 Hidden-layer FCN",
                 algorithmname:that.debiasMethodValue,
+                test_mode:false,
                 tid:that.tid};
-                console.log(postdata)
+                console.log(that.postData)
                 that.percent = 40;
-                
-                that.$axios.post("/api/ModelFairnessDebias",postdata).then((res) => {
-                    that.logflag = true;
+                that.logflag = true;
+                if(['Cifar10-S', 'CelebA'].indexOf(that.postData.dataname) >-1){
+                    that.postData.modelname = "Resnet50"
+                    that.$axios.post("/ModelFairnessEvaluate",that.postData).then((res) => {
+                        /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
+                        that.stidlist["ModelFairnessEvaluate"] = res.data.stid
+                        that.logclk = setInterval(() => {
+                            that.getLog();
+                        },20000)
+                        that.clk = setInterval(() => {
+                                that.update();
+                            },60000)
+                        console.log(that.logflag);
+                    }).catch((err) => {
+                            console.log(err)
+                    });
+                }
+                that.$axios.post("/ModelFairnessDebias",that.postData).then((res) => {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
-                    that.stidlist =  {"ModelFairnessDebias":res.data.stid};
-                    that.logclk = setInterval(() => {
-                        that.getLog();
-                    },2000)
-                    that.clk = setInterval(() => {
+                    that.stidlist["ModelFairnessDebias"] = res.data.stid
+                    if (that.logclk==''){
+                        that.logclk = setInterval(() => {
+                            that.getLog();
+                        },20000)
+                        that.clk = setInterval(() => {
                             that.update();
-                        },6000)
-                    console.log(that.logflag);
+                        },60000)
+                    }
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -890,7 +1086,57 @@ flex-grow: 0;
     padding: 0px 20px;
     margin-bottom: 10px;
 }
+.debias_res{
+    display: flex;
+    width: 814px;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    row-gap: 20px;
+    flex-wrap: wrap;
+}
+.debias_state{
+    color: #000;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+    margin-top: 100px;
+}
 
+.debias_res_score{
+    width: 360px;
+    height: 321px;
+    flex-shrink: 0;
+}
+.to_aft{
+    width: 78px;
+    height: 35px;
+    flex-shrink: 0;
+}
+.cons_echart_div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 84px;
+    align-self: stretch;
+}
+#consevaBef{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+    height: 320px;
+}
+#consevaAft{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+    height: 320px;
+}
 .formula{
     height:24px;
     width:15px;
@@ -937,6 +1183,9 @@ flex-grow: 0;
 .ant-divider-horizontal{
     margin: 0 0;
 }
+.conclusion{
+    margin-bottom: 0px;
+}
 /* 图表名称样式 */
 .echart_title{
     display: flex;
@@ -962,24 +1211,20 @@ flex-direction: column;
 position: absolute;
 display: flex;
 width: 1080px;
+gap: 60px;
 }
 .g_score_content{
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0px 120px;
     gap: 20px;
-
-    width: 960px;
-    height: 366px;
-
-
-    /* Inside auto layout */
-
-    flex: none;
-    order: 0;
     align-self: stretch;
-    flex-grow: 0;
+}
+.g_score{
+    margin-top: -280px;
+}
+.g_score_evaluate{
+    margin-left: 156px;
 }
 
 /* 结果文字样式 */
@@ -1160,6 +1405,23 @@ flex-grow: 0;
     height: 358px;
     float: left;
 
+}
+.denfenseMethod .ant-btn{
+    width: 100%;
+    background-color: #F2F4F9;
+    height:60px;
+    color:#000;
+    border:0px;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px; 
+}
+.denfenseMethod .ant-btn:disabled{
+    color: rgba(0,0,0,.25);
+    background-color: #f5f5f5;
 }
 .model_group_echart{
     width: 960px;

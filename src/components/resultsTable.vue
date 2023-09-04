@@ -9,7 +9,7 @@
             <tbody>
                 <tr v-for="(item, index) in tableBody" :key="index">
                     <!-- 判断为html标签就设置为图像格式，为普通字符串就填充表格 -->
-                    <td v-for="(it, ind) in item" :key="ind" v-if="checkImg(it)==true"><img :src="it"></td>
+                    <td v-for="(it, ind) in item" :key="ind" v-if="checkImg(it)==true"><img class="resultTableImg" :src="it"></td>
                     <td v-for="(it, ind) in item" :key="ind" v-if="checkImg(it)==false">{{ it }}</td>
                 </tr>
 
@@ -71,7 +71,7 @@
     text-align: center;
   }
   
-  img {
+  .resultTableImg {
     width: 80px;
     height: 80px;
   }

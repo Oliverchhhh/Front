@@ -30,7 +30,7 @@
                     <div class="inputdiv">
                         <!-- 输入主体 -->
                         <!-- 选数据 -->
-                        <fairnessDataset @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
+                        <fairnessDataset :dataname="dataname" @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
                         
                         <!-- 选优化算法 -->
                         <div class="selectDebiasMethod">
@@ -91,7 +91,7 @@
                                     <img src="../assets/img/beforeDebias.png" style="width: 360px;margin-top: -40px;"/>
                                     <p class="g_score"> {{res.score.aft}}</p>
                                     <p class="g_score_evaluate"> {{ res.score_evaluate.aft }}</p>
-                                    <p>提升前</p>
+                                    <p class="debias_state">提升前</p>
                                 </div>
                                 <div class="to_aft">
                                     <img src="../assets/img/toAfter.svg" style="margin-top: -40px;"/>
@@ -100,6 +100,7 @@
                                     <img src="../assets/img/afterDebias.png" style="width: 360px;margin-top: -40px;"/>
                                     <p class="g_score"> {{res.score.aft}}</p>
                                     <p class="g_score_evaluate"> {{ res.score_evaluate.aft }}</p>
+                                    <p class="debias_state">提升后</p>
                                 </div>
                             </div>
                         </div>
@@ -109,7 +110,7 @@
                         </div>
                     </div>
                     <!-- 评分详情 -->
-                    <div class="result_div">
+                    <div class="result_div_notop">
                         <div class=" main_top_echarts_con_title ">公平性评分详情</div>
                         <div class="two_score">
                             <div class="left_score_label">
@@ -125,22 +126,24 @@
                                 <p class="score_lable">群体公平性评估</p>
                             </div>
                         </div>
-                        <div class="conclusion" style="height: 80px;">
-                            <div class="score_description">
-                                <div class="con_score">{{ res.consistency_score.aft }}</div>
-                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">数据集个体公平性指标为{{ res.Consistency.aft }}</div>
+                        <div class="two_score_res">
+                            <div class="conclusion" style="height: 80px;">
+                                <div class="score_description">
+                                    <div class="con_score">{{ res.consistency_score.aft }}</div>
+                                    <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">数据集个体公平性指标为{{ res.Consistency.aft }}</div>
+                                </div>
+                                
                             </div>
-                            
-                        </div>
-                        <div class="conclusion" style="height: 80px;">
-                            <div class="score_description">
-                                <div class="con_score">{{ res.group_score.aft }}</div>
-                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">数据集中经 Favorable Rate Difference、Favorable Rate Ratio 算法评估后，综合得分为{{ res.group_score.aft }}</div>
+                            <div class="conclusion" style="height: 80px;">
+                                <div class="score_description">
+                                    <div class="con_score">{{ res.group_score.aft }}</div>
+                                    <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">数据集中经 Favorable Rate Difference、Favorable Rate Ratio 算法评估后，综合得分为{{ res.group_score.aft }}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <!-- 个体得分图 -->
-                    <div class="result_div">
+                    <div class="result_div_notop">
                         
                         <div class="echart_title">
                             
@@ -149,9 +152,10 @@
                             
                         </div>
                         <div>
-                            <div id = 'consevaBef'></div>
-                            <div id = 'consevaAft'></div>
-                            <div class="conseva_label">consistency</div>
+                            <div class="cons_echart_div">
+                                <div id = 'consevaBef'></div>
+                                <div id = 'consevaAft'></div>
+                            </div>
                             <div class="conclusion">
                                 <p class="result_text">{{ res.consText }}</p>
                                 <p class="result_annotation">个体公平性指标越接近1，模型越公平。</p>
@@ -162,7 +166,7 @@
                     
                     
                     <!-- 群体 -->
-                    <div class="result_div">
+                    <div class="result_div_notop">
                         <div class="echart_title">
                             
                             <div class=" main_top_echarts_con_title ">数据集群体公平性提升</div>
@@ -188,7 +192,7 @@
                     </div>
                     <!-- <a-divider>With Text</a-divider> -->
                     <!-- 数据占比 -->
-                    <div class="result_div">
+                    <div class="result_div_notop">
                         <div class="echart_title">
                             <div class=" main_top_echarts_con_title ">数据集中各群体的占比</div>
                         </div>
@@ -199,7 +203,7 @@
                         </div>           
                     </div>
                     <!-- 相关性 -->
-                    <div class="result_div">
+                    <div class="result_div_notop">
                         <div class="echart_title">
                             <div class=" main_top_echarts_con_title ">数据集的各属性之间的相关性</div>
                             <p class="title_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
@@ -259,7 +263,7 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
-import {drawconseva, drawbarimproved, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
+import {drawconseva1, drawbarimproved, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
 import funcicon from "../assets/img/modelFairDebiasIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
@@ -326,7 +330,8 @@ export default {
             percent:10,
             /* 日志内容 */
             logtext:[],
-            dataname:["German","Adult","Compas","Cifar10-S","CelebA"],
+            // dataname:["German","Adult","Compas","Cifar10-S","CelebA"],
+            dataname:["German","Adult","Compas"],
             /* 选中数据集序号 */
             dataNameValue:0,
             /* 选中敏感属性列表 */
@@ -419,6 +424,15 @@ export default {
     created() {
         document.title = '数据集公平性提升';
         },
+    //在离开页面时执行
+    beforeDestroy() {
+        if(this.clk) { //如果定时器还在运行,关闭定时器
+            clearInterval(this.clk); //关闭
+        }
+        if(this.logclk){
+            clearInterval(this.logclk);
+        }
+    },
     mounted(){
         let that=this;
         
@@ -431,7 +445,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
                 }else{
@@ -444,7 +458,7 @@ export default {
         },
         getData(){
             var that = this;
-            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
                 that.result=data;
             });
@@ -544,10 +558,10 @@ export default {
             that.res["Proportion"]=that.result.Proportion;
             let cons_sub = (that.res["Consistency"]['aft'] - that.res["Consistency"]['bef']).toFixed(2);
             //得分图
-            drawconseva("consevaBef",that.res["Consistency"]["bef"],"before");
-            drawconseva("consevaAft",that.res["Consistency"]["aft"],"after");
+            drawconseva1("consevaBef",that.res["Consistency"]["bef"],"#0B55F4", "Original");
+            drawconseva1("consevaAft",that.res["Consistency"]["aft"],"#0B55F4", "Improved");
             
-            that.res.consText = "模型个体公平性提升前得分为" + that.res.Consistency.bef + ",提升后的得分为" + that.res.Consistency.aft + "共提升了" + cons_sub + "分。";
+            that.res.consText = "模型个体公平性提升前得分为" + that.res.Consistency.bef + "，提升后的得分为" + that.res.Consistency.aft + "，共提升了" + cons_sub + "分。";
            
             //直方图
             // 初始化群体公平性
@@ -673,21 +687,21 @@ export default {
             this.logflag = true;
             var that=this;
             that.percent = 20;
-            that.tid = "20230821_1423_c77c72f"
-            that.postData={
-                dataname:that.dataname[that.dataNameValue],
-                senAttrList:JSON.stringify(that.senAttrList),
-                tarAttrList:JSON.stringify(that.tarAttrList),
-                staAttrList:JSON.stringify(that.staAttrList),
-                datamethod:that.debiasMethodValue,
-                tid:that.tid};
-            that.stidlist =  {"DataFairnessDebias":"S20230821_1423_3c57e77"};
-            that.clk = setInterval(() => {
-                that.update();
-            },60)
-            return
+            // that.tid = "20230821_1423_c77c72f"
+            // that.postData={
+            //     dataname:that.dataname[that.dataNameValue],
+            //     senAttrList:JSON.stringify(that.senAttrList),
+            //     tarAttrList:JSON.stringify(that.tarAttrList),
+            //     staAttrList:JSON.stringify(that.staAttrList),
+            //     datamethod:that.debiasMethodValue,
+            //     tid:that.tid};
+            // that.stidlist =  {"DataFairnessDebias":"S20230821_1423_3c57e77"};
+            // that.clk = setInterval(() => {
+            //     that.update();
+            // },60)
+            // return
             /* 调用创建主任务接口 */
-            this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 that.postData={
@@ -698,7 +712,7 @@ export default {
                 datamethod:that.debiasMethodValue,
                 tid:that.tid};
                 that.percent = 40;
-                that.$axios.post("/api/DataFairnessDebias",postdata).then((res) => {
+                that.$axios.post("/DataFairnessDebias",that.postData).then((res) => {
                     that.logflag = true;
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.stidlist =  {"DataFairnessDebias":res.data.stid};
@@ -720,7 +734,7 @@ export default {
 }
 </script>
 <!-- <style  scoped> -->
-<style scoped>
+<style  scoped>
 
 .paramCon{
     width: 1200px;
@@ -794,10 +808,40 @@ flex-grow: 0;
 .debiasModule{
     width: 1104px;
 }
+.conclusion{
+    margin-bottom: 0px;
+}
+.two_score_res{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    align-self: stretch;
+}
+.cons_echart_div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 84px;
+    align-self: stretch;
+}
+
+.debias_state{
+    color: #000;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+    margin-top: 100px;
+}
+
 .ant-checkbox-wrapper-checked .checkboxdiv{
     background: #E7F0FD;
     color: #0B55F4;
 }
+
 .ant-checkbox-wrapper-checked .checkboxdivlen{
     background: #E7F0FD;
     color: #0B55F4;
@@ -918,6 +962,20 @@ gap: 60px;
     height: 35px;
     flex-shrink: 0;
 }
+#consevaBef{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+    height: 320px;
+}
+#consevaAft{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+    height: 320px;
+}
 /* 结果文字样式 */
 .resultext{
     width: 100%;
@@ -931,16 +989,12 @@ gap: 60px;
 /* 得分图div */
 #rdeva{
     display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
 
-width: 960px;
-height: 414px;
-
-
-/* Inside auto layout */
-
+    width: 960px;
+    height: 414px;
 flex: none;
 order: 1;
 flex-grow: 0
@@ -955,27 +1009,18 @@ flex-grow: 0
     margin-top: -85px;
     margin-bottom: 85px;
     width: 86px;
-height: 16px;
+    height: 16px;
 
-font-family: 'Helvetica Neue';
-font-style: normal;
-font-weight: 400;
-font-size: 16px;
-line-height: 16px;
-/* identical to box height, or 100% */
-
-text-align: center;
-
-/* gray-1 */
-
-color: #000000;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 1;
-flex-grow: 0;
+    font-family: 'Helvetica Neue';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 16px;
+    text-align: center;
+    color: #000000;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
 }
 /* 群体公平性 */
 .group_echarts_div{

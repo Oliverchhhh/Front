@@ -51,6 +51,7 @@
                                             >{{ method.name }}</a-button>
                                     </a-col>
                                 </a-row>
+                                <div v-if="methodHoverIndex==i && methodDescription !== ''" style="padding:14px 24px;margin-bottom: 16px;"> {{ methodDescription }} </div>
                             </div>
                             <AdvAttackEval :is-show="resultVisible" :result="result" :postData="postData" @on-close="() => { resultVisible = !resultVisible }">
                             </AdvAttackEval>
@@ -118,7 +119,8 @@ export default {
     },
     data(){
         return{
-            
+            methodHoverIndex:-1,
+            methodDescription:"",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
@@ -554,33 +556,61 @@ export default {
                 },
             ],
             methodInfoNoParam:[[
-                {name:"DIFGSM",},
-                {name:"FAB",},
-                {name:"FABL1",},
-                {name:"FABL2",},
-                {name:"EOTPGD",}
+                {name:"DIFGSM",description:"DIFGSM算法：Diverse Inputs Iterative Fast Gradient Sign Method,通过创建多样的输入模式提高对抗样本的迁移性。做法是对输入的原图像以p的概率加上随机且可导的变换(transformation)，使用梯度的方法最大化模型对变换后的原图像的损失函数值从而得到对抗图像",},
+                {name:"FAB", description:"FAB算法：Fast Adaptive Boundary Attack使用类似DeepFool投影到决策平面的方法，主要不同的是，FAB将过程中的扰动尽可能偏向原样本点，从而可以找到能改变分类器输出的最小扰动。扰动的衡量距离为 linf",},
+                {name:"FABL1", description:"FABL1算法：Fast Adaptive Boundary Attack使用类似DeepFool投影到决策平面的方法，主要不同的是，FAB将过程中的扰动尽可能偏向原样本点，从而可以找到能改变分类器输出的最小扰动。扰动的衡量距离为 l1",},
+                {name:"FABL2", description:"FABL2算法：Fast Adaptive Boundary Attack使用类似DeepFool投影到决策平面的方法，主要不同的是，FAB将过程中的扰动尽可能偏向原样本点，从而可以找到能改变分类器输出的最小扰动。扰动的衡量距离为 l2",},
+                {name:"EOTPGD", description:"EOTPGD算法：结合Expectation Over Transformation算法生成具有鲁棒性的对抗样本，能在变换(transformation)后依旧保持对抗性",}
                 ],
                 [
-                {name:"FFGSM",},
-                {name:"Jitter",},
-                {name:"MIFGSM",},
-                {name:"NIFGSM",},
-                {name:"PGDRS",}
+                {name:"FFGSM",description:"FFGSM算法：在使用FGSM攻击算法前加入随机初始化的扰动，经过实验发现基于FFGSM的对抗训练拥有高效性",},
+                {name:"Jitter",description:"Jitter算法：使用新的损失函数从而改善效率和攻击成功率，同时通过输出logits标准化到固定值范围将规模不变性引入损失函数",},
+                {name:"MIFGSM",description:"MIFGSM算法：momentum iterative FGSM是一种使用momentum迭代梯度的方法，该方法在迭代梯度对抗攻击(如BIM)的基础上，累计每次梯度方向的速度向量作为momentum，每次对抗扰动不再直接使用梯度方向，转而采用momentum方向，从而稳定更新方向并避免局部极值，更好提高攻击迁移性",},
+                {name:"NIFGSM",description:"NIFGSM算法：通过使用Nesterov Accelerated Gradient(NAG)到迭代梯度攻击方法中，由于NAG对之前累积的梯度进行修正，有助于有效地预测未来，从而使攻击更具有鲁棒性",},
+                {name:"PGDRS",description:"PGDRS算法：randmized smoothing是提高模型鲁棒性的一种高效方法，PGD for randmized smoothing则是争对这类randmized smoothing模型的pgd对抗攻击方法。攻击norm为linf",}
                 ],
                 [
-                {name:"PGDRSL2",},
-                {name:"RFGSM",},
-                {name:"SINIFGSM",},
-                {name:"SparseFool",},
-                {name:"SPSA",}
+                {name:"PGDRSL2",description:"PGDRSL2算法：randmized smoothing是提高模型鲁棒性的一种高效方法，PGD for randmized smoothing则是争对这类randmized smoothing模型的pgd对抗攻击方法。攻击norm为l2",},
+                {name:"RFGSM",description:"RFGSM算法：R+FGSM在FGSM中加入随机的步骤, 是一个在白盒设置下高效的能替代迭代攻击的方法",},
+                {name:"SINIFGSM",description:"SINIFGSM算法：SCALE-INVARIANT NIFGSM通过使用模型放大的方法实现多模型的组合攻击，使得攻击避免在白盒设置下“过拟合”，从而生成更具有迁移性的对抗样本",},
+                {name:"SparseFool",description:"SparseFool算法：利用决策边界的低均值曲率计算对抗稀疏(sparse)扰动",},
+                {name:"SPSA",description:"SPSA算法：SPSA adversarial attack是一种黑盒攻击方法，使用SPSA方法近似loss对样本的梯度，利用迭代梯度更新方法生成对抗样本",}
                 ],
                 [
-                {name:"TIFGSM",},
-                {name:"TPGD",},
-                {name:"VMIFGSM",},
-                {name:"VNIFGSM",},
-                // {name:"PGDRS",}
-                ]
+                {name:"TIFGSM",description:"TIFGSM算法：Translation-Invarient FGSM将translation-invarient attack与FGSM结合，具体是将对抗目标调整为使像素平移后的对抗样本输出与真实标签的loss最大，同时使用卷积梯度的方法减小计算代价，使用该攻击方法拥有更强的迁移性",},
+                {name:"TPGD",description:"TPGD算法：基于KL-Divergence loss的pgd攻击",},
+                {name:"VMIFGSM",description:"VMIFGSM算法：variance tuning MIFGSM在MIFGSM方法上，不再直接使用当前计算的梯度做momentum累加，而是基于先前迭代下的梯度方差调整当前梯度",},
+                {name:"VNIFGSM",description:"VNIFGSM算法：variance tuning MIFGSM在NIFGSM方法上，不再直接使用当前计算的梯度做momentum累加，而是基于先前迭代下的梯度方差调整当前梯度",},
+                ],
+                [
+                {name:"AutoPGDL1", description:"",},
+                {name:"AutoPGDL2", description:"",},
+                {name:"AutoPGDLinf", description:"",},
+                {name:"Auto-CGL1", description:"",}
+                ],
+                [
+                {name:"Auto-CGL2", description:"",},
+                {name:"Auto-CGLinf", description:"",},
+                
+                {name:"ElasticNetL1", description:"",},
+                {name:"ElasticNetL2", description:"",}
+                ],
+                [
+                {name:"ElasticNet-EN", description:"",},
+                {name:"FeatureAdversaries", description:"",},
+                {name:"GRAPHITE", description:"",},
+                {name:"NewtonFool", description:"",}
+                ],
+                [
+                {name:"SpatialTransformation", description:"",},
+                {name:"TargetedUniversalPerturbationL2", description:"",},
+                {name:"TargetedUniversalPerturbationLinf", description:"",},
+                ],
+                [
+                {name:"BoundaryAttack", description:"",},
+                {name:"VirtualAdversarialMethod", description:"",},
+                {name:"SignOPTAttack", description:"",},
+                ],
             ],
             selectedMethod:["FGSM"],
             selectedAttributes: {},
@@ -621,7 +651,7 @@ export default {
         /* 获取结果 */ 
         getData(){
             var that = this;
-            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
                 that.result=data;
             });
@@ -633,7 +663,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 console.log("log:",data)
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
@@ -715,7 +745,7 @@ export default {
             this.logtext = [];
             this.logflag = true;
             var that = this;
-            that.$axios.post("/api/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
+            that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 that.logclk = setInterval(() => {
@@ -727,7 +757,7 @@ export default {
                 that.postData["Method"] = JSON.stringify(that.selectedMethod)
                 that.postData["Taskid"] = that.tid
                 console.log(that.postData)
-                that.$axios.post("/api/Attack/AdvAttack", that.postData).then((res) => {
+                that.$axios.post("/Attack/AdvAttack", that.postData).then((res) => {
                     that.stidlist =  {"advattack":res.data.stid};
                     that.clk = setInterval(() => {
                             that.update();
@@ -757,14 +787,16 @@ export default {
             debugger;
             let button = document.getElementById("button" + i + j)
             if (button.style.color == "") {
-
+                this.methodHoverIndex = i
+                this.methodDescription = this.methodInfoNoParam[i][j].description
                 button.style.color = "#0B55F4"
                 button.style.borderColor = "#C8DCFB"
-                button.style.background = "#F2F4F9"
+                button.style.background = "#E7F0FD"
                 this.selectedMethod.push(this.methodInfoNoParam[i][j].name)
                 this.selectedAttributes[this.methodInfoNoParam[i][j].name] = {}
             } else {
-
+                this.methodHoverIndex = -1
+                this.methodDescription = ""
                 button.style.color = ""
                 button.style.borderColor = "#C8DCFB"
                 button.style.background = "#F2F4F9"
@@ -826,9 +858,15 @@ export default {
 .denfenseMethod .ant-btn{
     width: 100%;
     background-color: #F2F4F9;
-    font-size:20px;
-    height:50px;
-    color:#000
+    height:60px;
+    color:#000;
+    border:0px;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px; 
 }
 .ant-divider-horizontal{
     margin: 0 0;

@@ -370,7 +370,7 @@ export default {
         getData(){
             // debugger
             var that = this;
-            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
                 // that.result=data;
                 that.res_tmp = data;
@@ -383,7 +383,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
                 }else{
@@ -432,7 +432,7 @@ export default {
             var that = this;
             
             /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 that.tid = result.data.Taskid;
                 // that.tid = "20230530_0948_0c0a104";
                 
@@ -443,7 +443,7 @@ export default {
                     norm: that.constraintChoice,
                     times: that.RunTimes,
                     tid:that.tid};
-                that.$axios.post("/api/Concolic/SamGenParamGet", postdata).then((res) => {
+                that.$axios.post("/Concolic/SamGenParamGet", postdata).then((res) => {
                     
                     that.logflag = true;
                     that.stidlist = {"SamGenParamGet": res.data.stid};
