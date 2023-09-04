@@ -8,8 +8,8 @@
             </div>
             <div class="top_nav">
                 <a-menu v-model="current" mode="horizontal">
-                    <a-menu-item key="index"> 平台介绍 </a-menu-item>
-                    <a-menu-item key="join" > <a href="" target="_blank" rel="noopener noreferrer">在线体验 </a></a-menu-item>
+                    <a-menu-item key="index"> <a href="/">平台介绍</a> </a-menu-item>
+                    <a-menu-item key="join" > <router-link to="/homme_menu" target="_blank" rel="noopener noreferrer">在线体验 </router-link></a-menu-item>
                 </a-menu>
             </div>
         </div>

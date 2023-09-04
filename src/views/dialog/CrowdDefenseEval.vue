@@ -12,7 +12,7 @@
                       <a-icon type="close" @click="closeMyself" style="font-size: 20px;color:#6C7385;" class="closebutton"/>
                   </div>
                   <slot name="header">
-                    <div class="dialog-title"><img src="../../assets/img/CrowdDefenseIcon.png" style="width: 50px; height: 50px;">模型群智化防御</div>
+                    <div class="dialog-title"><img src="../../assets/img/crowdDefenseIcon.png" style="width: 50px; height: 50px;">模型群智化防御</div>
                   </slot>
               </div>
               <div class="dialog_main" id="pdfDom" >

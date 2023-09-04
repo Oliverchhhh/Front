@@ -466,28 +466,7 @@ export default {
       }
     }
   },
-  mounted() {
-    // 解析json
-    // this.$axios.get("/static/output/20230815_1029_dcb8922/S20230815_1029_08a94c2_result.json", {}).then((res) => {
-    //   this.allPictures = res.data.adv_ex
-    //   this.allLayerPictures = res.data.layer_ex
-    //   this.attackMethods = res.data.adv_ex.adv_methods
-    //   let temp = []
-    //   for(let i=0;i<res.data.adv_ex.nor.nor_imgs.length;i++){
-    //     let url = ["/static/output/20230815_1029_dcb8922/S20230815_1029_08a94c2/" + res.data.adv_ex.nor.nor_imgs[i], 'pic']
-    //     temp.push(url)
-    //   }
-    //   this.selectedMethod = this.attackMethods[0]
-    //   this.selectPicList = this.splitArr(temp, 10)
-    //   this.instanceResultList = this.getInstanceResult(0)
-    //   this.instanceLayerResultList = this.getInstanceLayerResult(0, this.selectedMethod)
-    // })
-    // this.$axios.get("/static/output/20230815_1029_dcb8922/S20230815_1029_2902a94_result.json", {}).then((res) => {
-    //   console.log(res)
-    //   this.allDimReduction = res.data
-    //   this.DimReducitonResult = this.getDimReducitonResult()
-    // })
-  },
+  mounted() {},
   updated(){
     // debugger
     //code
