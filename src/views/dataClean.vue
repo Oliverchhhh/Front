@@ -32,7 +32,7 @@
                         <div class="datasetSelected">
                             <div class="SelectWithUpload">
                                 <p class="mainParamName">低维数据</p>
-                                <a-button class="uploadDatasetBtn" @click="dataUploadButton">
+                                <a-button class="uploadDatasetBtn" name="table" @click="dataUploadButton">
                                     <a-icon type="upload" style="color: #0B55F4;" />上传数据</a-button>
                             </div>
                             
@@ -84,35 +84,56 @@
                             </a-radio-group>
                             <div class="SelectWithUpload">
                                 <p class="mainParamName">图像数据</p>
-                                <a-button class="uploadDatasetBtn" @click="dataUploadButton">
+                                <a-button class="uploadDatasetBtn" name="img" @click="dataUploadButton">
                                     <a-icon type="upload" style="color: #0B55F4;" />上传数据</a-button>
                             </div>
-                            <div class="UploadPage" v-show="upload_flag"> 
+                            <div class="UploadPage" v-show="upload_flag_img"> 
                                 <div class="UploadPagetitle"> 
                                     <a-icon type="exclamation-circle" theme="filled" style="color: #0B55F4; font-size: 16px;"/>
                                     <p class="uploadtiletext">请选择上传的数据类型</p>
                                 </div>
                                 <div class="UploadPageButton"> 
                                     <div class="upload_type"> 
-                                        <input style="visibility: hidden;" type="file" id="uFile" name="MNIST" @change="UpFile($event)">
+                                        <input style="visibility: hidden;" type="file" id="uFile" name="MNIST" accept=".gz" @change="UpFile($event)">
                                         <label class="UploadDataTyleButton" for="uFile"> 
                                             <a-icon type="plus" />
                                             <p class="buttontitle">MNIST</p><p class="buttontext">需处理成MNIST数据集.gz格式</p>
                                         </label>
                                     </div>
                                     <div class="upload_type"> 
-                                        <input style="visibility: hidden;" type="file" id="uFile_" name="CIFAR10" @change="UpFile($event)">
+                                        <input style="visibility: hidden;" type="file" id="uFile_" name="CIFAR10" accept=".gz" @change="UpFile($event)">
                                         <label class="UploadDataTyleButton" for="uFile_"> 
                                             <a-icon type="plus" />
                                             <p class="buttontitle">CIFAR10</p><p class="buttontext">需处理成CIFAR10数据集.gz格式</p>
                                         </label>
                                     </div>
                                 </div>
-                                <div style="margin: 1% 7%;" v-show="upload_flag && upload_path!=''"> 
-                                    <p class="buttontitle" v-if="upload_flag">{{ upload_success }}</p>
+                                <div style="margin: 1% 7%;" v-show="upload_flag_img && upload_path_img!=''">  
+                                    <p class="buttontitle" v-if="upload_flag_img">{{ upload_success }}</p>
                                 </div>
                                 <div class="UploadPageCC"> 
-                                    <button class="CancelButton" @click="CancelUpload" v-if="upload_flag && upload_path!=''">关闭</button>
+                                    <button class="CancelButton" @click="CancelUpload">取消</button>
+                                    <button class="ConfirmButton" @click="ConfirmUpload">确认</button>
+                                </div>
+                            </div>
+                            <div class="UploadPage" v-show="upload_flag_table"> 
+                                <div class="UploadPagetitle"> 
+                                    <a-icon type="exclamation-circle" theme="filled" style="color: #0B55F4; font-size: 16px;"/>
+                                    <p class="uploadtiletext">请选择上传的数据类型</p>
+                                </div>
+                                <div class="UploadPageButton"> 
+                                    <div class="upload_type"> 
+                                        <input style="visibility: hidden;" type="file" id="uFilet" name="Table" accept=".npz" @change="UpFile($event)">
+                                        <label class="UploadDataTyleButton" for="uFilet"> 
+                                            <a-icon type="plus" />
+                                            <p class="buttontitle">表格数据</p><p class="buttontext">需处理成表格数据.npz格式</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div style="margin: 1% 7%;" v-show="upload_flag_table && upload_path_table!=''"> 
+                                    <p class="buttontitle" v-if="upload_flag_table">{{ upload_success }}</p>
+                                </div>
+                                <div class="UploadPageCC"> 
                                     <button class="CancelButton" @click="CancelUpload">取消</button>
                                     <button class="ConfirmButton" @click="ConfirmUpload">确认</button>
                                 </div>
@@ -159,14 +180,18 @@
                 <showLog :percent="percent" :logtext="logtext"></showLog>
             </div>
             <!-- 结果展示 -->
-            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+            <resultDialog  @on-close="closeDialog" 
+               :isShow="isShowPublish" 
+               v-show="isShowPublish"
+               ref="report_pdf"
+               >
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                         <h1>异常数据检测结果报告</h1>
                     </div>
                 </div>
-                <div class="dialog_publish_main" slot="main">
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
                     <!-- 总评分 -->
                     <div class="result_div">
                         <div class="conclusion_info">
@@ -202,10 +227,10 @@
                             <!-- 图表 -->
                             <!-- <div id = 'conseva'></div> -->
                             <div class="table_class_result" v-if="result.dataset_or_format=='table'">
-                                <!-- <img :src="require(result.table_origin)">
-                                <img :src="require(result.table_fix)"> -->
                                 <img :src="result.table_origin">
                                 <img :src="result.table_fix">
+                                <!-- <img :src="result.table_origin">
+                                <img :src="result.table_fix"> -->
                             </div>
                             <div class="text_class_result" v-if="result.dataset_or_format == 'txt_encode' | result.dataset_or_format == 'txt_format'">
                                 <p>{{ result.text_origin }}</p>
@@ -213,6 +238,7 @@
                             </div>
                             <div class="image_class_result" v-if="result.dataset_or_format == 'MNIST' | result.dataset_or_format == 'CIFAR10'">
                                 <!-- 替换为返回图像 -->
+                                <!-- <img :src="result.demo_img"> -->
                                 <img :src="result.demo_img">
                             </div>
                             <div class="conclusion">
@@ -221,8 +247,13 @@
                                 <p class="result_text" v-if="result.dataset_or_format == 'MNIST' | result.dataset_or_format == 'CIFAR10'">图示为检测出的标签错误样本，其中蓝色框展示该样本原始标签及程序判别其可信度，灰色框展示该样本在数据集内的编号，绿色框内展示清洗后标签及可信度。</p>
                             </div>
                         </div>
-                        <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
+                        
+                        <!-- <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button> -->
                     </div>
+                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                        导出报告内容
+                    </a-button>
                 </div>
             </resultDialog>
         </a-layout-content>
@@ -275,16 +306,22 @@ export default {
     },
     data(){
         return{
+            htmlTitle:"异常数据检测",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
                 lineHeight: '30px',
+                width: '100%'
             },
             /* 数据类型选择*/
             datasetChoice: "table",
             /* 上传标识符和存放路径*/
             upload_flag: 0,
+            upload_flag_table: 0,
+            upload_flag_img: 0,
             upload_path: "",
+            upload_path_table: "",
+            upload_path_img: "",
             // filename: {},
             post_file: {},
             upload_success: "",
@@ -349,29 +386,20 @@ export default {
             /* 结果弹窗状态信息 */
             isShowPublish:false,
             /* 评估结果 */
-            result:{
-                "score":94.64,
-                "dataset_or_format": "",
-                // 表格结果
-                "table_origin": "",
-                "table_fix": "",
-                // // 文本结果
-                "text_origin":"",
-                "text_clean":"",
-                // 图像结果
-                "num_images": 10000,
-                "num_detect": 34,
-                "demo_img": ""
-            },
+            result:{},
             res_tmp : {},
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
-            stidlist:{},
+            stidlist:"",
+            // /* 异步任务结果查循环clock */
+            // clk:"",
+            // /* 日志查询clock*/
+            // logclk:"",
             /* 异步任务结果查循环clock */
-            clk:"",
+            clk:null,
             /* 日志查询clock*/
-            logclk:"", 
+            logclk:null,  
             }
         },
     watch:{
@@ -404,21 +432,29 @@ export default {
         UpFile(e){
             var that=this;
             that.noScroll();
-            // var files = document.getElementById('uFile').value;
-            // if (!/\.(gz)$/i.test(files)) {
-            //     this.$message.warning("文件类型必须是.gz,请重新上传")
-            //     return false;
-            // }
             let file = e.target.files[0];    
             let param = new FormData();       // 创建form对象    
             param.append('file', file);       // 通过append向form对象添加数据
             param.append("type", e.target.name); // 添加form表单中其他数据
             that.post_file = param;
+            let config = {
+                headers: {'Content-Type': 'multipart/form-data'}
+            };
+            that.$axios.post("/Task/UploadData",that.post_file, config).then((res)=>{
+                that.upload_flag = 1;
+                that.upload_path = res.data.save_dir;
+                // console.log(that.upload_path);
+                that.upload_path_img = that.upload_path;
+                that.upload_path_table = that.upload_path;
+                that.upload_success = "文件上传成功，存放位置为"+that.upload_path;
+                // alert("上传成功，文件位置位于"+that.upload_path)
+                }).catch((err)=>{
+                    console.log(err)
+                })
         },
 
         exportResult(){
             if (confirm("您确认下载该pdf文件吗？") ){
-                document.body.scrollTop = document.documentElement.scrollTop = 0;
                 // 输出pdf尺寸为download_page大小
                 var element = document.getElementById("download_page");
                 const opt = {
@@ -433,30 +469,32 @@ export default {
         },
         /* result 处理*/
         resultPro(res){
-            // debugger;
+            debugger;
+            this.result = {};
             this.result["score"] = parseInt(100*res.DataClean.fix_rate);
             this.result["dataset_or_format"] = this.datasetChoice;
             if(this.result["dataset_or_format"]=="table") {
-                this.result["table_origin"]=res.DataClean.result_origin
-                this.result["table_fix"]=res.DataClean.result_clean
+                let tmp_path_ori = res.DataClean.result_origin.split('output');
+                let tmp_path_cle = res.DataClean.result_clean.split('output');                
+                this.result["table_origin"] = 'static/output'+tmp_path_ori[1];
+                this.result["table_fix"]= 'static/output'+tmp_path_cle[1];
             }
             else if(this.result["dataset_or_format"] =='MNIST' | this.result["dataset_or_format"] =='CIFAR10'){
-                this.result["num_images"]=res.DataClean.num_images
-                this.result["num_detect"]=res.DataClean.num_detect
-                this.result["demo_img"]=res.DataClean.result
+                this.result["num_images"]=res.DataClean.num_images;
+                this.result["num_detect"]=res.DataClean.num_detect;
+                let tmp_path = res.DataClean.result.split('output');
+                this.result["demo_img"]='static/output'+tmp_path[1];
             }else{
-                this.result["text_origin"]=res.DataClean.before
-                this.result["text_clean"]=res.DataClean.after
+                this.result["text_origin"]=res.DataClean.before;
+                this.result["text_clean"]=res.DataClean.after;
             }
             
         },
         /* 获取结果 */ 
         getData(){
-            // debugger
             var that = this;
             that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
-                // that.result=data;
                 that.res_tmp = data;
             });
         },
@@ -483,15 +521,22 @@ export default {
             // debugger;
             if (this.res_tmp.data.stop) {
                 // 关闭日志显示
+                this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                // this.clk.forEach((item, index)=>{
+                //     window.clearInterval(item);
+                // });
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
+                // this.logclk.forEach((item, index)=>{
+                //     window.clearInterval(item);
+                // });
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
-                // console.log(this.res_tmp.data)
+                // this.resultPro(this.result.data);
                 this.resultPro(this.res_tmp.data.result);
             }
         },
@@ -499,47 +544,51 @@ export default {
         update(){
             // debugger;
             this.getData();
+            // this.stopTimer();
             try{
                 this.stopTimer();
             }catch(err){}
         },
         /* 点击上传触发按钮，弹出上传界面 */
-        dataUploadButton(){
+        dataUploadButton(e){
             this.upload_flag = 1;
+            switch(e.target.name){
+                case "table":
+                    this.upload_flag_table=1;
+                    break;
+                case "img":
+                    this.upload_flag_img=1;
+                    break;
+            }
             // 取消页面滚动
             this.noScroll();
         },
         CancelUpload(){
             this.upload_flag = 0;
             this.upload_path = "";
+            this.upload_flag_img=0;
+            this.upload_path_img = "";
+            this.upload_flag_table=0;
+            this.upload_path_table = "";
             this.canScroll();
         },
         ConfirmUpload(){
-            var that=this;
-            let config = {
-                headers: {'Content-Type': 'multipart/form-data'}
-            };
-            that.$axios.post("/api/Task/UploadData",that.post_file, config).then((res)=>{
-                that.upload_flag = 1;
-                that.upload_path = res.data.save_dir;
-                console.log(that.upload_path)
-                that.upload_success = "文件上传成功，存放位置为"+that.upload_path;
-                // alert("上传成功，文件位置位于"+that.upload_path)
-                }).catch((err)=>{
-                    console.log(err)
-                })
+            this.upload_flag = 1;
+            this.upload_flag_img=0;
+            this.upload_path_img = "";
+            this.upload_flag_table=0;
+            this.upload_path_table = "";
+            this.canScroll();
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
             // debugger;
             /* 备份 */ 
             var that=this;
-            
+            that.res_tmp = {};            
             /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-                console.log(result);
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 that.tid = result.data.Taskid;
-                // that.tid = "20230615_1004_278f3fc";
                 
                 /* 请求体 postdata*/
                 const postdata={
@@ -547,22 +596,16 @@ export default {
                     upload_flag:that.upload_flag,
                     upload_path: that.upload_path,
                     tid:that.tid};
-                // console.log(postdata)
                 that.$axios.post("/DataClean/DataCleanParamSet", postdata).then((res) => {
-                    
+                    // debugger
                     that.logflag = true;
-                    
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示，异步任务返回stid */
-                    // 同步任务
-                    // that.logflag = false;
-                    // that.isShowPublish = true;
-                    // that.result = res.data;
-                    // that.resultPro(res.data);
                     // 异步任务
-                    // that.stid =  "S20230616_1026_ce27a93";
-                    that.stid =  res.data.stid;
-                    that.logclk = self.setInterval(that.getLog, 500);
-                    that.clk = self.setInterval(that.update, 1000);
+                    that.stidlist =  {"dataClean":res.data.stid}
+                    that.logclk = window.setInterval(that.getLog, 300);
+                    that.clk = window.setInterval(that.update, 300);
+                    // that.logclk.push(window.setInterval(that.getLog, 300));
+                    // that.clk.push(window.setInterval(that.update, 300));
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -990,12 +1033,16 @@ width: 1080px;
 }
 
 .table_class_result{
-    width: 1000px;
+    width: 800px;
     height: initial;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
     align-items: flex-start;
+}
+
+.table_class_result img{
+    width: 400px;
 }
 
 .text_class_result{
@@ -1018,5 +1065,9 @@ width: 1080px;
     height: 100%;
     /* background-image: url(../../static/img/image_result.png); */
     /* src: ; */
+}
+
+.image_class_result img{
+    width: 800px;
 }
 </style>
