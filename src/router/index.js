@@ -157,9 +157,9 @@ export default new Router({
   },
   // 组装的形式化验证页面
   {
-    path: '/FormalVerfy',
-    name: 'FormalVerfy',
-    component: () => import('../views/FormalVerfy.vue')
+    path: '/formalVerfy',
+    name: 'formalVerfy',
+    component: () => import('../views/formalVerfy.vue')
   },
   // 组装的群智化防御
   {

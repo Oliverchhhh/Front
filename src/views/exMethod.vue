@@ -361,6 +361,15 @@ export default {
     created() {
         document.title = '攻击机理分析';
         },
+    //在离开页面时执行
+    beforeDestroy() {
+        if(this.clk) { //如果定时器还在运行,关闭定时器
+            window.clearInterval(this.clk); //关闭
+        }
+        if(this.logclk){
+            window.clearInterval(this.logclk);
+        }
+    },
     methods: { 
         layerExplainChange(e){
             this.layerchecked = !this.layerchecked
@@ -404,11 +413,11 @@ export default {
                 // 关闭日志显示
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
-                this.clk = null
+                window.clearInterval(this.clk);
+                // this.clk = null
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
-                this.logclk = null
+                window.clearInterval(this.logclk);
+                // this.logclk = null
                  // 处理结果
                 this.result = this.result.data.result;
                 this.result["tid"] = this.tid
@@ -437,12 +446,25 @@ export default {
                 this.$message.error(`${info.file.name} file upload failed.`);
             }
         },
+        initParam(){
+            this.logtext=[]
+            this.percent=0
+            this.postData={}
+            this.result = {}
+            this.tid=''
+            this.stidlist = {}
+            if(this.clk != ''){
+                window.clearInterval(this.clk)
+                this.clk = ''
+            }
+            if(this.logclk != ''){
+                window.clearInterval(this.logclk)
+                this.logclk = ''
+            }
+        },
         /* 点击评估触发事件 */
         dataEvaClick(){
-            this.postData={}
-            this.percent = 10
-            this.clk=""
-            this.logclk=""
+            this.initParam()
             let dataset = this.dataSetInfo[this.selectedDataset].name;
             let model = this.modelInfo[this.selectedModel].subset[this.subModel]
             if(this.selectedMethods.length == 0){
@@ -467,8 +489,8 @@ export default {
             // this.postData["AdvMethods"] = this.selectedMethods
             // this.postData["ExMethods"] = this.selectedFeatureMethod
             // this.postData["Use_layer_explain"] = this.layerchecked
-            // this.postData["VisMethods"] = this.selectedDimensionMethod
-            // this.clk = setInterval(() => {
+            // this.postData["VisMethods"] = this.selectedDimensionMethods
+            // this.clk = window.setInterval(() => {
             //     this.update();
             // },2000)
             // return 0
@@ -476,8 +498,8 @@ export default {
             that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
-                // that.logclk = self.setInterval(that.getLog, 20000);
-                that.logclk = setInterval(() => {
+                // that.logclk = window.setInterval(that.getLog, 20000);
+                that.logclk = window.setInterval(() => {
                     that.getLog();
                 },20000)
                 // 数据降维
@@ -491,12 +513,12 @@ export default {
                     
                     that.$axios.post("/Attack/AttackDimReduciton", that.postData).then((res) => {
                         that.stidlist["dimention"] =  res.data.stid;
-                        that.clk = setInterval(() => {
+                        that.clk = window.setInterval(() => {
                             that.update();
                         },60000)
                     }).catch((err) => {
                         console.log(err);
-                        clearInterval(that.logclk);
+                        window.clearInterval(that.logclk);
                     });}
                 // 特征归因
                 if(that.selectedFeatureMethod.length > 0){
@@ -506,13 +528,13 @@ export default {
                         that.stidlist["feature"] =  res.data.stid;
                         if(that.clk==""){
                             // that.clk = self.setInterval(that.update, 60000);
-                            that.clk = setInterval(() => {
+                            that.clk = window.setInterval(() => {
                                 that.update();
                             },60000)
                         }
                     }).catch((err) => {
                         console.log(err);
-                        clearInterval(that.logclk);
+                        window.clearInterval(that.logclk);
                     });
                 }
                 

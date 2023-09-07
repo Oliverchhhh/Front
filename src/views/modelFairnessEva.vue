@@ -466,10 +466,10 @@ export default {
     //在离开页面时执行
     beforeDestroy() {
         if(this.clk) { //如果定时器还在运行,关闭定时器
-            clearInterval(this.clk); //关闭
+            window.clearInterval(this.clk); //关闭
         }
         if(this.logclk){
-            clearInterval(this.logclk);
+            window.clearInterval(this.logclk);
         }
     },
     methods: {
@@ -505,7 +505,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 console.log("log:",data)
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
@@ -526,14 +526,14 @@ export default {
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            if (this.resultbef.data.stop) {
+            if (this.resultbef.data.stop == 1) {
                 // 关闭日志显示
                 this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
@@ -558,6 +558,34 @@ export default {
             console.log('checked = ', checkedValues);
             this.evaCheckedValues = checkedValues
         },
+        disableImgMehod(){
+            for (let i in this.imgEvaMethod){
+                for(let j in this.imgEvaMethod[i]){
+                    let button = document.getElementById("button" + i + j)
+                    this.methodHoverIndex = -1
+                    this.methodDescription = ""
+                    button.style.color = "rgba(0,0,0,.25)"
+                    button.style.borderColor = "#C8DCFB"
+                    button.style.background = "#f5f5f5"
+                    button.blur()
+                }
+            }
+            this.evaImgCheckedValues = []
+        },
+        ableImgMehod(){
+            for (let i in this.imgEvaMethod){
+                for(let j in this.imgEvaMethod[i]){
+                    let button = document.getElementById("button" + i + j)
+                    this.methodHoverIndex = -1
+                    this.methodDescription = ""
+                    button.style.color = ""
+                    button.style.borderColor = "#C8DCFB"
+                    button.style.background = "#F2F4F9"
+                    button.blur()
+                }
+            }
+            
+        },
         /* 监听数据集选择 */
         clientDatasetSelect(value, senAttrList, tarAttrList, staAttrList){
             this.dataNameValue = value;
@@ -569,7 +597,13 @@ export default {
             }else{
                 this.buttonBGColor.background = "#0B55F4";
             };
+            if( ["Cifar10-S","CelebA"].indexOf(this.dataname[value]) == -1){
+                this.disableImgMehod()
+            }else{
+                this.ableImgMehod()
+            }
         },
+
         /* 鼠标移入评估算法解释框显示*/
         checkboxMouseEnter(index, num){
             this.rowkey = index - 1;
@@ -734,10 +768,25 @@ export default {
             
 
         },
-        /* 点击评估触发事件 */
-        dataEvaClick(){
+        initParam(){
             this.logtext=[]
             this.percent=0
+            this.postData={}
+            this.result = {}
+            this.tid=''
+            this.stidlist = {}
+            if(this.clk != ''){
+                window.clearInterval(this.clk)
+                this.clk = ''
+            }
+            if(this.logclk != ''){
+                window.clearInterval(this.logclk)
+                this.logclk = ''
+            }
+        },
+        /* 点击评估触发事件 */
+        dataEvaClick(){
+            this.initParam()
             let evaMethod = []
             if (["German","Adult","Compas"].indexOf(this.dataname[this.dataNameValue]) > -1){
                 evaMethod = this.evaCheckedValues
@@ -780,7 +829,7 @@ export default {
             //     metrics:JSON.stringify(evaMethod),
             //     modelname:"3 Hidden-layer FCN",
             //     tid:that.tid};
-            // that.clk = setInterval(() => {
+            // that.clk = window.setInterval(() => {
             //     that.update();
             // },6000)
             // return
@@ -802,18 +851,21 @@ export default {
                     that.logflag = true;
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.stidlist =  {"ModelFairnessEvaluate":res.data.stid};
-                    that.logclk = setInterval(() => {
+                    that.logclk = window.setInterval(() => {
                         that.getLog();
                     },2000)
-                    that.clk = setInterval(() => {
+                    that.clk = window.setInterval(() => {
                             that.update();
                         },6000)
 
                 }).catch((err) => {
                         console.log(err)
+                        window.clearInterval(that.clk)
+                        window.clearInterval(that.logclk)
                 });
             }).catch((err) => {
                 console.log(err)
+                
             });    
         }
     }

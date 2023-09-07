@@ -519,7 +519,7 @@ export default {
             let config = {
                 headers: {'Content-Type': 'multipart/form-data'}
             };
-            that.$axios.post("/api/Task/UploadData",that.post_file, config).then((res)=>{
+            that.$axios.post("/Task/UploadData",that.post_file, config).then((res)=>{
                 that.upload_flag = 1;
                 that.upload_path = res.data.save_dir;
                 console.log(that.upload_path)
@@ -536,7 +536,7 @@ export default {
             var that=this;
             
             /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/api/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 // that.tid = "20230615_1004_278f3fc";

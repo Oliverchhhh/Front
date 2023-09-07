@@ -66,36 +66,36 @@
                           ">  {{res.Eva}}  </div>
               <img style="width: 300px; height: 300px;" src="../../assets/img/score.png">
             </div>
-            <div class="describe " style="width: 1000px;height: 50px;line-height: 70px;">{{res.score_des}}</div>
-            <div class="describeMinor" style="width: 1000px;height: 50px;line-height: 30px;">评估分数越高模型鲁棒性越好</div>
+            <div class="describe " style="width: 960px;height: 50px;line-height: 70px;">{{res.score_des}}</div>
+            <div class="describeMinor" style="width: 960px;height: 50px;line-height: 30px;">评估分数越高模型鲁棒性越好</div>
             <!-- 指标展示图1,折线图 -->
             <div class="result-title">后门攻击成功率情况</div>
             <div>
-              <div id="backdoorEvalChart1" class="echart" style="width: 1000px; height: 400px;"></div>
+              <div id="backdoorEvalChart1" class="echart" style="width: 960px; height: 400px;"></div>
             </div>
-            <div class="describeMinor" style="width: 1000px;height: 100px;line-height: 100px;margin-top: 20px;">从结果中可以看到，在测试的几种攻击中，{{res.maxmethod}}的攻击效果最佳</div>
+            <div class="describeMinor" style="width: 960px;height: 100px;line-height: 100px;margin-top: 20px;">从结果中可以看到，在测试的几种攻击中，{{res.maxmethod}}的攻击效果最佳</div>
 
             <!-- 图片表格 -->
             <div class="result-title" style="margin-bottom: 24px;">后门攻击样本示例</div>
 
             <PictureTable key="pictable0" table-id="table0" :header="true" :headerRow="false" :headerColumn="true"
               :have-border="true" :content="selectPicList" :single-output="true" :cellWidth="setCellWidth"
-              cellHeight="140px" class="center-horizon" style="height: 100%;width: 1000px; margin-bottom: 20px;">
+              cellHeight="140px" class="center-horizon" style="height: 100%;width: 960px; margin-bottom: 20px;">
             </PictureTable>
 
 
             <!-- 指标展示图2,柱状图 -->
             <div class="result-title">不同投毒方法在相同投毒率下的攻击成功率</div>
             <div>
-              <div id="backdoorEvalChart2" class="echart" style="width: 1000px; height: 400px;"></div>
+              <div id="backdoorEvalChart2" class="echart" style="width: 960px; height: 400px;"></div>
             </div>
-            <div class="describeMinor" style="width: 1000px;height: 50px;line-height: 50px;margin-top: 20px;">
+            <div class="describeMinor" style="width: 960px;height: 50px;line-height: 50px;margin-top: 20px;">
               C-Acc: 模型在干净样本上的预测准确率
             </div>
-            <div class="describeMinor" style="width: 1000px;height: 20px;line-height: 20px;">
+            <div class="describeMinor" style="width: 960px;height: 20px;line-height: 20px;">
               ASR: 模型将投毒样本预测为目标类的准确率
             </div>
-            <div class="describeMinor" style="width: 1000px;height: 50px;line-height: 50px;margin-bottom: 40px;">
+            <div class="describeMinor" style="width: 960px;height: 50px;line-height: 50px;margin-bottom: 40px;">
               R-Acc: 模型将投毒样本预测为原类别的概率
             </div>
 

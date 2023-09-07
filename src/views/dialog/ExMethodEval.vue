@@ -59,7 +59,7 @@
 
                         </a-col>
                         <a-col :span="4">
-                          <div class="grid-content-value" v-if="postdata.VisMethods.length > 0">{{defenseShow(postdata.VisMethods)}}</div>
+                          <div class="grid-content-value" v-if="'VisMethods' in postdata ">{{defenseShow(postdata.VisMethods)}}</div>
                           <div class="grid-content-value" v-else>未选</div>
  
                         </a-col>
@@ -73,46 +73,46 @@
                       </a-row>
                     </div>
                     <!-- 总得分 -->
-                    <div class="result-title" v-if="postdata.ExMethods.length > 0">对抗图像解释</div>
+                    <div class="result-title" v-if="'ExMethods' in postdata">对抗图像解释</div>
                     <!-- 可选择的图像表格 -->
-                    <div class="selectContent" v-if="postdata.ExMethods.length > 0">请选择展示的图片</div>
+                    <div class="selectContent" v-if="'ExMethods' in postdata">请选择展示的图片</div>
                     <div style="width: 960px;">
                       <PictureTable key="pictable0" table-id="table0" :header="false" :headerRow="false" :have-border="true" :content="selectPicList"
                           :single-output="true" :cellWidth="[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]"  @pictureSelect="handleSelectPicture" 
                           :selectedPicutre="['table0_0_0']" class="center-horizon" style="height: 100%;width: 960px; margin-bottom: 20px;">
                       </PictureTable>
                     </div>
-                    <div style="width: 960px;" v-if="postdata.ExMethods.length > 0">
+                    <div style="width: 960px;" v-if="'ExMethods' in postdata">
                     <PictureTable key="pictable1" table-id="table1" :header="true" :headerRow="true" :have-border="true" :content="instanceResultList"
                         :single-output="true" :cellWidth="advCellWidth" :cellHeight="cellHeight" class="center-horizon" style="height: 100%;width: 960px; margin-bottom: 20px;">
                     </PictureTable>
                     </div>
                     
                     <!-- 结果展示 箱装图 -->
-                    <div v-if="postdata.ExMethods.length > 0">
+                    <div v-if="'ExMethods' in postdata">
                       <div class="result-subtitle" >对抗解释图与正常解释图之间的相似度分数 </div>
                       <div id="myChart1" class="echart" v-if="postdata.ExMethods.indexOf('lrp')>-1"></div>
                       <div id="myChart2" class="echart" v-if="postdata.ExMethods.indexOf('gradcam')>-1"></div>
                       <div id="myChart3" class="echart" v-if="postdata.ExMethods.indexOf('integrated_grad')>-1"></div>
                     </div>
-                    <div class="describe" style="width: 960px; line-height: 30px;" v-if="postdata.ExMethods.length > 0">
+                    <div class="describe" style="width: 960px; line-height: 30px;" v-if="'ExMethods' in postdata">
                       通过观察可视化后的结果，可以看到对抗样本通常会显著改变模型关注的特征区域（比如无法关注在目标物体上），
                       说明模型关注区域发生了偏移；此外通过计算相关系数量化这种差异的程度，相关系数为0-1的实数，越大说明结果越相关（即差异越小），可以看到对抗样本影响下，
                       相关指数基本维持在0.6附近，说明对抗样本使模型对特征的关注区域发生了较大偏移。
                     </div>
                     <div>
-                      <div class="result-subtitle" v-if="postdata.ExMethods.length > 0 && postdata.Use_layer_explain" >模型内部卷积层解释 </div>
-                      <DropSelect v-if="postdata.ExMethods.length > 0 && postdata.Use_layer_explain" Id="select0" :message="'当前展示攻击方法：'+attackMethods[0]" :items="attackMethods" @SelectClick="selectAdvMethod"></DropSelect>
+                      <div class="result-subtitle" v-if="'ExMethods' in postdata && postdata.Use_layer_explain" >模型内部卷积层解释 </div>
+                      <DropSelect v-if="'ExMethods' in postdata && postdata.Use_layer_explain" Id="select0" :message="'当前展示攻击方法：'+attackMethods[0]" :items="attackMethods" @SelectClick="selectAdvMethod"></DropSelect>
                       <div style="width: 960px;">
-                      <PictureTable v-if="postdata.ExMethods.length > 0 && postdata.Use_layer_explain" key="pictable2" table-id="table2" :header="true" :headerRow="true" :have-border="true" :content="instanceLayerResultList"
+                      <PictureTable v-if="'ExMethods' in postdata && postdata.Use_layer_explain" key="pictable2" table-id="table2" :header="true" :headerRow="true" :have-border="true" :content="instanceLayerResultList"
                         :single-output="true" :cellWidth="[0.21, 0.29, 0.29, 0.21]" :cellHeight="cellHeight" class="center-horizon" style="height: 100%;width: 960px; margin-bottom: 20px;">
                       </PictureTable>
-                      <div v-if="postdata.ExMethods.length > 0 && postdata.Use_layer_explain" class="describe" style="width: 960px; line-height: 30px;">通过对神经网络逐层提取到的特征进行可视化观察，可以发现对抗噪声从模型浅层就开始破坏图像纹理特征，并随着传播深入最终导致模型分类错误。
+                      <div v-if="'ExMethods' in postdata && postdata.Use_layer_explain" class="describe" style="width: 960px; line-height: 30px;">通过对神经网络逐层提取到的特征进行可视化观察，可以发现对抗噪声从模型浅层就开始破坏图像纹理特征，并随着传播深入最终导致模型分类错误。
                         同时通过计算得到的差异性指数（越大说明对抗扰动造成的特征破坏程度越大〉也可以证明这一点</div>
                       </div>                      
                     </div>
 
-                    <div v-if="postdata.VisMethods.length > 0">
+                    <div v-if="'VisMethods' in postdata">
                       <div class="result-subtitle">数据特征分布降维解释 </div>
                       <div style="width: 960px;">
                       <PictureTable key="pictable3" table-id="table3" :header="true" :headerRow="true" :have-border="true" :content="DimReducitonResult"
@@ -432,6 +432,51 @@ export default {
           ]
         };
         return option
+    },
+
+    webupdate(){
+      if(this.postdata.ExMethods.indexOf("lrp")>-1){
+        let lrp_data = []
+        for(let i=0; i<this.attackMethods.length;i++){
+          lrp_data.push(this.allPictures.kendalltau[this.attackMethods[i]].lrp)
+        }
+        var option1 = this.setBoxchartsOptions(echarts.dataTool.prepareBoxplotData(lrp_data),this.attackMethods,"LRP")
+        setTimeout(function(){
+          // let myChart1= echarts.getInstanceByDom(document.getElementById("myChart1"))
+          let myChart1 = echarts.init(document.getElementById("myChart1"));
+            window.addEventListener("resize", function () {
+              myChart1.resize()});
+              option1 && myChart1.setOption(option1);
+        },500)
+    }
+    if(this.postdata.ExMethods.indexOf("gradcam")>-1){
+      let gradcam_data = []
+      for(let i=0; i<this.attackMethods.length;i++){
+        gradcam_data.push(this.allPictures.kendalltau[this.attackMethods[i]].gradcam)
+      }
+      var option2 = this.setBoxchartsOptions(echarts.dataTool.prepareBoxplotData(gradcam_data),this.attackMethods,"Grad-CAM")
+      setTimeout(function(){
+          // let myChart2= echarts.getInstanceByDom(document.getElementById("myChart2"))
+          let myChart2 = echarts.init(document.getElementById("myChart2"));
+            window.addEventListener("resize", function () {
+              myChart2.resize()});
+              option2 && myChart2.setOption(option2);
+        },500)
+    }
+    if(this.postdata.ExMethods.indexOf("integrated_grad")>-1){
+      let ig_data = []
+      for(let i=0; i<this.attackMethods.length;i++){
+        ig_data.push(this.allPictures.kendalltau[this.attackMethods[i]].ig)
+      }
+      var option3 = this.setBoxchartsOptions(echarts.dataTool.prepareBoxplotData(ig_data), this.attackMethods,"IG")
+      setTimeout(function(){
+          // let myChart3= echarts.getInstanceByDom(document.getElementById("myChart3"))
+          let myChart3 = echarts.init(document.getElementById("myChart3"));
+            window.addEventListener("resize", function () {
+              myChart3.resize()});
+              option3 && myChart3.setOption(option3);
+        },500)
+    }
     }
 
   },
@@ -463,49 +508,16 @@ export default {
           this.allDimReduction = this.result.attack_dim_reduciton
           this.DimReducitonResult = this.getDimReducitonResult()
         }
+        // this.webupdate()
       }
     }
   },
-  mounted() {},
+  mounted() {
+    this.webupdate()},
   updated(){
     // debugger
     //code
-    if(this.postdata.ExMethods.indexOf("lrp")>-1){
-      let lrp_data = []
-      for(let i=0; i<this.attackMethods.length;i++){
-        lrp_data.push(this.allPictures.kendalltau[this.attackMethods[i]].lrp)
-      }
-      var option1 = this.setBoxchartsOptions(echarts.dataTool.prepareBoxplotData(lrp_data),this.attackMethods,"LRP")
-      let myChart1= echarts.getInstanceByDom(document.getElementById("myChart1"))
-      if (myChart1 == null){
-        myChart1 = echarts.init(document.getElementById("myChart1"));
-      }
-      myChart1.setOption(option1);
-    }
-    if(this.postdata.ExMethods.indexOf("gradcam")>-1){
-      let gradcam_data = []
-      for(let i=0; i<this.attackMethods.length;i++){
-        gradcam_data.push(this.allPictures.kendalltau[this.attackMethods[i]].gradcam)
-      }
-      var option2 = this.setBoxchartsOptions(echarts.dataTool.prepareBoxplotData(gradcam_data),this.attackMethods,"Grad-CAM")
-      let myChart2= echarts.getInstanceByDom(document.getElementById("myChart2"))
-      if (myChart2 == null){
-        myChart2 = echarts.init(document.getElementById("myChart2"));
-      }
-      myChart2.setOption(option2);
-    }
-    if(this.postdata.ExMethods.indexOf("integrated_grad")>-1){
-      let ig_data = []
-      for(let i=0; i<this.attackMethods.length;i++){
-        ig_data.push(this.allPictures.kendalltau[this.attackMethods[i]].ig)
-      }
-      var option3 = this.setBoxchartsOptions(echarts.dataTool.prepareBoxplotData(ig_data), this.attackMethods,"IG")
-      let myChart3= echarts.getInstanceByDom(document.getElementById("myChart3"))
-      if (myChart3 == null){
-        myChart3 = echarts.init(document.getElementById("myChart3"));
-      }
-      myChart3.setOption(option3);
-    }
+    this.webupdate()
   },
 }
 

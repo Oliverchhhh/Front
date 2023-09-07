@@ -227,7 +227,7 @@
           <div slot="des_func" class="func_des">【待修改跳转页】采集目标模型在目标平台上运行产生的功耗/电磁信息，形成曲线数据。输入功耗或电磁曲线数据文件，分别进行不同的侧信道攻击分析</div>
         </ifreme>
         <!-- 故障注入 -->
-        <ifreme @click.native="goFuncPage('')">
+        <ifreme @click.native="goFuncPage('/inject')">
           <div slot="func_icon">
             <!-- 图片：待替换 -->
             <img class="icon_img" src="../assets/img/faultInjectIcon.png">
@@ -235,7 +235,7 @@
           <!-- 功能名 -->
           <div slot="header" class="func_name">故障注入</div>
           <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">【待修改跳转页】利用时钟毛刺故障对多种深度学习模型进行攻击，高精度故障注入评估过程使用可视化方式，展示故障攻击对深度学习模型输出的影响</div>
+          <div slot="des_func" class="func_des">利用时钟毛刺故障对多种深度学习模型进行攻击，高精度故障注入评估过程使用可视化方式，展示故障攻击对深度学习模型输出的影响</div>
         </ifreme>
       </div>
     </div>

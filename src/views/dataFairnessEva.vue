@@ -309,6 +309,12 @@ export default {
     created() {
         document.title = '数据集公平性评估';
         },
+        //在离开页面时执行
+    beforeDestroy() {
+        if(this.logclk){
+            window.clearInterval(this.logclk);
+        }
+    },
     methods: { 
         /* 获取日志 */ 
         getLog(){
@@ -498,10 +504,25 @@ export default {
             
 
         },
-        /* 点击评估触发事件 */
-        dataEvaClick(){
+        initParam(){
             this.logtext=[]
             this.percent=0
+            this.postData={}
+            this.result = {}
+            this.tid=''
+            this.stidlist = {}
+            if(this.clk != ''){
+                window.clearInterval(this.clk)
+                this.clk = ''
+            }
+            if(this.logclk != ''){
+                window.clearInterval(this.logclk)
+                this.logclk = ''
+            }
+        },
+        /* 点击评估触发事件 */
+        dataEvaClick(){
+            this.initParam()
             /*判断选择*/
             if (this.senAttrList.length ==0 ){
                 this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
@@ -529,7 +550,7 @@ export default {
                 staAttrList:JSON.stringify(that.staAttrList),
                 tid:tid};
                 console.log(postdata)
-                that.logclk = setInterval(() => {
+                that.logclk = window.setInterval(() => {
                     that.getLog();
                 },200)
                 that.percent=50
@@ -543,7 +564,7 @@ export default {
                     that.result = res.data;
                     that.resultPro(res.data);
                     that.logflag = false;
-                    clearInterval(that.logclk);
+                    window.clearInterval(that.logclk);
                 }).catch((err) => {
                         console.log(err)
                 });

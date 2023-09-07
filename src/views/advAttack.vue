@@ -634,6 +634,15 @@ export default {
     created() {
         document.title = '对抗攻击评估';
         },
+    //在离开页面时执行
+    beforeDestroy() {
+        if(this.clk) { //如果定时器还在运行,关闭定时器
+            window.clearInterval(this.clk); //关闭
+        }
+        if(this.logclk){
+            window.clearInterval(this.logclk);
+        }
+    },
     methods: { 
         /* 关闭结果窗口 */
         closeDialog(){
@@ -681,9 +690,9 @@ export default {
                 // 关闭日志显示
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                                 // 处理结果
                 this.result = this.result.data.result;
                 this.result["tid"] = this.tid
@@ -694,10 +703,10 @@ export default {
             }else if(this.result.data.stop == 2){
                 this.percent=100
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 this.clk=null
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                 this.logclk = null
             }
         },
@@ -708,9 +717,25 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
+        initParam(){
+            this.logtext=[]
+            this.percent=0
+            this.postData={}
+            this.result = {}
+            this.tid=''
+            this.stidlist = {}
+            if(this.clk != ''){
+                window.clearInterval(this.clk)
+                this.clk = ''
+            }
+            if(this.logclk != ''){
+                window.clearInterval(this.logclk)
+                this.logclk = ''
+            }
+        },
         /* 点击评估触发事件 */
         dataEvaClick() {
-            this.postData={}
+            this.initParam()
             let dataset = this.dataSetInfo[this.selectedDataset].name;
             let model = this.modelInfo[this.selectedModel].name
             if(this.selectedMethod.length == 0){
@@ -742,13 +767,12 @@ export default {
                     this.postData[this.selectedMethod[i]] = this.selectedAttributes[this.selectedMethod[i]]
                 }
             }
-            this.logtext = [];
             this.logflag = true;
             var that = this;
             that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
-                that.logclk = setInterval(() => {
+                that.logclk = window.setInterval(() => {
                         that.getLog();
                     }, 6000)
                 /* 请求体 postdata*/
@@ -759,15 +783,20 @@ export default {
                 console.log(that.postData)
                 that.$axios.post("/Attack/AdvAttack", that.postData).then((res) => {
                     that.stidlist =  {"advattack":res.data.stid};
-                    that.clk = setInterval(() => {
+                    that.clk = window.setInterval(() => {
                             that.update();
                         }, 30000)
                 }).catch((err) => {
                     console.log(err);
-                    clearInterval(that.logclk);
+                    window.clearInterval(that.logclk);
+                    that.logclk = ''
+                    window.clearInterval(that.clk);
+                    that.clk = ''
                 });
             }).catch((err) => {
                 console.log(err)
+                window.clearInterval(that.logclk);
+                that.logclk = ''
             });
         },
         // 更换数据集

@@ -552,10 +552,10 @@ export default {
     //在离开页面时执行
     beforeDestroy() {
         if(this.clk) { //如果定时器还在运行,关闭定时器
-            clearInterval(this.clk); //关闭
+            window.clearInterval(this.clk); //关闭
         }
         if(this.logclk){
-            clearInterval(this.logclk);
+            window.clearInterval(this.logclk);
         }
     },
     mounted(){
@@ -587,6 +587,34 @@ export default {
                 button.blur()
                 this.evaImgCheckedValues.splice(this.evaImgCheckedValues.indexOf(this.imgEvaMethod[i][j].name), 1 )
             }
+        },
+        disableImgMehod(){
+            for (let i in this.imgEvaMethod){
+                for(let j in this.imgEvaMethod[i]){
+                    let button = document.getElementById("button" + i + j)
+                    this.methodHoverIndex = -1
+                    this.methodDescription = ""
+                    button.style.color = "rgba(0,0,0,.25)"
+                    button.style.borderColor = "#C8DCFB"
+                    button.style.background = "#f5f5f5"
+                    button.blur()
+                }
+            }
+            this.evaImgCheckedValues = []
+        },
+        ableImgMehod(){
+            for (let i in this.imgEvaMethod){
+                for(let j in this.imgEvaMethod[i]){
+                    let button = document.getElementById("button" + i + j)
+                    this.methodHoverIndex = -1
+                    this.methodDescription = ""
+                    button.style.color = ""
+                    button.style.borderColor = "#C8DCFB"
+                    button.style.background = "#F2F4F9"
+                    button.blur()
+                }
+            }
+            
         },
         /* 获取日志 */ 
         getLog(){
@@ -621,11 +649,9 @@ export default {
                 this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
-                this.clk=null
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
-                this.logclk = null
+                window.clearInterval(this.logclk);
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
@@ -640,11 +666,9 @@ export default {
             }else if(this.result.data.stop == 2){
                 this.percent=100
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
-                this.clk=null
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
-                this.logclk = null
+                window.clearInterval(this.logclk);
             }
         },
         /* 更新结果*/ 
@@ -692,7 +716,9 @@ export default {
             if( ["Cifar10-S","CelebA"].indexOf(this.dataname[value]) == -1){
                 this.debiasDisabled["domain_discriminative"] = true;
                 this.debiasDisabled["uniconf_adv"] = true;
+                this.disableImgMehod()
             }else{
+                this.ableImgMehod()
                 this.debiasDisabled={
                 "domain_discriminative":false,
                 "uniconf_adv":false,
@@ -704,7 +730,8 @@ export default {
                 "Calibrated EOD-fnr":true,
                 "Calibrated EOD-fpr":true,
                 "Calibrated EOD-weighted":true,
-            };
+                };
+                
             }
             console.log("this.dataname:",value);
             console.log("this.debiasDisabled:",this.debiasDisabled);
@@ -720,6 +747,7 @@ export default {
         resultPro(res1){
             var that = this;
             that.percent=100;
+            that.res.labels = []
             if ("Consistency" in that.result){
                 that.res["score"]["bef"] = that.result["Overall fairness"][0].toFixed(2)*100;
                 that.res["score"]["aft"] = that.result["Overall fairness"][1].toFixed(2)*100;
@@ -881,11 +909,25 @@ export default {
                 that.res.groupText["evaBar"]="本次测试结果如上，直方图根据"+ that.res.labels.toString()+"算法评估结果绘制。"
             }
         },
-        /* 点击评估触发事件 */
-        dataEvaClick(){
+        initParam(){
             this.logtext=[]
             this.percent=0
             this.postData={}
+            this.result = {}
+            this.tid=''
+            this.stidlist = {}
+            if(this.clk != ''){
+                window.clearInterval(this.clk)
+                this.clk = ''
+            }
+            if(this.logclk != ''){
+                window.clearInterval(this.logclk)
+                this.logclk = ''
+            }
+        },
+        /* 点击评估触发事件 */
+        dataEvaClick(){
+            this.initParam()
             let evaMethod = []
             if (["German","Adult","Compas"].indexOf(this.dataname[this.dataNameValue]) > -1){
                 evaMethod = this.evaCheckedValues
@@ -937,7 +979,7 @@ export default {
             //     modelname:"3 Hidden-layer FCN",
             //     algorithmname:that.debiasMethodValue,
             //     tid:that.tid};
-            // that.clk = setInterval(() => {
+            // that.clk = window.setInterval(() => {
             //     that.update();
             // },6000)
             // return
@@ -963,30 +1005,34 @@ export default {
                     that.$axios.post("/ModelFairnessEvaluate",that.postData).then((res) => {
                         /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                         that.stidlist["ModelFairnessEvaluate"] = res.data.stid
-                        that.logclk = setInterval(() => {
+                        that.logclk = window.setInterval(() => {
                             that.getLog();
-                        },20000)
-                        that.clk = setInterval(() => {
+                        },2000)
+                        that.clk = window.setInterval(() => {
                                 that.update();
-                            },60000)
+                            },6000)
                         console.log(that.logflag);
                     }).catch((err) => {
-                            console.log(err)
+                        console.log(err)
+                        window.clearInterval(that.clk)
+                        window.clearInterval(that.logclk)
                     });
                 }
-                that.$axios.post("/ModelFairnessDebias",that.postData).then((res) => {
+                that.$axios.post("ModelFairnessDebias",that.postData).then((res) => {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.stidlist["ModelFairnessDebias"] = res.data.stid
                     if (that.logclk==''){
-                        that.logclk = setInterval(() => {
+                        that.logclk = window.setInterval(() => {
                             that.getLog();
-                        },20000)
-                        that.clk = setInterval(() => {
+                        },2000)
+                        that.clk = window.setInterval(() => {
                             that.update();
-                        },60000)
+                        },6000)
                     }
                 }).catch((err) => {
                         console.log(err)
+                        window.clearInterval(that.clk)
+                        window.clearInterval(that.logclk)
                 });
             }).catch((err) => {
                 console.log(err)

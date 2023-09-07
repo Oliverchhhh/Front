@@ -419,9 +419,9 @@ export default {
                 // 关闭日志显示
                 // this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                 
                 // 处理结果
                 
@@ -437,12 +437,27 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
+        initParam(){
+            this.logtext=[]
+            this.percent=0
+            this.postData={}
+            this.result = {}
+            this.tid=''
+            this.stidlist = {}
+            if(this.clk != ''){
+                window.clearInterval(this.clk)
+                this.clk = ''
+            }
+            if(this.logclk != ''){
+                window.clearInterval(this.logclk)
+                this.logclk = ''
+            }
+        },
         /* 点击评估触发事件 */
         dataEvaClick(){
-                var that=this;
-                that.percent=10;
-                that.result={};
-                var data_size = 0
+            this.initParam()
+            var that=this;
+            var data_size = 0
 
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
@@ -494,9 +509,9 @@ export default {
                 // 启动任务
                 that.$axios.post("/FormalVerification", postdata).then((res) => {
                     that.stidlist =  {"formalverfy":res.data.stid};
-                    that.logclk = self.setInterval(that.getLog, 1000);
+                    that.logclk = window.setInterval(that.getLog, 1000);
                     that.logflag = true;
-                    that.clk = self.setInterval(that.update, 6000);
+                    that.clk = window.setInterval(that.update, 6000);
                 }).catch((err) => {
                         console.log(err)
                 });

@@ -343,7 +343,7 @@ export default {
 }
 
 .border-box {
-    width: 1000px;
+    width: 960px;
     height: 230px;
     border: 1px solid #d1d3d7;
 }

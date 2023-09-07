@@ -63,23 +63,23 @@
                     <div class="result-title">对抗攻击评估详情</div>
                     <div>
                       <div class="result-subtitle">对抗攻击攻击效果</div>
-                      <div id="myChart" class="echart" style="width: 1000px; height: 400px;"></div>
+                      <div id="myChart" class="echart" style="width: 960px; height: 400px;"></div>
                       <!-- <div class="conclusion">
                         <p class="result_text ">本次攻击方法有{{defenseShow(postData.Method)}}，其中攻击效果最佳的为{{res.maxmethod}}，攻击成功率为{{res.maxasr}}。</p>
                       </div> -->
                     </div>
                     <div>
                       <div class="result-subtitle">对抗攻击单次运行时间对比</div>
-                      <div id="timeChart" class="echart" style="width: 1000px; height: 400px;"></div>
+                      <div id="timeChart" class="echart" style="width: 960px; height: 400px;"></div>
                       <div class="conclusion">
-                        <p class="result_text ">从结果中可以看到，在测试的几种攻击中，其中攻击效果最佳的为{{res.maxmethod}}，攻击成功率为{{res.maxasr}},{{ res.mintimemethod }}所花费的时间最少，而{{ res.maxtimemethod }}类攻击所花费的时间最多，但是其达到的准确率也较高</p>
+                        <p class="result_text ">从结果中可以看到，在测试的几种攻击中，其中攻击效果最佳的为{{res.maxmethod}}，攻击成功率为{{res.maxasr}}%，{{ res.mintimemethod }}所花费的时间最少，而{{ res.maxtimemethod }}类攻击所花费的时间最多。</p>
                       </div>
                     </div>
                     <div class="result-title">对抗样本示例</div>
                     <!-- 图片表格 -->
                     <PictureTable key="pictable0" table-id="table0" :header="true" :headerRow="true" :headerColumn="true"
                       :have-border="true" :content="selectPicList" :single-output="true" :cellWidth="setCellWidth"
-                      cellHeight="140px" class="center-horizon" style="height: 100%;width: 1000px; margin-bottom: 20px;">
+                      cellHeight="140px" class="center-horizon" style="height: 100%;width: 960px; margin-bottom: 20px;">
                     </PictureTable>
                     <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
                     font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
@@ -184,10 +184,13 @@ export default {
         this.res.maxtimemethod = ""
         this.res.mintimemethod = ""
         this.res.timelist = []
+        this.selectPicList = [
+        ["攻击方法", "加噪前", "噪声", "加噪后"],
+        ]
         for(let temp in this.result.adv_attack){
           if( ["stop","tid", "stidlist"] .indexOf(temp) == -1){
             if (this.res.maxasr < this.result.adv_attack[temp].asr){
-              this.res.maxasr = this.result.adv_attack[temp].asr.toFixed(2)
+              this.res.maxasr = this.result.adv_attack[temp].asr.toFixed(1)
               this.res.maxmethod = temp
             }
             if (this.res.maxtime < this.result.adv_attack[temp].time){

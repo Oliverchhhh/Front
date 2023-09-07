@@ -171,7 +171,7 @@ export default {
             /* 主任务id */
             tid: "",
             /* 子任务id */
-            stid: "",
+            stid: {},
             /* 日志查询clock*/
             logclk: "",
             // 数据集信息
@@ -368,6 +368,15 @@ export default {
     created() {
        document.title = '对抗攻击防御';
        },
+    //在离开页面时执行
+    beforeDestroy() {
+        if(this.clk) { //如果定时器还在运行,关闭定时器
+            window.clearInterval(this.clk); //关闭
+        }
+        if(this.logclk){
+            window.clearInterval(this.logclk);
+        }
+    },
     methods: {
         /* 关闭结果窗口 */
         closeDialog() {
@@ -377,23 +386,44 @@ export default {
         noExistImg(e){
             e.target.src=this.errorImg;
         },
-        /* 获取日志 */
-        getLog() {
+        
+        /* 获取日志 */ 
+        getLog(){
+            // debugger
             var that = this;
             if(that.percent < 99){
                that.percent += 1;
             }
             that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
-                if (that.stid==""){
-                    that.logtext = Object.values(data.data.Log).slice(-1)[0];
+                // console.log("log:", data)
+                if (JSON.stringify(that.stid)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
                 }else{
-                    that.logtext = data.data.Log[that.stid];
+                    that.logtext=[]
+                    for(let temp in that.stid){
+                        that.logtext.push(data.data.Log[that.stid[temp]]);
+                    }
                 }
             });
         },
+        initParam(){
+            this.logtext=[]
+            this.percent=0
+            this.postData={}
+            this.result = {}
+            this.tid=''
+            if(this.clk != ''){
+                window.clearInterval(this.clk)
+                this.clk = ''
+            }
+            if(this.logclk != ''){
+                window.clearInterval(this.logclk)
+                this.logclk = ''
+            }
+        },
         /* 点击评估触发事件 */
         dataEvaClick() {
-            this.postData={}
+            this.initParam()
             let dataset = this.dataSetInfo[this.selectedDataset].name;
             let model = this.modelInfo[this.selectedModel].name
             if (1 <= this.sampleNum && this.sampleNum <= 1000 ){
@@ -406,7 +436,6 @@ export default {
                 this.$message.warning('请至少选择一项防御方法！',3);
                 return 0;
             }
-            this.logtext = [];
             this.logflag = true;
             var that = this;
 
@@ -414,7 +443,7 @@ export default {
             that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
-                that.logclk = self.setInterval(that.getLog, 6000);
+                that.logclk = window.setInterval(that.getLog, 6000);
                 /* 请求体 postdata*/
                 that.postData = {
                     adv_dataset: dataset,
@@ -427,7 +456,8 @@ export default {
                 console.log(this.postData)
                 that.$axios.post("/detect", that.postData).then((res) => {
                     that.result = res.data;
-                    clearInterval(that.logclk);
+                    window.clearInterval(that.logclk);
+                    that.stid['advAttackDefense'] =  res.data.stid
                     that.getLog();
                     let label=[];
                     let rateList=[];
@@ -473,7 +503,7 @@ export default {
                     that.logflag = false;
                 }).catch((err) => {
                     console.log(err);
-                    clearInterval(that.logclk);
+                    window.clearInterval(that.logclk);
                 });
             }).catch((err) => {
                 console.log(err)

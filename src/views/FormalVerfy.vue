@@ -18,6 +18,9 @@
                         <a-radio-button value="safe">
                             安全性
                         </a-radio-button>
+                        <a-radio-button value="robust">
+                            鲁棒性
+                        </a-radio-button>
                         <a-radio-button value="consistency">
                             一致性
                         </a-radio-button>
@@ -34,6 +37,10 @@
                         <!-- 功能名称 -->
                         <h3>{{ modeMsg[mode].name }}</h3>
                         <a-button v-if="mode==='safe'" class="DataEva" @click="safeEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                            <a-icon type="security-scan" />
+                            评估
+                        </a-button>
+                        <a-button v-if="mode==='robust'" class="DataEva" @click="robustEvaClick" :style="buttonBGColor" :disabled="disStatus">
                             <a-icon type="security-scan" />
                             评估
                         </a-button>
@@ -127,6 +134,99 @@
                             <p class="mainParamName">请输入攻击强度</p>
                             <a-input class="paramsInput" placeholder="请输入浮点数：0-1.0" @change="onAttackIntensityChange"/>
                         </div>
+                    </div>
+                    <div v-if="mode==='robust'" class="inputdiv">
+                        <!-- 选数据集 -->
+                        <div class="datasetSelected" style="margin-top: 0px;">
+                            <p class="mainParamNameNotop" style="margin-bottom: 0px;">请选择数据集</p>
+                            <a-radio-group v-model="dataset" @change="onFrameworkChange" class="datasetRadioGroup">
+                                <div class="datasetDiv">
+                                    <a-radio :style="radioStyle" value="mnist" >
+                                        MNIST
+                                    </a-radio>
+                                    <div class="datasetSizeInput">
+                                        <p class="secondTitle">数据集大小</p>
+                                        <a-input class="sizeInput" placeholder="请输入数据集的大小，建议：5-10" v-model="mnist_dataset" :disabled="dataset==='mnist'?false:true"/>
+                                    </div>
+
+                                </div>
+                                <div class="datasetDiv">
+                                    <a-radio :style="radioStyle" value="cifar10" >
+                                        CIFAR10
+                                    </a-radio>
+                                    <div class="datasetSizeInput">
+                                        <p class="secondTitle">数据集大小</p>
+                                        <a-input class="sizeInput" placeholder="请输入数据集的大小，建议：2-5" v-model="cifar10_dataset" :disabled="dataset=='cifar10'?false:true"/>
+                                    </div>
+                                </div>
+                                <div class="datasetDiv">
+                                    <a-radio :style="radioStyle" value="gtsrb" >
+                                        GTSRB
+                                    </a-radio>
+                                    <div class="datasetSizeInput">
+                                        <p class="secondTitle">数据集大小</p>
+                                        <a-input class="sizeInput" placeholder="请输入数据集的大小，建议：5-10" v-model="gtstb_dataset" :disabled="dataset=='gtsrb'?false:true"/>
+                                    </div>
+                                </div>
+                                <div class="datasetDiv">
+                                    <a-radio :style="radioStyle" value="mtfl" >
+                                        MTFL
+                                    </a-radio>
+                                    <div class="datasetSizeInput">
+                                        <p class="secondTitle">数据集大小</p>
+                                        <a-input class="sizeInput" placeholder="请输入数据集的大小，建议：2-5" v-model="mtfl_dataset" :disabled="dataset=='mtfl'?false:true"/>
+                                    </div>
+                                </div>
+                                <div class="datasetDiv">
+                                    <a-radio :style="radioStyle" value="sst2" >
+                                        SST2
+                                    </a-radio>
+                                    <div class="datasetSizeInput">
+                                        <p class="secondTitle">数据集大小</p>
+                                        <a-input class="sizeInput" placeholder="请输入数据集的大小，建议：2-5" v-model="sst2_dataset" :disabled="dataset=='sst2'?false:true"/>
+                                    </div>
+                                </div>
+                            </a-radio-group>
+                        </div>
+                        
+                        <div class="modelSelected" style="margin-top: 224px;">
+                            <p class="mainParamName">请选择模型</p>
+                            <a-radio-group v-model="ai_model" @change="onAiModelChange">
+                                <div class="modelDiv">
+                                    <a-radio :style="modelStyle" value="cnn" :disabled="['mnist'].indexOf(dataset) > -1? false: true" > CNN </a-radio>
+                                </div>
+                                <div class="modelDiv">
+                                    <a-radio :style="modelStyle" value="resnet18" :disabled="['cifar10', 'mtfl', 'gtsrb'].indexOf(dataset) > -1? false: true" >  ResNet18 </a-radio>
+                                </div>
+                                <div class="modelDiv">
+                                    <a-radio :style="modelStyle" value="densenet" :disabled="['cifar10'].indexOf(dataset) > -1? false: true" >  DenseNet </a-radio>
+                                </div>
+                                <div class="modelDiv">
+                                    <a-radio :style="modelStyle" value="lstm" :disabled="['sst2'].indexOf(dataset) > -1? false: true" > LSTM </a-radio>
+                                </div>
+                                <div class="modelDiv">
+                                    <a-radio :style="modelStyle" value="transformer" :disabled="['sst2'].indexOf(dataset) > -1? false: true" > Transformer </a-radio>
+                                </div>
+                            </a-radio-group>
+                        </div>
+                        <!-- 最大扰动值 -->
+                        <div class="epsInput" style="margin-top: 24px;">
+                            <p class="mainParamName">请设置最大扰动</p>
+                                <a-input class="paramsInput" placeholder="请输入最大扰动值，建议输入：0.02-0.08之间" v-model="maxEps" />
+                        </div>
+
+                        <!-- 最小扰动值 -->
+                        <div class="epsInput">
+                            <p class="mainParamName">请设置最小扰动</p>
+                            <a-input class="paramsInput" placeholder="请输入最小扰动值，建议输入：0.02-0.08之间" v-model="minEps" />
+                        </div>
+
+                        <!-- 最大扰动值 -->
+                        <div class="epsInput">
+                            <p class="mainParamName">请设置扰动次数</p>
+                            <a-input class="paramsInput" placeholder="请输入扰动次数，建议输入4-6次" v-model="epsCnt" />
+                        </div>
+
                     </div>
                     <div v-if="mode==='consistency'" class="inputdiv">
                         <!-- 一致性 -->
@@ -384,7 +484,83 @@
                         <a-icon type="upload" />导出报告内容
                         </a-button>
                 </div>
-
+                <!-- 鲁棒性评估报告 -->
+                <div slot="header" v-if="mode=='robust'">
+                    <div class="dialog_title">
+                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                        <h1>鲁棒性形式化验证评估结果报告</h1>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main" v-if="mode=='robust'" id="pdfDom">
+                    <div class="paramShow">
+                        <a-row >
+                            <a-col :span="5" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">数据集：</span><span class="paramValue">{{ dataset }}</span><</p>
+                                </div>
+                            </a-col>
+                            <a-col :span="5" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">模型：</span><span class="paramValue">{{ ai_model }}</span></p>
+                                </div>
+                            </a-col>
+                            <a-col :span="5" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">最大扰动值：</span><span class="paramValue">{{ maxEps }}</span></p>
+                                </div>
+                            </a-col>
+                            <a-col :span="5" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">最小扰动值：</span><span class="paramValue">{{ minEps }}</span></p>
+                                </div>
+                            </a-col>
+                            <a-col :span="4" >
+                                <div class="paramContent">
+                                    <p><span class="paramName">扰动次数：</span><span class="paramValue">{{ epsCnt }}</span></p>
+                                </div>
+                            </a-col>
+                        </a-row>
+                    </div>
+                    <!-- 总评分 -->
+                    <div class="result_div" style="margin-top: 120px;">
+                        <div class="g_score_content" style="width:960px">
+                            <div class="scorebg">
+                                <div class=" main_top_echarts_con_title ">鲁棒性形式化验证总评分</div>
+                                <!-- 显示分数 -->
+                                <p class="g_score"> {{result_score.toFixed(0)}}</p>
+                                <!-- 显示评估结果 -->
+                                <p class="g_score_evaluate"> {{ resultEvaluate }}</p>
+                            </div>
+                        </div>
+                        <div class="conclusion">
+                            <p class="result_text"> 模型综合评分为{{result_score.toFixed(0)}}，是一个{{ resultScon }}的模型</p>
+                            <p class="result_annotation">通过鲁棒性分析，在指定输入和扰动空间下，该模型可成功抵御对抗攻击的概率为{{result_score.toFixed(0)}}%。</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 图表 -->
+                    <div class="result_div">
+                        
+                        <div class="echart_title">
+                            
+                            <div class=" main_top_echarts_con_title ">鲁棒性分析结果</div>
+                            <!-- <p class="title_annotation">标题说明，可无</p> -->
+                            
+                        </div>
+                        <div id="rdeva">
+                            <!-- 图表 -->
+                            <div id = 'conseva'></div>
+                            <div class="conclusion">
+                                <!-- <p class="result_text">图表结论</p> -->
+                                <p class="result_annotation">图表中auto_LiRPA曲线展示了在不同扰动大小下，使用auto_LiRPA算法分析所得AI模型被对抗样本成功攻击的概率。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                    <a-icon type="upload" />导出报告内容
+                    </a-button>
+                </div>
                 <!-- 一致性报告 -->
                 <div slot="header" v-if="mode=='consistency'">
                     <div class="dialog_title">
@@ -414,7 +590,7 @@
                     </div>
                     <!-- 总评分 -->
                     <div class="reportContentCon">
-                        <div class="g_score_content">
+                        <div class="g_score_content" style="width: 1080px;">
                             <div class="scorebg">
                                 <div class=" main_top_echarts_con_title ">模型一致性评分</div>
                             
@@ -574,7 +750,7 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
-import {drawIntervalBar} from "../assets/js/drawEcharts.js"
+import {drawIntervalBar, drawStackedLine} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
 import funcicon from "../assets/img/formalVerifyIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
@@ -600,7 +776,7 @@ function getBase64(img, callback) {
   reader.readAsDataURL(img);
 }
 export default {
-    name:"advAttack",
+    name:"formalVerfy",
     components:{
         /* 注册组件 */
         navmodule:navmodule,
@@ -616,7 +792,29 @@ export default {
             radioStyle: {
                 display: 'block',
                 lineHeight: '30px',
+                width: '1104px'
             },
+            modelStyle: {
+                display: 'block',
+                lineHeight: '10px',
+                width: '100%'
+            },
+            /* 数据集选中的值 */
+            dataset: 'mnist', 
+            /* 数据集类型 */
+            mnist_dataset: "",
+            cifar10_dataset: "",
+            gtstb_dataset: "",
+            mtfl_dataset: "",
+            sst2_dataset: "",
+            /* 模型选择 */
+            ai_model: 'cnn',
+            /* 最大扰动值 */
+            maxEps: "",
+            /* 最小扰动值 */
+            minEps: "",
+            /* 扰动次数 */
+            epsCnt: "",
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -702,16 +900,20 @@ export default {
                             9:"卡车",
                         }
                     }
-                }
+                },
+            "robust":{"ID":"robust","name":"鲁棒性","modellist":["cnn","resnet18","densenet","lstm","transformer"],"dataset":['mnist','cifar10','mtfl','gtsrb','sst2']}
             },
             epsilon:-1.0,
             modelChoice:"consistency",
             // 当前页面
             mode:"safe",
             /* 结果弹窗状态信息 */
-            isShowPublish:true,
+            isShowPublish:false,
             /* 评估结果 */
             result:{},
+            result_score : 0.9,
+            resultScon: "",
+            resultEvaluate: "",
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
@@ -846,9 +1048,40 @@ export default {
         },
         /* result 处理*/
         resultPro(res){
+            res = res.result.formal_verification.output_param
             // debugger;
             var that = this;
             // 总分判断
+            var allRates = res.LiRPA.rates;
+            var sum = 0;
+            var avgRates = 0;
+            for (let v of allRates) {
+                avgRates += v;
+            }
+            avgRates /= allRates.length;
+            that.result_score = 100 - avgRates * 100;
+            console.log("Avg rates is : ", that.result_score)
+            if(that.result_score > 80){
+                that.resultEvaluate = "优秀";
+                that.resultScon = "鲁棒";
+            }else if(that.result_score > 60 && that.result_score <=80){
+                that.resultEvaluate = "良好";
+                that.resultScon = "较鲁棒";
+            }else{
+                that.resultEvaluate = "差";
+                that.resultScon = "较不鲁棒";
+            }
+            var disLabel = res.LiRPA.eps;
+            var disData = [];
+            var legendInfo = [];
+            console.log("result_data is : ", res)
+            for (let disKey in res) {
+                var tmpData = res[disKey];
+                disData.push(tmpData.rates)
+                legendInfo.push(tmpData.name)
+            }
+            drawStackedLine('conseva', disData, legendInfo, disLabel, '')
+            
         },
         /* 获取结果 */ 
         getData(){
@@ -882,9 +1115,9 @@ export default {
                 // 关闭日志显示
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
@@ -899,8 +1132,21 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
+        initParam(){
+            this.logtext=[]
+            this.percent=0
+            this.postData={}
+            this.result = {}
+            this.tid=''
+            
+            if(this.logclk != ''){
+                window.clearInterval(this.logclk)
+                this.logclk = ''
+            }
+        },
         /* 点击安全评估触发事件 */
         safeEvaClick(){
+            this.initParam()
             // debugger;
             /*判断选择*/
             if (this.imageUrl == "" ){
@@ -936,10 +1182,10 @@ export default {
                 console.log(postdata)
                 that.percent = 40;
                 that.logflag = true;
-                that.logclk = self.setInterval(that.getLog, 6000);
+                that.logclk = window.setInterval(that.getLog, 6000);
                 that.$axios.post("/auto_verify_img", postdata).then((res) => {
                     that.isShowPublish=true;
-                    clearInterval(that.logclk);
+                    window.clearInterval(that.logclk);
                     that.logflag = false;
                     that.result = res.data;
                     console.log(that.result)
@@ -957,6 +1203,7 @@ export default {
         },
         /* 点击评估触发事件 */
         consistencyEvaClick(){
+            this.initParam()
             // debugger;
             /*判断选择*/
             if (this.imageUrl == "" ){
@@ -988,11 +1235,11 @@ export default {
                 console.log(postdata)
                 that.percent = 40;
                 that.logflag = true;
-                that.logclk = self.setInterval(that.getLog, 6000);
+                that.logclk = window.setInterval(that.getLog, 6000);
                 that.$axios.post("/knowledge_consistency", postdata).then((res) => {
                     that.isShowPublish=true;
                     that.logflag = true;
-                    clearInterval(that.logclk);
+                    window.clearInterval(that.logclk);
                     that.logflag = false;
                     that.result = res.data;
                     that.result["l2"] = that.result["l2"].toFixed(2);
@@ -1006,6 +1253,7 @@ export default {
         },
         /* 点击评估触发事件 */
         reachEvaClick(){
+            this.initParam()
             // debugger;
             /*判断选择*/
             if (this.imageUrl == "" ){
@@ -1049,11 +1297,11 @@ export default {
                 console.log(postdata)
                 that.percent = 40;
                 that.logflag = true;
-                // that.logclk = self.setInterval(that.getLog, 6000);
+                // that.logclk = window.setInterval(that.getLog, 6000);
                 that.$axios.post("/reach", postdata).then((res) => {
                     
                     that.logflag = true;
-                    clearInterval(that.logclk);
+                    window.clearInterval(that.logclk);
                     that.logflag = false;
                     that.result = res.data;
                     that.resultPro(res.data);
@@ -1063,7 +1311,98 @@ export default {
             }).catch((err) => {
                 console.log(err)
             });     
-        }
+        },
+        // 模型鲁棒性相关
+        // 修改数据集与模型的对应关系
+        onFrameworkChange(e){
+            // this.ai_model = 'lstm';
+
+            var currentDataset = e.target.value;
+            if (currentDataset == 'mnist' && this.ai_model != 'cnn') {
+                this.ai_model = 'cnn';
+            }
+            if (currentDataset == 'cifar10' && ['resnet18', 'desnet'].indexOf(this.ai_model) == -1) {
+                this.ai_model = 'resnet18';
+            }
+            if (['mtfl', 'gtsrb'].indexOf(currentDataset) > -1 && this.ai_model != 'resnet18') {
+                this.ai_model = 'resnet18';
+            }
+            if (currentDataset == 'sst2' && ['lstm', 'transformer'].indexOf(this.ai_model) == -1) {
+                this.ai_model = 'lstm';
+            }
+            console.log('radio checked', e.target.value);
+         },
+         // 选择模型
+         onAiModelChange(e){
+            console.log('radio checked', e.target.value);
+         },
+        robustEvaClick(){
+            var that=this;
+            that.percent=10;
+            that.result={};
+            var data_size = 0
+
+            /* 调用创建主任务接口，需开启后端程序 */
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+                console.log(result);
+                that.tid = result.data.Taskid;
+                if (this.dataset == 'mnist') {
+                    data_size = this.mnist_dataset;
+                } else if (this.dataset == 'cifar10') {
+                    data_size = this.cifar10_dataset;
+                } else if (this.dataset == 'mtfl') {
+                    data_size = this.mtfl_dataset;
+                } else if (this.dataset == 'gtsrb') {
+                    data_size = this.gtstb_dataset;
+                }else if (this.dataset == 'sst2') {
+                    data_size = this.sst2_dataset;
+                }
+                
+                if(data_size == ""){
+                    that.$message.warning('请输入数据集大小',3);
+                    return 0;
+                }
+                if(that.maxEps == ""){
+                    that.$message.warning('请输入最大扰动值',3);
+                    return 0;
+                }
+                if(that.minEps == ""){
+                    that.$message.warning('请输入最小扰动值',3);
+                    return 0;
+                }
+                if(that.epsCnt == ""){
+                    that.$message.warning('请输入扰动次数',3);
+                    return 0;
+                }
+                /* 请求体 postdata*/
+                const postdata={
+                    'dataset': this.dataset,
+                    'model': this.ai_model,
+                    'size': data_size,
+                    'up_eps': this.maxEps,
+                    'down_eps': this.minEps,
+                    'steps': this.epsCnt,
+                    'task_id':that.tid
+                };
+                console.log(postdata)
+                // 异步任务
+                // that.stid =  res.data.stid;
+                that.logflag = false;
+                that.logtext.length = 0;
+                // 
+                // 启动任务
+                that.$axios.post("/FormalVerification", postdata).then((res) => {
+                    that.stidlist =  {"formalverfy":res.data.stid};
+                    that.logclk = window.setInterval(that.getLog, 1000);
+                    that.logflag = true;
+                    that.clk = window.setInterval(that.update, 6000);
+                }).catch((err) => {
+                        console.log(err)
+                });
+            }).catch((err) => {
+                console.log(err)
+            });    
+        }     
     }
 }
 </script>
@@ -1089,7 +1428,7 @@ export default {
     margin-top: 38px;
     width: 279px;
     height: 36px;
-    font-family: PingFangSC-Semibold;
+    font-family: HONOR Sans CN;
     font-size: 24px;
     color: #333333;
     letter-spacing: 0;
@@ -1106,9 +1445,9 @@ export default {
     padding: 6px;
 
     position: absolute;
-    width: 596px;
+    width: 795px;
     height: 56px;
-    left: calc(50% - 596px/2);
+    left: calc(50% - 795px/2);
     margin: -96px auto 40px auto;
 
     /* gray-6 */
@@ -1124,7 +1463,7 @@ export default {
 .ant-radio-button-wrapper{
     background: none;
     border: none;
-    font-family: 'HONOR Sans CN';
+    font-family: HONOR Sans CN;
     font-style: normal;
     font-weight: 500;
     font-size: 24px;
@@ -1150,7 +1489,7 @@ export default {
     /* background-color: #1890ff; */
 }
 .ant-radio-group-large{
-    width: 596px;
+    width: 795px;
 }
 .ant-radio-group-large .ant-radio-group-large{
     width: 194px;
@@ -1209,7 +1548,7 @@ export default {
 
 .ant-upload-select-picture-card .ant-upload-text {
   margin-top: 8px;
-  font-family: 'HONOR Sans CN';
+  font-family: HONOR Sans CN;
     font-style: normal;
     font-weight: 500;
     font-size: 20px;
@@ -1280,7 +1619,7 @@ export default {
     width: 1104px;
     /* height: 46px; */
     height:auto;
-    font-family: 'HONOR Sans CN';
+    font-family: HONOR Sans CN;
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
@@ -1453,17 +1792,8 @@ width: 1080px;
     flex-grow: 0;
 }
 
-/* 结果文字样式 */
-.resultext{
-    width: 100%;
-    /* height: 22px; */
-    font-family: PingFangSC-Regular;
-    font-size: 16px;
-    color: #000000;
-    font-weight: 400;
-    margin-top: -40px;
-}
 /* 得分图div */
+
 #rdeva{
     display: flex;
 flex-direction: column;
@@ -1482,8 +1812,8 @@ flex-grow: 0
 }
 /* 得分图echart */
 #conseva{
-    width: 300px;
-    height:300px;
+    width: 800px;
+    height:800px;
 }
 .reportContentCon{
     display: flex;
@@ -1494,7 +1824,7 @@ flex-grow: 0
     margin-top: 168px;
 }
 .g_score_content{
-    width: 1080px;
+    width: 960px;
 }
 .featureImgDiv{
     display: flex;
@@ -1574,4 +1904,97 @@ imgShowtable{
     align-items: center;
     background: var(--light-neutral-1-bg, #FFF);
 }
+.datasetDiv{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+
+width: 1104px;
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+.modelDiv{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+width: 1104px;
+height: 76px;
+border-radius: 4px;
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+}
+
+.sizeInput{
+    height: 40px;
+    padding: 0px 0px 0px 16px;
+    font-family: HONOR Sans CN;
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+color: #B4B9C5;
+background: #F2F4F9;
+border-radius: 4px;
+}
+.epsInput{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 24px;
+margin-top: 48px;
+width: 1104px;
+/* height: 1084px; */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+}
+.datasetRadioGroup{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+
+width: 1104px;
+height: 632px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+.datasetSizeInput{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 12px 24px;
+gap: 8px;
+
+width: 1104px;
+height: 94px;
+flex: none;
+order: 2;
+flex-grow: 0;
+}
+.result_div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    margin-top: 48px;
+    width: 960px;
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    flex-grow: 0
+    }
 </style>

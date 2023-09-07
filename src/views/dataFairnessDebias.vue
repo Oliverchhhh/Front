@@ -89,8 +89,8 @@
                             <div class="debias_res">
                                 <div class="debias_res_score">
                                     <img src="../assets/img/beforeDebias.png" style="width: 360px;margin-top: -40px;"/>
-                                    <p class="g_score"> {{res.score.aft}}</p>
-                                    <p class="g_score_evaluate"> {{ res.score_evaluate.aft }}</p>
+                                    <p class="g_score"> {{res.score.bef}}</p>
+                                    <p class="g_score_evaluate"> {{ res.score_evaluate.bef }}</p>
                                     <p class="debias_state">提升前</p>
                                 </div>
                                 <div class="to_aft">
@@ -427,10 +427,10 @@ export default {
     //在离开页面时执行
     beforeDestroy() {
         if(this.clk) { //如果定时器还在运行,关闭定时器
-            clearInterval(this.clk); //关闭
+            window.clearInterval(this.clk); //关闭
         }
         if(this.logclk){
-            clearInterval(this.logclk);
+            window.clearInterval(this.logclk);
         }
     },
     mounted(){
@@ -470,9 +470,9 @@ export default {
                 this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
@@ -572,7 +572,7 @@ export default {
                 that.res.ratiolist['aft'][attrTemp] = [];
             };
             // 群体评估数据整合
-
+            that.res.labels = []
             for(let temp1 in that.result["Favorable Rate Difference"]){
                 that.res.labels.push(temp1)
 
@@ -664,9 +664,25 @@ export default {
             drawCorelationHeat("Kendall", heatX, kendallData, kendallColorList);
             
         },
+        initParam(){
+            this.logtext=[]
+            this.percent=0
+            this.postData={}
+            this.result = {}
+            this.tid=''
+            this.stidlist = {}
+            if(this.clk != ''){
+                window.clearInterval(this.clk)
+                this.clk = ''
+            }
+            if(this.logclk != ''){
+                window.clearInterval(this.logclk)
+                this.logclk = ''
+            }
+        },
         /* 点击评估触发事件 */
         dataEvaClick(){
-            // debugger;
+            this.initParam()
             /*判断选择*/
             if (this.senAttrList.length ==0 ){
                 this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
@@ -696,7 +712,7 @@ export default {
             //     datamethod:that.debiasMethodValue,
             //     tid:that.tid};
             // that.stidlist =  {"DataFairnessDebias":"S20230821_1423_3c57e77"};
-            // that.clk = setInterval(() => {
+            // that.clk = window.setInterval(() => {
             //     that.update();
             // },60)
             // return
@@ -716,18 +732,21 @@ export default {
                     that.logflag = true;
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.stidlist =  {"DataFairnessDebias":res.data.stid};
-                    that.logclk = setInterval(() => {
+                    that.logclk = window.setInterval(() => {
                         that.getLog();
                     },2000)
-                    that.clk = setInterval(() => {
+                    that.clk = window.setInterval(() => {
                             that.update();
                         },6000)
                     console.log(that.logflag);
                 }).catch((err) => {
                         console.log(err)
+                        window.clearInterval(this.clk); 
+                        window.clearInterval(this.logclk); 
                 });
             }).catch((err) => {
                 console.log(err)
+                window.clearInterval(this.logclk); 
             });    
         }
     }

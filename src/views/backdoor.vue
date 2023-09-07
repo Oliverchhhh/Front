@@ -391,13 +391,13 @@ export default {
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            if (this.result.data.stop) {
+            if (this.result.data.stop == 1) {
                 // 关闭日志显示
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                 
                 // 处理结果
                 this.result = this.result.data.result;
@@ -414,10 +414,25 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
+        initParam(){
+            this.logtext=[]
+            this.percent=0
+            this.postData={}
+            this.result = {}
+            this.tid=''
+            this.stidlist = {}
+            if(this.clk != ''){
+                window.clearInterval(this.clk)
+                this.clk = ''
+            }
+            if(this.logclk != ''){
+                window.clearInterval(this.logclk)
+                this.logclk = ''
+            }
+        },
         /* 点击评估触发事件 */
         dataEvaClick() {
-            this.postData={}
-            this.percent = 10
+            this.initParam()
             let dataset = this.dataSetInfo[this.selectedDataset].name;
             let model = this.modelInfo[this.selectedModel].name
             if(this.selectedMethod.length == 0){
@@ -449,15 +464,15 @@ export default {
             this.logtext = [];
             this.logflag = true;
             var that = this;
-            // that.tid = "20230728_0834_667a417"
-            // that.stid = "S20230728_0834_a98cca5"
-            // that.logclk = self.setInterval(that.getLog, 20000);
-            // that.clk = self.setInterval(that.update, 300);
-            // return
+            that.tid = "20230907_1444_72d79d0"
+            that.stid = "S20230907_1444_19f405c"
+            that.logclk = window.setInterval(that.getLog, 20000);
+            that.clk = window.setInterval(that.update, 300);
+            return
             that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
-                that.logclk = self.setInterval(that.getLog, 20000);
+                that.logclk = window.setInterval(that.getLog, 20000);
                 /* 请求体 postdata*/
                 that.postData["Dataset"] = dataset
                 that.postData["Model"] = model
@@ -466,12 +481,13 @@ export default {
                 console.log(that.postData)
                 that.$axios.post("/Attack/BackdoorAttack", that.postData).then((res) => {
                     that.stidlist =  {"backdoor":res.data.stid};
-                    that.clk = self.setInterval(that.update, 30000);
+                    that.clk = window.setInterval(that.update, 30000);
                     
                     
                 }).catch((err) => {
                     console.log(err);
-                    clearInterval(that.logclk);
+                    window.clearInterval(that.clk);
+                    window.clearInterval(that.logclk);
                 });
             }).catch((err) => {
                 console.log(err)

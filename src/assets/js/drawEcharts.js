@@ -935,11 +935,13 @@ function drawStackedLine(ID, data,legendInfo, label, name){
       }
     },
     xAxis: {
+      name:'扰动系数',
       type: 'category',
       boundaryGap: false,
       data: label
     },
     yAxis: {
+      name:"攻击成功率",
       type: 'value',
       min:0,
       max:1,

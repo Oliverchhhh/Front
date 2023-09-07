@@ -10,7 +10,7 @@
       <div class="logtext" >
           <div v-for="(temp,index) in logtext" :key="'log'+index">
             <p v-if="typeof(logtext[index]) == 'object'" v-for="(content, j) in logtext[index]" :key="'text'+j">{{ content }}</p>
-            <p v-else> {{ temp }}</p>
+            <p v-else>{{ temp }}</p>
           </div>
       </div>
   </div>
