@@ -587,7 +587,7 @@ export default {
             var that=this;
             that.res_tmp = {};            
             /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            that.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 that.tid = result.data.Taskid;
                 
                 /* 请求体 postdata*/
