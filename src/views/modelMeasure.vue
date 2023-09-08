@@ -18,7 +18,6 @@
                    <div class="paramTitle" >
                        <!-- 功能标题和执行按钮 -->
                        <!-- icon展示 -->
-                       <!-- <div class="paramIcom" icon="ui-icon-envTestIcon"></div> -->
                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                        <!-- 功能名称 -->
                        <h3>{{ funcDesText.name }}</h3>
@@ -132,7 +131,7 @@
                        <h1>AI模型安全度量</h1>
                    </div>
                </div>
-               <div class="dialog_publish_main" slot="main">
+               <div class="dialog_publish_main" slot="main" id="pdfDom">
                    <!-- 图表 -->
                    <div class="result_div">
                         <div class="conclusion_info">
@@ -165,7 +164,11 @@
                             </div>
                         </div>
                    </div>
-                   <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
+                   <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                        导出报告内容
+                    </a-button>
+                   <!-- <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button> -->
                </div>
            
            </resultDialog>
@@ -185,7 +188,6 @@ import func_introduce from "../components/funcIntroduce.vue"
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
-import html2pdf from 'html2pdf.js'
 import {draw_score_polar} from "../assets/js/drawEcharts.js"
 
 /* 引入图片 */
@@ -206,7 +208,7 @@ const selectSvg = {
                selectSvg,
            };
        },
-   }
+   };
 export default {
    name:"envTest",
    components:{
@@ -219,7 +221,8 @@ export default {
    },
    data(){
        return{
-           /* 单选按钮样式 */
+        htmlTitle:"模型安全度量",   
+        /* 单选按钮样式 */
            radioStyle: {
                display: 'block',
                lineHeight: '30px',
@@ -254,7 +257,7 @@ export default {
            /* 日志框是否显示，false不显示，true显示，默认不显示 */
            logflag:false,
            /* 进度 */
-           percent:1,
+           percent:10,
            /* 日志内容，调用日志接口获取 */
            logtext:[],
            /* 功能介绍模块信息 */
@@ -281,15 +284,14 @@ export default {
            /* 评估结果 */
            result:{},
            sampleImg: "",
-        //    sampleImg: "../../static/img/sample.png",
            /* 主任务id */ 
            tid:"",
            /* 子任务id */ 
-           stid:"",
+           stidlist:"",
            /* 异步任务结果查循环clock */
-           clk:"",
-           /* 日志查询clock*/
-           logclk:"", 
+           clk:null,
+            /* 日志查询clock*/
+            logclk:null, 
            }
        },
    watch:{
@@ -365,10 +367,11 @@ export default {
         },
         /* result 处理*/
         resultPro(res){
-            debugger; 
+            // debugger; 
             this.result.score = [];
             this.result.method = [];
-            // this.sampleImg = res.ModelMeasure.result;
+            let tmp_path = res.ModelMeasure.result.split('output');
+            this.sampleImg = 'static/output'+tmp_path[1];
             if("robustness" in res.ModelMeasure) {
                 this.result.method.push("鲁棒性");
                 this.result.score.push(parseFloat(res.ModelMeasure["robustness"].toFixed(2)));
@@ -399,7 +402,14 @@ export default {
             }
             // debugger;
             that.$axios.get('/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                that.logtext = data.data.Log[that.stid];
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
             });
         },
         /* 停止结果获取循环 */ 
@@ -409,9 +419,9 @@ export default {
                 this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
@@ -454,9 +464,12 @@ export default {
                 that.$axios.post("/MSTest/ModelMeasureParamSet", postdata).then((res) => { 
                     that.logflag = true;
                     // 异步任务
-                    that.stid =  res.data.stid;
-                    that.logclk = self.setInterval(that.getLog, 3000);
-                    that.clk = self.setInterval(that.update, 3000);
+                    that.stidlist =  {"modeelMeasure":res.data.stid}
+                    that.logclk = window.setInterval(that.getLog, 3000);
+                    that.clk = window.setInterval(that.update, 3000);
+                    // that.stid =  res.data.stid;
+                    // that.logclk = self.setInterval(that.getLog, 3000);
+                    // that.clk = self.setInterval(that.update, 3000);
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -732,7 +745,16 @@ flex-grow: 0;
 }
 
 .ant-checkbox-wrapper{
-    margin-left: 0;
+    font-size: 20px;
+    font-family:'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    color: #000000;
+    line-height: 28px;
+    background:#F2F4F9;
+    height: 60px;
+    border-radius: 4px;
+    padding: 16px 32px 16px 24px;
 }
 .ant-checkbox-wrapper span {
     padding-left: 8px;
