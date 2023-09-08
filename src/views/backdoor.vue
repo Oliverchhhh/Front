@@ -63,7 +63,7 @@
 </template>
 <script>
 /* 引入组件，导航栏 */
-import navmodule from "../components/nav.vue";
+import navmodule from "../components/nav_homme.vue";
 /* 引入组件，功能介绍 */
 import func_introduce from "../components/funcIntroduce.vue"
 /* 引入组件，日志显示 */
@@ -465,7 +465,7 @@ export default {
             this.logflag = true;
             var that = this;
             that.tid = "20230907_1444_72d79d0"
-            that.stid = "S20230907_1444_19f405c"
+            that.stidlist =  {"backdoor":"S20230907_1444_19f405c"}
             that.logclk = window.setInterval(that.getLog, 20000);
             that.clk = window.setInterval(that.update, 300);
             return

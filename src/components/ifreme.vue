@@ -1,9 +1,9 @@
 <template>
-    <div class="ifreme_block" @click="clickFunc"> 
+    <div class="ifreme_block" @click="clickFunc" @mouseenter="showarrow()" @mouseleave="hidearrow()"> 
     <!-- <div class="ifreme_block">  -->
         <div class="icon"> 
             <slot name="func_icon" class="icon_img"></slot>
-            <a-icon type="arrow-right" style="color: #0B55F4; font-size: 40px;"/>
+            <a-icon v-show="arrowshow" type="arrow-right" style="color: #0B55F4; font-size: 40px;"/>
         </div>
         <slot name= "header" class="header_title">功能名称</slot>
         <slot name="des_func">功能描述</slot>
@@ -17,9 +17,20 @@ export default {
         //     type: Function
         // }
     },
+    data(){
+        return{
+            arrowshow:false
+    }
+    },
     methods: {
         clickFunc(){
             this.$emit('click');
+        },
+        showarrow(){
+            this.arrowshow = true
+        },
+        hidearrow(){
+            this.arrowshow = false
         }
     }
 }

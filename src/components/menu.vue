@@ -8,7 +8,7 @@
       <button @click="goAssignBlock('block'+ 3,50)">开发框架</button>
       <button @click="goAssignBlock('block'+ 4,50)">操作系统</button>
       <button @click="goAssignBlock('block'+ 5,50)">硬件</button>
-      <a-button type="primary" shape="circle" class="onceConf" @click="goFuncPage('/dataClean')">一键<br/>配置</a-button>     
+      <a-button type="primary" shape="circle" class="onceConf" @click="goFuncPage('')" >一键<br/>配置</a-button>     
     </div>
     <!-- 功能划分：数据 -->
     <div class="block" ref="block0">
@@ -32,7 +32,7 @@
             <img class="icon_img" src="../assets/img/dataFairEvalIcon.png">
           </div>
           <div slot="header" class="func_name">数据公平性评估</div>
-          <div slot="des_func" class="func_des">【待修改】数据集和深度学习模型预测会存在偏见，通过公平性评估算法，对数据集和模型的公平性进行评估，可视化展示评估结果</div>
+          <div slot="des_func" class="func_des">针对数据集存在偏见的现象，通过数据公平性评估算法，对数据集整体进行评估，可视化展示数据群体、个体、属性占比、属性相关性的评估结果</div>
         </ifreme>
         <!-- 数据公平性提升 -->
         <ifreme @click.native="goFuncPage('/dataFairnessDebias')"> 
@@ -73,28 +73,28 @@
             <img class="icon_img" src="../assets/img/advAttackEvalIcon.png">
           </div>
           <div slot="header" class="func_name">对抗攻击评估</div>
-          <div slot="des_func" class="func_des">【待修改】汇总主流多种对抗攻击方法，评估并展示攻击对深度学习模型带来的影响</div>
+          <div slot="des_func" class="func_des">汇集多种主流对抗攻击方法，包括黑盒对抗攻击、白盒对抗攻击，探索深度学习模型在对抗攻击方面的鲁棒性下限，可视化展示攻击对模型的影响</div>
         </ifreme>
         <ifreme @click.native="goFuncPage('/backdoor')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/bkAttackEvalIcon.png">
           </div>
           <div slot="header" class="func_name">后门攻击评估</div>
-          <div slot="des_func" class="func_des">【待修改】多种投毒攻击方法对深度学习数据和模型进行攻击，可视化评估投毒攻击影响</div>
+          <div slot="des_func" class="func_des">集成多种主流投毒攻击方法，对深度学习数据和模型进行攻击，评估模型在后门攻击层面上的应变能力，可视化评估投毒攻击影响</div>
         </ifreme>
         <ifreme @click.native="goFuncPage('')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/advTestIcon.png">
           </div>
           <div slot="header" class="func_name">模型对抗性测试</div>
-          <div slot="des_func" class="func_des">【待修改描述、跳转页】自动化生成特定场景下的AI模型对抗测试方案，从而对AI模型的鲁棒性进行评估</div>
+          <div slot="des_func" class="func_des">基于攻防战技知识图谱和规则集自动化生成特定场景下的AI模型对抗测试方案，从而对AI模型的鲁棒性进行评估</div>
         </ifreme>
         <ifreme @click.native="goFuncPage('/modelFairnessEva')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/modelFairEvalIcon.png">
           </div>
           <div slot="header" class="func_name">模型公平性评估</div>
-          <div slot="des_func" class="func_des">【待修改】数据集和深度学习模型预测会存在偏见，通过公平性评估算法，对数据集和模型的公平性进行评估，可视化展示评估结果</div>
+          <div slot="des_func" class="func_des">针对深度学习模型预测存在偏见的现象，通过30+种模型公平性评估算法，对模型进行评估，从个体公平性和群体公平性可视化展示评估结果</div>
         </ifreme>
         <ifreme @click.native="goFuncPage('/FormalVerfy')">
           <div slot="func_icon">
@@ -112,21 +112,21 @@
             <img class="icon_img" src="../assets/img/advDefenseIcon.png">
           </div>
           <div slot="header" class="func_name">对抗攻击防御</div>
-          <div slot="des_func" class="func_des">【待修改跳转页】从对抗样本检测、对抗噪声擦除和模型防御力增强等三个角度阻截对抗样本的攻击，并使神经网络模型在面对对抗样本时仍能发挥正常功能</div>
+          <div slot="des_func" class="func_des">从对抗样本检测、对抗噪声擦除和模型防御力增强等三个角度阻截对抗样本的攻击，并使神经网络模型在面对对抗样本时仍能发挥正常功能</div>
         </ifreme>
         <ifreme @click.native="goFuncPage('/backdoorDefense')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/bkDefenseIcon.png">
           </div>
           <div slot="header" class="func_name">后门攻击防御</div>
-          <div slot="des_func" class="func_des">【待修改跳转页】后门攻击防御包括后门检测和后门逆向，力求做到发现后门并还原后门的效果，使后门攻击的威胁大大降低</div>
+          <div slot="des_func" class="func_des">后门攻击防御包括后门检测和后门逆向，力求做到发现后门并还原后门的效果，使后门攻击的威胁大大降低</div>
         </ifreme>
         <ifreme  @click.native="goFuncPage('')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/robustTrainingIcon.png">
           </div>
           <div slot="header" class="func_name">模型鲁棒性训练</div>
-          <div slot="des_func" class="func_des">【待修改跳转页】通过可认证鲁棒训练、对抗训练等方式来对AI模型进行安全加固，提升模型在对抗样本攻击下的鲁棒性</div>
+          <div slot="des_func" class="func_des">通过可认证鲁棒训练、对抗训练等方式来对AI模型进行安全加固，提升模型在对抗样本攻击下的鲁棒性</div>
         </ifreme>
         <ifreme  @click.native="goFuncPage('/modelFairnessDebias')">
           <div slot="func_icon">
@@ -135,12 +135,12 @@
           <div slot="header" class="func_name">模型公平性提升</div>
           <div slot="des_func" class="func_des">模型决策会存在偏见，通过公平性提升算法，提升模型的公平性，减少偏见，可视化展示提升前后对比</div>
         </ifreme>
-        <ifreme  @click.native="goFuncPage('crowdDefense')">
+        <ifreme  @click.native="goFuncPage('')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/crowdDefenseIcon.png">
           </div>
           <div slot="header" class="func_name">模型群智化防御</div>
-          <div slot="des_func" class="func_des">【待修改描述、跳转页】实现对模型的多种攻击与防御方法的群智化防御模块</div>
+          <div slot="des_func" class="func_des">基于集成防御、攻防博弈等技术，可视化展示模型在不同攻击与防御方法上的表现，从而获取最佳防御策略</div>
         </ifreme>
       </div>
     </div>
@@ -224,7 +224,7 @@
           <!-- 功能名 -->
           <div slot="header" class="func_name">侧信道分析</div>
           <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">【待修改跳转页】采集目标模型在目标平台上运行产生的功耗/电磁信息，形成曲线数据。输入功耗或电磁曲线数据文件，分别进行不同的侧信道攻击分析</div>
+          <div slot="des_func" class="func_des">采集目标模型在目标平台上运行产生的功耗/电磁信息，形成曲线数据。输入功耗或电磁曲线数据文件，分别进行不同的侧信道攻击分析</div>
         </ifreme>
         <!-- 故障注入 -->
         <ifreme @click.native="goFuncPage('/inject')">
@@ -309,7 +309,11 @@ export default {
         window.removeEventListener('scroll', this.handleScroll);
     },
     goFuncPage(path){
-      this.$router.push(path);
+      if (path==''){
+        this.$message.warning('功能开发中，敬请期待！',3);
+      }else{
+        this.$router.push(path);
+      }
       
       // alert(path);
       // console.log(path);

@@ -126,7 +126,7 @@
 </template>
 <script>
 /* 引入组件，导航栏 */
-import navmodule from "../components/nav.vue";
+import navmodule from "../components/nav_homme.vue";
 /* 引入组件，功能介绍 */
 import func_introduce from "../components/funcIntroduce.vue"
 /* 引入组件，日志显示 */

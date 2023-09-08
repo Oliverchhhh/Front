@@ -248,11 +248,9 @@ import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
 import {drawLine, drawCorelationHeat} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
-import funcicon from "../assets/img/modelEvaIcon.png"
+import funcicon from "../assets/img/sideIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
-import jsonDataVGG16 from "../../static/injection/FI_data_VGG16.json"
-import jsonDataResNet50 from "../../static/injection/FI_data_ResNet50.json"
-import jsonDataMobileNetv1 from "../../static/injection/FI_data_MobileNetv1.json"
+
 
 export default {
     name:"inject",
@@ -265,45 +263,19 @@ export default {
     },
     data(){
         return{
-            htmlTitle:"故障注入评估报告",
+            htmlTitle:"侧信道分析报告",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
                 lineHeight: '30px',
                 // width:"100%"
             },
-            ImageNet_imgs:[
-                {imgUrl:require('../assets/img/ImageNet0.png'),name:'mnist0'},
-                {imgUrl:require("../assets/img/ImageNet1.png"),name:'mnist1'},
-                {imgUrl:require("../assets/img/ImageNet2.png"),name:'mnist2'},
-                {imgUrl:require("../assets/img/ImageNet3.png"),name:'mnist3'},
-                {imgUrl:require("../assets/img/ImageNet4.png"),name:'mnist4'},
-                {imgUrl:require("../assets/img/ImageNet5.png"),name:'mnist5'},
-                {imgUrl:require("../assets/img/ImageNet6.png"),name:'mnist6'},
-                {imgUrl:require("../assets/img/ImageNet7.png"),name:'mnist7'},
-                {imgUrl:require("../assets/img/ImageNet8.png"),name:'mnist8'},
-                {imgUrl:require("../assets/img/ImageNet9.png"),name:'mnist9'},
-            ],
-            modelChoice:"VGG16",
-            
-            timeValue:"500",
-            layer:{
-                "VGG16":["Conv1_1","Conv1_2","Conv2_1","Conv2_2","Conv3_1","Conv3_2","Conv3_3","Conv4_1","Conv4_2","Conv4_3","Conv5_1","Conv5_2","Conv5_3","fc6","fc7","fc8"],
-                "MobileNetv1":["Conv1","Conv2","Conv3","Conv4","Conv5","Conv6","Conv7","Conv8","Conv9","Conv10",
-                    "Conv11","Conv12","Conv13","Conv14","Conv15","Conv16","Conv17","Conv18","Conv19","Conv20",
-                    "Conv21","Conv22","Conv23","Conv24","Conv25","Conv26","Conv27","fc",],
-                "ResNet50":["Conv1",
-                    "Conv2a_1","Conv2a_2","Conv2a_3","Conv2b_1","Conv2b_2","Conv2b_3","Conv2c_1","Conv2c_2","Conv2c_3",
-                    "Conv3a_1","Conv3a_2","Conv3a_3","Conv3b_1","Conv3b_2","Conv3b_3","Conv3c_1","Conv3c_2","Conv3c_3","Conv3d_1","Conv3d_2","Conv3d_3",
-                    "Conv4a_1","Conv4a_2","Conv4a_3","Conv4b_1","Conv4b_2","Conv4b_3","Conv4c_1","Conv4c_2","Conv4c_3","Conv4d_1","Conv4d_2","Conv4d_3","Conv4e_1","Conv4e_2","Conv4e_3","Conv4f_1","Conv4f_2","Conv4f_3",
-                    "Conv5a_1","Conv5a_2","Conv5a_3","Conv5b_1","Conv5b_2","Conv5b_3","Conv5c_1","Conv5c_2","Conv5c_3",
-                    "fc"]
+            trsfile:{
+
             },
-            layerValue:"",
-            timeList:["10","30","50","100","300","500","1000","3000","5000","10000"],
-            /* 热力图height*/
-            heat_height:"213px",
-            /* 评估按钮样式和状态 */
+            checkedtrs:"",
+            checkedmethod:'',
+            analymethod:[],
             buttonBGColor:{
                 background:"#0B55F4",
                 color:"#FFFFFF"
@@ -319,29 +291,26 @@ export default {
             /* 功能介绍模块信息 */
             funcDesText:{
                 /* 功能名称 */
-                name:"故障注入评估",
+                name:"侧信道分析",
                 /* 功能icon，需先引入 */
                 imgpath:funcicon,
                 /* 功能背景图片，需先引入 */
                 bgimg:bgimg,
                 /* 功能介绍下的总介绍 */
-                destext:"模拟可变强度、可变位置的硬件故障，量化评估硬件故障对神经网络分类精度的影响",
+                destext:"使用模型运行时的功耗/电磁数据，评估硬件性能",
                 /* 背景介绍 */
-                backinfo:"通过破坏AI硬件计算单元的时序约束以注入时钟毛刺故障，集成可变位置故障注入以及可变强度故障注入两种功能，量化评估硬件故障对神经网络分类精度的影响，可视化呈现故障注入前后差异。",
+                backinfo:"采集目标模型在目标平台上运行产生的功耗/电磁信息，形成曲线数据。输入功耗/电磁曲线数据文件，分别进行不同的侧信道攻击",
                 /* 亮点介绍 */
                 highlight:[
-                    "支持可变强度故障注入以及可变位置故障注入，细粒度的故障注入提高攻击的隐蔽性",
-                    "细粒度故障注入降低模型识别准确率达到40%以上",
-                    "高精度故障注入评估过程使用可视化方式，通过故障注入前后输出数据对比直观展示故障攻击对深度学习模型输出的影响"
+                    "支持对目标模型使用T-test、X^2-test分析进行泄漏检测，根据阈值判断是否存在泄漏",
+                    "对目标模型进行DPA分析及HPA分析，并得到相关性系数，输出相关性曲线图展示攻击结果及不同能耗分析攻击方法的特点",
+                    "内置不同trs文件，支持上传用户自己定义数据"
                 ]
             },
             /* 结果弹窗状态信息 */
             isShowPublish:false,
             /* 评估结果 */
             result:{
-                "VGG16":jsonDataVGG16,
-                "MobileNetv1":jsonDataMobileNetv1,
-                "ResNet50":jsonDataResNet50
             },
             clockObj:{},
             subACC:0.0,
