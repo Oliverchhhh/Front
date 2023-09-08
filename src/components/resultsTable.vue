@@ -34,12 +34,9 @@
         },
         methods:  {
             checkImg(imgPath) {
-                debugger
+                // debugger
                 var img_list = new Array(".png", ".jpg")
-                // debugger;
-                console.log(imgPath.slice(-4))
-                // if(imgPath[0]=="/") {
-                if(imgPath.slice(-4) in img_list) {
+                if(img_list.includes(imgPath.slice(-4))) {
                     // console.log('here!');
                     return true;
                 } else {
