@@ -114,14 +114,18 @@
                 <showLog :percent="percent" :logtext="logtext"></showLog>
             </div>
             <!-- 结果展示 -->
-            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+            <resultDialog  @on-close="closeDialog" 
+               :isShow="isShowPublish" 
+               v-show="isShowPublish"
+               ref="report_pdf"
+               >
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                         <h1>测试样本自动生成</h1>
                     </div>
                 </div>
-                <div id="download_page" class="dialog_publish_main" slot="main">
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
                     <!-- 图表 -->
                     <div class="result_div">
                         <div class="conclusion_info">
@@ -139,7 +143,8 @@
                         </div>
                         <div id="rdeva">
                             <!-- <SampleTable class="resultchart" :list=result.demopath></SampleTable> -->
-                            <SampleTable class="resultchart"></SampleTable>
+                            <!-- <SampleTable class="resultchart"></SampleTable> -->
+                            <resultTable :tableHead="tablehead" :tableBody="tablebody"></resultTable>
                             <div class="conclusion">
                                 <p class="result_text">最左侧图片为原始的种子样本，最右侧为自动生成的新样本，中间列展示了两张图片的改变了哪些像素点的RGB通道值，为了展示明显施加了二值化操作即如果某个像素值被修改则为255否则为0。</p>
                             </div>
@@ -147,7 +152,11 @@
                     </div>
                     <div>
                         <button class="downloadGenerationBtn" @click="downloadGeneration"><a-icon type="download" />下载生成的测试样本</button>
-                        <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
+                        <!-- <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button> -->
+                        <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                        导出报告内容
+                    </a-button>
                     </div>
                 </div>
             </resultDialog>
@@ -187,7 +196,7 @@ const selectIcon = {
             selectSvg,
         };
     },
-}
+};
 
 export default {
     name:"concolic",
@@ -202,10 +211,12 @@ export default {
     },
     data(){
         return{
+            htmlTitle:"测试样本自动生成",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
                 lineHeight: '30px',
+                width: '100%'
             },
             datasetChoice: "CIFAR10",
             MNIST_imgs:[
@@ -239,9 +250,9 @@ export default {
                 {imgUrl:require("../assets/img/L01.png"),name:'L01'}
                 ],
             Linf_imgs:[
-            {imgUrl:require('../assets/img/Linf0.png'),name:'Linf0'},
-            {imgUrl:require("../assets/img/Linf1.png"),name:'Linf1'}
-            ],
+                {imgUrl:require('../assets/img/Linf0.png'),name:'Linf0'},
+                {imgUrl:require("../assets/img/Linf1.png"),name:'Linf1'}
+                ],
             RunTimes: "",
             /* 评估按钮样式和状态 */
             buttonBGColor:{
@@ -279,9 +290,9 @@ export default {
             isShowPublish:false,
             /* 评估结果 */
             result:{
-                "allnumber": 100000,
-                "newnumber":234,
-                demopath: {}            
+                // "allnumber": 100000,
+                // "newnumber":234,
+                // demopath: {}            
             },
             res_tmp:{},
             tablehead: [],
@@ -291,9 +302,9 @@ export default {
             /* 子任务id */ 
             stidlist:{},
             /* 异步任务结果查循环clock */
-            clk:"",
+            clk:null,
             /* 日志查询clock*/
-            logclk:"", 
+            logclk:null, 
             }
         },
     watch:{
@@ -320,14 +331,24 @@ export default {
         },
         onDatasetChoiceChange(e){
             // 修改选择数据集
+            if (e.target.value=="MNIST"){
+                this.modelChoice = 'LeNet5';
+            } else if (e.target.value=="CIFAR10") {
+                this.modelChoice = 'VGG16';
+            }
             console.log('radio checked', e.target.value);
         },
         onModelChoiceChange(e){
             // 修改选择数据集
+            if (e.target.value=="LeNet5"){
+                this.datasetChoice = 'MNIST';
+            } else if (e.target.value=="VGG16") {
+                this.datasetChoice = 'CIFAR10';
+            }
             console.log('radio checked', e.target.value);
         },
         onConstraintChoiceChange(e){
-            // 修改选择数据集
+            // 修改约束范式
             console.log('radio checked', e.target.value);
         },
         onRunTimesChange(e) {
@@ -346,7 +367,6 @@ export default {
         },
         exportResult(){
             if (confirm("您确认下载该pdf文件吗？") ){
-                document.body.scrollTop = document.documentElement.scrollTop = 0;
                 // 输出pdf尺寸为download_page大小
                 var element = document.getElementById("download_page");
                 const opt = {
@@ -368,7 +388,11 @@ export default {
             this.tablehead = ["原始样本", "二值化差异", "动态符号生成样本"];
             this.tablebody = [];
             for (var i=0;i<Object.keys(this.result.demopath).length/3;i++) {
-                var tablebody_tr = [this.result.demopath[i+"_init"], this.result.demopath[i+"_diff"], this.result.demopath[i+"_new"]];
+                let init_img = this.result.demopath[i+"_init"].split('output');
+                let diff_img = this.result.demopath[i+"_diff"].split('output');
+                let new_img = this.result.demopath[i+"_new"].split('output');
+
+                var tablebody_tr = ['static/output'+init_img[1], 'static/output'+diff_img[1], 'static/output'+new_img[1]];
                 this.tablebody.push(tablebody_tr);
             }
         },
@@ -378,7 +402,6 @@ export default {
             var that = this;
             that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
-                // that.result=data;
                 that.res_tmp = data;
             });
         },
@@ -406,11 +429,14 @@ export default {
             // var that = this;
             if (this.res_tmp.data.stop) {
                 // 关闭日志显示
+                this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                // clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                // clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
@@ -436,11 +462,10 @@ export default {
             }
             /* 备份 */ 
             var that = this;
-            
+            that.res_tmp = {};
             /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            that.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 that.tid = result.data.Taskid;
-                // that.tid = "20230530_0948_0c0a104";
                 
                 /* 请求体 postdata*/
                 const postdata={
@@ -449,12 +474,14 @@ export default {
                     norm: that.constraintChoice,
                     times: that.RunTimes,
                     tid:that.tid};
-                that.$axios.post("/Concolic/SamGenParamGet", postdata).then((res) => {
+                that.$axios.post("/Concolic/SamGenParamSet", postdata).then((res) => {
                     
                     that.logflag = true;
                     that.stidlist = {"SamGenParamGet": res.data.stid};
-                    that.logclk = self.setInterval(that.getLog, 5000);
-                    that.clk = self.setInterval(that.update, 50000);
+                    // that.logclk = self.setInterval(that.getLog, 5000);
+                    // that.clk = self.setInterval(that.update, 50000);
+                    that.logclk = window.setInterval(that.getLog, 300);
+                    that.clk = window.setInterval(that.update, 300);
                 }).catch((err) => {
                         console.log(err)
                 });
