@@ -1111,7 +1111,7 @@ export default {
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            if (this.result.data.stop) {
+            if (this.result.data.stop==1) {
                 // 关闭日志显示
                 this.logflag = false;
                 // 关闭结果数据获取data
