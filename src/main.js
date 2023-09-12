@@ -39,3 +39,17 @@ Vue.prototype.canScroll = function () {
   document.body.style.overflow="visible";
   document.body.style.height="auto";
 }
+import {getCookie} from './assets/js/cookie.js'
+axios.interceptors.request.use(
+	config => {
+		let username = getCookie("username");
+		if(username){
+      console.log("requst",config)
+			config.headers['user'] = username
+		}
+		return config
+	},
+	err => {
+		return Promise.reject(err);
+	});
+

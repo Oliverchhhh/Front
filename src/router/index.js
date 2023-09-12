@@ -6,17 +6,13 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
+    
     {
       path:"/",
       // 重定向
       redirect:'/homme_menu'
     },
-    // 组装的homme_index页面
-    // {
-    //   path: '/homme_index',
-    //   name: 'homme_index',
-    //   component: () => import('../views/homme_index.vue')
-    // },
+    
     // 组装的homme_menu页面
     {
       path: '/homme_menu',

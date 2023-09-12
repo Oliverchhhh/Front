@@ -8,8 +8,10 @@
             </div>
             <div class="top_nav">
                 <a-menu v-model="current" mode="horizontal">
-                    <a-menu-item key="index"> <a href="/">平台介绍</a> </a-menu-item>
+                    <a-menu-item key="index"> <a href="/" >平台介绍</a> </a-menu-item>
                     <a-menu-item key="join" > <router-link to="/homme_menu" target="_blank" rel="noopener noreferrer">在线体验 </router-link></a-menu-item>
+                    <a-menu-item v-show="username==''" key="login" @click="clicklogin()">登录/注册</a-menu-item>
+                    <a-menu-item v-show="username != ''" key="user" >{{username}}</a-menu-item>
                 </a-menu>
             </div>
         </div>
@@ -24,17 +26,57 @@
             </div>
             
         </div>
+        <loginDialog @on-close="closeLoginDialog" :isShow="loginShow" v-show="loginShow" @clientUserlogin="clientUserlogin"></loginDialog>
     </div>
 </template>
 
 <script>
+import loginDialog from "../components/loginDialog.vue"
+import {getCookie} from '../assets/js/cookie.js'
 export default{
     name:"navmodule",
+    components:{
+            loginDialog
+        },
     data() {
         return {
         current: ['join'],
+        loginShow:false,
+        username:'',
         };
     },
+    mounted(){
+        this.username = getCookie("username")
+        console.log("nav username",this.username)
+    },
+    watch:{
+        /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
+        loginShow:{
+            immediate:true,
+            handler(v){
+                if(v){
+                    this.noScroll();
+                }else{
+                    this.canScroll();
+                }
+            }
+        }
+    },
+    methods:{
+        closeLoginDialog(){
+            this.loginShow=false;
+        //把绑定的弹窗数组 设为false即可关闭弹窗
+        },
+        clicklogin(){
+            this.loginShow = true
+        },
+        clientUserlogin(name, showFlag){
+            this.loginShow = showFlag
+            this.username = name
+            console.log(this.username)
+        }
+
+    }
 }
 </script>
 

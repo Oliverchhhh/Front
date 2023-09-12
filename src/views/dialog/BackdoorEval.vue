@@ -225,9 +225,9 @@ export default {
           this.res.maxraccmethod = temp
         }
         this.res.labels.push(temp)
-        this.res.ACClist.push(this.result.backdoor_attack[temp].accuracy)
-        this.res.RACClist.push(this.result.backdoor_attack[temp].accuracyonb)
-        this.res.ASRlist.push(this.result.backdoor_attack[temp].attack_success_rate)
+        this.res.ACClist.push(this.result.backdoor_attack[temp].accuracy*100)
+        this.res.RACClist.push(this.result.backdoor_attack[temp].accuracyonb*100)
+        this.res.ASRlist.push(this.result.backdoor_attack[temp].attack_success_rate*100)
         pp_asr_serieslist.push({
           "name":temp,
           "type":"line",
@@ -235,16 +235,16 @@ export default {
           "itemStyle": { "normal": { "lineStyle": { "width": 2.5 } } },
           "data":this.result.backdoor_attack[temp].asr
         })
-        this.selectPicList.push(["原始图片",[[`${pic_base_path}/${temp}/index0_clean.png`], "pic"],
-        [[`${pic_base_path}/${temp}/index1_clean.png`], "pic"],
-        [[`${pic_base_path}/${temp}/index2_clean.png`], "pic"],
-        [[`${pic_base_path}/${temp}/index3_clean.png`], "pic"],
-        [[`${pic_base_path}/${temp}/index4_clean.png`], "pic"]])
-        this.selectPicList.push([temp,[`${pic_base_path}/${temp}/index0_poisoned.png`, "pic"],
-        [[`${pic_base_path}/${temp}/index1_poisoned.png`], "pic"],
-        [[`${pic_base_path}/${temp}/index2_poisoned.png`], "pic"],
-        [[`${pic_base_path}/${temp}/index3_poisoned.png`], "pic"],
-        [[`${pic_base_path}/${temp}/index4_poisoned.png`], "pic"]])
+        this.selectPicList.push(["原始图片",[[`${pic_base_path}/${temp}/index0_clean.jpeg`], "pic"],
+        [[`${pic_base_path}/${temp}/index1_clean.jpeg`], "pic"],
+        [[`${pic_base_path}/${temp}/index2_clean.jpeg`], "pic"],
+        [[`${pic_base_path}/${temp}/index3_clean.jpeg`], "pic"],
+        [[`${pic_base_path}/${temp}/index4_clean.jpeg`], "pic"]])
+        this.selectPicList.push([temp,[`${pic_base_path}/${temp}/index0_poisoned.jpeg`, "pic"],
+        [[`${pic_base_path}/${temp}/index1_poisoned.jpeg`], "pic"],
+        [[`${pic_base_path}/${temp}/index2_poisoned.jpeg`], "pic"],
+        [[`${pic_base_path}/${temp}/index3_poisoned.jpeg`], "pic"],
+        [[`${pic_base_path}/${temp}/index4_poisoned.jpeg`], "pic"]])
       }
     }
     this.res["score"] = 100-this.res.maxasr
@@ -326,6 +326,7 @@ export default {
       xAxis: [
         {
           type: 'category',
+          name:'攻击方法',
           axisTick: { show: false },
           data: this.res.labels
         }

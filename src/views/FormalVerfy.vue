@@ -1116,8 +1116,10 @@ export default {
                 this.logflag = false;
                 // 关闭结果数据获取data
                 window.clearInterval(this.clk);
+                this.clk=''
                 // 关闭日志获取结果获取
                 window.clearInterval(this.logclk);
+                this.logclk=''
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
@@ -1339,11 +1341,13 @@ export default {
             console.log('radio checked', e.target.value);
          },
         robustEvaClick(){
+            this.initParam()
+            if(this.clk != ''){
+                window.clearInterval(this.clk)
+                this.clk = ''
+            }
             var that=this;
-            that.percent=10;
-            that.result={};
             var data_size = 0
-
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
@@ -1359,7 +1363,6 @@ export default {
                 }else if (this.dataset == 'sst2') {
                     data_size = this.sst2_dataset;
                 }
-                
                 if(data_size == ""){
                     that.$message.warning('请输入数据集大小',3);
                     return 0;

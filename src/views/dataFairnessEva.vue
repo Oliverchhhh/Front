@@ -322,6 +322,10 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
+            if (that.tid==''){
+                console.log(that.tid)
+                return
+            }
             that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = Object.values(data.data.Log).slice(-1)[0];

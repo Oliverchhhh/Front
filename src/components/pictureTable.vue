@@ -43,11 +43,7 @@
                                 <div class="text-cotent center-horizen"
                                     style="display:flex; justify-content: center; align-items: center;width: 150px;"
                                     :style="{  height: cellHeight }">
-                                    <p >{{ entity }}</p>
-                                    
-                                    <!-- <p v-if="entity.length<14">{{ entity }}</p> -->
-                                    <!-- <p v-else-if="entity.length<30" v-html="entity.substring(0,15)+'</br>'+entity.substring(15)"></p>
-                                    <p v-else v-html="entity.substring(0,11)+'</br>'+entity.substring(15,30)+'</br>'+entity.substring(30)"></p> -->
+                                    <p class="wrap">{{ entity }}</p>
                                     
                                 </div>
                             </template>
@@ -57,7 +53,7 @@
                                 <div v-if="entity[1] == 'text'" class="text-content center-horizen"
                                     style="display:flex; justify-content: center; align-items: center;"
                                     :style="{ width: pixModify(colWidth[col_index], -10), height: cellHeight }">
-                                    <p>{{ entity[0] }}</p>
+                                    <p >{{ entity[0] }}</p>
                                 </div>
                                 <!-- 图片类型 -->
                                 <img @error="noExistImg" v-if="entity[1] == 'pic'" :id="tableId + '_' + row_index + '_' + col_index"
@@ -353,7 +349,11 @@ export default {
     position: relative;
     transform: translate(0%, -50%);
 }
-
+.wrap{
+    word-wrap: break-word;
+    word-break: break-all;
+    white-space: pre-wrap;
+}
 .center-horizen {
     left: 50%;
     position: relative;
