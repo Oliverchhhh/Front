@@ -10,7 +10,8 @@ import axios from 'axios';
 import './assets/css/font.css'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-
+import { FormModel } from 'ant-design-vue';
+Vue.use(FormModel);
 // save html to pdf
 import htmlToPdf from './util/htmlToPdf'
 Vue.use(htmlToPdf)
@@ -44,7 +45,6 @@ axios.interceptors.request.use(
 	config => {
 		let username = getCookie("username");
 		if(username){
-      console.log("requst",config)
 			config.headers['user'] = username
 		}
 		return config

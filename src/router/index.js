@@ -4,7 +4,7 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     
     {
@@ -12,7 +12,11 @@ export default new Router({
       // 重定向
       redirect:'/homme_menu'
     },
-    
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/login.vue')
+    },
     // 组装的homme_menu页面
     {
       path: '/homme_menu',
@@ -166,3 +170,21 @@ export default new Router({
   ]
   
 })
+import {getCookie} from '../assets/js/cookie.js'
+router.beforeEach((toRoute, fromRoute, next)=>{
+  let username = getCookie("username");
+  if (username){
+    console.log("login success")
+    if(toRoute.path!=fromRoute.path){
+      next();
+    }
+  }else{
+    console.log('login error...')
+    if('/login'==toRoute.path){
+      next();
+    }else{
+      next('/login')
+    }
+  }
+})
+export default router

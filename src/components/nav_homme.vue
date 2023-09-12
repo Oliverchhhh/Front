@@ -41,7 +41,7 @@ export default{
     data() {
         return {
         current: ['join'],
-        loginShow:false,
+        loginShow:true,
         username:'',
         };
     },

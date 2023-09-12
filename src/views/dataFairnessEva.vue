@@ -46,6 +46,18 @@
                     </div>
                 </div>
                 <div class="dialog_publish_main" slot="main" id="pdfDom">
+                    <div v-if="Object.keys(postData).length > 0" style="background: var(--gray-7, #F2F4F9);;width: 100%;padding: 24px;">
+                      <a-row >
+                        <a-col :span="2">
+                          <div class="grid-content-name" style="color:#6C7385">数据集:</div>
+        
+                        </a-col>
+                        <a-col :span="4">
+                          <div class="grid-content-value">{{postData.dataname}}</div>
+
+                        </a-col>
+                      </a-row>
+                    </div>
                     <!-- 总评分 -->
                     <div class="result_div">
                         <div class="g_score_content">
@@ -213,7 +225,7 @@ import showLog from "../components/showLog.vue"
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
 import {drawclass1pro, drawconseva1, drawbar, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
-// import {getLog} from "../assets/js/getData.js"
+
 /* 引入图片 */
 import funcicon from "../assets/img/dataEvaIcon.png"
 import bgimg from "../assets/img/dataEvaBackground.png"
@@ -233,6 +245,8 @@ export default {
         return{
             htmlTitle: '数据集公平性评估报告',
             stidlist:{},
+            postData:{},
+            tid:"",
             /* 热力图height*/
             heat_height:"213px",
             /* 评估按钮样式和状态 */
@@ -328,7 +342,8 @@ export default {
             }
             that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 if (JSON.stringify(that.stidlist)=='{}'){
-                    that.logtext = Object.values(data.data.Log).slice(-1)[0];
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                    console.log(that.logtext)
                 }else{
                     that.logtext=[]
                     for(let temp in that.stidlist){
@@ -542,23 +557,22 @@ export default {
             };
             this.logflag = true;
             var that=this;
-            var tid = "";
             /* 调用创建主任务接口 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
-                tid = result.data.Taskid;
-                const postdata={
+                that.tid = result.data.Taskid;
+                that.postData={
                 dataname:that.dataname[that.dataNameValue],
                 senAttrList:JSON.stringify(that.senAttrList),
                 tarAttrList:JSON.stringify(that.tarAttrList),
                 staAttrList:JSON.stringify(that.staAttrList),
-                tid:tid};
-                console.log(postdata)
+                tid:that.tid};
+                console.log(that.postData)
                 that.logclk = window.setInterval(() => {
                     that.getLog();
                 },200)
                 that.percent=50
-                that.$axios.post("/DataFairnessEvaluate",postdata).then((res) => {
+                that.$axios.post("/DataFairnessEvaluate",that.postData).then((res) => {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.percent=100
                     that.isShowPublish = true;
@@ -567,7 +581,7 @@ export default {
                     res.data["group_score"] =  res.data["Overall group fairness"].toFixed(2)*100;
                     that.result = res.data;
                     that.resultPro(res.data);
-                    that.logflag = false;
+                    // that.logflag = false;
                     window.clearInterval(that.logclk);
                 }).catch((err) => {
                         console.log(err)

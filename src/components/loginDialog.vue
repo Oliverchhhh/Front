@@ -26,16 +26,63 @@
                 <!--弹窗的内容-->
                     <slot name="main">
                         <div class="login-wrap" v-show="showLogin">
-                            <input type="text" placeholder="请输入用户名" v-model="username"/>
-                            <input type="password" placeholder="请输入密码" v-model="password"/>
-                            
-                            <button class="loginButton" v-on:click="login">登入</button>
+                            <a-form-model :model="userinfo"  @submit="login" 
+                            :label-col="labelCol"
+                            :wrapper-col="wrapperCol"
+                            @submit.native.prevent>
+                                <a-form-model-item label="用户名">
+                                    <a-input size="large" v-model="userinfo.username" placeholder="请输入用户名">
+                                        <a-icon slot="prefix" type="user" style="color:rgba(0,0,0,.25)" />
+                                    </a-input>
+                                </a-form-model-item>
+                                <a-form-model-item label="密码">
+                                    <a-input size="large" v-model="userinfo.password" type="password" placeholder="请输入密码">
+                                        <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,.25)" />
+                                    </a-input>
+                                </a-form-model-item>
+                                <a-form-model-item :wrapperCol="{'span':24}">
+                                    <a-button
+                                        type="primary"
+                                        html-type="submit"
+                                        size="large"
+                                        :disabled="userinfo.username === '' || userinfo.password === ''"
+                                    >
+                                        登入
+                                    </a-button>
+                                </a-form-model-item>
+                            </a-form-model>
                             <span v-on:click="ToRegister">没有账号?马上注册</span>
                         </div>
                         <div class="register-wrap" v-show="showRegister">
-                            <input type="text" placeholder="请输入用户名" v-model="newUsername"/>
-                            <input type="text" placeholder="请输入密码" v-model="newPassword" />
-                            <button class="loginButton" v-on:click="register">注册</button>
+                            <a-form-model  :model="registerinfo" :rules="regrules" 
+                            :label-col="labelCol"
+                            :wrapper-col="wrapperCol"
+                            @submit="register" @submit.native.prevent>
+                                <a-form-model-item ref="name" label="用户名" prop="newUsername">
+                                    <a-input size="large" v-model="registerinfo.newUsername" placeholder="请输入用户名"
+                                    @blur="() => {
+                                            $refs.name.onFieldBlur();
+                                    }">
+                                        <a-icon slot="prefix" type="user" style="color:rgba(0,0,0,.25)" />
+                                    </a-input>
+                                </a-form-model-item>
+                                <a-form-model-item label="密码" prop="newPassword">
+                                    <a-input size="large" v-model="registerinfo.newPassword" type="password" placeholder="请输入密码">
+                                        <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,.25)" />
+                                    </a-input>
+                                </a-form-model-item>
+                                <a-form-model-item :wrapperCol="{'span':24}" >
+                                    <a-button
+                                    type="primary"
+                                        size="large"
+                                        html-type="submit"
+                                        :disabled="registerinfo.newUsername === '' || registerinfo.newPassword === ''"
+                                    >
+                                        注册
+                                    </a-button>
+                                </a-form-model-item>
+                            </a-form-model>
+
                             <span v-on:click="ToLogin">已有账号?马上登入</span>
                         </div>
                     </slot>
@@ -88,20 +135,42 @@ export default {
         },
     // props:["is-show","top-distance"],
     data(){
+        let validatePass = (_, value, callback) =>{
+            const reg = /^(?![\d]+$)(?![a-zA-Z]+$)(?![_]+$)[\da-zA-Z_]{6,20}$/;
+            if (reg.test(value)) {
+                callback();
+            } else {
+                callback(new Error("数字、字母、下划线任意两种组合，且不能少于6位大于20位"));
+            }
+        };
         return{
-            username: '',
-            password: '',
-            pwdinfo:'',
-            newUsername: '',
-            newPassword: '',
+            labelCol: { span: 4 },
+            wrapperCol: { span: 20 },
+            userinfo:{
+                username: '',
+                password: '',
+            },
+            registerinfo:{
+                newUsername: '',
+                newPassword: '',
+            },
+            regrules:{
+                newUsername:[
+                    { required: true, message: '请输入用户名', trigger: 'blur' },
+                    { min: 3, max: 5, message: '字符长度3 到8 位', trigger: 'blur' },
+                    ],
+                newPassword:[{ required: true, message: '请输入密码', trigger: 'blur' },
+                    { validator: validatePass, trigger: 'blur' }],
+
+            },
             showLogin: true,
             showRegister: false
         }
     },
     mounted(){
-        this.username = getCookie("username")
+        this.userinfo.username = getCookie("username")
         if(getCookie("username")){
-            this.$emit('clientUserlogin', this.username, false)
+            this.$emit('clientUserlogin', this.userinfo.username, false)
         }
     },
 
@@ -116,13 +185,13 @@ export default {
             ev.stopPropagation();
         },
         login(){
-            if(this.username==""||this.password==""){
+            if(this.userinfo.username==""||this.userinfo.password==""){
                 this.$message.error("请输入用户名或者密码")
                 return -1
             }else{
                 let params = new URLSearchParams();
-                params.append('username', this.username);
-                params.append('password', this.password);
+                params.append('username', this.userinfo.username);
+                params.append('password', this.userinfo.password);
                 console.log(params)
                 this.$axios.post("/login",params).then((res)=>{
                     console.log(res.data)
@@ -131,9 +200,9 @@ export default {
                         this.$message.error("用户名密码错误")
                     }else if(res.data.code == 1){
                         this.$message.success( "登入成功")
-                        setCookie("username",this.username,1000*60)
+                        setCookie("username",this.userinfo.username,1000*60)
                         setTimeout(function(){
-                            this.$emit('clientUserlogin', this.username, false)
+                            this.$emit('clientUserlogin', this.userinfo.username, false)
                         }.bind(this),1000)
                     }else{
                         this.$message.error("未知错误")
@@ -150,20 +219,20 @@ export default {
             this.showLogin = true
         },
         register(){
-            if(this.newUsername==""||this.newPassword==""){
+            if(this.registerinfo.newUsername==""||this.registerinfo.newPassword==""){
                 this.$message.error("请输入用户名或者密码")
                 return -1
             }else{
                 let params = new URLSearchParams();
-                params.append('username', this.newUsername);
-                params.append('password', this.newPassword);
+                params.append('username', this.registerinfo.newUsername);
+                params.append('password', this.registerinfo.newPassword);
                 this.$axios.post("/register",params).then((res)=>{
                     console.log(res)
                     console.log(res.data)
                     if(res.data.code == 1){
                         this.$message.success("注册成功")
-                        this.newUsername=""
-                        this.newPassword=""
+                        this.registerinfo.newUsername=""
+                        this.registerinfo.newPassword=""
                         setTimeout(function(){
                             this.showRegister = false
                             this.showLogin = true
@@ -210,13 +279,13 @@ export default {
  }
   /* 遮罩 设置背景层，z-index值要足够大确保能覆盖，高度 宽度设置满 做到全屏遮罩 */
  .dialog-cover {
- background: rgba(68, 68, 68, 0.8);
- position: fixed;
- top: 0;
- left: 0;
- width: 100%;
- height: 100%;
- z-index: 1000;
+    background: rgba(68, 68, 68, 0.8);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
  }
 .close_button{
     height: 40px;
