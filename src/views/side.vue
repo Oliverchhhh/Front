@@ -310,12 +310,10 @@ export default {
             /* 结果弹窗状态信息 */
             isShowPublish:false,
             /* 评估结果 */
-            result:{
-            },
-            clockObj:{},
-            subACC:0.0,
-            injectRate:0,
-            score_evaluate:"",
+            result:{},
+            clk:'',
+            logclk:'',
+            postData:{}
             }
         },
     watch:{

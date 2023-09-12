@@ -464,11 +464,7 @@ export default {
             this.logtext = [];
             this.logflag = true;
             var that = this;
-            that.tid = "20230907_1444_72d79d0"
-            that.stidlist =  {"backdoor":"S20230907_1444_19f405c"}
-            that.logclk = window.setInterval(that.getLog, 20000);
-            that.clk = window.setInterval(that.update, 300);
-            return
+
             that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;

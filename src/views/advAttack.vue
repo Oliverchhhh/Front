@@ -583,33 +583,31 @@ export default {
                 {name:"VNIFGSM",description:"VNIFGSM算法：variance tuning MIFGSM在NIFGSM方法上，不再直接使用当前计算的梯度做momentum累加，而是基于先前迭代下的梯度方差调整当前梯度",},
                 ],
                 [
-                {name:"AutoPGDL1", description:"",},
-                {name:"AutoPGDL2", description:"",},
-                {name:"AutoPGDLinf", description:"",},
-                {name:"Auto-CGL1", description:"",}
+                {name:"AutoPGDL1", description:"一种基于L1范数正则化的对抗性攻击算法，通过迭代生成对抗样本，以欺骗机器学习模型并导致错误的预测结果。该算法利用L1范数正则化来控制对抗样本的扰动大小，使得扰动更加稀疏",},
+                {name:"AutoPGDL2", description:"一种基于L2范数正则化的对抗攻击算法，通过迭代生成对抗样本，以欺骗机器学习模型。一定程度上成功地改变了原始样本的特征，导致模型产生错误的预测结果",},
+                {name:"AutoPGDLinf", description:"基于1-无穷范数正则化的AutoPGD方法的对抗性攻击算法，在AutoPGDLinf算法中，对抗样本的生成过程是通过最小化原始样本与对抗样本之间的距离，并同时最大化对抗样本的损失函数来实现的。为了限制对抗样本的扰动范围，算法使用了1-无穷范数正则化，即对扰动进行约束，使其在每个维度上的取值范围不超过一个预先设定的阈值",},
+                {name:"Auto-CGL1", description:"基于L1范数正则化的Auto-CGD方法的对抗性攻击算法。该算法通过最小化目标函数来寻找最优的扰动，使得扰动后的输入数据能够误导模型产生错误的预测结果",}
                 ],
                 [
-                {name:"Auto-CGL2", description:"",},
-                {name:"Auto-CGLinf", description:"",},
-                
-                {name:"ElasticNetL1", description:"",},
-                {name:"ElasticNetL2", description:"",}
+                {name:"Auto-CGL2", description:"基于L2范数正则化的Auto-CGD方法的对抗性攻击算法，通过迭代优化的方式生成对抗样本。它首先选择一个初始的对抗样本，然后通过迭代的方式不断调整该样本，使其能够最大程度地欺骗目标模型",},
+                {name:"Auto-CGLinf", description:"基于1-无穷范数正则化的Auto-CGD方法的对抗性攻击算法。通过计算原始样本与对抗样本之间的梯度来确定调整方向。使用一种自适应的学习率调整策略来更新对抗样本",},
+                {name:"ElasticNetL1", description:"基于L1范数正则化的弹性网络的对抗性攻击算法。使用了弹性网络的思想，结合了L1范数正则化正则化。它通过迭代优化的方式生成对抗样本",},
+                {name:"ElasticNetL2", description:"使用弹性网络方法和L2范数正则化的对抗性攻击算法，使用了弹性网络的思想，结合了L2范数正则化。它通过迭代优化的方式生成对抗样本",}
                 ],
                 [
-                {name:"ElasticNet-EN", description:"",},
-                {name:"FeatureAdversaries", description:"",},
-                {name:"GRAPHITE", description:"",},
-                {name:"NewtonFool", description:"",}
+                {name:"ElasticNet-EN", description:"使用弹性网络方法的L1和L2范数正则化的对抗性攻击算法,同时使用L1范数和L2范数正则化。L1范数正则化可以促使生成的对抗样本具有稀疏性，而L2范数正则化可以平衡对抗样本的整体扰动。这种结合可以帮助算法在生成对抗样本时取得更好的平衡，同时保持对抗样本的有效性和可解释性",},
+                {name:"FeatureAdversaries", description:"针对输入数据中的特定特征的对抗性攻击算法，通过分析目标模型的预测行为和特征重要性，选择一个或多个目标特征进行攻击",},
+                {name:"NewtonFool", description:"基于牛顿优化方法的对抗性攻击算法。使用牛顿优化方法来迭代地更新扰动值，利用了损失函数的二阶导数信息，通过求解方程来找到最小值。在每次迭代中，算法计算损失函数的梯度和海森矩阵，并使用这些信息来更新扰动值",}
                 ],
                 [
-                {name:"SpatialTransformation", description:"",},
-                {name:"TargetedUniversalPerturbationL2", description:"",},
-                {name:"TargetedUniversalPerturbationLinf", description:"",},
+                {name:"SpatialTransformation", description:"使用空间转换欺骗模型的对抗性攻击算法。对输入图像进行一系列的几何变换，例如旋转、缩放、平移等，以改变图像的外观和结构。这些变换会导致模型在处理经过转换的图像时产生错误的预测结果",},
+                {name:"TargetedUniversalPerturbationL2", description:"利用L2范数正则化生成通用摄动的对抗性攻击算法，生成通用摄动，以欺骗目标模型。该算法使用L2范数正则化来生成摄动，以确保生成的摄动在图像中的扰动较小",},
+                {name:"TargetedUniversalPerturbationLinf", description:"产生1-无穷范数正则化的通用摄动的对抗性攻击算法，生成通用摄动（universal perturbation），以欺骗目标模型。该算法使用1-无穷范数正则化来生成摄动，以确保生成的摄动在图像中的扰动较小",},
                 ],
                 [
-                {name:"BoundaryAttack", description:"",},
-                {name:"VirtualAdversarialMethod", description:"",},
-                {name:"SignOPTAttack", description:"",},
+                {name:"BoundaryAttack", description:"该算法旨在模型的决策边界上找到对抗的例子",},
+                {name:"VirtualAdversarialMethod", description:"基于虚拟对抗训练方法的对抗攻击算法。通过在原始样本的附近生成虚拟对抗样本，这些样本在输入空间中与原始样本非常接近，但在模型输出上具有最大化的不确定性。模型在原始样本和虚拟对抗样本之间进行训练，以增强模型对对抗性扰动的鲁棒性",},
+                {name:"SignOPTAttack", description:"使用Sign-OPT方法进行优化的对抗性攻击算法",},
                 ],
             ],
             selectedMethod:["FGSM"],

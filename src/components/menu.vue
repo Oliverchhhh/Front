@@ -341,6 +341,7 @@ export default {
   top: 60%;
   transition-property: top;
   transition-duration: 1s;
+  z-index: 500;
 }
 
 .btn-box button {

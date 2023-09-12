@@ -717,7 +717,11 @@ export default {
                 this.debiasDisabled["domain_discriminative"] = true;
                 this.debiasDisabled["uniconf_adv"] = true;
                 this.disableImgMehod()
+                if(['domain_discriminative', 'uniconf_adv'].indexOf(this.debiasMethodValue) > -1)(
+                    this.debiasMethodValue = 'domain_independent'
+                ) 
             }else{
+                
                 this.ableImgMehod()
                 this.debiasDisabled={
                 "domain_discriminative":false,
@@ -731,7 +735,9 @@ export default {
                 "Calibrated EOD-fpr":true,
                 "Calibrated EOD-weighted":true,
                 };
-                
+                if(['domain_discriminative', 'uniconf_adv'].indexOf(this.debiasMethodValue) == -1)(
+                    this.debiasMethodValue = 'domain_independent'
+                ) 
             }
             console.log("this.dataname:",value);
             console.log("this.debiasDisabled:",this.debiasDisabled);
