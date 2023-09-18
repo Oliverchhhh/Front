@@ -17,7 +17,7 @@
                             <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,.25)" />
                         </a-input>
                     </a-form-model-item>
-                    <a-form-model-item wrapperCol="{'span':24}">
+                    <a-form-model-item :wrapperCol="{'span':24}">
                         <a-button
                             type="primary"
                             html-type="submit"
@@ -50,7 +50,7 @@
                             <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,.25)" />
                         </a-input>
                     </a-form-model-item>
-                    <a-form-model-item wrapperCol="{'span':24}" >
+                    <a-form-model-item :wrapperCol="{'span':24}" >
                         <a-button
                         type="primary"
                             size="large"

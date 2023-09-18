@@ -248,7 +248,7 @@ import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
 import {drawLine, drawCorelationHeat} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
-import funcicon from "../assets/img/modelEvaIcon.png"
+import funcicon from "../assets/img/faultInjectIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
 import jsonDataVGG16 from "../../static/injection/FI_data_VGG16.json"
 import jsonDataResNet50 from "../../static/injection/FI_data_ResNet50.json"

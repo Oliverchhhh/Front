@@ -30,81 +30,30 @@
                     <div class="inputdiv">
                         <!-- 输入主体 -->
                         <div class="datasetSelected">
-                            <p class="mainParamNameNotop">请选择数据集</p>
-                            <div class="matchedDes">
-                                <a-radio :style="radioStyle" value="ImageNet" defaultChecked disabled>
-                                    ImageNet
-                                </a-radio>
-                                <p class="matchedMethodText"><span>ImageNet数据集：</span>是ILSVRC竞赛使用的是数据集，由斯坦福大学李飞飞教授主导，包含了超过1400万张全尺寸的有标记图片，大约有22000个类别的数据。</p>
-                                <p class="matchedMethodText">图例：</p>
-                                <div class="demoData" >
-                                    <div v-for="(item, index) in ImageNet_imgs" :key="index">
-                                        <img :src="item.imgUrl">
-                                    </div>
-                                </div>
+                            <div class="selectWithupload"> 
+                                <p class="mainParamNameNotop">请选择能耗文件</p>
+                                <a-button class="uploadDatasetBtn" name="table" >
+                                    <!-- @click="dataUploadButton" -->
+                                    <a-icon type="upload" style="color: #0B55F4;" />上传数据
+                                </a-button>
                             </div>
-                        </div>
-                        <div class="modelSelected">
-                            <p class="mainParamName">请选择模型</p>
-                            <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
-                                <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="VGG16" >
-                                        VGG16
-                                    </a-radio>
-                                    <a-radio :style="radioStyle" value="ResNet50">
-                                        ResNet50
-                                    </a-radio>
-                                    <a-radio :style="radioStyle" value="MobileNetv1">
-                                        MobileNetv1
-                                    </a-radio>
+                            
+                            <a-radio-group v-model="dataChoice" @change="onDataChoiceChange">
+                                <div class="matchedDes" v-for="(item, index) in dataChoiceList" :key="index">
+                                    <a-radio :style="radioStyle" :value="index" :disabled="item.disindex">{{ item.name }}.trs</a-radio>
+                                    <div v-show="dataChoice==index" style=" width: 1100px; height: 350px;" :id = "item.value"></div>
                                 </div>
+                               
                             </a-radio-group>
                         </div>
-                        <div class="layerSelect">
-                            <p class="mainParamName">故障注入目标层</p>
-                            <div class="matchedDes">
-                                <a-select
-                                    show-search
-                                    showArrow
-                                    placeholder="请选择故障注入层"
-                                    option-filter-prop="children"
-                                    v-model="layerValue"
-                                    :filter-option="filterOption"
-                                    @focus="handleFocus"
-                                    @blur="handleBlur"
-                                    @change="layerSelectChange"
-                                >
-                                    <a-select-option v-for="temp in layer[modelChoice]" :value="temp">
-                                    {{ temp }}
-                                    </a-select-option>
-                                </a-select>
-                                <div class="layerImg">
-                                    <div class="layerImgPosition">
-                                        <img v-if="modelChoice=='VGG16'" :src="'../../static/img/'+modelChoice+'/'+layerValue+'.svg'" :alt="layerValue">
-                                        <img v-else :src="'../../static/img/'+modelChoice+'/'+layerValue+'.png'" :alt="layerValue">
-                                    </div>
+                        <div class="modelSelected">
+                            <p class="mainParamName">请选择能耗分析方法</p>
+                            <a-radio-group v-model="methodChoice" @change="onMethodChoiceChange">
+                                <div class="matchedDes" v-for="(item, index) in methodChoiceList" :key="index"> 
+                                    <a-radio :style="radioStyle" :value="index" :disabled="item.disindex"> {{ item.name }}</a-radio>
+                                    <p v-show="methodChoice==index" class="matchedMethodText" >{{ item.des }}</p>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="timeSelect">
-                            <p class="mainParamName">故障注入时间间隔（纳秒）</p>
-                            <div class="matchedDes">
-                                <a-select
-                                    show-search
-                                    placeholder="请选择故障注入间隔"
-                                    option-filter-prop="children"
-                                
-                                    v-model="timeValue"
-                                    :filter-option="filterOptionTime"
-                                    @focus="handleFocusTime"
-                                    @blur="handleBlurTime"
-                                    @change="timeSelectChange"
-                                >
-                                    <a-select-option v-for="temp in timeList" :value="temp">
-                                    {{ temp }}ns
-                                    </a-select-option>
-                                </a-select>
-                            </div>
+                            </a-radio-group>
                         </div>
                     </div>
                 </div>
@@ -114,11 +63,15 @@
                 <showLog :percent="percent" :logtext="logtext"></showLog>
             </div>
             <!-- 结果展示 -->
-            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+            <resultDialog  @on-close="closeDialog" 
+               :isShow="isShowPublish" 
+               v-show="isShowPublish"
+               ref="report_pdf"
+               >
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <h1>故障注入评估结果报告</h1>
+                        <h1>侧信道分析结果报告</h1>
                     </div>
                 </div>
                 
@@ -127,34 +80,12 @@
                         <a-row >
                             <a-col :span="6" >
                                 <div class="paramContent">
-                                    <p><span class="paramName">模型名称：</span><span class="paramValue">{{ result[modelChoice].name }}</span></p>
+                                    <p><span class="paramName">能耗文件：</span><span class="paramValue">{{ dataChoice }}</span></p>
                                 </div>
                             </a-col>
                             <a-col :span="6" >
                                 <div class="paramContent">
-                                    <p><span class="paramName">数据集名称：</span><span class="paramValue">{{ result[modelChoice].dataset }}</span></p>
-                                </div>
-                            </a-col>
-                            <a-col :span="6" >
-                                <div class="paramContent">
-                                    <p><span class="paramName">训练集数量：</span><span class="paramValue">{{ result[modelChoice]["training-set"] }}</span></p>
-                                </div>
-                            </a-col>
-                            <a-col :span="6" >
-                                <div class="paramContent">
-                                    <p><span class="paramName">测试集数量：</span><span class="paramValue">{{ result[modelChoice]["test-set"] }}</span></p>
-                                </div>
-                            </a-col>
-                        </a-row>
-                        <a-row >
-                            <a-col :span="6" >
-                                <div class="paramContent">
-                                    <p><span class="paramName">故障注入目标层：</span><span class="paramValue">{{ layerValue }}</span></p>
-                                </div>
-                            </a-col>
-                            <a-col :span="6" >
-                                <div class="paramContent">
-                                    <p><span class="paramName">故障注入强度</span><span class="paramValue">{{ timeValue }}纳秒</span></p>
+                                    <p><span class="paramName">能耗分析方法：</span><span class="paramValue">{{ methodChoice }}</span></p>
                                 </div>
                             </a-col>
                             <a-col :span="6" >
@@ -169,61 +100,28 @@
                     
                     <div class="reportContentCon">
                         <div class="result_div_notop">
-                            <div class="g_score_content">
-                                <div class="scorebg">
-                                    <div class=" main_top_echarts_con_title ">故障注入评分详情</div>
-                                
-                                    <p class="g_score"> {{injectRate}}</p>
-                                    <p class="g_score_evaluate"> {{ score_evaluate }}</p>
-                                </div>
-                            </div>
-                            <div class="conclusion">
-                                <p class="result_text">故障注入详情：本次故障注入是在{{ result[modelChoice].name }}模型的{{ layerValue }}层进行模拟测试，注入间隔为{{ timeValue }}纳秒，故障注入前的平均准确率为{{ result[modelChoice]["pristine-acc"] }}，故障注入后的平均准确率为{{ clockObj["average-acc"] }}%，下降了{{ subACC }}%，该人工智能系统在抵御故障注入上的能力{{ score_evaluate }}</p>
-                                
-                            </div>
-                        </div>
-                        
-                        <div class="result_div_notop">
-                            <p class=" main_top_echarts_con_title ">目标识别准确率</p>
+                            <p class=" main_top_echarts_con_title ">能耗分析结果</p>
                             <div class="accLineChart">
 
                                 <!-- 图表 -->
-                                <div id='accLine'></div>
+                                <div class="g_score_content" id="score"></div>
                                 
                                 <div class="conclusion">
-                                    <p class="result_text">注入后平均准确率: {{ result[modelChoice]["pristine-acc"] }}</p>
-                                    <p class="result_text">注入前准确率: {{ clockObj["average-acc"] }}%</p>
+                                    <p class="result_text">{{  }}存在阈值>4.5的值，说明{{  }}有/无泄露</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="result_div_notop">
-                            <p class=" main_top_echarts_con_title ">网络层特征图数据</p>
-                            <div class="heat_chart">
-                                <div class="heat_chart_canvas">
-                                    <div class="canvas_content">
-                                        <div class="heatmap_div">
-                                            <div id="pristine"></div>
-                                            <p>原始目标层特征图数据</p>
-                                        </div>
-                                        <div class="heatmap_div">
-                                            <div id="noise"></div>
-                                            <p>加噪后目标层特征图数据</p>
-                                        </div>
-                                        <div class="heatmap_div">
-                                            <div id="noiseData"></div>
-                                            <p>目标层特征图噪声数据</p>
-                                        </div>
-                                        
-                                    </div>
-                                </div>
-                                <div class="conclusion">
-                                    <p class="result_text">原始目标层特征图数据为故障注入前的数据统计，加噪后目标层特征图数据为故障注入后相同位置的数据统计，目标层特征图噪声数据为故障注入前后的数据差值，颜色越深代表该点差别越大</p>
-                                </div>
+                        <div class="result_div_notop" v-show="methodChoice=='SPA'">
+                            <p class=" main_top_echarts_con_title ">原模型示意图</p>
+                            <div class="g_score_content" id="ori_network"></div>
+                            <p class=" main_top_echarts_con_title ">模型恢复示意图</p>
+                            <div class="g_score_content" id="res_network"></div>
+                            <div class="conclusion">
+                                <p class="result_text">根据SPA攻击的相关性系数曲线特征，可以直接区分出模型各层结构。</p>
                             </div>
-                            
                         </div>
                     </div>
-                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
+                    <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
                     font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
                     <a-icon type="upload" />导出报告内容
                     </a-button>
@@ -246,7 +144,7 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
-import {drawLine, drawCorelationHeat} from "../assets/js/drawEcharts.js"
+import {drawside, drawTtest, drawALLPA} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
 import funcicon from "../assets/img/sideIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
@@ -260,25 +158,39 @@ export default {
         func_introduce:func_introduce,
         showLog:showLog,
         resultDialog:resultDialog,
+        drawside, drawTtest, drawALLPA
     },
     data(){
         return{
-            htmlTitle:"侧信道分析报告",
+            htmlTitle:"侧信道分析",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
                 lineHeight: '30px',
                 // width:"100%"
             },
-            trsfile:{
-
-            },
-            checkedtrs:"",
-            checkedmethod:'',
-            analymethod:[],
             buttonBGColor:{
                 background:"#0B55F4",
                 color:"#FFFFFF"
+            },
+            dataChoice: "",
+            dataChoiceList: {
+                'trace1':{'name': 'Trace1', 'value': 'trace1', 'id':'(0.108.112.-9)elmotracegaus_cpa_-9.trs','disindex':false},
+                'trace2':{'name': 'Trace2', 'value': 'trace2', 'id':'(0.112.116.-9)elmotracegaus_hpa_-9.trs','disindex':false},
+                'trace3':{'name': 'Trace3', 'value': 'trace3', 'id':'(21.108.112.47)elmotracegaus_cpa_47.trs','disindex':false},
+                'trace4':{'name': 'Trace4', 'value': 'trace4', 'id':'(21.108.112.47)elmotracegaus_hpa_47.trs','disindex':false},
+                'trace5':{'name': 'Trace5', 'value': 'trace5', 'id':'(75.108.112.2)elmotracegaus_cpa_2.trs','disindex':false},
+                'trace6':{'name': 'Trace6', 'value': 'trace6', 'id':'(75.112.116.2)elmotracegaus_hpa_2.trs','disindex':false},
+                'trace7':{'name': 'Trace7', 'value': 'trace7', 'id':'','disindex':false},
+            },
+            methodChoice: "",
+            methodChoiceList: {
+                'CPA':{'name': 'CPA', 'value': 'CPA','disindex':false, 'des': 'CPA描述'},
+                'DPA':{'name': 'DPA','value': 'DPA','disindex':false, 'des': 'DPA'},
+                'HPA':{'name': 'HPA','value': 'HPA','disindex':false, 'des': 'HPA描述'},
+                'SPA':{'name': 'SPA', 'value': 'SPA','disindex':false, 'des': 'SPA描述'},
+                'T-test':{'name': 'T-test','value': 'ttest','disindex':false, 'des': 'T-test描述'},
+                // 'X2-test':{'name': 'X²-Test', 'value': 'x2test','disindex':false, 'des': 'X²-Test描述'},
             },
             // 按钮是否置灰
             disStatus:false,
@@ -311,9 +223,15 @@ export default {
             isShowPublish:false,
             /* 评估结果 */
             result:{},
-            clk:'',
-            logclk:'',
-            postData:{}
+            res_tmp:{},
+            /* 主任务id */ 
+            tid:"",
+            /* 子任务id */ 
+            stidlist:{},
+            /* 异步任务结果查循环clock */
+            clk:null,
+            /* 日志查询clock*/
+            logclk:null, 
             }
         },
     watch:{
@@ -330,46 +248,24 @@ export default {
         }
     },
     created() {
-        document.title = '故障注入评估';
-        this.layerValue = this.layer[this.modelChoice][0];
+        document.title = '侧信道分析';
         },
     methods: { 
-        onModelChoiceChange(e){
-            // 修改选择模型
+        onDataChoiceChange(e){
+            // 修改选择能耗文件
+            this.dataChoice = e.target.value;
+            // 待替换trs的曲线json
+            this.$axios.get("../../static/output/"+this.dataChoice+".json").then(res=>{
+                drawside(e.target.value, res.data);
+            });
+        },
+        onMethodChoiceChange(e){
+            // 修改选择分析方法
             console.log('radio checked', e.target.value);
-            console.log(`model choice:${this.modelChoice}`)
-            this.layerValue = this.layer[this.modelChoice][0];
+            // 需要对data进行判断
+            // if (this.methodChoiceList[this.dataChoice] in ) 
         },
-        layerSelectChange(value) {
-            console.log(`selected ${value}`);
-            console.log(`layer value: ${this.layerValue}`);
-        },
-        handleBlur() {
-            console.log('blur');
-        },
-        handleFocus() {
-            console.log('focus');
-        },
-        filterOption(input, option) {
-            return (
-                option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            );
-        },
-        timeSelectChange(value) {
-            console.log(`selected ${value}`);
-            console.log(`timeValue: ${this.timeValue}`);
-        },
-        handleBlurTime() {
-            console.log('blur');
-        },
-        handleFocusTime() {
-            console.log('focus');
-        },
-        filterOptionTime(input, option) {
-            return (
-                option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            );
-        },
+        
         /* 关闭结果窗口 */
         closeDialog(){
             this.isShowPublish=false;
@@ -390,160 +286,168 @@ export default {
                 html2pdf().from(element).set(opt).save();
             }
         },
-        formatDate (fmt) {
-            const date = new Date()
-            const o = {
-                'Y+': date.getFullYear(),
-                'M+': date.getMonth() + 1, // 月
-                'D+': date.getDate(), // 日
-                'h+': date.getHours(), // 时
-                'm+': date.getMinutes(), // 分
-                's+': date.getSeconds(), // 秒
-                W: date.getDay() // 周
+        resultPro(res){
+            debugger;
+            if ('ttest' in res) {
+                drawTtest('score',res.ttest.X, res.ttest.Y[0]);
+                return
             }
-            for (let k in o) {
-                if (new RegExp('(' + k + ')').test(fmt)) {
-                fmt = fmt.replace(RegExp.$1, () => {
-                    if (k === 'W') {
-                    // 星期几
-                    const week = ['日', '一', '二', '三', '四', '五', '六']
-                    return week[o[k]]
-                    } else if (k === 'Y+' || RegExp.$1.length === 1) {
-                    // 年份 or 小于10不加0
-                    return o[k]
-                    } else {
-                    return ('00' + o[k]).substr(('' + o[k]).length) // 小于10补位0
-                    }
-                })
+            // 根据情况是否保留x2test
+            // if ('x2test' in res) {
+            //     drawTtest('score',res.x2test.X, res.x2test.Y[0]);
+            // }
+            if (this.methodChoice == 'HPA') {
+                let echart_legend = [];
+                let echart_X = res.hpa.X;
+                let echarts_y = []
+                for(var i = 0; i < res.hpa.Y.length; i++){
+                    echart_legend.push("错误值");
+                    let temp = {};
+                    temp['symbol'] = 'none';
+                    temp['name'] = echart_legend[i];
+                    temp['type'] = 'line';
+                    temp['data'] = res.hpa.Y[i];
+                    echarts_y.push(temp);
                 }
+                echarts_y.push({'symbol':'none', 'name':'错误值', 'type': 'line', 'data': res.hpa.false });
+                echart_legend.push("错误值");
+                echarts_y.push({'symbol':'none', 'name':'正确值', 'type': 'line', 'data': res.hpa.true });
+                echart_legend.push("正确值");
+                drawALLPA('score', echart_legend, echart_X, echarts_y);
             }
-            return fmt
+            if (this.methodChoice == 'SPA') {
+                // 待定
+                drawALLPA('score', res.spa.X, res.spa.Y, res.spa.false, res.spa.true);
+            }
+            if (this.methodChoice == 'DPA') {
+                let echart_legend = [];
+                let echart_X = res.dpa.X;
+                let echarts_y = []
+                for(var i = 0; i < res.dpa.Y.length; i++){
+                    echart_legend.push("错误值");
+                    let temp = {};
+                    temp['symbol'] = 'none';
+                    temp['name'] = echart_legend[i];
+                    temp['type'] = 'line';
+                    temp['data'] = res.dpa.Y[i];
+                    echarts_y.push(temp);
+                }
+                echarts_y.push({'symbol':'none', 'name':'错误值', 'type': 'line', 'data': res.dpa.false });
+                echart_legend.push("错误值");
+                echarts_y.push({'symbol':'none', 'name':'正确值', 'type': 'line', 'data': res.dpa.true });
+                echart_legend.push("正确值");
+                drawALLPA('score', echart_legend, echart_X, echarts_y);
+            }
+            if (this.methodChoice == 'CPA') {
+                let echart_legend = [];
+                let echart_X = res.cpa.X;
+                let echarts_y = []
+                for(var i = 0; i < res.cpa.Y.length; i++){
+                    echart_legend.push("错误值");
+                    let temp = {};
+                    temp['symbol'] = 'none';
+                    temp['name'] = echart_legend[i];
+                    temp['type'] = 'line';
+                    temp['data'] = res.cpa.Y[i];
+                    echarts_y.push(temp);
+                }
+                echarts_y.push({'symbol':'none', 'name':'错误值', 'type': 'line', 'data': res.cpa.false });
+                echart_legend.push("错误值");
+                echarts_y.push({'symbol':'none', 'name':'正确值', 'type': 'line', 'data': res.cpa.true });
+                echart_legend.push("正确值");
+                drawALLPA('score', echart_legend, echart_X, echarts_y);
+            }   
+        },
+        /* 获取结果 */ 
+        getData(){
+            // debugger
+            var that = this;
+            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+                // hpa
+            // that.$axios.get('../../static/output/S20230914_1608_2c7bb25_result.json').then((data)=>{
+                // cpa dpa
+            // that.$axios.get('../../static/output/S20230914_1613_bbd9a33_result.json').then((data)=>{   
+                // ttest 
+            // that.$axios.get('../../static/output/S20230914_1610_6e8eb3b_result.json').then((data)=>{
+                console.log("dataget:",data);
+                that.res_tmp = data;
+            });
+        },
+        /* 获取日志 */ 
+        getLog(){
+            // debugger;
+            var that = this;
+            if(that.percent < 99){
+               that.percent += 1;
+            }
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
+            });
+        },
+        /* 停止结果获取循环 */ 
+        stopTimer() {
+            // debugger;
+            // var that = this;
+            if (this.res_tmp.data.stop) {
+                // 关闭日志显示
+                this.percent=100
+                this.logflag = false;
+                // 关闭结果数据获取data
+                window.clearInterval(this.clk);
+                // 关闭日志获取结果获取
+                window.clearInterval(this.logclk);
+                // 显示结果窗口
+                this.isShowPublish = true;
+                // 处理结果
+                // this.resultPro(this.res_tmp.data.result);
+                // 适配json
+                this.resultPro(this.res_tmp.data);
+            }
+        },
+        /* 更新结果*/ 
+        update(){
+            // debugger;
+            this.getData();
+            try{
+                this.stopTimer();
+            }catch(err){}
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
             /*判断选择*/
-            if (this.modelChoice =="" ){
-                this.$message.warning('请选择模型！',3);
+            if (this.dataChoice =="" | this.methodChoice=='' ){
+                this.$message.warning('请选择能耗文件与分析方法！',3);
                 return 0;
             };
-            if (this.layerValue =="" ){
-                this.$message.warning('请选择故障注入目标层！',3);
-                return 0;
-            };
-            if (this.timeValue =="" ){
-                this.$message.warning('请选择故障注入时间间隔！',3);
-                return 0;
-            };
-            /* 日志框显示 */ 
-            this.logtext=[];
-            this.logflag = true;
-            var log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：开始故障注入';
-            this.logtext.push(log1);
-            console.log(`this result:${this.result[this.modelChoice]}`)
-            let perObj = this.result[this.modelChoice].layers.find((item,i) =>{
-                
-                return item.name === this.layerValue.toLowerCase();
-            });
-            console.log(`preObj:${perObj}`);
-            let clockObj = perObj.intensity.find((item,i) => {
-                return item["clock-cycles"] === parseInt(this.timeValue);
-            });
-            this.clockObj = clockObj;
-            this.percent=30;
-            log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：统计故障注入前分类准确率';
-            this.logtext.push(log1);
-            let pristine_acc = parseFloat(this.result[this.modelChoice]["pristine-acc"].split("%")[0]);
-            this.percent=40;
-            log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：故障注入前平均分类准确率为'+pristine_acc+"%";
-            this.logtext.push(log1);
-            this.percent=50;
-            log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：统计故障注入后分类准确率';
-            this.logtext.push(log1);
-            let inject_acc = clockObj["average-acc"];
-            this.subACC = (pristine_acc-inject_acc).toFixed(2);
-            this.injectRate = Math.round(inject_acc/pristine_acc*100)
-            if(this.injectRate<60){
-                this.score_evaluate="较差";
-            }else if (this.injectRate > 60 && this.injectRate <=80){
-                this.score_evaluate = "良好";
-            }else{
-                this.score_evaluate="优秀";
-            }
-            this.percent = 60;
-            log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：故障注入后平均分类准确率为'+inject_acc+"%,下降了"+this.subACC+"%";
-            this.logtext.push(log1);
-            
-            // 画曲线图
-            let legendlist = ["注入后准确率","注入前准确率"];
-            let datadict={
-                "注入后准确率":clockObj["faulted-acc"],
-                "注入前准确率":(new Array(20)).fill(pristine_acc)
-            };
-            let xlable=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
-            drawLine("accLine", legendlist, datadict, xlable);
-            this.percent=70;
-            log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：采集故障注入前特征图数据';
-            this.logtext.push(log1);
-            let xhr = new XMLHttpRequest();
-            let okStatus = document.location.protocol === "file:"?0:200;
-            xhr.open("GET","../../static/injection/"+clockObj["heatmap"].split(".txt")[0]+"_pristine.txt",false);
-            xhr.overrideMimeType("text/html;charset=utf-8");
-            xhr.send(null);
-            
-            let heatData = xhr.responseText.split('\r\n');
-            heatData.pop();
-            let pristine_heatmap =[];
-            let boundarylist = [0,255];
-            for(let i  in heatData){
-                let templist = heatData[i].split(' ');
-                for(let temp in templist){
-                    pristine_heatmap.push([i,temp,Math.abs(templist[temp])]);
-                }
-            }
-            let heatX = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
-            let colorlist = ["rgba(253, 227, 206, 1)", "rgba(251, 199, 157, 1)", "rgba(247, 158, 84, 1)", "rgba(244, 116, 11, 1)", "rgba(146, 70, 7, 1)"];
-            /* 原始的热力图 */ 
-            drawCorelationHeat("pristine", heatX, pristine_heatmap, colorlist, false, boundarylist);
-            log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：采集故障注入后特征图数据';
-            this.logtext.push(log1);
-            xhr.open("GET","../../static/injection/"+clockObj["heatmap"].split(".txt")[0]+"_noise.txt",false);
-            xhr.overrideMimeType("text/html;charset=utf-8");
-            xhr.send(null);
-            
-            heatData = xhr.responseText.split('\r\n');
-            heatData.pop();
-            let noise_heatmap =[];
-            for(let i  in heatData){
-                let templist = heatData[i].split(' ');
-                for(let temp in templist){
-                    noise_heatmap.push([i,temp,Math.abs(templist[temp])]);
-                }
-            }
-            drawCorelationHeat("noiseData", heatX, noise_heatmap, colorlist, false, boundarylist);
-            this.percent=80;
-            log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：计算故障注入前后特征图数据差值';
-            this.logtext.push(log1);
-            xhr.open("GET","../../static/injection/"+clockObj["heatmap"].split(".txt")[0]+"_noisedata.txt",false);
-            xhr.overrideMimeType("text/html;charset=utf-8");
-            xhr.send(null);
-            
-            heatData = xhr.responseText.split('\r\n');
-            heatData.pop();
-            let noiseData_heatmap =[];
-            for(let i  in heatData){
-                let templist = heatData[i].split(' ');
-                for(let temp in templist){
-                    noiseData_heatmap.push([i,temp,Math.abs(templist[temp])]);
-                }
-            }
-            drawCorelationHeat("noise", heatX, noiseData_heatmap, colorlist, false, boundarylist);
-            this.percent=90;
-            log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：故障注入评估结束';
-            this.logtext.push(log1);
-            this.percent=100;
-            // this.logflag=false;
-            this.isShowPublish=true;
-            this.logflag = false
+            /* 备份 */ 
+            var that = this;
+            that.res_tmp = {};
+            /* 调用创建主任务接口，需开启后端程序 */
+            that.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+                that.tid = result.data.Taskid;
+                /* 请求体 postdata*/
+                const postdata={
+                    trs_file:that.dataChoiceList[that.dataChoice].id,
+                    methods:[that.methodChoice],
+                    tid:that.tid};
+                that.$axios.post("/SideAnalysis", postdata).then((res) => {
+                    that.logflag = true;
+                    that.stidlist = {"SideAnalysis": res.data.stid};
+                    that.logclk = window.setInterval(that.getLog, 300);
+                    that.clk = window.setInterval(that.update, 300);
+                }).catch((err) => {
+                        console.log(err)
+                });
+            }).catch((err) => {
+                console.log(err)
+            }); 
         }
     }
 }
@@ -595,62 +499,18 @@ export default {
     border-radius: 6px;
 }
 
+.selectWithupload {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
 .ant-divider-horizontal{
     margin: 0 0;
 }
 
-.layerImg{
-    display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-padding: 24px 32px;
-gap: 4px;
 
-width: 1104px;
-height: 374px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 1;
-flex-grow: 0;
-}
-.layerImgPosition{
-    width: 856px;
-height: 326px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-flex-grow: 0;
-}
-.layerImgPosition img{
-    width: 856px;
-height: 326px;
-}
-/* 图表名称样式 */
-.echart_title{
-    display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px 120px;
-gap: 4px;
-
-width: 960px;
-height: 62px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
-}
 .dialog_publish_main{
 align-items: center;
 flex-direction: column;
@@ -707,25 +567,6 @@ height: 156px;
 flex: none;
 order: 0;
 flex-grow: 0;
-}
-.explainText{
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 24px;
-    gap: 8px;
-
-    width: 960px;
-    height: 96px;
-
-    background: rgba(11, 85, 244, 0.04);
-    border: 1.5px solid rgba(11, 85, 244, 0.8);
-    border-radius: 4px;
-    flex: none;
-    order: 1;
-    flex-grow: 0;
 }
 
 .accLineChart{
@@ -815,7 +656,7 @@ color: #000000;
     left: calc(30% - 207px/2 + 9.5px);
 }
 .dialog_publish_main{
-    height:1770px
+    height:fit-content
 }
 .exportResultBtn{
     position: absolute;
