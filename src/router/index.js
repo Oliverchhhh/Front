@@ -167,6 +167,12 @@ const router = new Router({
     name: 'crowdDefense',
     component: () => import('../views/crowdDefense.vue')
   },
+  // 组装的侧信道分析
+  {
+    path: '/side',
+    name: 'side',
+    component: () => import('../views/side.vue')
+  },
   ]
   
 })

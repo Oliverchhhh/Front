@@ -100,7 +100,7 @@
                        <h1>开发框架安全结构度量</h1>
                    </div>
                </div>
-               <div class="dialog_publish_main" slot="main">
+               <div class="dialog_publish_main" slot="main" id="pdfDom">
                    <!-- 图表 -->
                    <div class="result_div">
                         <div class="conclusion_info">
@@ -131,7 +131,12 @@
                            </div>
                        </div>
                    </div>
-                   <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
+                   <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
+                    <!-- <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button> -->
+
                </div>
            
            </resultDialog>
@@ -151,7 +156,6 @@ import func_introduce from "../components/funcIntroduce.vue"
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
-import html2pdf from 'html2pdf.js'
 import resultTable from "../components/resultsTable.vue"
 
 /* 引入图片 */
@@ -187,6 +191,7 @@ export default {
    },
    data(){
        return{
+            htmlTitle:"开发框架安全结构度量",
            /* 单选按钮样式 */
            radioStyle: {
                display: 'block',
@@ -194,7 +199,7 @@ export default {
                width: '100%'
            },
            /* 开发框架选中值*/
-           framework:["PyTorch","TensorFlow","PaddlePaddle", "CNTK"], 
+           framework:["PyTorch","TensorFlow","PaddlePaddle", "CNTK", "Theano"], 
            modelChoice:"VGG", 
            /* 评估按钮样式和状态 */
            buttonBGColor:{
@@ -242,7 +247,7 @@ export default {
            /* 主任务id */ 
            tid:"",
            /* 子任务id */ 
-           stid:"",
+           stidlist:"",
            /* 异步任务结果查循环clock */
            clk:"",
            /* 日志查询clock*/
@@ -299,7 +304,7 @@ export default {
        },
        /* result 处理*/
        resultPro(res){
-            // debugger;
+            debugger;
             var that = this;
             that.result = res.FrameworkTest;
             that.tablehead = ["触发样本", "正确标签",]
@@ -307,7 +312,7 @@ export default {
             var generate_fig_number = that.result.generate_figure.length;
             for(var i=0; i<generate_fig_number; i++) {
                 var res = "figure-"+String(i);
-                that.result[res]["path"] = that.result.out_path +"/"+ that.result[res]["path"].split("/")[1];
+                that.result[res]["path"] = 'static/output/'+that.result.out_path.split('output')[1] +"/"+ that.result[res]["path"].split("/")[1];
                 var error_frame = that.result[res]["path"].split("bgbk")[1].slice(0,-6);
                 // 构造表格【行】
                 // var tablebody_tr = ["<img :src='{{that.result[res]['path']}}'>", that.result[res]["ground_truth"]];
@@ -368,7 +373,7 @@ export default {
             that.normal_backend = that.result.normal_backend;
             that.bugger_backend = that.result.buggy_backend;
             that.buggy_layer = that.result.buggy_layer["0"];
-            that.model_url = that.result.out_path+"/model.png";       
+            that.model_url = 'static/output/'+that.result.out_path.split('output')[1]+"/model.png";       
         },
        /* 获取结果 */ 
        getData(){
@@ -384,9 +389,16 @@ export default {
            if(that.percent < 99){
                that.percent += 1;
            }
-           that.$axios.get('/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-               that.logtext = data.data.Log[that.stid];
-           });
+           that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
+            });
        },
        /* 停止结果获取循环 */ 
        stopTimer() {
@@ -432,7 +444,7 @@ export default {
                     // debugger;
                     that.logflag = true;
                    // 异步任务
-                    that.stid =  res.data.stid;
+                    that.stidlist =  {"frameworkTest":res.data.stid}
                     that.logclk = self.setInterval(that.getLog, 3000);
                     that.clk = self.setInterval(that.update, 3000);
                }).catch((err) => {
