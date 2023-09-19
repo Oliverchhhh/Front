@@ -134,7 +134,8 @@
         </a-layout>
      </div>
 </template>
-<script src="../assets/js/convnetdraw.js"></script>
+<!-- 画卷积神经网络convnetdraw -->
+<!-- <script src="../assets/js/convnetdraw.js"></script> -->
 <script type="text/javascript">
 
 </script>
