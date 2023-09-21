@@ -217,6 +217,18 @@ export default {
                     name: "ResNet50",
                     layer:50
                 },
+                {
+                    name: "VGG11",
+                    layer:11
+                },
+                {
+                    name: "VGG13",
+                    layer:13
+                },
+                {
+                    name: "VGG16",
+                    layer:16
+                },
                 // {
                 //     name: "ResNet101",
                 //     layer:101
@@ -235,8 +247,6 @@ export default {
                     attributes: [
                         [
                         { name: "扰动系数", key:"eps", defaultNumber: 0.031, number: 0.0, type: "inputNumber" , min: 0, step:0.001},
-                            { name: "范数", key:"norm", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:["1","2","inf"]},
-                        
                         ],
                     ]
                 },
@@ -246,23 +256,21 @@ export default {
                     description: "Basic Iterative MethodBIM迭代式FGSM是对FGSM的改进方法，主要的改进有两点，其一是FGSM方法是一步完成的，而BIM方法通过多次迭代来寻找对抗样本；其次，为了避免迭代过程中出现超出有效值的情况出现，使用了一个修建方法严格限制像素值的范围",
                     attributes: [
                         [
-                        { name: "扰动系数", key:"eps", defaultNumber: 0.031, number: 0, type: "inputNumber" , min: 0, step:0.001},
-                        { name: "步长参数", key:"eps_step", defaultNumber: 0.01, number: 0, type: "inputNumber" , min: 0, step:1},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 20, number: 0, type: "inputNumber" , min: 1, step:1},
-                        { name: "范数", key:"norm", defaultNumber: 2, number: 2, type: "selectgroup" ,valuelist:[1,2,"inf"]},
+                        { name: "扰动系数", key:"eps", defaultNumber: 0.015, number: 0, type: "inputNumber" , min: 0, step:0.001},
+                        { name: "步长参数", key:"alpha", defaultNumber: 0.0039, number: 0, type: "inputNumber" , min: 0, step:1},
+                        {name: "最大迭代次数", key:"steps", defaultNumber: 20, number: 0, type: "inputNumber" , min: 1, step:1}
                     ],
                     ]
                 },
                 {
-                    name: "PGDL1",
-                    id:"PGDL1",
+                    name: "PGD",
+                    id:"PGD",
                     description: "Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声。支持L1 norm范数",
                     attributes: [
                         [
                         { name: "扰动系数", key:"eps", defaultNumber: 0.3, number: 0.0, type: "inputNumber" , min: 0,step:0.1},
-                        { name: "步长参数", key:"eps_step", defaultNumber: 0.1, number: 0.0, type: "inputNumber" , min: 0, step:0.1},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 20, number: 0, type: "inputNumber" , min: 1,  step:1},
-                        { name: "随机开始次数", key:"num_random_init", defaultNumber: 1, number: 0, type: "inputNumber" ,min: 0,  step:1},
+                        { name: "步长参数", key:"alpha", defaultNumber: 0.1, number: 0.0, type: "inputNumber" , min: 0, step:0.1},
+                        {name: "最大迭代次数", key:"steps", defaultNumber: 20, number: 0, type: "inputNumber" , min: 1,  step:1}
                     ],
                     ]
                 },
@@ -272,284 +280,82 @@ export default {
                     description: "Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声。支持L2 norm范数",
                     attributes: [
                         [
+                        { name: "扰动系数", key:"eps", defaultNumber: 1.0, number: 0.0, type: "inputNumber" , min: 0,step:0.1},
+                        { name: "步长参数", key:"alpha", defaultNumber: 0.1, number: 0.0, type: "inputNumber" , min: 0, step:0.1},
+                        {name: "最大迭代次数", key:"steps", defaultNumber: 20, number: 0, type: "inputNumber" , min: 1,  step:1},
+                    ],
+                    ]
+                },
+                {
+                    name: "EOTPGD",
+                    id:"EOTPGD",
+                    description: "EOTPGD算法：结合Expectation Over Transformation算法生成具有鲁棒性的对抗样本，能在变换(transformation)后依旧保持对抗性",
+                    attributes: [
+                        [
                         { name: "扰动系数", key:"eps", defaultNumber: 0.3, number: 0.0, type: "inputNumber" , min: 0,step:0.1},
-                        { name: "步长参数", key:"eps_step", defaultNumber: 0.1, number: 0.0, type: "inputNumber" , min: 0, step:0.1},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 20, number: 0, type: "inputNumber" , min: 1,  step:1},
-                        { name: "随机开始次数", key:"num_random_init", defaultNumber: 1, number: 0, type: "inputNumber" ,min: 0,  step:1},
+                        { name: "步长参数", key:"alpha", defaultNumber: 0.007, number: 0, type: "inputNumber" , min: 0, step:0.001},
+                        { name: "迭代次数", key:"steps", defaultNumber: 40, number: 0.0, type: "inputNumber" , min: 0, step:1}
                     ],
                     ]
                 },
                 {
-                    name: "PGDLinf",
-                    id:"PGDLinf",
-                    description: "Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声。支持Linf norm范数",
+                    name: "FFGSM",
+                    id:"FFGSM",
+                    description: "FFGSM算法：在使用FGSM攻击算法前加入随机初始化的扰动，经过实验发现基于FFGSM的对抗训练拥有高效性",
+                    attributes: [
+                        [{ name: "扰动系数", key:"eps", defaultNumber: 0.031, number: 0.0, type: "inputNumber" , min: 0, step:0.001},
+                        { name: "步长参数", key:"alpha", defaultNumber: 0.039, number: 0, type: "inputNumber" , min: 0, step:0.001},
+                        ],
+                    ]
+                },
+                {
+                    name: "TPGD",
+                    id:"TPGD",
+                    description: "TPGD算法：基于KL-Divergence loss的pgd攻击",
                     attributes: [
                         [
                         { name: "扰动系数", key:"eps", defaultNumber: 0.3, number: 0.0, type: "inputNumber" , min: 0,step:0.1},
-                        { name: "步长参数", key:"eps_step", defaultNumber: 0.1, number: 0.0, type: "inputNumber" , min: 0, step:0.1},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 20, number: 0, type: "inputNumber" , min: 1,  step:1},
-                        { name: "随机开始次数", key:"num_random_init", defaultNumber: 1, number: 0, type: "inputNumber" ,min: 0,  step:1},   
+                        { name: "步长参数", key:"alpha", defaultNumber: 0.007, number: 0, type: "inputNumber" , min: 0, step:0.001},
+                        { name: "迭代次数", key:"steps", defaultNumber: 7, number: 0.0, type: "inputNumber" , min: 0, step:1}
                     ],
                     ]
                 },
                 {
-                    name: "C&W",
-                    id:"C&W",
-                    description: "该方法的出发点是攻击比较有名的对抗样本防御方法-防御蒸馏(就防御蒸馏方法而言，它在基本的L-BFGS，FGSM攻击方法上表现本身就比较差)。对于寻找对抗样本过程中目标函数的设置将会极大的影响对抗样本的攻击效果，为此，通过目标函数的设定，在零范数，二范数和无穷范数的限制下分别设计了三种不同的寻找对抗样本的目标函数，这三种方法均可以绕过防御蒸馏的防御",
-                    attributes: [
-                        [{ name: "最大迭代次数", key:"max_iterations", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 1, step:1},
-                        { name: "优化器学习率", key:"lr", defaultNumber: 0.01, number: 0, type: "inputNumber" , min: 0, step:0.01},
-                        ],
-                    ]
-                },
-                {
-                    name: "DeepFool",
-                    id:"DeepFool",
-                    description: "DeepFool方法的出发点是想要精确的度量模型对于对抗样本的鲁棒性，为此提出了鲁棒性定义和计算方法。最终使用该计算方法生成对抗样本",
-                    attributes: [
-                        [ {name: "最大迭代次数", key:"max_iter", defaultNumber: 50, number: 0, type: "inputNumber" , min: 1, step:1},
-                        { name: "扰动系数", key:"eta", defaultNumber: 0.02, number: 0.0, type: "inputNumber" , min: 0, step:0.01},
-                        ],
-                    ]
-                },
-                {
-                    name: "JSMA",
-                    id:"JacobianSaliencyMap",
-                    description: "该方法通过输入样本每一个位置的前向导数，借鉴模型解释性方法中的显著图理论，构造了一种对抗显著图。对抗显著图上的点的值就是样本中每一个点对每个目标类的前向导数大小，直觉上来讲，其反映的是该样本点对生成某一个目标类对抗样本的贡献度。那么使用该对抗显著图，确定需要攻击到的目标类后，便可以从该图中选择对目标类对抗影响最大的点进行修改即可。",
-                    attributes: [
-                        [{name: "噪声大小", key:"theta", defaultNumber: 0.1, number: 0.0, type: "inputNumber" , step:0.1},
-                        { name: "允许修改的最大特征百分比", key:"gamma", defaultNumber: 1.0, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.1},
-                        ],
-                    ]
-                },
-                {
-                    name: "Brendel&BethgeAttack",
-                    id:"Brendel&BethgeAttack",
-                    description: "边界攻击的基本思想是从一个已经是对抗样本的点(无目标攻击随意选择，有目标攻击选择目标类图片)开始，通过随机游走算法来减少对抗样本的强度，使其在决策边界上和被攻击的样本接近",
-                    attributes: [
-                        [{ name: "正交步骤的初始步长", key:"delta", defaultNumber: 0.01, number: 0.0, type: "inputNumber" , min: 0, step:0.01},
-                        { name: "趋近步骤的初始步长大小", key:"eps", defaultNumber: 0.01, number: 0.0, type: "inputNumber" , min: 0, step:0.01},
-                        {name: "调整步长因数", key:"step_adapt", defaultNumber: 0.667, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.001},
-                        { name: "最大迭代次数", key:"max_iter", defaultNumber: 1000, number: 0, type: "inputNumber" ,min: 1, step:1},   
-                        ],[
-                        { name: "每次迭代的最大判定数", key:"num_trial", defaultNumber: 25, number: 0, type: "inputNumber" , min: 1,step:1},
-                        { name: "每次判定的样本数目", key:"sample_size", defaultNumber: 20, number: 0, type: "inputNumber" , min: 1, step:1},
-                        {name: "初始化的判定次数", key:"init_size", defaultNumber: 100, number: 0, type: "inputNumber" , min: 1, step:1},
-                        ]
-                    ]
-                },
-                {
-                    name: "UniversalPerturbationL1",
-                    id:"UniversalPerturbationL1",
-                    description: "在一个给定模型和数据集上，通过迭代算法寻找一个让大多数图片都被错误分类的对抗噪声。支持L1 norm范数",
-                    attributes: [
-                        [{ name: "攻击方法", key:"attacker", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:["FGSM","BIM","PGD", "DeepFool", "JSMA", "Carlini_l2","Carlini_inf","Simba"]},],
-                        [
-                        { name: "扰动系数", key:"eps", defaultNumber: 0.078, number: 0.0, type: "inputNumber" , min: 0, step:0.001},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 20, number: 0, type: "inputNumber" ,min: 0, step:1},],
-                    ]
-                },
-                {
-                    name: "UniversalPerturbationL2",
-                    id:"UniversalPerturbationL2",
-                    description: "在一个给定模型和数据集上，通过迭代算法寻找一个让大多数图片都被错误分类的对抗噪声。支持L2 norm范数",
-                    attributes: [
-                        [{ name: "攻击方法", key:"attacker", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:["FGSM","BIM","PGD", "DeepFool", "JSMA", "Carlini_l2","Carlini_inf","Simba"]},],[
-                        { name: "扰动系数", key:"eps", defaultNumber: 0.078, number: 0.0, type: "inputNumber" , min: 0, step:0.001},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 20, number: 0, type: "inputNumber" ,min: 0, step:1},
-                        ],
-                    ]
-                },
-                {
-                    name: "UniversalPerturbationLinf",
-                    id:"UniversalPerturbationLinf",
-                    description: "在一个给定模型和数据集上，通过迭代算法寻找一个让大多数图片都被错误分类的对抗噪声。支持Linf norm范数",
-                    attributes: [
-                        [{ name: "攻击方法", key:"attacker", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:["FGSM","BIM","PGD", "DeepFool", "JSMA", "Carlini_l2","Carlini_inf","Simba"]},],[
-                        { name: "扰动系数", key:"eps", defaultNumber: 0.078, number: 0.0, type: "inputNumber" , min: 0, step:0.001},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 20, number: 0, type: "inputNumber" ,min: 0, step:1},
-                        ],
-                    ]
-                },
-                {
-                    name: "AutoAttackL1",
-                    id:"AutoAttackL1",
-                    description: "该方法首先改进了PGD方法的步长调整方法以及其的损失函数，并且进一步将白盒的FAB攻击和黑盒的Square攻击集成到了框架中。支持L1 norm范数",
+                    name: "MIFGSM",
+                    id:"MIFGSM",
+                    description: "MIFGSM算法：momentum iterative FGSM是一种使用momentum迭代梯度的方法，该方法在迭代梯度对抗攻击(如BIM)的基础上，累计每次梯度方向的速度向量作为momentum，每次对抗扰动不再直接使用梯度方向，转而采用momentum方向，从而稳定更新方向并避免局部极值，更好提高攻击迁移性",
                     attributes: [
                         [
-                        { name: "扰动系数", key:"eps", defaultNumber: 0.031, number: 0.0, type: "inputNumber" , min: 0, step:0.001},
-                        { name: "步长参数", key:"eps_step", defaultNumber: 0.01, number: 0.0, type: "inputNumber" , min: 0, step:0.01},
-                        ],
-                    ]
-                },
-                {
-                    name: "AutoAttackL2",
-                    id:"AutoAttackL2",
-                    description: "该方法首先改进了PGD方法的步长调整方法以及其的损失函数，并且进一步将白盒的FAB攻击和黑盒的Square攻击集成到了框架中。支持L2 norm范数",
-                    attributes: [
-                        [
-                        { name: "扰动系数", key:"eps", defaultNumber: 0.031, number: 0.0, type: "inputNumber" , min: 0, step:0.001},
-                        { name: "步长参数", key:"eps_step", defaultNumber: 0.01, number: 0.0, type: "inputNumber" , min: 0, step:0.01},
-                        ],
-                    ]
-                },
-                {
-                    name: "AutoAttackLinf",
-                    id:"AutoAttackLinf",
-                    description: "该方法首先改进了PGD方法的步长调整方法以及其的损失函数，并且进一步将白盒的FAB攻击和黑盒的Square攻击集成到了框架中。支持Linf norm范数",
-                    attributes: [
-                        [
-                        { name: "扰动系数", key:"eps", defaultNumber: 0.031, number: 0.0, type: "inputNumber" , min: 0, step:0.001},
-                        { name: "步长参数", key:"eps_step", defaultNumber: 0.01, number: 0.0, type: "inputNumber" , min: 0, step:0.01},
-                        ],
-                    ]
-                },
-                {
-                    name: "GD-UAP",
-                    id:"GD-UAP",
-                    description: "该方法在UAP工作的基础上提出了数据不相关的通用对抗噪声。与UAP生成的基本方法不同，该方法以对一个神经网络所有神经元产生更大的输出为目标，即以寻求那些可以使网络整体神经元更加激活的输入噪声为目标，并且将该噪声作为通用对抗噪声",
-                    attributes: [
-                        [
-                        { name: "最小饱和度", key:"sat_min", defaultNumber: 0.35, number: 0, type: "inputNumber" , min: 0, max: 1, step:0.01},
-                        { name: "饱和度阈值", key:"sat_threshold", defaultNumber: 0.00001, number: 0, type: "inputNumber" , min: 0, max: 1, step:0.00001},
-                        { name: "扰动系数", key:"eps", defaultNumber: 0.078, number: 0.0, type: "inputNumber" , min: 0, step:0.001},],
-                        [
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 10000, number: 0, type: "inputNumber" ,min: 1,step:1},
-                        {name: "耐心间隔", key:"patience_interval", defaultNumber: 10, number: 0, type: "inputNumber" ,min: 0, step:1},
-                        ],
-                    ]
-                },
-                {
-                    name: "SquareAttackL1",
-                    id:"SquareAttackL1",
-                    description: "该方法的主体思路是使用优化理论中的随机搜索方法来寻找对抗噪声，这种随机搜索的方法很多黑盒攻击方法都采用过。随机搜索的总体框架大体相同，如下图所示。基本思路是在在一个采用空间中随机选择一个噪声，如果该噪声能够降低目标函数的损失则将其添加到原图片上，否则进入下一轮的随机搜索。支持L1 norm范数。",
-                    attributes: [
-                        [
-                        { name: "初始化百分比", key:"p_init", defaultNumber: 0.05, number: 0.0, type: "inputNumber" , min: 0, step:0.01},
-                        { name: "重启次数", key:"n_restarts", defaultNumber: 1, number: 0, type: "inputNumber" , min: 1, step:1},
-                        { name: "loss类型", key:"loss_type", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:["margin","ce"]},    
-                    ],
-                    ]
-                },{
-                    name: "SquareAttackL2",
-                    id:"SquareAttackL2",
-                    description: "该方法的主体思路是使用优化理论中的随机搜索方法来寻找对抗噪声，这种随机搜索的方法很多黑盒攻击方法都采用过。随机搜索的总体框架大体相同，如下图所示。基本思路是在在一个采用空间中随机选择一个噪声，如果该噪声能够降低目标函数的损失则将其添加到原图片上，否则进入下一轮的随机搜索。支持L2 norm范数。",
-                    attributes: [
-                        [
-                        { name: "初始化百分比", key:"p_init", defaultNumber: 0.05, number: 0.0, type: "inputNumber" , min: 0, step:0.01},
-                        { name: "重启次数", key:"n_restarts", defaultNumber: 1, number: 0, type: "inputNumber" , min: 1, step:1},
-                        { name: "loss类型", key:"loss_type", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:["margin","ce"]},
-                    ],
-                    ]
-                },{
-                    name: "SquareAttackLinf",
-                    id:"SquareAttackLinf",
-                    description: "该方法的主体思路是使用优化理论中的随机搜索方法来寻找对抗噪声，这种随机搜索的方法很多黑盒攻击方法都采用过。随机搜索的总体框架大体相同，如下图所示。基本思路是在在一个采用空间中随机选择一个噪声，如果该噪声能够降低目标函数的损失则将其添加到原图片上，否则进入下一轮的随机搜索。支持Linf norm范数。",
-                    attributes: [
-                        [
-                        { name: "初始化百分比", key:"p_init", defaultNumber: 0.05, number: 0.0, type: "inputNumber" , min: 0, step:0.01},
-                        { name: "重启次数", key:"n_restarts", defaultNumber: 1, number: 0, type: "inputNumber" , min: 1, step:1},
-                        { name: "loss类型", key:"loss_type", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:["margin","ce"]},
+                        { name: "扰动系数", key:"eps", defaultNumber: 0.3, number: 0.0, type: "inputNumber" , min: 0,step:0.1},
+                        { name: "衰减因子", key:"decay", defaultNumber: 1.0, number: 0, type: "inputNumber" , min: 0, step:0.1},
+                        { name: "迭代次数", key:"steps", defaultNumber: 5, number: 0.0, type: "inputNumber" , min: 0, step:1}
                     ],
                     ]
                 },
                 {
-                    name: "HSJA",
-                    id:"HSJA",
-                    description: "在优化框架下的基于决策的攻击，并提出了一系列新颖的算法，用于生成针对性和非针对性的对抗性示例，这些示例针对“ 2-距离”或“∞距离”的最小距离进行了优化。 该算法本质上是迭代的，每个迭代涉及三个步骤：梯度方向的估计，通过几何级数进行的步长搜索和通过二分法的边界搜索。对优化框架和梯度方向估计进行了理论分析。这不仅为选择超参数提供了参考，而且还激发了所提出算法中的必要步骤",
+                    name: "RFGSM",
+                    id:"RFGSM",
+                    description: "RFGSM算法：R+FGSM在FGSM中加入随机的步骤, 是一个在白盒设置下高效的能替代迭代攻击的方法",
                     attributes: [
                         [
-                        { name: "梯度估计的最大次数", key:"max_eval", defaultNumber: 1000, number: 0, type: "inputNumber" , min:1, step:1},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 50, number: 0, type: "inputNumber" ,min: 1,  step:1},
-                        { name: "范数", key:"norm", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:[2,"inf"]},    
-                    ],[
-                        { name: "梯度估计的初始次数", key:"init_eval", defaultNumber: 100, number: 0, type: "inputNumber" , min:1, step:1},
-                        {name: "初始最大试验次数", key:"init_size", defaultNumber: 100, number: 0.0, type: "inputNumber" ,min: 1,  step:1},
-                        ],
+                        { name: "扰动系数", key:"eps", defaultNumber: 0.031, number: 0.0, type: "inputNumber" , min: 0,step:0.01},
+                        { name: "步长参数", key:"alpha", defaultNumber: 0.031, number: 0, type: "inputNumber" , min: 0, step:0.01},
+                        { name: "迭代次数", key:"steps", defaultNumber: 1, number: 0.0, type: "inputNumber" , min: 0, step:1}
+                    ],
                     ]
                 },
                 {
-                    name: "PixelAttack",
-                    id:"PixelAttack",
-                    description: "使用差分进化算法寻找满足零范数约束的对抗样本",
+                    name: "DIFGSM",
+                    id:"DIFGSM",
+                    description: "DIFGSM算法：Diverse Inputs Iterative Fast Gradient Sign Method,通过创建多样的输入模式提高对抗样本的迁移性。做法是对输入的原图像以p的概率加上随机且可导的变换(transformation)，使用梯度的方法最大化模型对变换后的原图像的损失函数值从而得到对抗图像",
                     attributes: [
                         [
-                        { name: "允许修改的像素数目", key:"th", defaultNumber: 1, number: 0, type: "inputNumber" , min: 1, max: 784, step:1},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 5, number: 0, type: "inputNumber" ,min: 1, step:1},
-                        { name: "进化算法", key:"es", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:["DE","CMAES"]},],
+                        { name: "扰动系数", key:"eps", defaultNumber: 0.031, number: 0.0, type: "inputNumber" , min: 0,step:0.1},
+                        { name: "步长参数", key:"alpha", defaultNumber: 0.007, number: 0, type: "inputNumber" , min: 0, step:0.001},
+                        { name: "迭代次数", key:"steps", defaultNumber: 20, number: 0.0, type: "inputNumber" , min: 0, step:1}
+                    ],
                     ]
-                },
-                {
-                    name: "SimBA",
-                    id:"SimBA",
-                    description: "该方法的基本思想为对于图片空间的任意一个方向，添加或者减少一个扰动值，总是有可能让神经网络对于该图片属于某个类别的分数变得更低或者更高，因此论文通过随机选择一些坐标点，通过添加或者减少扰动值，使图片分类到某个类别的分数总是往更低的方向去，从而最终导致图片分类错误。这可以看作是一种贪婪的选择策略，每一步都选择对于自己最优的方向，以此来接近全局最优",
-                    attributes: [
-                        [
-                        { name: "过冲参数", key:"epsilon", defaultNumber: 0.031, number: 0.0, type: "inputNumber" , min: 0, step:0.001},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 3000, number: 0, type: "inputNumber" ,min: 0, step:1},    
-                        { name: "攻击方法", key:"attack", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:["dct","px"]},
-                        { name: "pixel攻击的顺序", key:"order", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:["random","diag"]},
-                        
-                        ],
-                    ]
-                },
-                {
-                    name: "ZOO",
-                    id:"ZOO",
-                    description: "在一个给定模型和数据集上，通过迭代算法寻找一个让大多数图片都被错误分类的对抗噪声。支持Linf norm范数",
-                    attributes: [
-                        [
-                        { name: "步长", key:"step_size", defaultNumber: 0.01, number: 0, type: "inputNumber" , min: 0, max:1, step:0.01},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 3000, number: 0, type: "inputNumber" ,min: 1, step:1},
-                        { name: "初始常量", key:"initial_const", defaultNumber: 0.01, number: 0, type: "inputNumber" , min: 0, max:1, step:0.01},
-                        { name: "置信度", key:"confidence", defaultNumber: 0, number: 0.0, type: "inputNumber" , min: 0, step:0.001},
-                        ],
-                    ]
-                },
-                {
-                    name: "GeoDAL1",
-                    id:"GeoDAL1",
-                    description: "该方法基于神经网络决策边界往往具有较低曲率的事实假设，提出了一种在线性框架下通过法向量估计的方法完成黑盒基于决策模式下的对抗样本搜寻的方法。支持L1 norm范数",
-                    attributes: [
-                        [
-                        {name: "二维频率空间维数", key:"sub_dim", defaultNumber: 10, number: 0, type: "inputNumber" ,min: 1,step:1},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 1, number: 0, type: "inputNumber" ,min: 1, step:1},
-                        { name: "高斯扰动方差", key:"sigma", defaultNumber: 0.0002, number: 0.0, type: "inputNumber" , min: 0, step:0.0001},
-                        { name: "λ参数", key:"lambda_param", defaultNumber: 0.6, number: 0.0, type: "inputNumber" , min: 0, step:0.1},
-                        ],
-                    ]
-                },{
-                    name: "GeoDAL2",
-                    id:"GeoDAL2",
-                    description: "该方法基于神经网络决策边界往往具有较低曲率的事实假设，提出了一种在线性框架下通过法向量估计的方法完成黑盒基于决策模式下的对抗样本搜寻的方法。支持L2 norm范数",
-                    attributes: [
-                        [
-                        {name: "二维频率空间维数", key:"sub_dim", defaultNumber: 10, number: 0, type: "inputNumber" ,min: 1,step:1},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 1, number: 0, type: "inputNumber" ,min: 1, step:1},
-                        { name: "高斯扰动方差", key:"sigma", defaultNumber: 0.0002, number: 0.0, type: "inputNumber" , min: 0, step:0.0001},
-                        { name: "λ参数", key:"lambda_param", defaultNumber: 0.6, number: 0.0, type: "inputNumber" , min: 0, step:0.1},
-                        ],
-                    ]
-                },{
-                    name: "GeoDALinf",
-                    id:"GeoDALinf",
-                    description: "该方法基于神经网络决策边界往往具有较低曲率的事实假设，提出了一种在线性框架下通过法向量估计的方法完成黑盒基于决策模式下的对抗样本搜寻的方法。支持Linf norm范数",
-                    attributes: [
-                        [
-                        {name: "二维频率空间维数", key:"sub_dim", defaultNumber: 10, number: 0, type: "inputNumber" ,min: 1,step:1},
-                        {name: "最大迭代次数", key:"max_iter", defaultNumber: 1000, number: 0, type: "inputNumber" ,min: 1, step:1},
-                        { name: "高斯扰动方差", key:"sigma", defaultNumber: 0.0002, number: 0.0, type: "inputNumber" , min: 0, step:0.0001},
-                        { name: "λ参数", key:"lambda_param", defaultNumber: 0.6, number: 0.0, type: "inputNumber" , min: 0, step:0.1},
-                        ],
-                    ]
-                },
-                {
-                    name: "Fastdrop",
-                    id:"Fastdrop",
-                    description: "该方法利用图像频域修改更加容易产生高质量对抗样本的思想，通过将图像变换到频域后，使用简单的频域小量随机丢弃和还原的搜索策略完成攻击",
-                    attributes: [
-                    ]
-                },
+                }
             ],
             DefenseInfo: [
                 {
@@ -606,6 +412,14 @@ export default {
     created() {
         document.title = '模型群智化防御';
         },
+    beforeDestroy() {
+        if(this.logclk){
+            window.clearInterval(this.logclk);   
+        }
+        if(this.clk){
+            window.clearInterval(this.clk); 
+        }
+    },    
     methods: { 
         /* 关闭结果窗口 */
         closeDialog(){
@@ -661,9 +475,9 @@ export default {
                 // 关闭日志显示
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                                 // 处理结果
                 this.result = this.result.data.result;
                 this.result["tid"] = this.tid
@@ -674,10 +488,10 @@ export default {
             }else if(this.result.data.stop == 2){
                 this.percent=100
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 this.clk=null
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                 this.logclk = null
             }
         },
@@ -725,26 +539,37 @@ export default {
             this.logtext = [];
             this.logflag = true;
             var that = this;
+            that.postData["DatasetParam"] = {"name":dataset}
+            that.postData["ModelParam"] = {"name":model,"ckpt":null}
+            that.postData["AdvMethods"] = that.selectedMethod
+            that.postData["DefMethod"] = that.selectedDefense
+            that.tid = "20230913_1821_1c3e540"
+            that.stidlist =  {"Ensemble":"20230913_1821_1c3e540"};
+            that.clk = window.setInterval(() => {
+                that.update();
+            }, 600)
+            return
             that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
-                that.logclk = setInterval(() => {
+                that.logclk = window.setInterval(() => {
                         that.getLog();
                     }, 6000)
                 /* 请求体 postdata*/
-                that.postData["Dataset"] = dataset
-                that.postData["Model"] = model
-                that.postData["Method"] = JSON.stringify(that.selectedMethod)
+                that.postData["DatasetParam"] = {"name":dataset}
+                that.postData["ModelParam"] = {"name":model,"ckpt":null}
+                that.postData["AdvMethods"] = that.selectedMethod
+                that.postData["DefMethod"] = that.selectedDefense
                 that.postData["Taskid"] = that.tid
                 console.log(that.postData)
-                that.$axios.post("/Attack/AdvAttack", that.postData).then((res) => {
-                    that.stidlist =  {"advattack":res.data.stid};
-                    that.clk = setInterval(() => {
+                that.$axios.post("/Defense/Ensemble", that.postData).then((res) => {
+                    that.stidlist =  {"Ensemble":res.data.stid};
+                    that.clk = window.setInterval(() => {
                             that.update();
                         }, 30000)
                 }).catch((err) => {
                     console.log(err);
-                    clearInterval(that.logclk);
+                    window.clearInterval(that.logclk);
                 });
             }).catch((err) => {
                 console.log(err)

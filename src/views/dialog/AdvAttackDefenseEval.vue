@@ -166,9 +166,9 @@ export default {
             //如果需要传参的话，可以在"on-close"后面再加参数，然后在父组件的函数里接收就可以了。
         },
         // 防御方法参数显示
-        defenseShow(method="[]"){
-            let param = JSON.parse(method);
-            return param.join('、');
+        defenseShow(method=[]){
+            // let param = JSON.parse(method);
+            return method.join('、');
         },
         _stopPropagation(ev) {
             var _this = this;

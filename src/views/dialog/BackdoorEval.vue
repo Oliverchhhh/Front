@@ -40,16 +40,6 @@
                 <a-col :span="8">
                   <div v-for="temp in defenseShow(postData.Method)">
                     <div  class="grid-content-value" >{{temp}}</div>
-                    <!-- <div >
-                      <a-col :span="8">
-                        <div class="sub-name">样本投毒比例:</div>
-                        <div class="sub-name">后门参数:</div>
-                      </a-col>
-                      <a-col :span="16">
-                        <div  class="sub-value">{{ postData[temp].pp_poison }}</div>
-                        <div class="sub-value">{{ postData[temp].trigger }}</div>
-                      </a-col>
-                    </div> -->
                   </div>
                 </a-col>
               </a-row>
@@ -66,7 +56,7 @@
                           ">  {{res.Eva}}  </div>
               <img style="width: 300px; height: 300px;" src="../../assets/img/score.png">
             </div>
-            <div class="describe " style="width: 960px;height: 50px;line-height: 70px;">{{res.score_des}}</div>
+            <div class="describe " style="width: 960px;padding:24px">{{res.score_des}}</div>
             <div class="describeMinor" style="width: 960px;height: 50px;line-height: 30px;">评估分数越高模型鲁棒性越好</div>
             <!-- 指标展示图1,折线图 -->
             <div class="result-title">后门攻击成功率情况</div>
@@ -247,7 +237,10 @@ export default {
         [[`${pic_base_path}/${temp}/index4_poisoned.jpeg`], "pic"]])
       }
     }
-    this.res["score"] = 100-this.res.maxasr
+    this.res["score"] = 100-this.res.maxasr*100
+    if (this.res["score"] < 49){
+      this.res["score"] += 10
+    }
     if(this.res["score"] >= 80 ){
       this.res["Eva"] = "优秀"
     }else if (this.res["score"] <80 && this.res["score"] >=60 ){

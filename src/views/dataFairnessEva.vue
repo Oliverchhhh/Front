@@ -155,11 +155,11 @@
                     <!-- 数据占比 -->
                     <div class="result_div">
                         <div class="echart_title">
-                            <div class=" main_top_echarts_con_title ">数据集中各群体的占比</div>
+                            <div class=" main_top_echarts_con_title ">数据集中各属性的占比</div>
                         </div>
                         <div id="pro_tree"></div>   
                         <div class="conclusion">
-                                    <p class="result_text">各群体的占比越均匀，数据集越公平</p>
+                                    <p class="result_text">各属性的占比越均匀，数据集越公平</p>
                                     <p class="result_annotation">子节点面积大小代表占比多少</p>
                         </div>           
                     </div>

@@ -65,7 +65,7 @@
                                     list-type="picture-card"
                                     class="avatar-uploader"
                                     :show-upload-list="false"
-                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                                    action="/Task/UploadPic"
                                     :before-upload="beforeUpload"
                                     @change="handleChange"
                                 >
@@ -239,7 +239,7 @@
                                     list-type="picture-card"
                                     class="avatar-uploader"
                                     :show-upload-list="false"
-                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                                    action="/Task/UploadPic"
                                     :before-upload="beforeUpload"
                                     @change="handleChange"
                                 >
@@ -308,7 +308,7 @@
                                     list-type="picture-card"
                                     class="avatar-uploader"
                                     :show-upload-list="false"
-                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                                    action="/Task/UploadPic"
                                     :before-upload="beforeUpload"
                                     @change="handleChange"
                                 >
@@ -359,7 +359,7 @@
                                 CNN-3layer
                             </a-radio> -->
                             <a-radio-group v-model="modelChoice" class="colummRadio" @change="onDatasetChoiceChange">
-                                <a-radio :style="radioStyle" value="cnn_7layer_bn" defaultChecked disabled>
+                                <a-radio :style="radioStyle" value="CNN-3layer" defaultChecked disabled>
                                     CNN-3layer
                                 </a-radio>
                             </a-radio-group>
@@ -692,36 +692,31 @@
                     </div>
                     <!-- 总评分 -->
                     <div class="reportContentCon">
-                        <div class="g_score_content">
-                            <div class="scorebg">
-                                <div class=" main_top_echarts_con_title ">模型真实类别到目标类别的可达性评分</div>
-                            
-                                <p class="g_score_2">{{result["l2"]}}</p>
-                            </div>
-                        </div>
                         <div class="result_div_notop">
                             <p class=" main_top_echarts_con_title ">真实类别到目标类别的可达区域展示</p>
-                            <!-- <div class="IBPChart"> -->
-
-                                <!-- 图表 -->
                             <div class='reachImgDiv'>
-                                <div class="imgShowtable">
-                                    <div class="imageTitle">
-                                        <p>Input</p>
-                                    </div>
-                                    <div class="imageContent"> 
-                                        <div class="imgbg">
-                                            <img src=''  />
-                                        </div>
-                                        
-                                    </div>
+                                <div class="imgContent">
+                                    <a-row>
+                                        <a-col :span="2">
+                                            <div class="ylabel"> 目标类别:{{ modeMsg.reach.label[datasetChoice][tarLabel] }}</div>
+                                        </a-col>
+                                        <a-col :span="22">
+                                            <div class="reachImgbg">
+                                                <img :src='reachImgURL' style="height: 100%;width: 100%;" />
+                                            </div>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row>
+                                        <a-col>
+                                            <div class="xlabel"> 真实类别:{{modeMsg.reach.label[datasetChoice][trueLabel]}}</div>
+                                        </a-col>
+                                    </a-row>
                                 </div>
+
                             </div>
                                 
                             <div class="conclusion">
-                                <p class="result_text">如图，针对CIFAR10数据集测试图像输出特征图像，待验证模型的特征图像，
-                                    通过特征转换模型得到的图像，以及两个图像的差别。主要对比待验证模型的特征图像和转换模型输出的目标图像，
-                                    用以代表两个模型的知识特征，可以看出两个模型的知识特征对比差距不大，但是仍存在部分区域上的特征不一致的现象。</p>
+                                <p class="result_text">如图是上传图片用理论验证和撒点验证两种方法计算得到的可达区域图，蓝色点代表理论验证值，黑色点是通过撒点实测得到的值。横坐标是预测为真实label的置信度，纵坐标是预测为目标label的置信度，当点都位于红线（y=x）下方时可认为可达区域安全</p>
                             </div>
                             
                         </div>
@@ -917,7 +912,7 @@ export default {
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
-            stidlist:"",
+            stidlist:{},
             /* 异步任务结果查循环clock */
             clk:"",
             /* 日志查询clock*/
@@ -926,7 +921,9 @@ export default {
             loading:false,
             imageUrl: '',
             trueLabel:"1",
-            tarLabel:"2"
+            tarLabel:"2",
+            // 可达性图片URL
+            reachImgURL:""
             }
         },
     watch:{
@@ -1255,8 +1252,8 @@ export default {
         },
         /* 点击评估触发事件 */
         reachEvaClick(){
-            this.$message.warning('功能开发中，敬请期待！',3);
-            return
+            // this.$message.warning('功能开发中，敬请期待！',3);
+            // return
             this.initParam()
             // debugger;
             /*判断选择*/
@@ -1301,14 +1298,14 @@ export default {
                 console.log(postdata)
                 that.percent = 40;
                 that.logflag = true;
-                // that.logclk = window.setInterval(that.getLog, 6000);
+                that.logclk = window.setInterval(that.getLog, 60);
                 that.$axios.post("/reach", postdata).then((res) => {
-                    
                     that.logflag = true;
                     window.clearInterval(that.logclk);
-                    that.logflag = false;
+                    // that.logflag = false;
                     that.result = res.data;
-                    that.resultPro(res.data);
+                    that.reachImgURL = that.result.path
+                    that.isShowPublish=true;
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -1908,6 +1905,50 @@ imgShowtable{
     padding: 24px 193px 24px 132px;
     align-items: center;
     background: var(--light-neutral-1-bg, #FFF);
+}
+.imgContent{
+    width: 635px;
+    height: 428px;
+}
+.reachImgbg{
+    height: 400px;
+    width: 600px;
+    display: inline-flex;
+    padding: 30px 17px 22px 23px;
+    justify-content: flex-end;
+    align-items: center;
+    border: 1px solid var(--gray-4, #B4B9C5);
+}
+.reachImgbg{
+   
+    display: inline-flex;
+    padding: 30px 17px 22px 23px;
+    justify-content: flex-end;
+    align-items: center;
+}
+.xlabel{
+    color: #000;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px; 
+    align-self: stretch;
+    margin-left: 100px;
+}
+.ylabel{
+    color: #000;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px; 
+    transform: rotate(-90deg);
+    width: 400px;
+    margin-left: -170px;
+    margin-top: 178px;
 }
 .datasetDiv{
     display: flex;

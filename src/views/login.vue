@@ -17,14 +17,14 @@
                             <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,.25)" />
                         </a-input>
                     </a-form-model-item>
-                    <a-form-model-item wrapperCol="{'span':24}">
+                    <a-form-model-item :wrapperCol="{'span':24}">
                         <a-button
                             type="primary"
                             html-type="submit"
                             size="large"
                             :disabled="userinfo.username === '' || userinfo.password === ''"
                         >
-                            登入
+                            登录
                         </a-button>
                     </a-form-model-item>
                 </a-form-model>
@@ -50,7 +50,7 @@
                             <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,.25)" />
                         </a-input>
                     </a-form-model-item>
-                    <a-form-model-item wrapperCol="{'span':24}" >
+                    <a-form-model-item :wrapperCol="{'span':24}" >
                         <a-button
                         type="primary"
                             size="large"
@@ -62,7 +62,7 @@
                     </a-form-model-item>
                 </a-form-model>
 
-                <span v-on:click="ToLogin">已有账号?马上登入</span>
+                <span v-on:click="ToLogin">已有账号?马上登录</span>
             </div>
         </div>
     </div>
@@ -124,13 +124,13 @@ export default{
                 params.append('username', this.userinfo.username);
                 params.append('password', this.userinfo.password);
                 console.log(params)
-                this.$axios.post("/login",params).then((res)=>{
+                this.$axios.post("/api/login",params).then((res)=>{
                     console.log(res.data)
                     console.log(typeof res.data)
                     if(res.data.code == -1){
                         this.$message.error("用户名密码错误")
                     }else if(res.data.code == 1){
-                        this.$message.success( "登入成功")
+                        this.$message.success( "登录成功")
                         setCookie("username",this.userinfo.username,1000*60)
                         setTimeout(function(){
                             this.$router.push("/homme_menu")

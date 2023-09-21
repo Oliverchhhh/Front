@@ -143,8 +143,9 @@ export default {
       htmlTitle:"对抗攻击评估报告",
       echart_init: false,
       res:{},
+      setCellWidth:[0.08, 0.22, 0.22, 0.22, 0.22, 0.04],
       selectPicList: [
-        ["攻击方法", "加噪前", "噪声", "加噪后"],
+        ["攻击方法", "加噪前", "噪声", "加噪后","下载"],
         ]
     }
   },
@@ -185,7 +186,7 @@ export default {
         this.res.mintimemethod = ""
         this.res.timelist = []
         this.selectPicList = [
-        ["攻击方法", "加噪前", "噪声", "加噪后"],
+        ["攻击方法", "加噪前", "噪声", "加噪后","下载"],
         ]
         for(let temp in this.result.adv_attack){
           if( ["stop","tid", "stidlist"] .indexOf(temp) == -1){
@@ -204,13 +205,24 @@ export default {
             this.res.labels.push(temp)
             this.res.ASRlist.push(this.result.adv_attack[temp].asr.toFixed(2))
             this.res.timelist.push(this.result.adv_attack[temp].time.toFixed(4))
-            let bef_dirname = './static/output'+this.result.adv_attack[temp].pic[0].split("output")[1]
-            let adv_dirname = './static/output'+this.result.adv_attack[temp].pic[1].split("output")[1]
-            let per_dirname = './static/output'+this.result.adv_attack[temp].pic[2].split("output")[1]
-            this.selectPicList.push([temp, [[`${bef_dirname}`], "pic"], [[`${per_dirname}`], "pic"],[[`${adv_dirname}`], "pic"]])
+            if (this.result.adv_attack[temp].pic.length>0 ){
+              let bef_dirname = './static/output'+this.result.adv_attack[temp].pic[0].split("output")[1]
+              let adv_dirname = './static/output'+this.result.adv_attack[temp].pic[1].split("output")[1]
+              let per_dirname = './static/output'+this.result.adv_attack[temp].pic[2].split("output")[1]
+              let data_path = this.result.adv_attack[temp].path
+              this.selectPicList.push([temp+"数据量:"+this.result.adv_attack[temp].num, [[`${bef_dirname}`], "pic"], [[`${per_dirname}`], "pic"],[[`${adv_dirname}`], "pic"],[[`${data_path}`],'download']])
+
+            }else{
+              let data_path = this.result.adv_attack[temp].path
+              this.selectPicList.push([temp+" 数据量："+this.result.adv_attack[temp].num, ["无", "text"], ["无", "text"], ["无", "text"], [[`${data_path}`],'download']])
+            }
+            
           }
         }
         this.res["score"] = 100-this.res.maxasr
+        if (this.res["score"] < 40){
+          this.res["score"] += 10
+        }
         if(this.res["score"] >= 80 ){
           this.res["Eva"] = "优秀"
         }else if (this.res["score"] <80 && this.res["score"] >=60 ){
@@ -231,7 +243,7 @@ export default {
             axisPointer: {
               type: 'shadow'
             },
-            formatter: '{c}%'
+            
           },
           yAxis: {
             name:"攻击成功率",
@@ -261,7 +273,7 @@ export default {
             axisPointer: {
               type: 'shadow'
             },
-            formatter: '{c}s'
+            
           },
           xAxis: {
             name:"算法名称",

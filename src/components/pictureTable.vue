@@ -55,6 +55,12 @@
                                     :style="{ width: pixModify(colWidth[col_index], -10), height: cellHeight }">
                                     <p >{{ entity[0] }}</p>
                                 </div>
+                                <!-- button类型 -->
+                                <div v-if="entity[1] == 'download'" class="text-content center-horizen"
+                                    style="display:flex; justify-content: center; align-items: center;"
+                                    :style="{ width: pixModify(colWidth[col_index], -10), height: cellHeight }">
+                                    <button @click="downloadData(entity[0])" ><a-icon type="download" />下载</button>
+                                </div>
                                 <!-- 图片类型 -->
                                 <img @error="noExistImg" v-if="entity[1] == 'pic'" :id="tableId + '_' + row_index + '_' + col_index"
                                     class="picture" :src="entity[0]" style="
@@ -221,6 +227,40 @@ export default {
         }
     },
     methods: {
+        downloadData(path){
+            debugger
+            if (confirm("您确认下载生成测试样本？") ) {
+                let param = new FormData();       // 创建form对象    
+                let file = path
+                param.append('file', file);       // 通过append向form对象添加数据
+                param.append("type", 'dictionary'); // 添加form表单中其他数据
+                let post_file = param;
+                let config = {
+                    headers: {'Content-Type': 'multipart/form-data'},
+                    responseType: "blob"
+                };
+                this.$axios.post("/api/Task/DownloadData", post_file, config).then((res)=>{
+                    console.log(res);
+                    var zipName = "download"; // 下载的文件名
+                    // let blob = new Blob([res.data], { type: "application/zip" }); // 下载格式为zip
+                    let blob = new Blob([res.data], { type: "application/octet-stream" });
+                    if ("download" in document.createElement("a")) {
+                        let elink = document.createElement("a"); // 创建一个<a>标签
+                        elink.style.display = "none"; // 隐藏标签
+                        elink.href = window.URL.createObjectURL(blob); // 配置href
+                        elink.download = zipName;
+                        elink.click();
+                        URL.revokeObjectURL(elink.href); // 释放URL 对象
+                        document.body.removeChild(elink); // 移除<a>标签
+                    } else {
+                    //IE10+
+                    navigator.msSaveBlob(blob, zipName);
+                    }
+                }).catch((err)=>{
+                    console.log(err)
+                })
+            }
+        },
         noExistImg(e){
             // debugger
             e.target.src=this.errorImg;

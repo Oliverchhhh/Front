@@ -551,7 +551,7 @@ export default {
                     }
                     that.maxRate = maxRate;
                     that.maxMethod = maxMethod
-                    drawbar("defenseBarEchart",rateList,label, "", "检出率", "算法名称")
+                    drawbar("defenseBarEchart",rateList,label, "", "算法名称", "检出率")
                     // output路径需修改
                     if ( label.indexOf("Neural Cleanse L1") > -1 ){
                         that.NCres.name.push("Neural Cleanse L1");

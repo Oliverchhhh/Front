@@ -41,11 +41,11 @@
                                 v-bind="info" :indexInParent="index" @selectMethod="changeAdvMethod" :checked="index == advMethod">
                             </MethodCard>
                             <div class="mainParamName48">请输入攻击样本数</div>
-                            <a-input class="samplenumBox" v-model="sampleNum" style="height: 60px;padding:16px 24px;" placeholder="请在此输入攻击样本数，（输入范围1-1000，建议值50）" />
+                            <a-input class="samplenumBox" v-model="sampleNum" style="height: 60px;padding:16px 24px;" placeholder="请在此输入攻击样本数，（输入范围1-10000，建议值50）" />
 
                             <div class="mainParamName48">请选择防御方法（可多选）</div>
 
-                            <div v-for="(methods, i) in defensemethodInfo" :key="i" style="margin-bottom: 16px;">
+                            <div v-for="(methods, i) in showdefensemethodInfo" :key="i" style="margin-bottom: 16px;">
                                 <a-row :gutter="16" style="height:60px" type="flex">
                                     <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod" >
                                         <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
@@ -146,7 +146,6 @@ export default {
             errorImg:errorImg,
             /* 日志内容，调用日志接口获取 */
             logtext: [],
-            dataname: ["German", "Adult", "Compas"],
             /* 功能介绍模块信息 */
             funcDesText: {
                 /* 功能名称 */
@@ -236,8 +235,14 @@ export default {
                     description: "Projected Gradient Descent (PGD) 攻击的原理是利用梯度下降法来最大化对模型的分类错误。在PGD攻击中，首先选择一个输入样本作为初始值，然后对其进行多次修改，使得分类模型的错误最大化",
                     attributes:[]
                 },
+                {
+                    name: "BPDA",
+                    description: "Backward Pass Differentiable Approximation（BPDA）攻击的原理是在前向传播中使用非可微的操作，但在反向传播中将其替换为可微的近似操作，以估算对抗样本的梯度，从而最大化对模型的分类错误",
+                    attributes:[]
+                },
             ],
             advMethod:0,
+            showdefensemethodInfo:[],
             defensemethodInfo: [
                 [
                     {
@@ -278,10 +283,10 @@ export default {
                         description:"通过降低标签的置信度来降低模型对对抗样本的过度敏感性。通过从每个类别的真实标签中减去一个小的值，将标签的置信度降低，从而使模型对不符合预期的对抗样本的鲁棒性得到提高",
                     },
                     {
-                        name:"PixelDefend",
+                        name:"Pixel Defend",
                         id:"Pixel Defend",
                         description:"通过将恶意扰动的图像移回训练数据中的分布来去噪。PixCNN是专为图像像素分布设计的一个自回归生成模型，该模型用条件概率分布的乘积来定义所有像素上的联合分布。利用PixCNN把对抗样本的分布移回到正常样本的分布，以实现去噪",
-                    },
+                    }
                 ],
                 [
                     {
@@ -367,6 +372,7 @@ export default {
     },
     created() {
        document.title = '对抗攻击防御';
+       this.showdefensemethodInfo = this.defensemethodInfo
        },
     //在离开页面时执行
     beforeDestroy() {
@@ -426,16 +432,17 @@ export default {
             this.initParam()
             let dataset = this.dataSetInfo[this.selectedDataset].name;
             let model = this.modelInfo[this.selectedModel].name
-            if (1 <= this.sampleNum && this.sampleNum <= 1000 ){
+            if (1 <= this.sampleNum && this.sampleNum <= 10000 ){
             }
             else{
-                this.$message.warning('请输入攻击样本数量，输入范围为1-1000，建议值50！',3);
+                this.$message.warning('请输入攻击样本数量，输入范围为1-10000，建议值50！',3);
                 return 0;
             }
             if (this.selectedDefenseMethod.length == 0){
                 this.$message.warning('请至少选择一项防御方法！',3);
                 return 0;
             }
+            
             this.logflag = true;
             var that = this;
 
@@ -450,7 +457,7 @@ export default {
                     adv_model: model,
                     adv_method: that.methodInfo[that.advMethod].name,
                     adv_nums: that.sampleNum,
-                    defense_methods: JSON.stringify(that.selectedDefenseMethod),
+                    defense_methods: that.selectedDefenseMethod,
                     tid: that.tid
                 };
                 console.log(this.postData)
@@ -534,6 +541,20 @@ export default {
         changeAdvMethod(index){
             console.log(index)
             this.advMethod=index;
+            if (this.methodInfo[this.advMethod].name == 'BPDA'){
+                this.showdefensemethodInfo = [[{
+                        name:"Pixel Defend",
+                        id:"Pixel Defend",
+                        description:"通过将恶意扰动的图像移回训练数据中的分布来去噪。PixCNN是专为图像像素分布设计的一个自回归生成模型，该模型用条件概率分布的乘积来定义所有像素上的联合分布。利用PixCNN把对抗样本的分布移回到正常样本的分布，以实现去噪",
+                    },
+                    {
+                        name:"Pixel Defend Enhanced",
+                        id:"Pixel Defend Enhanced",
+                        description:"防御方法的原理是将正常训练的模型替换为对抗训练的模型，然后使用Pixel Defend对输入进行变换以防御BPDA攻击。",
+                    }]]
+            }else{
+                this.showdefensemethodInfo = this.defensemethodInfo
+            }
         },
         methodButtonOver(i, j) {
             // let button = document.getElementById("button" + i + j)
@@ -548,11 +569,11 @@ export default {
             let button = document.getElementById("button" + i + j)
             if (button.style.color == "") {
                 this.methodHoverIndex = i
-                this.methodDescription = this.defensemethodInfo[i][j].description
+                this.methodDescription = this.showdefensemethodInfo[i][j].description
                 button.style.color = "#0B55F4"
                 button.style.borderColor = "#C8DCFB"
                 button.style.background = "#E7F0FD"
-                this.selectedDefenseMethod.push(this.defensemethodInfo[i][j].id)
+                this.selectedDefenseMethod.push(this.showdefensemethodInfo[i][j].id)
             } else {
                 this.methodHoverIndex = -1
                 this.methodDescription = ""
@@ -560,7 +581,7 @@ export default {
                 button.style.borderColor = "#C8DCFB"
                 button.style.background = "#F2F4F9"
                 button.blur()
-                this.selectedDefenseMethod.splice(this.selectedDefenseMethod.indexOf(this.defensemethodInfo[i][j].id), 1 )
+                this.selectedDefenseMethod.splice(this.selectedDefenseMethod.indexOf(this.showdefensemethodInfo[i][j].id), 1 )
             }
         },
     }
