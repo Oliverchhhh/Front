@@ -155,6 +155,11 @@ const router = new Router({
     name: 'inject',
     component: () => import('../views/inject.vue')
   },
+  {
+    path: '/hardOpt',
+    name: 'hardOpt',
+    component: () => import('../views/hardwareOptimization.vue')
+  },
   // 组装的形式化验证页面
   {
     path: '/formalVerfy',

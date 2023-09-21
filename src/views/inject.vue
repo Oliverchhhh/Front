@@ -495,7 +495,7 @@ export default {
             let inject_acc = clockObj["average-acc"];
             this.subACC = (pristine_acc-inject_acc).toFixed(2);
             this.injectRate = Math.round(inject_acc/pristine_acc*100)
-            if(this.injectRate<60){
+            if(this.injectRate<=60){
                 this.score_evaluate="较差";
             }else if (this.injectRate > 60 && this.injectRate <=80){
                 this.score_evaluate = "良好";

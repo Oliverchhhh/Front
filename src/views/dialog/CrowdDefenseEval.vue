@@ -27,7 +27,7 @@
         
                         </a-col>
                         <a-col :span="5">
-                          <div class="grid-content-value">{{postData.Dataset}}</div>
+                          <div class="grid-content-value">{{postData.DatasetParam.name}}</div>
 
                         </a-col>
                         <a-col :span="2">
@@ -35,7 +35,7 @@
 
                         </a-col>
                         <a-col :span="5">
-                          <div class="grid-content-value">{{postData.Model}}</div>
+                          <div class="grid-content-value">{{postData.ModelParam.name}}</div>
  
                         </a-col>
                         <a-col :span="2">
@@ -43,17 +43,36 @@
      
                         </a-col>
                         <a-col :span="8">
-                          <div class="grid-content-value">{{defenseShow(postData.Method)}}</div>
+                          <div class="grid-content-value">{{defenseShow(postData.AdvMethods)}}</div>
                         </a-col>
                         <a-col :span="2">
                           <div class="grid-content-name" style="color:#6C7385">群智化防御方法:</div>
      
                         </a-col>
                         <a-col :span="8">
-                          <div class="grid-content-value">{{ defenseShow(postData.Defense) }}</div>
+                          <div class="grid-content-value">{{ defenseShow(postData.DefMethod) }}</div>
                         </a-col>
                       </a-row>
                     </div>
+                    <!-- 原始准确率 & 受攻击后的准确率 -->
+                    <div>
+                      <div class="result-title">受攻击前后的准确率变化</div>
+                      <div id="acc_ori" class="echart" style="width: 1000px; height: 400px;"></div>
+                      <div class="conclusion">
+                        <p class="result_text ">本次测试受{{sub_acc_method}}攻击后的准确率下降最大，下降幅度为{{max_sub_acc}}</p>
+                      </div>
+                    </div>
+                    <!-- 不同攻击方法的攻击成功率 -->
+                    <div>
+                      <div class="result-title">不同攻击方法的攻击成功率对比</div>
+                      <div id="asr_ori" class="echart" style="width: 1000px; height: 400px;"></div>
+                      <div class="conclusion">
+                        <p class="result_text ">本次测试{{method}}攻击算法的攻击成功率最高，最高为{{max_asr}}</p>
+                      </div>
+                    </div>
+                    <!-- 对抗训练后的攻击成功率 -->
+                    <!-- 对抗训练后的准确率 -->
+                    <!--  -->
                     <!-- Nash博弈结果 -->
                     <div > 
                       <div class="result-title">准确率收益直方图</div>
@@ -73,8 +92,10 @@
                       </div>
                     </div>
                     <!-- 评估详情 -->
+
                     <div class="result-title">防御模型在各种攻击下的准确率变化</div>
                     <div>
+                      
                       <!-- 待修改：柱状图 -->
                       <div id="myChart" class="echart" style="width: 1000px; height: 400px;"></div>
                       <div class="conclusion">
@@ -145,10 +166,8 @@ export default {
       res:{},
       postData:{
         // 静态结果
-        "Dataset": "MNIST",
-        "Model": "ResNet34",
-        
-
+        "DatasetParam": {"name":"MNIST"},
+        "ModelParam": {"name":"ResNet34"},
       },
       selectPicList: [
         ["攻击方法", "加噪前", "噪声", "加噪后"],
@@ -157,7 +176,7 @@ export default {
   },
   watch:{
     result(newValue, oldValue){
-      if ("adv_attack" in newValue){
+      if ("Defense_Ensemble" in newValue){
 
         this.updated()
       }

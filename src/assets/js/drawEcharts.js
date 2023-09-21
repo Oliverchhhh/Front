@@ -167,6 +167,120 @@ function drawbar(ID, data, label, name='',xname='', yname=''){
     },500)
   }
 
+function drawbarhigh(ID, data, label, name='',xname='', yname=''){
+  var option;
+  let max = Math.round(Math.max.apply(null,data)+1)
+  let internum = Math.round(max/10)
+  
+  option = {
+    title:{
+      text:name,
+      textStyle:{
+        fontFamily : 'HONOR Sans CN',
+        fontStyle:'normal',
+        fontWeight:700,
+        fontSize:14,
+        color:"#000000"
+      },
+      x:'center',
+      y:'bottom'
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      }
+    },
+    grid:{
+      x:"8%",
+      y:"10%",
+      x2:"10%",
+      y2:"15%",
+    },
+    xAxis: {
+      type: 'category',
+      name:xname,
+      data: label,
+      axisLabel:{
+        show:true,
+        // rotate: '45',
+        textStyle:{
+          color: "#3E4453",
+          fontSize:12,
+          fontFamily : 'HONOR Sans CN',
+        fontStyle:'normal',
+        fontWeight:400,
+        }
+      },
+      axisLine:{
+        onZero:true,
+        lineStyle:{
+          color:'#B4B9C5'
+        }
+      }
+    },
+    yAxis: {
+      name:yname,
+      type: 'value',
+      min:0,
+      max:max,
+      interval:internum,
+      axisLabel:{
+        show:true,
+        textStyle:{
+          color: "#6C7385",
+          fontSize:12,
+          fontFamily : 'HONOR Sans CN',
+        fontStyle:'normal',
+        fontWeight:400,
+        },
+        // margin: 10px,
+      },
+      axisLine:{
+        show:false,
+        lineStyle:{
+          color:'#B4B9C5'
+        }
+      },
+      splitLine: {
+        show: true,
+        lineStyle:{
+          color:"#E0E3EB",
+            type:'solid'
+        }
+      }
+    },
+    series: [
+      {
+        data: data,
+        type: 'bar',
+        showBackground: false,
+        barMaxWidth: '100',
+        itemStyle:{
+          normal:{
+            color:'rgba(11, 85, 244, 0.8)',
+            label:{
+              show:true,
+              position:"top",
+              fontSize:12,
+              color:"rgba(0, 0, 0, 1)",
+              fontFamily : 'HONOR Sans CN',
+          fontStyle:'normal',
+          fontWeight:400,
+            }
+          }
+        }
+      }
+    ]
+  };
+  setTimeout(function(){
+      var myChartcons = echarts.init(document.getElementById(ID));
+      window.addEventListener("resize", function () {
+          myChartcons.resize()});
+      option && myChartcons.setOption(option);
+  },500)
+}
+
 //敏感属性直方图 提升
 function drawbarimproved( ID, data, data2, label, name){
     var option;
@@ -1516,5 +1630,6 @@ export {
   exportResult, drawImportanceCoverage,
   drawAcc_or_loss,
   draw_score_polar, 
-  drawside, drawTtest, drawALLPA
+  drawside, drawTtest, drawALLPA,
+  drawbarhigh
 }
