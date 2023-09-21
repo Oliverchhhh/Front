@@ -1353,6 +1353,155 @@ setTimeout(function(){
   option && myChartcons.setOption(option);
 },500)
 }
+
+function drawside(ID, data){
+  // debugger
+  var _x = [];
+  for (var i = 0; i < data.len; i++) {
+      _x.push(i);
+  }
+  var _y = data["50-all-1"];
+  var option;
+  option = {
+      tooltip: { trigger: 'axis', axisPointer: { lineStyle: { color: '#ffffff' } } },
+      grid: {
+          top: 30
+      },
+      xAxis: {
+          type: 'category',
+          data: _x,
+          name: "时间",
+          axisLine: { lineStyle: { color: '#57617B' } },
+          splitLine: { lineStyle: { color: '#57617B' } },
+          axisLabel: {
+              fontSize: 12,
+              color: "#000000",
+              fontWeight: "normal",
+          }
+      },
+      yAxis: {
+          type: 'value',
+          name: "mV",
+          axisLine: { lineStyle: { color: '#000' } },
+          splitLine: { lineStyle: { color: '#57617B' } },
+          axisLabel: {
+              fontSize: 10,
+              color: "#000000",
+              fontWeight: "normal",
+          }
+      },
+      series: [
+
+          {
+              name: "功耗",
+              data: _y,
+              type: 'line',
+              animationDuration: 2500,
+              lineStyle: {
+                  width: 0.2
+              },
+              symbolSize: 1,
+              itemStyle: { normal: { color: "#0B55F4" } }
+          },
+      ]
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+      option && myChartcons.setOption(option);
+  },500)
+}
+
+function drawTtest(ID, xdata, ydata) {
+  debugger
+  var option;
+  option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      name:'曲线点数',
+      data: xdata
+    },
+    yAxis: {
+      max:5,
+      min:-5,
+      type: 'value',
+      name:'检测阈值'
+    },
+    series: [
+      {
+        data: ydata,
+        type: 'line',
+        markLine: {
+          data: [{
+            name:'阈值',
+            yAxis: 4.5
+            // type: "average"
+          },
+          {
+            name:'阈值',
+            yAxis: -4.5
+            // type: "average"
+          },
+        ],
+          silent: true
+        }
+        // smooth: true
+      }
+    ]
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+      option && myChartcons.setOption(option);
+  },500)
+}
+
+
+// function drawALLPA(ID, xdata, ydata, fdata, tdata) {
+function drawALLPA(ID, legend, x_data, serieslist) {
+  // debugger
+  // console.log(legend);
+  // console.log(x_data);
+  // console.log(serieslist);
+  var option;
+  option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+    legend: {
+      data: legend
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: x_data,
+    },
+    yAxis: {
+      type: 'value',
+      name:"相关性系数"
+    },
+    series: serieslist
+  }
+
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+    option && myChartcons.setOption(option);
+  },500)
+}
+
 export {
   drawclass1pro,
   drawbar,
@@ -1366,5 +1515,6 @@ export {
   drawLineBar,
   exportResult, drawImportanceCoverage,
   drawAcc_or_loss,
-  draw_score_polar
+  draw_score_polar, 
+  drawside, drawTtest, drawALLPA
 }

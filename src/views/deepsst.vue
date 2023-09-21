@@ -87,14 +87,18 @@
                 <showLog :percent="percent" :logtext="logtext"></showLog>
             </div>
             <!-- 结果展示 -->
-            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+            <resultDialog  @on-close="closeDialog" 
+               :isShow="isShowPublish" 
+               v-show="isShowPublish"
+               ref="report_pdf"
+               >
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                         <h1>敏感神经元测试准则</h1>
                     </div>
                 </div>
-                <div id="download_page" class="dialog_publish_main" slot="main">
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
                     <!-- 图表 -->
                     <div class="result_div">
                         <div class="conclusion_info">
@@ -117,9 +121,10 @@
                             </div>
                         </div>
                     </div>
-                    <div>
-                        <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
-                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
                 </div>
             </resultDialog>
         </a-layout-content>
@@ -129,7 +134,8 @@
         </a-layout>
      </div>
 </template>
-<script src="../assets/js/convnetdraw.js"></script>
+<!-- 画卷积神经网络convnetdraw -->
+<!-- <script src="../assets/js/convnetdraw.js"></script> -->
 <script type="text/javascript">
 
 </script>
@@ -185,6 +191,7 @@ export default {
     // },
     data(){
         return{
+            htmlTitle:"敏感神经元测试准则",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
@@ -248,7 +255,7 @@ export default {
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
-            stid:"",
+            stidlist:"",
             /* 异步任务结果查循环clock */
             clk:"",
             /* 日志查询clock*/
@@ -301,8 +308,6 @@ export default {
         },
         exportResult(){
             if (confirm("您确认下载该pdf文件吗？") ){
-                document.body.scrollTop = document.documentElement.scrollTop = 0;
-                // 输出pdf尺寸为download_page大小
                 var element = document.getElementById("download_page");
                 const opt = {
                     margin:[10, 20, 10, 20],
@@ -327,6 +332,9 @@ export default {
                 this.result.res = "差"
             }
             this.result.img_list  = res.DeepSst.SampleForPre;
+            for(var i in this.result.img_list){
+                this.result.img_list[i] = 'static/output'+this.result.img_list[i].split('output')[1];
+            }
         },
 
         /* 获取结果 */ 
@@ -346,17 +354,20 @@ export default {
             if (that.percent<99){
                 that.percent+=1;
             }
-            that.logflag = true;
-            that.$axios.get('/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                that.logtext = data.data.Log[that.stid];
-                // this.$nextTick(()=> {
-                //     that.logflag = true
-                // });  
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
             });
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            debugger;
+            // debugger;
             // var that = this;
             if (this.res_tmp.data.stop) {
                 // 关闭日志显示
@@ -386,7 +397,7 @@ export default {
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
-            debugger
+            // debugger
             /*判断选择*/
 
             /* 备份 */ 
@@ -394,9 +405,8 @@ export default {
             
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-                // that.tid = result.data.Taskid;
-                that.tid = "20230710_0947_cb6f9b5";
-                
+                that.tid = result.data.Taskid;
+                                
                 /* 请求体 postdata*/
                 const postdata={
                     dataset:that.datasetChoice,
@@ -415,10 +425,9 @@ export default {
                     // that.result = res.data;
                     // that.resultPro(res.data);
                     // 异步任务
-                    that.stid="S20230710_0947_86ed575"
-                    // that.stid =  res.data.stid;
-                    that.logclk = self.setInterval(that.getLog, 500);
-                    that.clk = self.setInterval(that.update, 500);
+                    that.stidlist =  {"DeepSst":res.data.stid}
+                    that.logclk = self.setInterval(that.getLog, 3000);
+                    that.clk = self.setInterval(that.update, 3000);
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -641,13 +650,17 @@ text-align: left;
     justify-content: center;
     align-items: center;
     width: 900px;
+    margin-top: 5%;
 }
 
 .graph_show {
-    width: 300px;
-    height: 300px;
+    width: 250px;
+    height: 150px;
 }
 
+.graph_show img{
+    width: 100px;
+}
 
 .title_annotation{
     /* width: 217px;

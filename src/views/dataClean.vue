@@ -272,7 +272,6 @@ import func_introduce from "../components/funcIntroduce.vue"
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
-// import uploadDataset from "../components/uploadDataset.vue"
 /* 引入自定义js，结果显示 */
 /* 引入图片 */
 import funcicon from "../assets/img/dataCleanIcon.png"

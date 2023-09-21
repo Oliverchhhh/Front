@@ -216,7 +216,7 @@
       <!-- 硬件类功能block -->
       <div class="funcs">
         <!-- 侧信道分析 -->
-        <ifreme  @click.native="goFuncPage('')">
+        <ifreme  @click.native="goFuncPage('/side')">
           <div slot="func_icon">
             <!-- 图片：待替换 -->
             <img class="icon_img" src="../assets/img/sideAnalysisIcon.png"> 

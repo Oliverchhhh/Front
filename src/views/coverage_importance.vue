@@ -116,14 +116,18 @@
                 <showLog :percent="percent" :logtext="logtext"></showLog>
             </div>
             <!-- 结果展示 -->
-            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+            <resultDialog  @on-close="closeDialog" 
+               :isShow="isShowPublish" 
+               v-show="isShowPublish"
+               ref="report_pdf"
+               >
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                         <h1>重要神经元覆盖准则</h1>
                     </div>
                 </div>
-                <div id="download_page" class="dialog_publish_main" slot="main">
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
                     <!-- 图表 -->
                     <div class="result_div">
                         <div class="conclusion_info">
@@ -142,12 +146,12 @@
                             <div class="conclusion">
                                 <p class="result_text">随着测试的进行，神经元重要程度的变化过程如图。条形图的横轴代表目标层的神经元，纵轴代表每个神经元的重要度量值。对关键神经元进行测试可以大幅降低复杂度。</p>
                             </div>
-                        </div>
-                        
+                        </div>                  
                     </div>
-                    <div>
-                        <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
-                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
                 </div>
             </resultDialog>
         </a-layout-content>
@@ -201,6 +205,7 @@ export default {
 },
     data(){
         return{
+            htmlTitle:"重要神经元覆盖准则",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
@@ -289,7 +294,7 @@ export default {
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
-            stid:"",
+            stidlist:"",
             /* 异步任务结果查循环clock */
             clk:"",
             /* 日志查询clock*/
@@ -313,8 +318,7 @@ export default {
         document.title = '标准化单元测试';
         },
     methods: { 
-        
-        /* 关闭结果窗口 */
+                /* 关闭结果窗口 */
         closeDialog(){
             this.isShowPublish=false;
             //把绑定的弹窗数组 设为false即可关闭弹窗
@@ -356,8 +360,7 @@ export default {
         },
         exportResult(){
             if (confirm("您确认下载该pdf文件吗？") ){
-                document.body.scrollTop = document.documentElement.scrollTop = 0;
-                // 输出pdf尺寸为download_page大小
+                                // 输出pdf尺寸为download_page大小
                 var element = document.getElementById("download_page");
                 const opt = {
                     margin:[10, 20, 10, 20],
@@ -394,12 +397,15 @@ export default {
             if (that.percent<99){
                 that.percent+=1;
             }
-            that.logflag = true;
-            that.$axios.get('/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                that.logtext = data.data.Log[that.stid];
-                // this.$nextTick(()=> {
-                //     that.logflag = true
-                // });  
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
             });
         },
         /* 停止结果获取循环 */ 
@@ -408,6 +414,7 @@ export default {
             // var that = this;
             if (this.res_tmp.data.stop) {
                 // 关闭日志显示
+                this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
                 clearInterval(this.clk);
@@ -440,8 +447,7 @@ export default {
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 that.tid = result.data.Taskid;
-                // that.tid = "20230705_1519_c9fd593";
-                
+                                
                 /* 请求体 postdata*/
                 const postdata={
                     dataset:that.datasetChoice,
@@ -452,18 +458,10 @@ export default {
                 that.$axios.post("/UnitTest/CoverageImportanceParamSet", postdata).then((res) => {
                     
                     that.logflag = true;
-                    console.log(res);
-                    /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示，异步任务返回stid */
-                    // 同步任务
-                    // that.logflag = false;
-                    // that.isShowPublish = true;
-                    // that.result = res.data;
-                    // that.resultPro(res.data);
-                    // 异步任务
-                    // that.stid="S20230704_1557_6aa2239"
-                    that.stid =  res.data.stid;
-                    that.logclk = self.setInterval(that.getLog, 500);
-                    that.clk = self.setInterval(that.update, 500);
+                                        // 异步任务
+                    that.stidlist =  {"CoverageImportance":res.data.stid}
+                    that.logclk = self.setInterval(that.getLog, 3000);
+                    that.clk = self.setInterval(that.update, 3000);
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -471,10 +469,7 @@ export default {
                 console.log(err)
             });    
         }
-    },
-    // mounted:function(){
-    //     this.play()
-    // }
+    }
 }
 </script>
 <!-- <style  scoped> -->
@@ -682,7 +677,9 @@ text-align: left;
 
 
 .graph_show {
-    width: 400px;
+    margin:10% auto;
+    /* width: 400px; */
+    max-width: 700px;
     height: 400px;
 }
 

@@ -80,11 +80,11 @@
                         </div>
                         <div class="thresholdSet">
                             <p class="mainParamName">请输入神经元激活阈值</p>
-                            <a-input id="param_runtimes" class="paramsInput" placeholder="神经元激活值应该排在该层神经元的前多少位，范围[0,1]，默认值0.1" @change="onThresholdChange"/>
+                            <a-input id="" class="paramsInput" placeholder="请输入神经元被激活的阈值，默认值为 0，范围是[0,＋∞]" @change="onThresholdChange"/>
                         </div>
                         <div class="imagesTested">
                             <p class="mainParamName">请输入测试图片数量</p>
-                            <a-input id="param_runtimes" class="paramsInput" placeholder="请输入测试图片数量，范围是[1,10000]" @change="onImagesNumberChange"/>
+                            <a-input id="" class="paramsInput" placeholder="请输入测试图片数量，范围是[1,10000]" @change="onImagesNumberChange"/>
                         </div>
                     </div>
                 </div>
@@ -94,14 +94,18 @@
                 <showLog :percent="percent" :logtext="logtext"></showLog>
             </div>
             <!-- 结果展示 -->
-            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+            <resultDialog  @on-close="closeDialog" 
+               :isShow="isShowPublish" 
+               v-show="isShowPublish"
+               ref="report_pdf"
+               >
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                         <h1>神经层覆盖准则</h1>
                     </div>
                 </div>
-                <div id="download_page" class="dialog_publish_main" slot="main">
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
                     <!-- 图表 -->
                     <div class="result_div">
                         <div class="conclusion_info">
@@ -117,22 +121,18 @@
                                 <div v-for="(item, index) in result.img_list" v-show="index==mark" :key="index">
                                     <!-- <iframe class="graph_show" :src="item.imgUrl"></iframe> -->
                                     <img class="graph_show" :src="item.imgUrl" alt="">
-                                    <p>当前覆盖率：{{ item.coverage }}%</p>
+                                    <p style="margin: 1% auto 12% auto;">当前覆盖率：{{ item.coverage }}%</p>
                                 </div>
                             </div>
-                            
-                            <!-- <div v-for="item in img_list" :key="item">>
-                                <p>当前覆盖率：{{  }}</p>
-                                <img class="" >
-                            </div> -->
                             <div class="conclusion">
                                 <p class="result_text">理论上经过充分测试的模型覆盖率应该接近100%，如果覆盖率小于80%，则模型存在安全隐患的可能性较大。由于深度网络参数过多，图片里进行压缩显示，每个圆点代表多个神经元，圆点的深度代表对应神经元被激活的比例，深蓝色为全部激活。对于超大模型，只显示前20层的激活情况，但覆盖率数值对应整个模型。</p>
                             </div>
                         </div>
                     </div>
-                    <div>
-                        <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
-                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
                 </div>
             </resultDialog>
         </a-layout-content>
@@ -185,6 +185,7 @@ export default {
     },
     data(){
         return{
+            htmlTitle:"神经层覆盖准则",
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
@@ -259,7 +260,7 @@ export default {
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
-            stid:"",
+            stidlist:"",
             /* 异步任务结果查循环clock */
             clk:"",
             /* 日志查询clock*/
@@ -332,8 +333,6 @@ export default {
         },
         exportResult(){
             if (confirm("您确认下载该pdf文件吗？") ){
-                document.body.scrollTop = document.documentElement.scrollTop = 0;
-                // 输出pdf尺寸为download_page大小
                 var element = document.getElementById("download_page");
                 const opt = {
                     margin:[10, 20, 10, 20],
@@ -350,7 +349,8 @@ export default {
             debugger;
             this.result.img_list = res.CoverageLayer.coverage_test_yz.coverage_layer;
             for(var i=0; i<this.result.img_list.length;i++){
-                this.result.img_list[i]["coverage"] = parseInt(100*this.result.img_list[i]["coverage"])
+                this.result.img_list[i]["coverage"] = parseInt(100*this.result.img_list[i]["coverage"]);
+                this.result.img_list[i]["imgUrl"]='static/output'+this.result.img_list[i]["imgUrl"].split('output')[1];
             }
             this.play();
         },
@@ -381,12 +381,15 @@ export default {
             if (that.percent<99){
                 that.percent+=1;
             }
-            that.logflag = true;
-            that.$axios.get('/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                that.logtext = data.data.Log[that.stid];
-                // this.$nextTick(()=> {
-                //     that.logflag = true
-                // });  
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
             });
         },
         /* 停止结果获取循环 */ 
@@ -395,6 +398,7 @@ export default {
             // var that = this;
             if (this.res_tmp.data.stop) {
                 // 关闭日志显示
+                this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
                 clearInterval(this.clk);
@@ -437,7 +441,6 @@ export default {
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 that.tid = result.data.Taskid;
-                // that.tid = "20230530_0948_0c0a104";
                 
                 /* 请求体 postdata*/
                 const postdata={
@@ -449,18 +452,10 @@ export default {
                 that.$axios.post("/UnitTest/CoverageLayerParamSet", postdata).then((res) => {
                     
                     that.logflag = true;
-                    // console.log(res);
-                    /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示，异步任务返回stid */
-                    // 同步任务
-                    // that.logflag = false;
-                    // that.isShowPublish = true;
-                    // that.result = res.data;
-                    // that.resultPro(res.data);
                     // 异步任务
-                    // that.stid="S20230530_0948_ee4c3bc"
-                    that.stid =  res.data.stid;
-                    that.logclk = self.setInterval(that.getLog, 500);
-                    that.clk = self.setInterval(that.update, 500);
+                    that.stidlist =  {"CoverageLayer":res.data.stid}
+                    that.logclk = self.setInterval(that.getLog, 3000);
+                    that.clk = self.setInterval(that.update, 3000);
                 }).catch((err) => {
                         console.log(err)
                 });
@@ -659,7 +654,9 @@ text-align: left;
 
 
 .graph_show {
-    width: 400px;
+    margin:10% auto;
+    /* width: 400px; */
+    max-width: 700px;
     height: 400px;
 }
 
