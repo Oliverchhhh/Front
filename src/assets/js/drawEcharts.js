@@ -1414,7 +1414,7 @@ function drawside(ID, data){
 }
 
 function drawTtest(ID, xdata, ydata) {
-  debugger
+  debugger;
   var option;
   option = {
     tooltip: {
@@ -1426,7 +1426,7 @@ function drawTtest(ID, xdata, ydata) {
       data: xdata
     },
     yAxis: {
-      max:5,
+      max: Math.max(5, Math.max.apply(Math, ydata)),
       min:-5,
       type: 'value',
       name:'检测阈值'
