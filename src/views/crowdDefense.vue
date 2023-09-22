@@ -445,7 +445,7 @@ export default {
         /* 获取结果 */ 
         getData(){
             var that = this;
-            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
                 that.result=data;
             });
@@ -457,7 +457,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 console.log("log:",data)
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = [Object.values(data.data.Log).slice(-1)[0]];

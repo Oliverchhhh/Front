@@ -194,9 +194,9 @@ export default {
           ev.stopPropagation();
       },
       // 防御方法参数显示-
-      defenseShow(method="[]"){
-            let param = JSON.parse(method);
-            return param.join('、');
+      defenseShow(method=[]){
+            // let param = JSON.parse(method);
+            return method.join('、');
         },
       updated(){
         //code

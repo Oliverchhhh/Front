@@ -135,7 +135,7 @@
           <div slot="header" class="func_name">模型公平性提升</div>
           <div slot="des_func" class="func_des">模型决策会存在偏见，通过公平性提升算法，提升模型的公平性，减少偏见，可视化展示提升前后对比</div>
         </ifreme>
-        <ifreme  @click.native="goFuncPage('')">
+        <ifreme  @click.native="goFuncPage('/crowdDefense')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/crowdDefenseIcon.png">
           </div>
@@ -236,6 +236,17 @@
           <div slot="header" class="func_name">故障注入</div>
           <!-- 功能描述 -->
           <div slot="des_func" class="func_des">利用时钟毛刺故障对多种深度学习模型进行攻击，高精度故障注入评估过程使用可视化方式，展示故障攻击对深度学习模型输出的影响</div>
+        </ifreme>
+        <!-- 硬件优化 -->
+        <ifreme @click.native="goFuncPage('/hardOpt')">
+          <div slot="func_icon">
+            <!-- 图片：待替换 -->
+            <img class="icon_img" src="../assets/img/faultInjectIcon.png">
+          </div>
+          <!-- 功能名 -->
+          <div slot="header" class="func_name">基于硬件优化的软硬件一体化验证</div>
+          <!-- 功能描述 -->
+          <div slot="des_func" class="func_des">从AI系统硬件运算效率的角度，实现AI系统软硬件的高效安全运行与智能驱动</div>
         </ifreme>
       </div>
     </div>
