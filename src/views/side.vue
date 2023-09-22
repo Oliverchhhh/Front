@@ -50,7 +50,7 @@
                             <a-radio-group v-model="methodChoice" @change="onMethodChoiceChange">
                                 <div class="matchedDes" v-for="(item, index) in methodChoiceList" :key="index"> 
                                     <a-radio :style="radioStyle" :value="index" :disabled="item.disindex"> {{ item.name }}</a-radio>
-                                    <p v-show="methodChoice==index" class="matchedMethodText" >{{ item.des }}</p>
+                                    <!-- <p v-show="methodChoice==index" class="matchedMethodText" >{{ item.des }}</p> -->
                                 </div>
                             </a-radio-group>
                         </div>
@@ -175,12 +175,12 @@ export default {
             },
             dataChoice: "",
             dataChoiceList: {
-                'trace1':{'name': 'Trace1', 'value': 'trace1', 'id':'(0.108.112.-9)elmotracegaus_cpa_-9.trs','disindex':false},
-                'trace2':{'name': 'Trace2', 'value': 'trace2', 'id':'(0.112.116.-9)elmotracegaus_hpa_-9.trs','disindex':false},
-                'trace3':{'name': 'Trace3', 'value': 'trace3', 'id':'(21.108.112.47)elmotracegaus_cpa_47.trs','disindex':false},
-                'trace4':{'name': 'Trace4', 'value': 'trace4', 'id':'(21.108.112.47)elmotracegaus_hpa_47.trs','disindex':false},
-                'trace5':{'name': 'Trace5', 'value': 'trace5', 'id':'(75.108.112.2)elmotracegaus_cpa_2.trs','disindex':false},
-                'trace6':{'name': 'Trace6', 'value': 'trace6', 'id':'(75.112.116.2)elmotracegaus_hpa_2.trs','disindex':false},
+                'trace1':{'name': 'Trace1', 'value': 'trace1', 'id':'(022.108.112.-9)elmotracegaus_cpa_-9.trs','disindex':false},
+                'trace2':{'name': 'Trace2', 'value': 'trace2', 'id':'(022.112.116.-9)elmotracegaus_hpa_-9.trs','disindex':false},
+                'trace3':{'name': 'Trace3', 'value': 'trace3', 'id':'(2122.108.112.47)elmotracegaus_cpa_47.trs','disindex':false},
+                'trace4':{'name': 'Trace4', 'value': 'trace4', 'id':'(2122.108.112.47)elmotracegaus_hpa_47.trs','disindex':false},
+                'trace5':{'name': 'Trace5', 'value': 'trace5', 'id':'(7522.108.112.2)elmotracegaus_cpa_2.trs','disindex':false},
+                'trace6':{'name': 'Trace6', 'value': 'trace6', 'id':'(7522.112.116.2)elmotracegaus_hpa_2.trs','disindex':false},
                 // 'trace7':{'name': 'Trace7', 'value': 'trace7', 'id':'','disindex':false},
             },
             methodChoice: "",
@@ -445,7 +445,7 @@ export default {
             if (this.res_tmp.data.stop) {
                 // 关闭日志显示
                 this.percent=100
-                this.logflag = false;
+                // this.logflag = false;
                 // 关闭结果数据获取data
                 window.clearInterval(this.clk);
                 // 关闭日志获取结果获取

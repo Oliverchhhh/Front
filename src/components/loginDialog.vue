@@ -193,7 +193,7 @@ export default {
                 params.append('username', this.userinfo.username);
                 params.append('password', this.userinfo.password);
                 console.log(params)
-                this.$axios.post("/api/login",params).then((res)=>{
+                this.$axios.post("/login",params).then((res)=>{
                     console.log(res.data)
                     console.log(typeof res.data)
                     if(res.data.code == -1){

@@ -239,7 +239,7 @@ export default {
                     headers: {'Content-Type': 'multipart/form-data'},
                     responseType: "blob"
                 };
-                this.$axios.post("/api/Task/DownloadData", post_file, config).then((res)=>{
+                this.$axios.post("/Task/DownloadData", post_file, config).then((res)=>{
                     console.log(res);
                     var zipName = "download"; // 下载的文件名
                     // let blob = new Blob([res.data], { type: "application/zip" }); // 下载格式为zip
