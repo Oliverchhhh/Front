@@ -40,8 +40,7 @@
                             
                             <a-radio-group v-model="dataChoice" @change="onDataChoiceChange">
                                 <div class="matchedDes" v-for="(item, index) in dataChoiceList" :key="index">
-                                    <a-radio :style="radioStyle" :value="index" :disabled="item.disindex">{{ item.name }}.trs</a-radio>
-                                    <div v-show="dataChoice==index" style=" width: 1100px; height: 350px;" :id = "item.value"></div>
+                                    <a-radio :style="radioStyle" :value="index" :disabled="methodFilter(dataChoice)">{{ item.name }}.trs</a-radio>
                                 </div>
                                
                             </a-radio-group>
@@ -107,7 +106,8 @@
                                 <div class="g_score_content" id="score"></div>
                                 
                                 <div class="conclusion">
-                                    <p class="result_text">{{  }}存在阈值>4.5的值，说明{{  }}有/无泄露</p>
+                                    <p v-show="methodChoice!='HPA'" class="result_text">{{ result.text1 }}存在阈值>4.5的值，说明{{ result.text2 }}泄露</p>
+                                    <p v-show="methodChoice=='HPA'" class="result_text">{{ result.text3 }}</p>
                                 </div>
                             </div>
                         </div>
@@ -181,16 +181,16 @@ export default {
                 'trace4':{'name': 'Trace4', 'value': 'trace4', 'id':'(21.108.112.47)elmotracegaus_hpa_47.trs','disindex':false},
                 'trace5':{'name': 'Trace5', 'value': 'trace5', 'id':'(75.108.112.2)elmotracegaus_cpa_2.trs','disindex':false},
                 'trace6':{'name': 'Trace6', 'value': 'trace6', 'id':'(75.112.116.2)elmotracegaus_hpa_2.trs','disindex':false},
-                'trace7':{'name': 'Trace7', 'value': 'trace7', 'id':'','disindex':false},
+                // 'trace7':{'name': 'Trace7', 'value': 'trace7', 'id':'','disindex':false},
             },
             methodChoice: "",
             methodChoiceList: {
-                'CPA':{'name': 'CPA', 'value': 'CPA','disindex':false, 'des': 'CPA描述'},
-                'DPA':{'name': 'DPA','value': 'DPA','disindex':false, 'des': 'DPA'},
-                'HPA':{'name': 'HPA','value': 'HPA','disindex':false, 'des': 'HPA描述'},
-                'SPA':{'name': 'SPA', 'value': 'SPA','disindex':false, 'des': 'SPA描述'},
-                'T-test':{'name': 'T-test','value': 'ttest','disindex':false, 'des': 'T-test描述'},
-                // 'X2-test':{'name': 'X²-Test', 'value': 'x2test','disindex':false, 'des': 'X²-Test描述'},
+                // 'CPA':{'name': 'CPA', 'value': 'cpa','disindex':false, 'des': 'CPA方法描述描述'},
+                // 'DPA':{'name': 'DPA','value': 'dpa','disindex':false, 'des': 'DPA方法描述'},
+                'HPA':{'name': 'HPA','value': 'hpa','disindex':false, 'des': 'HPA方法描述'},
+                // 'SPA':{'name': 'SPA', 'value': 'SPA','disindex':false, 'des': 'SPA方法描述'},
+                'T-test':{'name': 'T-test','value': 'ttest','disindex':false, 'des': 'T-test方法描述'},
+                'X2-test':{'name': 'X²-Test', 'value': 'x2test','disindex':false, 'des': 'X²-Test方法描述'},
             },
             // 按钮是否置灰
             disStatus:false,
@@ -222,7 +222,11 @@ export default {
             /* 结果弹窗状态信息 */
             isShowPublish:false,
             /* 评估结果 */
-            result:{},
+            result:{
+                text1:"",
+                text2:"",
+                text3:""
+            },
             res_tmp:{},
             /* 主任务id */ 
             tid:"",
@@ -255,9 +259,9 @@ export default {
             // 修改选择能耗文件
             this.dataChoice = e.target.value;
             // 待替换trs的曲线json
-            this.$axios.get("../../static/output/"+this.dataChoice+".json").then(res=>{
-                drawside(e.target.value, res.data);
-            });
+            // this.$axios.get("../../static/output/"+this.dataChoice+".json").then(res=>{
+            //     drawside(e.target.value, res.data);
+            // });
         },
         onMethodChoiceChange(e){
             // 修改选择分析方法
@@ -265,7 +269,28 @@ export default {
             // 需要对data进行判断
             // if (this.methodChoiceList[this.dataChoice] in ) 
         },
-        
+        methodFilter(data){
+            // debugger;
+            if (['trace1', 'trace5'].includes(data)) {
+                // this.methodChoiceList['CPA']['disindex']=false;
+                // this.methodChoiceList['DPA']['disindex']=false;
+                this.methodChoiceList['HPA']['disindex']=true;
+                this.methodChoiceList['T-test']['disindex']=false;
+                this.methodChoiceList['X2-test']['disindex']=false;
+            } else if (['trace2', 'trace4', 'trace6'].includes(data)) {
+                // this.methodChoiceList['CPA']['disindex']=true;
+                // this.methodChoiceList['DPA']['disindex']=true;
+                this.methodChoiceList['HPA']['disindex']=false;
+                this.methodChoiceList['T-test']['disindex']=true;
+                this.methodChoiceList['X2-test']['disindex']=true;
+            } else if(data=='trace3') {
+                // this.methodChoiceList['CPA']['disindex']=false;
+                // this.methodChoiceList['DPA']['disindex']=false;
+                this.methodChoiceList['HPA']['disindex']=true;
+                this.methodChoiceList['T-test']['disindex']=false;
+                this.methodChoiceList['X2-test']['disindex']=true;
+            }
+        },
         /* 关闭结果窗口 */
         closeDialog(){
             this.isShowPublish=false;
@@ -288,14 +313,30 @@ export default {
         },
         resultPro(res){
             debugger;
+            res = res.result.side;
             if ('ttest' in res) {
                 drawTtest('score',res.ttest.X, res.ttest.Y[0]);
+                if(Math.max.apply(Math, res.ttest.Y[0])>4.5 || Math.min.apply(Math, res.ttest.Y[0])<-4.5){
+                    this.result.text1 = "";
+                    this.result.text2 = "有"
+                } else {
+                    this.result.text1 = "不";
+                    this.result.text2 = "无"
+                }
                 return
             }
             // 根据情况是否保留x2test
-            // if ('x2test' in res) {
-            //     drawTtest('score',res.x2test.X, res.x2test.Y[0]);
-            // }
+            if ('x2test' in res) {
+                drawTtest('score',res.x2test.X, res.x2test.Y[0]);
+                if(Math.max.apply(Math, res.x2test.Y[0])>4.5 || Math.min.apply(Math, res.x2test.Y[0])<-4.5){
+                    this.result.text1 = "";
+                    this.result.text2 = "有"
+                } else {
+                    this.result.text1 = "不";
+                    this.result.text2 = "无"
+                }
+                return
+            }
             if (this.methodChoice == 'HPA') {
                 let echart_legend = [];
                 let echart_X = res.hpa.X;
@@ -314,6 +355,12 @@ export default {
                 echarts_y.push({'symbol':'none', 'name':'正确值', 'type': 'line', 'data': res.hpa.true });
                 echart_legend.push("正确值");
                 drawALLPA('score', echart_legend, echart_X, echarts_y);
+                if(Math.max(Math.max.apply(Math, res.hpa.Y),Math.max.apply(Math, res.hpa.false)) < Math.min.apply(Math, res.hpa.true)){
+                    this.result.text3 = "正确值相关性与错误值相关性差值大且稳定，说明侧信道攻击成功"
+                } else {
+                    this.result.text3 = "正确值相关性与错误值相关性差值小或不稳定，说明侧信道攻击失败"
+                }
+                
             }
             if (this.methodChoice == 'SPA') {
                 // 待定
@@ -435,7 +482,7 @@ export default {
                 /* 请求体 postdata*/
                 const postdata={
                     trs_file:that.dataChoiceList[that.dataChoice].id,
-                    methods:[that.methodChoice],
+                    methods:that.methodChoiceList[that.methodChoice].value,
                     tid:that.tid};
                 that.$axios.post("/SideAnalysis", postdata).then((res) => {
                     that.logflag = true;
