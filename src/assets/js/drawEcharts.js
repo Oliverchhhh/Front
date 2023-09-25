@@ -1188,6 +1188,10 @@ function drawAcc_or_loss(ID, data, title){
   console.log(data);
   var option;
   option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+
     legend: {
       data: title
     },

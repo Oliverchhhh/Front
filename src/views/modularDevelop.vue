@@ -18,8 +18,7 @@
                    <div class="paramTitle" >
                        <!-- 功能标题和执行按钮 -->
                        <!-- icon展示 -->
-                       <!-- <div class="paramIcom" icon="ui-icon-envTestIcon"></div> -->
-                       <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
                        <!-- 功能名称 -->
                        <h3>{{ funcDesText.name }}</h3>
                        <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
@@ -78,7 +77,7 @@
                                     <p class="matchedMethodText">包含ResNet50、ResNet101，ResNet 152等</p>
                                 </div>
                                 <div class="matchedDes" v-show="searchChoice == 'DREAM'">
-                                    <a-radio :style="radioStyle" value="CNN">CNN</a-radio>
+                                    <a-radio :style="radioStyle" value="vanilla">CNN</a-radio>
                                     <p class="matchedMethodText">普通卷积神经网络</p>
                                 </div>
                                 <div class="matchedDes" v-show="searchChoice == 'DeepAlchemy'">
@@ -177,7 +176,10 @@
                     </div>
                     <div class="button_group">
                         <button class="downloadGenerationBtn" @click="PopDownloadShow"><a-icon type="download" />下载模型</button>
-                        <button class="exportResultBtn" @click="exportResult"><a-icon type="upload" />导出报告内容</button>
+                        <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
+                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                        导出报告内容
+                        </a-button>
                         <button class="downloadGenerationBtn" @click="PopInferenceShow">在线推理</button>
                     </div>
                     <popDialog :isShow="isShowPopDownload" v-show="isShowPopDownload" @on-close="closePopDownloadDialog">
@@ -185,9 +187,9 @@
                         <div slot="main">
                             <p  class="pop_content">请选择模型框架类型</p>
                             <div class="pop_button_group">
-                            <button class="pop_button" @click="downloadGeneration"><a-icon type="download" />PyTorch</button>
-                            <button class="pop_button" @click="downloadGeneration"><a-icon type="download" />TensorFlow</button>
-                            <button class="pop_button" @click="downloadGeneration"><a-icon type="download" />PaddlePaddle</button>
+                            <button class="pop_button" @click="downloadGeneration" value="PyTorch"><a-icon type="download" />PyTorch</button>
+                            <button class="pop_button" @click="downloadGeneration" value="TensorFlow"><a-icon type="download" />TensorFlow</button>
+                            <button class="pop_button" @click="downloadGeneration" value="PaddlePaddle"><a-icon type="download" />PaddlePaddle</button>
                         </div>
                         </div>             
                     </popDialog>
@@ -228,7 +230,6 @@ import resultDialog from "../components/resultDialog.vue"
 import popDialog from "../components/popDialog.vue"
 import onlineProcess from "../components/onlineProcess.vue"
 import {drawAcc_or_loss} from "../assets/js/drawEcharts.js"
-import html2pdf from 'html2pdf.js'
 
 /* 引入图片 */
 import funcicon from "../assets/img/modularDevelopIcon.png"
@@ -263,6 +264,7 @@ export default {
    },
    data(){
        return{
+            htmlTitle:"模型模块化开发",
            /* 单选按钮样式 */
            radioStyle: {
                display: 'block',
@@ -344,15 +346,12 @@ export default {
            /* 在线推理弹窗状态 */
            isShowPopInfer: false,
            /* 评估结果 */
-           result:{
-                acc_data:[[1,2,3,4,5,6,7,8,9],[3,3,5,7,9,0,8,6,4]],
-                loss_data:[[1,2,3,4,5,6,7,8,9],[3,3,5,7,9,0,8,6,4]],
-                data:{stop:true}
-           },
+           result:{},
+           res_tmp:{},
            /* 主任务id */ 
            tid:"",
            /* 子任务id */ 
-           stid:"",
+           stidlist:"",
            /* 异步任务结果查循环clock */
            clk:"",
            /* 日志查询clock*/
@@ -433,8 +432,44 @@ export default {
            console.log('radio checked', e.target.value);
        },
         //下载搜索模型    
-        downloadGeneration(){
-            alert("下载模型接口开发中！");
+        downloadGeneration(e){
+            if (confirm("您确认下载模型？") ) {
+                debugger
+                // 下载生成测试样本
+                var that = this;
+                let path = this.result[e.target.value];
+                // let file = 'static/output'+path.split('output')[1]; 
+                // console.log(path.substring(path.lastIndexOf("/",path.lastIndexOf("/")-1)+1,path.lastIndexOf("/")));
+                // let file = path.split('output')[0]+'output/cache/GeneratedCases/'+path.substring(path.lastIndexOf("/",path.lastIndexOf("/")-1)+1,path.lastIndexOf("/"));
+                let param = new FormData();       // 创建form对象    
+                param.append('file', path);       // 通过append向form对象添加数据
+                param.append("type", 'dictionary'); // 添加form表单中其他数据
+                that.post_file = param;
+                let config = {
+                    headers: {'Content-Type': 'multipart/form-data'},
+                    responseType: "blob"
+                };
+                that.$axios.post("/Task/DownloadData",that.post_file, config).then((res)=>{
+                    console.log(res);
+                    var zipName = "Generation_Download"; // 下载的文件名
+                    let blob = new Blob([res.data], { type: "application/zip" }); // 下载格式为zip
+                    if ("download" in document.createElement("a")) {
+                        let elink = document.createElement("a"); // 创建一个<a>标签
+                        elink.style.display = "none"; // 隐藏标签
+                        elink.href = window.URL.createObjectURL(blob); // 配置href
+                        elink.download = zipName;
+                        elink.click();
+                        URL.revokeObjectURL(elink.href); // 释放URL 对象
+                        document.body.removeChild(elink); // 移除<a>标签
+                    } else {
+                    //IE10+
+                    navigator.msSaveBlob(blob, zipName);
+                    }
+                }).catch((err)=>{
+                    console.log(err)
+                })
+                
+            }
        },
         //在线推理    
        onlineInference(){
@@ -462,31 +497,45 @@ export default {
         /* result 处理*/
         resultPro(res){
             debugger;
-            //    var that = this;
-                drawAcc_or_loss("acc_echart", this.result.acc_data, ["训练准确率", "验证准确率"]);  
-                drawAcc_or_loss("loss_echart", this.result.loss_data, ["训练损失", "验证损失"]);       
+            let train_acc = res.ModularDevelop.best_history.accuracy;
+            let train_loss = res.ModularDevelop.best_history.loss;
+            let val_acc = res.ModularDevelop.best_history.val_accuracy;
+            let val_loss = res.ModularDevelop.best_history.val_loss;
+            drawAcc_or_loss("acc_echart", [train_acc, val_acc], ["训练准确率", "验证准确率"]);  
+            drawAcc_or_loss("loss_echart", [train_loss,val_loss], ["训练损失", "验证损失"]); 
+            this.result["PyTorch"] = res.ModularDevelop.target_torch;
+            this.result["Tensorflow"] = res.ModularDevelop.target_tensorflow;
+            this.result["PaddlePaddle"] = res.ModularDevelop.target_paddle;
         },
         /* 获取结果 */ 
         getData(){
             var that = this;
             that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
-                that.result=data;
+                // that.result=data;
+            that.res_tmp = data;
             });
         },
         /* 获取日志 */ 
         getLog(){
             var that = this;
-            if(that.percent < 99){
-                that.percent += 1;
+            if (that.percent<99){
+                that.percent+=1;
             }
-            that.$axios.get('/Task/QueryLog', {params:{ Taskid: that.tid }}).then((data)=>{
-                that.logtext = data.data.Log[that.stid];
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+                if (JSON.stringify(that.stidlist)=='{}'){
+                that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
+                }else{
+                    that.logtext=[]
+                    for(let temp in that.stidlist){
+                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
+                    }
+                }
             });
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            if (this.result.data.stop==1) {
+            if (this.res_tmp.data.stop) {
                 // 关闭日志显示
                 this.percent=100
                 this.logflag = false;
@@ -497,8 +546,7 @@ export default {
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
-                //    this.result = this.result.data;
-                this.resultPro(this.result);
+                this.resultPro(this.res_tmp.data.result);
             }
         },
         /* 更新结果*/ 
@@ -510,6 +558,7 @@ export default {
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
+            debugger
             /*判断选择*/
             if(this.trainTimes == "" | this.searchTimes == ""){
                 this.$message.warning('请输入搜索迭代轮数和训练轮数',3);
@@ -518,21 +567,23 @@ export default {
             var that=this;
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-                console.log(result);
+                // console.log(result);
                 that.tid = result.data.Taskid;         
                 /* 请求体 postdata*/
                 const postdata={
-                    matchmethod:that.matchedMethod,
-                    frameworkname:that.framework,
-                    frameversion:frameworkVersion,
+                    dataset: that.datasetChoice,
+                    model:that.modelChoice,
+                    epoch:that.trainTimes,
+                    tuner:that.searchChoice,
+                    init:that.initChoice,
+                    iternum: this.searchTimes,
                     tid:that.tid};
                 console.log(postdata)
-                that.$axios.post("/EnvTest/ETParamSet", postdata).then((res) => {
+                that.$axios.post("/MDTest/ModularDevelopParamSet", postdata).then((res) => {
                     that.logflag = true;
                     // 异步任务
-                    that.stid =  res.data.EnvTestid;
+                    that.stidlist =  {"ModularDevelop":res.data.stid}
                     that.logclk = self.setInterval(that.getLog, 3000);
-                    // that.stid="S20230224_1106_368e295"
                     that.clk = self.setInterval(that.update, 3000);
                 }).catch((err) => {
                         console.log(err)
