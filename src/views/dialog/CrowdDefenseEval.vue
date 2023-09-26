@@ -54,24 +54,44 @@
                         </a-col>
                       </a-row>
                     </div>
-                    <!-- 原始准确率 & 受攻击后的准确率 -->
+                    <!-- 样本置信度分布对比 -->
                     <div>
+                      <div  v-for="(temp,id) in postData.AdvMethods">
+                        <div class="result-title">鲁棒训练前后样本置信度分布对比：{{ temp }}</div>
+                        <div style="display: flex;">
+                          <div :id="'results_scatter_bef_'+temp" class="echart" style="width: 490px; height: 400px;"></div>
+                          <div :id="'results_scatter_aft_'+temp" class="echart" style="width: 490px; height: 400px;"></div>
+                        </div>
+                      </div>
+                    <!-- 原始准确率 & 受攻击后的准确率 -->
                       <div class="result-title">受攻击前后的准确率变化</div>
                       <div id="acc_ori" class="echart" style="width: 1000px; height: 400px;"></div>
-                      <div class="conclusion">
-                        <p class="result_text ">本次测试受{{sub_acc_method}}攻击后的准确率下降最大，下降幅度为{{max_sub_acc}}</p>
-                      </div>
-                    </div>
                     <!-- 不同攻击方法的攻击成功率 -->
-                    <div>
-                      <div class="result-title">不同攻击方法的攻击成功率对比</div>
+                      <div class="result-title">不同攻击方法的攻击成功率对比（原始模型）</div>
                       <div id="asr_ori" class="echart" style="width: 1000px; height: 400px;"></div>
-                      <div class="conclusion">
-                        <p class="result_text ">本次测试{{method}}攻击算法的攻击成功率最高，最高为{{max_asr}}</p>
-                      </div>
+                      <!-- <div class="conclusion">
+                        <p class="result_text ">结论1</p> -->
+                        <!-- <p class="result_text ">本次测试受{{sub_acc_method}}攻击后的准确率下降最大，下降幅度为{{max_sub_acc}}；{{method}}攻击算法的攻击成功率最高，最高为{{max_asr}}</p> -->
+                      <!-- </div> -->
                     </div>
                     <!-- 对抗训练后的攻击成功率 -->
+                    <div>
+                      <div class="result-title">模型加固后的模攻击成功率对比</div>
+                      <div id="robust_asr" class="echart" style="width: 1000px; height: 400px;"></div>
+                      <!-- <div class="conclusion">
+                        <p class="result_text ">结论2</p> -->
+                        <!-- <p class="result_text ">本次测试{{method}}攻击算法的攻击成功率最高，最高为{{max_asr}}</p> -->
+                      <!-- </div> -->
+                    </div>
                     <!-- 对抗训练后的准确率 -->
+                    <div>
+                      <div class="result-title">模型加固后的模型防御成功率对比</div>
+                      <div id="robust_acc" class="echart" style="width: 1000px; height: 400px;"></div>
+                      <!-- <div class="conclusion">
+                        <p class="result_text ">结论2</p> -->
+                        <!-- <p class="result_text ">本次测试{{method}}攻击算法的攻击成功率最高，最高为{{max_asr}}</p> -->
+                      <!-- </div> -->
+                    </div>
                     <!--  -->
                     <!-- Nash博弈结果 -->
                     <div > 
@@ -88,20 +108,10 @@
                       <div class="result-title">博弈策略收益曲线</div>
                       <div id="bal_Chart" class="echart" style="width: 1000px; height: 400px;"></div>
                       <div class="conclusion">
-                        <p class="result_text ">Nash博弈结论</p>
+                        <p class="result_text ">如上分别是不同防御方法下的准确率和鲁棒性以及不同权重p下的收益曲线</p>
                       </div>
                     </div>
                     <!-- 评估详情 -->
-
-                    <div class="result-title">防御模型在各种攻击下的准确率变化</div>
-                    <div>
-                      
-                      <!-- 待修改：柱状图 -->
-                      <div id="myChart" class="echart" style="width: 1000px; height: 400px;"></div>
-                      <div class="conclusion">
-                        <p class="result_text ">集成防御与自动化攻击检测PACA解释</p>
-                      </div>
-                    </div>
                     <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
                     font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
                       <a-icon type="upload" />导出报告内容
@@ -115,6 +125,7 @@
 <script>
 import * as echarts from "echarts";
 import PictureTable from "../../components/pictureTable.vue";
+import { drawbar, drawLineBar, drawRobustHeat} from "../../assets/js/drawEcharts.js"
 export default {
   name:"resultDialog",
   components: {
@@ -169,16 +180,12 @@ export default {
         "DatasetParam": {"name":"MNIST"},
         "ModelParam": {"name":"ResNet34"},
       },
-      selectPicList: [
-        ["攻击方法", "加噪前", "噪声", "加噪后"],
-        ]
     }
   },
   watch:{
     result(newValue, oldValue){
       if ("Defense_Ensemble" in newValue){
-
-        this.updated()
+        this.drawrobust(newValue)
       }
     }
     
@@ -198,115 +205,408 @@ export default {
             // let param = JSON.parse(method);
             return method.join('、');
         },
-      updated(){
-        //code
-        this.res.labels = [];
-        this.res.maxasr = 0
-        this.res.maxmethod = ""
-        this.res.ASRlist = []
-        this.res.timelist = []
-        this.res.maxtime = 0
-        this.res.mintime = 100
-        this.res.maxtimemethod = ""
-        this.res.mintimemethod = ""
-        this.res.timelist = []
-        for(let temp in this.result.adv_attack){
-          if( ["stop","tid", "stidlist"] .indexOf(temp) == -1){
-            if (this.res.maxasr < this.result.adv_attack[temp].asr){
-              this.res.maxasr = this.result.adv_attack[temp].asr.toFixed(2)
-              this.res.maxmethod = temp
+      drawrobust(res={}){
+        
+        // 鲁棒性直方图
+        try{
+          this.draw_robust_echart("robust_acc",res.Defense_Ensemble);
+        }catch(err){}
+        //鲁棒训练后样本置信度分布图
+        try{
+          var method = [];
+          let acclist = []//受攻击后的准确率
+          let acc_ori = []//原始准确率
+          let asr_ori_list = [] //不同攻击方法的攻击成功率
+          for(let temp in res.Defense_Ensemble.AdvAttack.atk_acc){
+            method.push(temp);
+            var sctDataAdv_tmp = [];
+            var sctDataAdv2_tmp = [];
+            var sctDataBen_tmp = [];
+            var sctDataBen2_tmp = [];
+            acclist.push(res.Defense_Ensemble.AdvAttack.atk_acc[temp]) 
+            acc_ori.push(res.Defense_Ensemble.AdvAttack.test_acc)
+            asr_ori_list.push(res.Defense_Ensemble.AdvAttack.atk_asr[temp])
+            for (let i = 0; i < 32; i++) {
+              sctDataBen_tmp.push(res.Defense_Ensemble.AdvAttack[temp].normal_scatter[i]);
+              sctDataBen2_tmp.push(res.Defense_Ensemble.AdvAttack[temp].robust_scatter[i]);
             }
-            if (this.res.maxtime < this.result.adv_attack[temp].time){
-              this.res.maxtime = this.result.adv_attack[temp].time
-              this.res.maxtimemethod = temp
+            for (let i = 32; i < 64; i++) {
+                sctDataAdv_tmp.push(res.Defense_Ensemble.AdvAttack[temp].normal_scatter[i]);
+                sctDataAdv2_tmp.push(res.Defense_Ensemble.AdvAttack[temp].robust_scatter[i]);
             }
-            if (this.res.mintime > this.result.adv_attack[temp].time){
-              this.res.mintime = this.result.adv_attack[temp].time
-              this.res.mintimemethod = temp
+            this.draw_scatter("results_scatter_bef_"+temp, sctDataBen_tmp,sctDataAdv_tmp,"鲁棒训练前样本置信度分布图");
+            this.draw_scatter("results_scatter_aft_"+temp, sctDataBen2_tmp,sctDataAdv2_tmp,"鲁棒训练后样本置信度分布图");
+          };
+          
+          drawLineBar("acc_ori", acclist, method, acc_ori,["受攻击前的分类精度","受攻击后的分类精度"],[1,100,10])
+          drawbar("asr_ori",asr_ori_list,method,'',"攻击方法","攻击成功率",[0,100,10])
+        }catch(err){}
+        // 准确率收益直方图
+        if (res.Defense_Ensemble.game){
+          let game_data = res.Defense_Ensemble.game.nash
+          let gameacc = game_data.normal_acc[0]
+          drawbar("acc_Chart", gameacc, game_data.def_methods,'','防御方法' ,'准确率')
+          var NMIColorList=["rgba(206, 221, 253, 1)", "rgba(157, 187, 251, 1)", "rgba(60, 119, 246, 1)", "rgba(11, 85, 244, 1)", "rgba(7, 51, 146, 1)"];
+          let game_robust_data = []
+          for( let i =0 ; i <  game_data.atk_methods.length; i++){
+            for(let j = 0;j<game_data.def_methods.length;j++){
+              game_robust_data.push([game_data.def_methods[j], game_data.atk_methods[i], game_data.robust_acc[i][j]])
             }
-            this.res.labels.push(temp)
-            this.res.ASRlist.push(this.result.adv_attack[temp].asr.toFixed(2))
-            this.res.timelist.push(this.result.adv_attack[temp].time.toFixed(4))
-            let bef_dirname = './static/output'+this.result.adv_attack[temp].pic[0].split("output")[1]
-            let adv_dirname = './static/output'+this.result.adv_attack[temp].pic[1].split("output")[1]
-            let per_dirname = './static/output'+this.result.adv_attack[temp].pic[2].split("output")[1]
-            this.selectPicList.push([temp, [[`${bef_dirname}`], "pic"], [[`${per_dirname}`], "pic"],[[`${adv_dirname}`], "pic"]])
+          }
+          drawRobustHeat("rob_Chart", game_data.def_methods, game_data.atk_methods, game_robust_data, NMIColorList, true,  [0,100])
+          var p_x = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
+          var lime_series = []
+          for( let i =0 ; i <  game_data.atk_methods.length; i++){
+            var limedata=[];
+            for(let j=0;j<game_data.def_strategy[game_data.atk_methods[i]].length;j++){
+              limedata.push({"value":game_data.def_profit[i][j],
+              "method":game_data.def_strategy[game_data.atk_methods[i]][j]})
+            }
+            lime_series.push({name:game_data.atk_methods[i],
+              data: limedata,
+              smooth: true, lineStyle: { normal: { width: 2 } },
+              animationDuration: 2500,
+              
+              itemStyle: {  },
+              type: 'line',})
+            }
+          let option_profit = {
+            tooltip: { 
+              trigger: 'axis', 
+              axisPointer: { lineStyle: { color: '#000' } },
+              formatter:function(params){
+                console.log(params)
+                var resp=params[0].name
+                for(let i =0 ;i <params.length;i++){
+                  resp+= "<br/>"+params[i].seriesName+'<br/>收益：'+params[i].data.value+'<br/>最佳防御方法：'+params[i].data.method
+                }
+                return resp
+              }
+             },
+            legend: {
+                icon: 'rect',
+                data: game_data.atk_methods,
+                textStyle: { fontSize: 15, color: '#000' },
+                right: "10%"
+            },
+            xAxis: {
+                type: 'category',
+                data: p_x,
+                name: "p",
+                axisLine: { lineStyle: { color: '#000' } },
+                splitLine: { lineStyle: { color: '#000' } },
+                axisLabel: {
+                    fontSize: 20,
+                    color: "#000",
+
+                    textBorderColor: "#000",
+                    textBorderWidth: 0.5,
+                    textBorderType: "solid"
+                }
+            },
+            yAxis: {
+                name: '攻防博弈收益率',
+                nameLocation: 'center',
+                nameGap: 40,
+                nameTextStyle: {
+                    fontSize: 20,
+                    color: 'white'
+                },
+                axisLine: { lineStyle: { color: '#000' } },
+                splitLine: { lineStyle: { color: '#000' } },
+                type: 'value',
+                axisLabel: {
+                    margin: -15,
+                    formatter: '{value} %',
+                    fontSize: 15,
+                    color: "#000",
+                    textBorderColor: "#000",
+                    textBorderWidth: 0.5,
+                    textBorderType: "solid"
+                },
+                min: 50,
+                interval: 10
+            },
+            series: lime_series
+          }
+          if (lime_series.length > 1){
+            setTimeout(function(){
+              var conseva = document.getElementById("bal_Chart");
+              var myChartcons = echarts.init(conseva);
+              window.addEventListener("resize", function () {
+                  myChartcons.resize()});
+                  option_profit && myChartcons.setOption(option_profit);
+            },500)
           }
         }
-        this.res["score"] = 100-this.res.maxasr
-        if(this.res["score"] >= 80 ){
-          this.res["Eva"] = "优秀"
-        }else if (this.res["score"] <80 && this.res["score"] >=60 ){
-          this.res["Eva"] = "良好"
-        }else{
-          this.res["Eva"] = "差"
-        }
-        let methodstr = this.defenseShow(this.postData.Method)
-        this.res["score_des"] = `${this.postData.Model}模型鲁棒性得分为${this.res.score}，是一个较${this.res.Eva}的模型，本次对抗攻击方法有${methodstr}，其中${this.res.maxmethod}的攻击效果最佳`
-        let option = {
-          xAxis: {
-            type: 'category',
-            name:"算法名称",
-            data: this.res.labels
-          },
-          tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-              type: 'shadow'
+      },
+      draw_scatter(ID,bendata,advdata,title){
+        
+        var option = {
+            title: {
+                text: title,
+                textStyle: { fontSize: 18, color: '#000' },
+                top: "20px",
+                left:"center"
             },
-            formatter: '{c}%'
+            toolbox: {
+                left: "right",
+                feature: {
+                    dataZoom: {}
+                },
+                top: "20px"
+            },
+            legend: {
+                left: "center",
+                itemWidth: 14, itemHeight: 5, itemGap: 10,
+                bottom: '10px',
+                textStyle: { fontSize: 15, color: '#000' }
+            },
+            tooltip: {
+                formatter: function (params) {
+                    return (
+                        params.seriesName +
+                        '样本:<br/>' +
+                        params.value[0] +
+                        '，<br/>' +
+                        params.value[1]
+                    );
+                }
+            },
+            xAxis: {
+                type: 'value',
+                axisLine: { lineStyle: { color: '#000' } },
+                splitLine: { lineStyle: { color: '#57617B' } },
+                axisLabel: {
+                    fontSize: 15,
+                    color: "#000",
+                    // rgba(4, 249, 208, 1)
+
+                    textBorderColor: "#000",
+                    // rgba(139, 238, 103, 0.98)
+                    textBorderWidth: 0.1,
+                    textBorderType: "solid"
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: { lineStyle: { color: '#000' } },
+                splitLine: { lineStyle: { color: '#57617B' } },
+                axisLabel: {
+                    fontSize: 15,
+                    color: "#000",
+                    // rgba(4, 249, 208, 1)
+                    textBorderColor: "#000",
+                    // rgba(139, 238, 103, 0.98)
+                    textBorderWidth: 0.1,
+                    textBorderType: "solid"
+                }
+            },
+            series: [
+                {
+                    name: "正常样本",
+                    type: "scatter",
+                    symbolSize: 3.5,
+                    data: bendata,
+                    itemStyle: { normal: { color: 'green' } }
+                },
+                {
+                    name: "对抗样本",
+                    type: "scatter",
+                    symbolSize: 3.5,
+                    data: advdata,
+                    itemStyle: { normal: { color: 'red' } }
+                }
+            ]
+        };
+        setTimeout(function() {
+        var conseva = document.getElementById(ID);
+        var myChartcons = echarts.init(conseva);
+        
+        window.addEventListener("resize", function () {
+          myChartcons.resize()});
+        option && myChartcons.setOption(option);
+        conseva.style.display="inline-block";},500)
+      },
+      draw_robust_echart(ID,data) {
+        var sourcelist = [];
+        var asr_sourcelist = [];
+        asr_sourcelist[0] = [''];
+        sourcelist[0] = [""];
+        var serieslist = [];
+        var robustmethod="";
+        if (data.AdvAttack){
+          sourcelist[0].push("原模型准确率");
+          asr_sourcelist[0].push("原模型攻击成功率")
+          i = 1;
+          for ( var key in data.AdvAttack.atk_acc){
+            sourcelist[i]=[];
+            asr_sourcelist[i] = [];
+            sourcelist[i].push(key);
+            asr_sourcelist[i].push(key);
+            sourcelist[i].push(data.AdvAttack.atk_acc[key]);
+            asr_sourcelist[i].push(data.AdvAttack.atk_asr[key]);
+            i++;
+          }
+        };
+        if(data.AdvTrain){
+          sourcelist[0].push("对抗训练后的防御成功率");
+          asr_sourcelist[0].push("对抗训练后的攻击成功率");
+          robustmethod+="对抗训练 "
+          i = 1;
+          for ( var key in data.AdvTrain.def_acc){
+            if (sourcelist[i].length==0){
+              sourcelist[i]=[];
+              asr_sourcelist[i] = []
+              sourcelist[i].push(key);
+              asr_sourcelist[i].push(key);
+            }
+            sourcelist[i].push(data.AdvTrain.def_acc[key]);
+            asr_sourcelist[i].push(data.AdvTrain.def_asr[key]);
+            i++;
+          }
+        };
+        if(data.EnsembleDefense){
+          sourcelist[0].push("集成防御后的防御成功率");
+          asr_sourcelist[0].push("集成防御后的攻击成功率");
+          robustmethod+="群智化防御";
+          i = 1;
+          for ( var key in data.EnsembleDefense.ens_acc){
+            if (sourcelist[i].length==0){
+              sourcelist[i]=[];
+              asr_sourcelist[i] = []
+              sourcelist[i].push(key);
+              asr_sourcelist[i].push(key);
+            }
+            sourcelist[i].push(data.EnsembleDefense.ens_acc[key]);
+            asr_sourcelist[i].push(data.EnsembleDefense.ens_asr[key]);
+            i++;
+          }
+        };
+        
+        if(data.PACA){
+          sourcelist[0].push("PACA自动化攻击检测");
+          asr_sourcelist[0].push("PACA自动化攻击检测后的防御成功率");
+          robustmethod += " PACA自动化攻击检测";
+          i = 1;
+          for (var key in data.PACA){
+            if (sourcelist[i].length==0){
+              sourcelist[i]=[];
+              asr_sourcelist[i] = []
+              sourcelist[i].push(key);
+              asr_sourcelist[i].push(key);
+            }
+            sourcelist[i].push(data.PACA[key]*100);
+            asr_sourcelist[i].push((1-data.PACA[key])*100)
+            i++;
+        }};
+        for(var i =1;i < sourcelist[0].length;i++){
+            serieslist.push(
+              {type: 'bar'}
+            )
+          };
+        
+        var option = {
+          title: {
+            text: '鲁棒性评估',
+            textStyle:{
+              fontSize:18,
+            },
+            left:"center",
+            textAlign: 'left',
+            y:'30',
+              },
+          legend: {
+            right:20,
+            top:50,
+              },
+          grid: {
+            left: '10%',
+            right: '10%',
+            bottom: '5%',
+            top:'15%',
+            containLabel: true
+              },
+          tooltip: {},
+          dataset: {
+            source: []
+          },
+          xAxis: { 
+            type: 'category', 
+            // boundaryGap: false
           },
           yAxis: {
-            name:"攻击成功率",
             type: 'value',
             axisLabel: {
               formatter: '{value} %'
-            },
-            min:0,
-            max:100,
-          },
-          series: [
-            {
-              data: this.res.ASRlist,
-              type: 'bar'
             }
-          ]
-        }
-        
-        setTimeout(function(){let myChart = echarts.init(document.getElementById("myChart"));
-          option && myChart.setOption(option);
-        },500)
-
-        
-        let option2 = {
-          tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-              type: 'shadow'
-            },
-            formatter: '{c}s'
           },
-          xAxis: {
-            name:"算法名称",
-            type: 'category',
-            data: this.res.labels
+          series: []
+        };
+        var optionasr = {
+          title: {
+            text: '鲁棒性评估-攻击成功率',
+            textStyle:{
+              fontSize:18,
+            },
+            left:"center",
+            textAlign: 'left',
+            y:'30',
+              },
+          legend: {
+            right:20,
+            top:50,
+              },
+          grid: {
+            left: '10%',
+            right: '10%',
+            bottom: '5%',
+            top:'15%',
+            containLabel: true
+              },
+          tooltip: {},
+          dataset: {
+            source: []
+          },
+          xAxis: { 
+            type: 'category', 
+            // boundaryGap: false
           },
           yAxis: {
-            name:"运行时间（单位：s）",
-            type: 'value'
-          },
-          series: [
-            {
-              data: this.res.timelist,
-              type: 'bar'
+            type: 'value',
+            axisLabel: {
+              formatter: '{value} %'
             }
-          ]
+          },
+          series: []
+        };
+        if (sourcelist.length > 1){
+          option.dataset.source=sourcelist;
+          option.series=serieslist;
+        //   echart_for_robust.hideLoading();
+          let msg = "模型"+this.postData['ModelParam']['name']+"经过"+robustmethod+"等增强措施后，不同对抗攻击下的准确率直方图如上";
+          setTimeout(function(){
+            var conseva = document.getElementById(ID);
+            var myChartcons = echarts.init(conseva);
+            window.addEventListener("resize", function () {
+                myChartcons.resize()});
+            option && myChartcons.setOption(option);
+          },500)
         }
-        setTimeout(function(){
-          let timechart = echarts.init(document.getElementById("timeChart"));
-          option2 && timechart.setOption(option2);
-        },500)
-      }
+        if (asr_sourcelist.length > 1){
+          optionasr.dataset.source=asr_sourcelist;
+          optionasr.series=serieslist;
+        //   echart_for_robust.hideLoading();
+          let msg1 = "模型"+this.postData['ModelParam']['name']+"经过"+robustmethod+"等增强措施后，不同对抗攻击下的攻击成功率直方图如上";
+          setTimeout(function(){
+            var conseva = document.getElementById("robust_asr");
+            var myChartcons = echarts.init(conseva);
+            window.addEventListener("resize", function () {
+                myChartcons.resize()});
+                optionasr && myChartcons.setOption(optionasr);
+          },500)
+        }
+      },
     }
   }
   

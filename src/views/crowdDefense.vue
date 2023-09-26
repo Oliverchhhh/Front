@@ -373,21 +373,21 @@ export default {
                     id:"PACA",
                     src: require('../assets/img/PACAImg.png')
                 },
-                {
-                    name: "待定1",
-                    id:"tmp1",
-                    src: ""
-                },
-                {
-                    name: "待定2",
-                    id:"tmp2",
-                    src: ""
-                },
-                {
-                    name: "待定3",
-                    id:"tmp3",
-                    src: ""
-                },
+                // {
+                //     name: "待定1",
+                //     id:"tmp1",
+                //     src: ""
+                // },
+                // {
+                //     name: "待定2",
+                //     id:"tmp2",
+                //     src: ""
+                // },
+                // {
+                //     name: "待定3",
+                //     id:"tmp3",
+                //     src: ""
+                // },
             ],
             selectedMethod:["FGSM"],
             selectedAttributes: {},
@@ -543,8 +543,8 @@ export default {
             that.postData["ModelParam"] = {"name":model,"ckpt":null}
             that.postData["AdvMethods"] = that.selectedMethod
             that.postData["DefMethod"] = that.selectedDefense
-            that.tid = "20230913_1821_1c3e540"
-            that.stidlist =  {"Ensemble":"20230913_1821_1c3e540"};
+            that.tid = "20230926_1703_2830de6"
+            that.stidlist =  {"Ensemble":"S20230926_1703_dc8e4ef"};
             that.clk = window.setInterval(() => {
                 that.update();
             }, 600)

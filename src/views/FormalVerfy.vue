@@ -114,7 +114,7 @@
                         <!-- 选择模型 -->
                         <div class="modelSelected">
                             <p class="mainParamName">请选择深度学习模型</p>
-                            <a-radio-group v-model="modelChoice" class="colummRadio" @change="onDatasetChoiceChange">
+                            <a-radio-group v-model="modelChoice" class="colummRadio" >
                                 <a-radio :style="radioStyle" value="cnn_7layer_bn">
                                     CNN
                                 </a-radio>
@@ -993,6 +993,7 @@ export default {
             this.trueLabel="1";
             this.tarLabel = "2";
         },
+   
         onAttackIntensityChange(e) {
             if (e.target.value != "") {
                 console.log('input epsilon: ', e.target.value);

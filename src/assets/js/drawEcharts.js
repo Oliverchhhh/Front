@@ -56,7 +56,7 @@ function drawclass1pro(ID, mydata, classname, dataname){
     },500)
 }
 //敏感属性1直方图 difference id=class1Difference
-function drawbar(ID, data, label, name='',xname='', yname=''){
+function drawbar(ID, data, label, name='',xname='', yname='', min_max=[0,1,0.2]){
     var option;
     option = {
       title:{
@@ -108,9 +108,9 @@ function drawbar(ID, data, label, name='',xname='', yname=''){
       yAxis: {
         name:yname,
         type: 'value',
-        min:0,
-        max:1,
-        interval:0.2,
+        min:min_max[0],
+        max:min_max[1],
+        interval:min_max[0.2],
         axisLabel:{
           show:true,
           textStyle:{
@@ -559,6 +559,72 @@ function drawCorelationHeat(ID, heatX, data, colorList,showflag=true, boundaryli
   },500)
   }
 
+  // 热力图
+  function drawRobustHeat(ID, heatX, heatY, data, colorList, showflag=true, boundarylist=[-1,1]){
+    var option;
+    var data1 = data.map(function (item) {
+      return [item[1], item[0], item[2] || '-'];
+    });
+    option = {
+      tooltip: {
+        position: 'top'
+      },
+      grid: {
+        height: '50%',
+        top: '10%'
+      },
+      xAxis: {
+        type: 'category',
+        data: heatX,
+        splitArea: {
+          show: true
+        },
+        axisLabel:{
+          rotate: '90'
+        },
+      },
+      yAxis: {
+        type: 'category',
+        data: heatY,
+        splitArea: {
+          show: true
+        }
+      },
+      visualMap: {
+        min: boundarylist[0],
+        max: boundarylist[1],
+        calculable: true,
+        orient: 'horizontal',
+        left: 'center',
+        inRange: {
+          color: colorList
+        },
+        bottom: '20px'
+      },
+      series: [
+        {
+          name: '鲁棒性',
+          type: 'heatmap',
+          data: data,
+          label: {
+            show: showflag
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      ]
+    };
+      setTimeout(function(){
+        var myChartcons = echarts.init(document.getElementById(ID));
+        window.addEventListener("resize", function () {
+            myChartcons.resize()});
+        option && myChartcons.setOption(option);
+    },500)
+    }
 
 function drawLine(ID, legendlist, datadict, xlable){
   var serieslist=[];
@@ -1343,7 +1409,7 @@ function exportResult(ID){
   }
 }
 
-function drawLineBar(ID, detect_rate, label, no_defense_accuracy=[]){
+function drawLineBar(ID, detect_rate, label, no_defense_accuracy=[], datalegend=['防御前的模型分类精度', '防御后的模型分类精度'], min_max=[0,1,0.2]){
   const colors = ['#5470C6', '#91CC75'];
   const option = {
     color: colors,
@@ -1368,7 +1434,7 @@ function drawLineBar(ID, detect_rate, label, no_defense_accuracy=[]){
         fontWeight:400,
       },
       right: "10%",
-      data: ['防御前的模型分类精度', '防御后的模型分类精度']
+      data: datalegend
     },
     xAxis: [
         {
@@ -1417,14 +1483,14 @@ function drawLineBar(ID, detect_rate, label, no_defense_accuracy=[]){
             fontWeight:400,
             }
         },
-        min: 0,
-        max: 1,
-        interval: 0.2,
+        min: min_max[0],
+        max: min_max[1],
+        interval: min_max[2],
     },
     series: [
         {
             data: detect_rate,
-            name: '防御后的模型分类精度',
+            name: datalegend[1],
             type: 'bar',
             animationDuration: 3000,
             itemStyle: {
@@ -1442,7 +1508,7 @@ function drawLineBar(ID, detect_rate, label, no_defense_accuracy=[]){
         },
         {
             data: no_defense_accuracy,
-            name: '防御前的模型分类精度',
+            name: datalegend[0],
             type: 'line',
             animationDuration: 3000,
             itemStyle: {
@@ -1622,6 +1688,7 @@ export {
   drawbarimproved,
   drawconseva1,
   drawCorelationHeat,
+  drawRobustHeat,
   drawPopGraph,
   drawLine,
   drawIntervalBar,

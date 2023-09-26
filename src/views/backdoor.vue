@@ -464,7 +464,7 @@ export default {
             this.logtext = [];
             this.logflag = true;
             var that = this;
-            that.tid = "20230920_0910_ec62962"
+            that.tid = "20230925_0803_48966a5"
             that.stidlist =  {"backdoor":"S20230920_1426_72de99f"};
             that.postData["Dataset"] = dataset
             that.postData["Model"] = model

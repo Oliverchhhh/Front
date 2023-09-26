@@ -251,7 +251,7 @@ export default {
                 },
                 {
                     name:"DenseNet",
-                    subset: ["DenseNet121", "DenseNet161", "DenseNet169", "DenseNet201"]
+                    subset: ["DenseNet121",  "DenseNet169", "DenseNet201"]
                 }
             ],
             selectedModel: 0,
