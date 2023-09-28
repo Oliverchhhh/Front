@@ -464,14 +464,14 @@ export default {
             this.logtext = [];
             this.logflag = true;
             var that = this;
-            that.tid = "20230925_0803_48966a5"
-            that.stidlist =  {"backdoor":"S20230920_1426_72de99f"};
-            that.postData["Dataset"] = dataset
-            that.postData["Model"] = model
-            that.postData["Method"] = JSON.stringify(this.selectedMethod)
-            that.postData["Taskid"] = that.tid
-            that.clk = window.setInterval(that.update, 30);
-            return
+            // that.tid = "20230925_0803_48966a5"
+            // that.stidlist =  {"backdoor":"S20230920_1426_72de99f"};
+            // that.postData["Dataset"] = dataset
+            // that.postData["Model"] = model
+            // that.postData["Method"] = JSON.stringify(this.selectedMethod)
+            // that.postData["Taskid"] = that.tid
+            // that.clk = window.setInterval(that.update, 30);
+            // return
             that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;

@@ -1390,14 +1390,14 @@ export default {
                 console.log(postdata)
                 // 异步任务
                 // that.stid =  res.data.stid;
-                that.logflag = false;
-                that.logtext.length = 0;
+                // that.logflag = false;
+                // that.logtext.length = 0;
+                that.logclk = window.setInterval(that.getLog, 600);
+                that.logflag = true;
                 // 
                 // 启动任务
                 that.$axios.post("/FormalVerification", postdata).then((res) => {
                     that.stidlist =  {"formalverfy":res.data.stid};
-                    that.logclk = window.setInterval(that.getLog, 1000);
-                    that.logflag = true;
                     that.clk = window.setInterval(that.update, 6000);
                 }).catch((err) => {
                         console.log(err)

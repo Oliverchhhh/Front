@@ -445,7 +445,7 @@ export default {
         /* 获取结果 */ 
         getData(){
             var that = this;
-            that.$axios.get('/api/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
+            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
                 that.result=data;
             });
@@ -457,7 +457,7 @@ export default {
             if(that.percent < 99){
                that.percent += 1;
             }
-            that.$axios.get('/api/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
+            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
                 console.log("log:",data)
                 if (JSON.stringify(that.stidlist)=='{}'){
                     that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
@@ -539,22 +539,22 @@ export default {
             this.logtext = [];
             this.logflag = true;
             var that = this;
-            that.postData["DatasetParam"] = {"name":dataset}
-            that.postData["ModelParam"] = {"name":model,"ckpt":null}
-            that.postData["AdvMethods"] = that.selectedMethod
-            that.postData["DefMethod"] = that.selectedDefense
-            that.tid = "20230926_1703_2830de6"
-            that.stidlist =  {"Ensemble":"S20230926_1703_dc8e4ef"};
-            that.clk = window.setInterval(() => {
-                that.update();
-            }, 600)
-            return
+            // that.postData["DatasetParam"] = {"name":dataset}
+            // that.postData["ModelParam"] = {"name":model,"ckpt":null}
+            // that.postData["AdvMethods"] = that.selectedMethod
+            // that.postData["DefMethod"] = that.selectedDefense
+            // that.tid = "20230926_1703_2830de6"
+            // that.stidlist =  {"Ensemble":"S20230926_1703_dc8e4ef"};
+            // that.clk = window.setInterval(() => {
+            //     that.update();
+            // }, 600)
+            // return
             that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 that.logclk = window.setInterval(() => {
                         that.getLog();
-                    }, 6000)
+                    }, 600)
                 /* 请求体 postdata*/
                 that.postData["DatasetParam"] = {"name":dataset}
                 that.postData["ModelParam"] = {"name":model,"ckpt":null}
