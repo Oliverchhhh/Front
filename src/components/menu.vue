@@ -121,7 +121,7 @@
           <div slot="header" class="func_name">后门攻击防御</div>
           <div slot="des_func" class="func_des">后门攻击防御包括后门检测和后门逆向，力求做到发现后门并还原后门的效果，使后门攻击的威胁大大降低</div>
         </ifreme>
-        <ifreme  @click.native="goFuncPage('')">
+        <ifreme  @click.native="goFuncPage('robust_advTraining')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/robustTrainingIcon.png">
           </div>

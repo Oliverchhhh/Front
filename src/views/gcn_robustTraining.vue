@@ -14,11 +14,11 @@
                 <!-- 参数配置容器 -->
                 <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
                 <div class="labelSelection">
-                    <router-link to="/coverage_neural"><button class="labelunselected">单神经元覆盖准则</button></router-link>
-                    <router-link to="/coverage_layer"><button class="labelunselected">神经元层覆盖准则</button></router-link>
-                    <router-link to="/coverage_importance"><button class="labelunselected">重要神经元覆盖准则</button></router-link>
-                    <router-link to="/deepsst"><button class="labelselected">敏感神经元测试准则</button></router-link>
-                    <router-link to="/deeplogic"><button class="labelunselected">逻辑神经元测试准则</button></router-link>
+                    <router-link to="/robust_advTraining"><button class="labelunselected">CNN对抗训练</button></router-link>
+                    <router-link to="/gcn_robustTraining"><button class="labelselected">GCN可认证鲁棒训练</button></router-link>
+                    <router-link to="/featurescatter_robustTraining"><button class="labelunselected">特征散射鲁棒性训练</button></router-link>
+                    <router-link to="/seat_robustTraining"><button class="labelunselected">异常感知鲁棒性训练</button></router-link>
+                    <router-link to="/smoothing_robustTraining"><button class="labelunselected">随机平滑鲁棒性训练</button></router-link>
                 </div>
                 <div class="funcParam">
                     <div class="paramTitle" >
@@ -37,46 +37,67 @@
                         <!-- 输入主体 -->
                         <div class="datasetSelected">
                             <p class="mainParamNameNotop">请选择数据集</p>
-                            <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
-                                <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="MNIST">
-                                        MNIST
-                                    </a-radio>
-                                    <p class="matchedMethodText"><span>MNIST数据集：</span>是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。</p>
-                                    <p class="matchedMethodText">图例：</p>
-                                    <div class="demoData" >
-                                        <div v-for="(item, index) in MNIST_imgs" :key="index">
-                                            <img :src="item.imgUrl">
-                                        </div>
-                                    </div>
+                            <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange" v-for="(item,index) in dataname" :key="index">
+                                <a-radio :style="radioStyle" :value="index">
+                                    {{ item }}
+                                </a-radio>
+                                <div class="matchedDes" >
+                                    <datatable v-show="datasetChoice==index" :tabledata="datainfo[item].tabledata" style="margin-bottom: 2%;"></datatable>                                   
                                 </div>
                             </a-radio-group>
+                        </div>
+                        <div class="datasetSelected">
+                            <p class="mainParamNameNotop">请设置数据集参数</p>
+                            <div class="paramsSelected">
+                                <div>
+                                    <p class="matchedMethodText paramblock">批处理大小：</p> 
+                                    <el-input-number :min="1" :max="1000" v-model="batchsize"></el-input-number>
+                                </div>
+                                <div>
+                                    <p class="matchedMethodText paramblock">训练集比例：</p> 
+                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="trainset"></el-input-number>
+                                </div>
+                                <div>
+                                    <p class="matchedMethodText paramblock">测试集比例：</p> 
+                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="testset"></el-input-number>
+                                </div>
+                                <div>
+                                    <p class="matchedMethodText paramblock">验证集比例：</p> 
+                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="valset"></el-input-number>
+                                </div>
+                            </div>
                         </div>
                         <div class="modelSelected">
                             <p class="mainParamName">请选择模型</p>
                             <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
                                 <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="LeNet5">LeNet5</a-radio>
+                                    <a-radio :style="radioStyle" value="GCN" :disabled=true>图神经网络（Graph Neural Networks）</a-radio>
                                 </div>
                             </a-radio-group>
                         </div>
-                        <div class="npyfile">
-                            <p class="mainParamName">选择/上传敏感度文件</p>
-                            <a-checkbox-group v-model="fileChoice">
-                                <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="npp.npy" checked>npp.npy</a-radio>
-                                    <a-radio :style="radioStyle" value="mnn.npy" checked>mnn.npy</a-radio>
+                        <div class="modelSelected">
+                            <p class="mainParamName">请设置训练参数</p>
+                            <div class="paramsSelected">
+                                <div>
+                                    <p class="matchedMethodText paramblock">最大迭代次数：</p> 
+                                    <el-input-number :min="1" :max="2000" v-model="maxiter"></el-input-number>
                                 </div>
-                            </a-checkbox-group>
-                        </div>
-                        <div class="sliderSelected">
-                            <div class="sliderParams">
-                                <p class="mainParamName">请选择修改神经元比例</p>
-                                <a-row>
-                                    <a-slider v-model="PertubeChoice" :min="0.01" :max="0.3" :step="0.01"  :marks="marks"/>
-                                    <a-input-number v-model="PertubeChoice" :min="0.01" :max="0.3" :step="0.01" :formatter="(value) => `${100*value}%`"/>
-                                </a-row>
-                                
+                                <div>
+                                    <p class="matchedMethodText paramblock">全局扰动数量：</p> 
+                                    <el-input-number :min="1" :max="100"  v-model="globaldis"></el-input-number>
+                                </div>
+                                <div>
+                                    <p class="matchedMethodText paramblock">鲁棒损失梯度迭代次数：</p> 
+                                    <el-input-number :min="1" :max="100"  v-model="lossiter"></el-input-number>
+                                </div>
+                                <div>
+                                    <p class="matchedMethodText paramblock">属性扰动数量：</p> 
+                                    <el-input-number :min="0" :max="1" :step="0.01" v-model="attributedis"></el-input-number>
+                                </div>
+                                <div>
+                                    <p class="matchedMethodText paramblock">未优化鲁棒损失迭代次数：</p> 
+                                    <el-input-number :min="0" :max="1000" v-model="orilossiter"></el-input-number>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -95,7 +116,7 @@
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <h1>敏感神经元测试准则</h1>
+                        <h1>GCN可信鲁棒训练</h1>
                     </div>
                 </div>
                 <div class="dialog_publish_main" slot="main" id="pdfDom">
@@ -103,22 +124,24 @@
                     <div class="result_div">
                         <div class="conclusion_info">
                             <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
-                            <p class="result_annotation">数据集：{{ datasetChoice }}</p>
+                            <p class="result_annotation">数据集：{{ dataname[datasetChoice] }}</p>
+                            <p class="result_annotation">批处理大小：{{ batchsize }}</p>
+                            <p class="result_annotation">训练集比例：{{ trainset }}</p>
+                            <p class="result_annotation">测试集比例：{{ testset }}</p>
+                            <p class="result_annotation">验证集比例：{{ valset }}</p>  <br>
                             <p class="result_annotation">模型：{{ modelChoice }}</p>
-                            <p class="result_annotation">敏感度文件：{{ fileChoice }}</p>
-                            <p class="result_annotation">修改神经元比例：{{ PertubeChoice*100 }}%</p>
+                            <p class="result_annotation">最大迭代次数：{{ maxiter }}</p>
+                            <p class="result_annotation">全局扰动数量：{{ globaldis }}</p>
+                            <p class="result_annotation">鲁棒损失梯度迭代次数：{{ lossiter }}</p>
+                            <p class="result_annotation">属性扰动数量：{{ attributedis }}</p>
+                            <p class="result_annotation">未优化鲁棒损失迭代次数：{{ orilossiter }}</p>
                         </div>
-                        <div class=" main_top_echarts_con_title ">敏感神经元测试样例</div>
-                        <div id="rdeva">
-                            <div class="box">
-                                <div class="graph_show" v-for="(item, index) in result.img_list" :key="index">
-                                    <img :src="item" alt="">
-                                </div>
-                            </div>
-                            <div class="conclusion">
-                                <p class="result_text">共生成测试样例{{ result.number }}张，模型鲁棒性{{ result.res}} </p>
-                                <p class="result_text">*生成样本越多，鲁棒性越差(500以内算优，500到5000算中，5000以外算差)</p>
-                            </div>
+                        <div class=" main_top_echarts_con_title ">鲁棒性训练</div>
+                        <div class="box" id="adv_robust_result">xxx</div>
+                        <div class=" main_top_echarts_con_title ">非鲁棒性训练</div>
+                        <div class="box" id="adv_robust_result">yyy</div>
+                        <div class="conclusion">
+                            <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用对抗训练方法进行模型鲁棒性训练，鲁棒性提升了{{result.up}}。</p>
                         </div>
                     </div>
                     <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
@@ -134,16 +157,13 @@
         </a-layout>
      </div>
 </template>
-<!-- 画卷积神经网络convnetdraw -->
-<!-- <script src="../assets/js/convnetdraw.js"></script> -->
-<script type="text/javascript">
-
-</script>
 <script>
 /* 引入组件，导航栏 */
 import navmodule from "../components/nav_homme.vue";
 /* 引入组件，功能介绍 */
 import func_introduce from "../components/funcIntroduce.vue"
+/* 引入组件，数据集表格 */
+import datatable from "../components/dataTable.vue"
 /* 引入组件，日志显示 */
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
@@ -151,9 +171,8 @@ import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
 
 /* 引入图片 */
-import funcicon from "../assets/img/coverageneuralIcon.png"
+import funcicon from "../assets/img/robustTrainingIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
-import { defineComponent, ref } from 'vue';
 
 const selectSvg = {
         template:`
@@ -171,49 +190,78 @@ const selectIcon = {
     },
 }
 
-const marks = ref({
-                0.01:"1%",
-                0.3:"30%"
-            })
-
 export default {
-    name:"deepsst",
+    name:"coverage_layer",
     components:{
-    /* 注册组件 */
+        /* 注册组件 */
     navmodule: navmodule,
     func_introduce: func_introduce,
+    datatable:datatable,
     showLog: showLog,
     resultDialog: resultDialog,
-    selectIcon,marks
+    selectIcon
     },
-    // setup(){
-        
-    // },
     data(){
         return{
-            htmlTitle:"敏感神经元测试准则",
+            htmlTitle:"GNN可认证鲁棒训练",
             /* 单选按钮样式 */
+            methodHoverIndex:-1,
+            methodDescription:"",
             radioStyle: {
                 display: 'block',
                 lineHeight: '30px',
             },
-            datasetChoice: "MNIST",
-            MNIST_imgs:[
-                {imgUrl:require('../assets/img/mnist0.jpg'),name:'mnist0'},
-                {imgUrl:require("../assets/img/mnist1.jpg"),name:'mnist1'},
-                {imgUrl:require("../assets/img/mnist2.jpg"),name:'mnist2'},
-                {imgUrl:require("../assets/img/mnist3.jpg"),name:'mnist3'},
-                {imgUrl:require("../assets/img/mnist4.jpg"),name:'mnist4'},
-                {imgUrl:require("../assets/img/mnist5.jpg"),name:'mnist5'},
-                {imgUrl:require("../assets/img/mnist6.jpg"),name:'mnist6'},
-                {imgUrl:require("../assets/img/mnist7.jpg"),name:'mnist7'},
-                {imgUrl:require("../assets/img/mnist8.jpg"),name:'mnist8'},
-                {imgUrl:require("../assets/img/mnist9.jpg"),name:'mnist9'},
-                ],
-            modelChoice: "LeNet5",
-            fileChoice: ["npp.npy", "mnn.npy"],
-            PertubeChoice:0.05,
-            marks,
+            datasetChoice:0,
+            dataname: ['CiteSeer','Cora_ml', 'PubMed'],
+            datainfo:{
+                    CiteSeer:{
+                        name:"CiteSeer数据集",
+                        tabledata:[
+                            {name:"数据集内容",value:"科技论文"},
+                            {name:"数据条目类型",value:"One-Hot编码"},
+                            {name:"类别数",value:"6"},
+                            {name:"节点数量",value:"3312"},
+                            {name:"连边数量",value:"4732"}
+                        ]
+                    },
+                    Cora_ml:{
+                        name:"Cora_ml数据集",
+                        tabledata:[
+                            {name:"数据集内容",value:"机器学习论文"},
+                            {name:"数据条目类型",value:"One-Hot编码"},
+                            {name:"类别数",value:"7"},
+                            {name:"节点数量",value:"2708"},
+                            {name:"连边数量",value:"5429"}
+                        ],
+                    },
+                    PubMed:{
+                        name:"PubMed数据集",
+                        tabledata:[
+                            {name:"数据集内容",value:"糖尿病论文"},
+                            {name:"数据条目类型",value:"TF-IDF编码"},
+                            {name:"类别数",value:"3"},
+                            {name:"节点数量",value:"19717"},
+                            {name:"连边数量",value:"44338"}
+                        ],
+                    }
+                },
+            datasetParam:[
+                {name: "批处理大小", value: 8, min:1, max:1000},
+                {name: "测试集比例", value: 0.1, min:0, max:1},
+                {name: "训练集比例", value: 0.8, min:0, max:1},
+                {name: "验证集比例", value: 0.1, min:0, max:1}
+            ],
+            batchsize: 8,
+            trainset:0.8,
+            testset:0.1,
+            valset:0.1,
+            maxiter:500,
+            globaldis:12,
+            lossiter:5,
+            attributedis:0.01,
+            orilossiter:100,
+            modelChoice: "GCN",
+
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -230,27 +278,30 @@ export default {
             /* 功能介绍模块信息 */
             funcDesText:{
                 /* 功能名称 */
-                name:"标准化单元测试",
+                name:"模型鲁棒性训练",
                 /* 功能icon，需先引入 */
                 imgpath:funcicon,
                 /* 功能背景图片，需先引入 */
                 bgimg:bgimg,
                 /* 功能介绍下的总介绍 */
-                destext:"多测试准则的标准化AI模型单元测试方法",
+                destext:"提升模型在对抗样本攻击下的鲁棒性",
                 /* 背景介绍 */
-                backinfo:"评估模型训练效果时，由于测试数据有限，容易出现模型行中的某些行为无法被测试到的情况；平台开发标准化单元测试模块，提出制定多测试准则的标准化AI模型单元测试方法，全面评估模型训练效果。",
+                backinfo:"对抗攻击对于模型危害巨大，轻则造成模型失效，重则影响人工智能安全性。通过可认证鲁棒训练、对抗训练等方式来对AI模型进行安全加固，提升模型在对抗样本攻击下的鲁棒性。",
                 /* 亮点介绍 */
                 highlight:[
-                    "测试准则5种，满足模型鲁棒性评估与测试数据充分性评估需求",
-                    "多粒度神经元覆盖准则（包含单神经元和神经层覆盖测试准则）与重要神经元覆盖准则从不同角度评估测试数据集的充分性",
-                    "敏感神经元测试准则用于评估模型鲁棒性、逻辑神经元测试准则用于评估模型安全性"
+                    "鲁棒性训练方法5种，满足多任务类型模型的鲁棒性提升需求；",
+                    "面向GCN的可认证鲁棒训练，能够有效提升图神经网络模型的鲁棒性；",
+                    "面向CNN的对抗训练、基于特征散射的鲁棒性训练、基于异常感知的鲁棒性训练以及基于随机平滑的鲁棒性训练，能够有效提升卷积神经网络的鲁棒性。"
                 ]
             },
             /* 结果弹窗状态信息 */
             isShowPublish:false,
             /* 评估结果 */
-            result:{},
-            mark:0,
+            result:{
+                "before":0.75,
+                "after":0.92,
+                "paca": 0.88
+            },
             res_tmp:{},
             /* 主任务id */ 
             tid:"",
@@ -276,7 +327,7 @@ export default {
         }
     },
     created() {
-        document.title = '标准化单元测试';
+        document.title = '模型鲁棒性训练';
         },
     methods: { 
         /* 关闭结果窗口 */
@@ -291,20 +342,6 @@ export default {
         onModelChoiceChange(e){
             // 修改选择模型
             console.log('radio checked', e.target.value);
-        },
-        onImagesNumberChange(e) {
-            // 修改测试图像数量
-            if (e.target.value != "") {
-                console.log('ImagesNumber: ', e.target.value);
-                this.imageNumber = e.target.value;   
-            } 
-        },
-        downloadGeneration(){
-            if (confirm("您确认下载生成测试样本？") ) {
-                // 下载生成测试样本
-                var that = this;
-                alert("开发中，敬请期待！")
-            }
         },
         exportResult(){
             if (confirm("您确认下载该pdf文件吗？") ){
@@ -322,28 +359,15 @@ export default {
         /* result 处理*/
         resultPro(res){
             debugger;
-            // this.PertubeChoice = parseInt(100*this.PertubeChoice)
-            this.result.number = res.DeepSst.SampleNum;
-            if(this.result.number<500) {
-                this.result.res = "强"
-            } else if(this.result.number<5000) {
-                this.result.res = "中等"
-            } else {
-                this.result.res = "差"
-            }
-            this.result.img_list  = res.DeepSst.SampleForPre;
-            for(var i in this.result.img_list){
-                this.result.img_list[i] = 'static/output'+this.result.img_list[i].split('output')[1];
-            }
-        },
+            // let
 
+        },
         /* 获取结果 */ 
         getData(){
             // debugger
             var that = this;
             that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
                 console.log("dataget:",data);
-                // that.result=data;
                 that.res_tmp = data;
             });
         },
@@ -371,6 +395,7 @@ export default {
             // var that = this;
             if (this.res_tmp.data.stop) {
                 // 关闭日志显示
+                this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
                 clearInterval(this.clk);
@@ -391,45 +416,38 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
+        // 切换页面
+        changeSelectPage(){
+
+        },
         /* 点击评估触发事件 */
         dataEvaClick(){
             // debugger
-            /*判断选择*/
 
             /* 备份 */ 
             var that = this;
-            
+            that.isShowPublish = true;
             /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-                that.tid = result.data.Taskid;
-                                
-                /* 请求体 postdata*/
-                const postdata={
-                    dataset:that.datasetChoice,
-                    model:that.modelChoice,
-                    pertube: that.PertubeChoice,
-                    m_dir: "",
-                    tid:that.tid};
-                that.$axios.post("/UnitTest/DeepSstParamSet", postdata).then((res) => {
-                    
-                    that.logflag = true;
-                    // console.log(res);
-                    /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示，异步任务返回stid */
-                    // 同步任务
-                    // that.logflag = false;
-                    // that.isShowPublish = true;
-                    // that.result = res.data;
-                    // that.resultPro(res.data);
-                    // 异步任务
-                    that.stidlist =  {"DeepSst":res.data.stid}
-                    that.logclk = self.setInterval(that.getLog, 3000);
-                    that.clk = self.setInterval(that.update, 3000);
-                }).catch((err) => {
-                        console.log(err)
-                });
-            }).catch((err) => {
-                console.log(err)
-            });    
+            // this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            //     that.tid = result.data.Taskid;
+                
+            //     /* 请求体 postdata*/
+            //     const postdata={
+            //         dataset:that.datasetChoice,
+            //         model:that.modelChoice,
+            //         tid:that.tid};
+            //     that.$axios.post("/RobustTraining/AdvTraingParamSet", postdata).then((res) => {
+            //         that.logflag = true;
+            //         // 异步任务
+            //         that.stidlist =  {"AdvTraing":res.data.stid}
+            //         that.logclk = self.setInterval(that.getLog, 3000);
+            //         that.clk = self.setInterval(that.update, 3000);
+            //     }).catch((err) => {
+            //             console.log(err)
+            //     });
+            // }).catch((err) => {
+            //     console.log(err)
+            // });    
         }
     }
 }
@@ -493,6 +511,11 @@ text-align: left;
     align-self: stretch;
     flex-grow: 0;
 }
+
+.paramsSelected{
+    display: flex;
+}
+
 .matchedDes{
     display: flex;
     flex-direction: column;
@@ -528,23 +551,14 @@ text-align: left;
     align-self: stretch;
     flex-grow: 0;
 }
+
+.paramblock {
+    width: 220px;
+    padding: 12px 0px;
+}
+
 .matchedMethodText span{
     color:#0B55F4
-}
-.demoData{
-    display: flex;
-    margin-left: 20px;
-    gap: 10px;
-    /* justify-content: space-around; */
-    margin-bottom: 20px;
-}
-.demoData img{
-    /* position: absolute; */
-    width: 64px;
-    height: 64px;
-    left: 0px;
-    top: 0px;
-    /* background: url(../assets/img/mnist1.jpg); */
 }
 
 .modelSelected{
@@ -562,37 +576,6 @@ text-align: left;
     flex-grow: 0;
 }
 
-.npyfile{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0px;
-    /* gap: 16px; */
-    width: 1104px;
-    /* height: 228px; */
-    /* Inside auto layout */
-    flex: none;
-    order: 1;
-    align-self: stretch;
-    flex-grow: 0;
-}
-
-.ant-row{
-    width: 50%;
-    /* margin:10px; */
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-}
-
-.ant-slider{
-    width: 50%;
-    margin: 10px 20px;
-}
-.ant-input-number{
-    width: 15%;
-}
 
 /* 按钮样式 */
 .DataEva{
@@ -618,13 +601,13 @@ text-align: left;
 .ant-divider-horizontal{
     margin: 0 0;
 }
-
 .conclusion_info{
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
+    flex-wrap: wrap;
     padding: 20px;
     gap: 25px;
     margin-bottom: 20px;
@@ -639,86 +622,6 @@ text-align: left;
     margin-top: 0;
 }
 
-.box {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    width: 900px;
-    margin-top: 5%;
-}
-
-.graph_show {
-    width: 250px;
-    height: 150px;
-}
-
-.graph_show img{
-    width: 100px;
-}
-
-.title_annotation{
-    /* width: 217px;
-    height: 24px; */
-
-    font-family: 'HONOR Sans CN';
-    font-style: normal;
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 24px;
-    /* identical to box height, or 150% */
-
-    display: flex;
-    align-items: center;
-    text-align: center;
-
-    /* Untitled/gray-1 */
-
-    color: #000000;
-
-
-    /* Inside auto layout */
-
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-}
-
-/* 图表名称样式 */
-.echart_title{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 20px 0px;
-    gap: 10px;
-    isolation: isolate;
-
-    width: 960px;
-    height: auto;
-    /* Inside auto layout */
-    flex: none;
-    order: 1;
-    flex-grow: 0;
-}
-
-.resultchart{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0px;
-    gap: 24px;
-    isolation: isolate;
-    margin-bottom: 10px;
-    width: 960px;
-    height: auto;
-    flex: none;
-    order: 1;
-    flex-grow: 0;
-}
-.table{
-    width: 960px;
-}
 
 .dialog_publish_main{
 align-items: center;
@@ -744,16 +647,6 @@ height: fit-content;
     flex-grow: 0;
 }
 
-/* 结果文字样式 */
-.resultext{
-    width: 100%;
-    /* height: 22px; */
-    font-family: PingFangSC-Regular;
-    font-size: 16px;
-    color: #000000;
-    font-weight: 400;
-    margin-top: -40px;
-}
 /* 得分图div */
 #rdeva{
     display: flex;
