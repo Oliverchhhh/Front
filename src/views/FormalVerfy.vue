@@ -496,7 +496,7 @@
                         <a-row >
                             <a-col :span="5" >
                                 <div class="paramContent">
-                                    <p><span class="paramName">数据集：</span><span class="paramValue">{{ dataset }}</span><</p>
+                                    <p><span class="paramName">数据集：</span><span class="paramValue">{{ dataset }}</span></p>
                                 </div>
                             </a-col>
                             <a-col :span="5" >
@@ -1111,7 +1111,7 @@ export default {
         stopTimer() {
             if (this.result.data.stop==1) {
                 // 关闭日志显示
-                this.logflag = false;
+                this.logflag = true;
                 // 关闭结果数据获取data
                 window.clearInterval(this.clk);
                 this.clk=''
@@ -1300,6 +1300,7 @@ export default {
                 that.percent = 40;
                 that.logflag = true;
                 that.logclk = window.setInterval(that.getLog, 60);
+
                 that.$axios.post("/reach", postdata).then((res) => {
                     that.logflag = true;
                     window.clearInterval(that.logclk);
@@ -1346,6 +1347,14 @@ export default {
             }
             var that=this;
             var data_size = 0
+            // that.tid = "20231007_1217_b0cc355"
+            // that.stidlist =  {"formalverfy":'S20231007_0930_9a4d874'};
+            // that.logclk = window.setInterval(that.getLog, 100);
+            // that.clk = window.setInterval(() => {
+            //     that.update();
+            // }, 300)
+            // that.logflag = true;
+            // return
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);

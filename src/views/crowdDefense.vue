@@ -452,7 +452,7 @@ export default {
         },
         /* 获取日志 */ 
         getLog(){
-            debugger
+            // debugger
             var that = this;
             if(that.percent < 99){
                that.percent += 1;
@@ -543,8 +543,8 @@ export default {
             // that.postData["ModelParam"] = {"name":model,"ckpt":null}
             // that.postData["AdvMethods"] = that.selectedMethod
             // that.postData["DefMethod"] = that.selectedDefense
-            // that.tid = "20230926_1703_2830de6"
-            // that.stidlist =  {"Ensemble":"S20230926_1703_dc8e4ef"};
+            // that.tid = "20231010_0845_969ccaf"
+            // that.stidlist =  {"Ensemble":"S20231010_0845_3911182"};
             // that.clk = window.setInterval(() => {
             //     that.update();
             // }, 600)

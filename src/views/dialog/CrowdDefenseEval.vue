@@ -108,7 +108,7 @@
                       <div class="result-title">博弈策略收益曲线</div>
                       <div id="bal_Chart" class="echart" style="width: 1000px; height: 400px;"></div>
                       <div class="conclusion">
-                        <p class="result_text ">如上分别是不同防御方法下的准确率和鲁棒性以及不同权重p下的收益曲线</p>
+                        <p class="result_text ">如上分别是不同防御方法下的准确率和鲁棒性以及不同权重p下的收益曲线，收益的计算公式为p*准确率+(1-p)*鲁棒性</p>
                       </div>
                     </div>
                     <!-- 评估详情 -->

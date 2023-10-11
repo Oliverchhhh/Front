@@ -185,8 +185,8 @@ export default {
             },
             methodChoice: "",
             methodChoiceList: {
-                // 'CPA':{'name': 'CPA', 'value': 'cpa','disindex':false, 'des': 'CPA方法描述描述'},
-                // 'DPA':{'name': 'DPA','value': 'dpa','disindex':false, 'des': 'DPA方法描述'},
+                'CPA':{'name': 'CPA', 'value': 'cpa','disindex':false, 'des': 'CPA方法描述描述'},
+                'DPA':{'name': 'DPA','value': 'dpa','disindex':false, 'des': 'DPA方法描述'},
                 'HPA':{'name': 'HPA','value': 'hpa','disindex':false, 'des': 'HPA方法描述'},
                 // 'SPA':{'name': 'SPA', 'value': 'SPA','disindex':false, 'des': 'SPA方法描述'},
                 'T-test':{'name': 'T-test','value': 'ttest','disindex':false, 'des': 'T-test方法描述'},
@@ -271,21 +271,27 @@ export default {
         },
         methodFilter(data){
             // debugger;
-            if (['trace1', 'trace5'].includes(data)) {
-                // this.methodChoiceList['CPA']['disindex']=false;
-                // this.methodChoiceList['DPA']['disindex']=false;
+            if (['trace1'].includes(data)) {
+                this.methodChoiceList['CPA']['disindex']=false;
+                this.methodChoiceList['DPA']['disindex']=false;
+                this.methodChoiceList['HPA']['disindex']=true;
+                this.methodChoiceList['T-test']['disindex']=false;
+                this.methodChoiceList['X2-test']['disindex']=false;
+            }else if (['trace5'].includes(data)) {
+                this.methodChoiceList['CPA']['disindex']=false;
+                this.methodChoiceList['DPA']['disindex']=true;
                 this.methodChoiceList['HPA']['disindex']=true;
                 this.methodChoiceList['T-test']['disindex']=false;
                 this.methodChoiceList['X2-test']['disindex']=false;
             } else if (['trace2', 'trace4', 'trace6'].includes(data)) {
-                // this.methodChoiceList['CPA']['disindex']=true;
-                // this.methodChoiceList['DPA']['disindex']=true;
+                this.methodChoiceList['CPA']['disindex']=true;
+                this.methodChoiceList['DPA']['disindex']=true;
                 this.methodChoiceList['HPA']['disindex']=false;
                 this.methodChoiceList['T-test']['disindex']=true;
                 this.methodChoiceList['X2-test']['disindex']=true;
             } else if(data=='trace3') {
-                // this.methodChoiceList['CPA']['disindex']=false;
-                // this.methodChoiceList['DPA']['disindex']=false;
+                this.methodChoiceList['CPA']['disindex']=false;
+                this.methodChoiceList['DPA']['disindex']=false;
                 this.methodChoiceList['HPA']['disindex']=true;
                 this.methodChoiceList['T-test']['disindex']=false;
                 this.methodChoiceList['X2-test']['disindex']=true;

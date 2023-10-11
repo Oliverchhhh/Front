@@ -210,7 +210,7 @@ export default {
   // updated:{},
   // props:["is-show","top-distance"],
   methods: {
-    defenseShow(method="[]"){
+    defenseShow(method=[]){
             // let param = JSON.parse(method);
             return method.join('、');
         },

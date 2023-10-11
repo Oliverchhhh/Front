@@ -27,7 +27,7 @@
           :size="attack_type=='backdoor'?'large':'default'"
           @change="selectgroupChange"
           >
-            <a-radio-button v-for="(temp,index) in attributesValues[i][j].valuelist" :value="index" :key="'radiobutton'+index">{{ temp }}</a-radio-button>
+            <a-radio-button v-for="(temp,index) in attributesValues[i][j].valuelist" :value="temp" :key="'radiobutton'+index">{{ temp }}</a-radio-button>
           </a-radio-group>
           <a-radio-button v-if="attributesValues[i][j].type == 'select'" style="width: 100%; background-color:#F2F4F9"
             @click="changeSelectAttribute(i,j)" :checked="attributesValues[i][j].number">
@@ -92,6 +92,7 @@ export default {
     },
     updateAttributes() {
       // 生成当前的参数列表并返回给父组件
+      debugger
       let attributes_dict = {}
       if (this.checked) {
         for(let i = 0; i < this.attributesValues.length; i++) {
@@ -106,6 +107,7 @@ export default {
       this.$emit("updateAttributes", this.indexInParent, attributes_dict)
     },
     selectgroupChange(e){
+      console.log(e)
         this.updateAttributes()
     },
     changeSelectAttribute(i,j) {

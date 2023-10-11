@@ -478,22 +478,22 @@ export default {
             this.logtext = [];
             this.logflag = true;
             
-            // this.resultVisible = true;
-            // this.tid = "20230815_1029_dcb8922"
-            // this.postData["Taskid"] = "20230815_1029_dcb8922"
-            // this.postData["DatasetParam"] = {"name":dataset}
-            // this.stidlist["dimention"] = "S20230815_1029_2902a94"
-            // this.stidlist["feature"] = "S20230815_1029_08a94c2"
-            // // that.postData["ModelParam"] = {"name":model,"ckpt":this.uploadflag}
-            // this.postData["ModelParam"] = {"name":model,"ckpt":null}
-            // this.postData["AdvMethods"] = this.selectedMethods
-            // this.postData["ExMethods"] = this.selectedFeatureMethod
-            // this.postData["Use_layer_explain"] = this.layerchecked
+            this.resultVisible = true;
+            this.tid = "20231009_1723_3ca268d"
+            this.postData["Taskid"] = "20231009_1723_3ca268d"
+            this.postData["DatasetParam"] = {"name":dataset}
+            // this.stidlist["dimention"] = "S20231009_1723_1968c81"
+            this.stidlist["feature"] = "S20230815_1029_08a94c2"
+            // that.postData["ModelParam"] = {"name":model,"ckpt":this.uploadflag}
+            this.postData["ModelParam"] = {"name":model,"ckpt":null}
+            this.postData["AdvMethods"] = this.selectedMethods
+            this.postData["ExMethods"] = this.selectedFeatureMethod
+            this.postData["Use_layer_explain"] = this.layerchecked
             // this.postData["VisMethods"] = this.selectedDimensionMethods
-            // this.clk = window.setInterval(() => {
-            //     this.update();
-            // },2000)
-            // return 0
+            this.clk = window.setInterval(() => {
+                this.update();
+            },20)
+            return
             var that = this;
             that.$axios.post("/Task/CreateTask", { AttackAndDefenseTask: 0 }).then((result) => {
                 console.log(result);
