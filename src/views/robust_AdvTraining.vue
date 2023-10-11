@@ -14,11 +14,11 @@
                 <!-- 参数配置容器 -->
                 <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
                 <div class="labelSelection">
-                    <router-link to="/coverage_neural"><button class="labelunselected">单神经元覆盖准则</button></router-link>
-                    <router-link to="/coverage_layer"><button class="labelunselected">神经元层覆盖准则</button></router-link>
-                    <router-link to="/coverage_importance"><button class="labelunselected">重要神经元覆盖准则</button></router-link>
-                    <router-link to="/deepsst"><button class="labelselected">敏感神经元测试准则</button></router-link>
-                    <router-link to="/deeplogic"><button class="labelunselected">逻辑神经元测试准则</button></router-link>
+                    <router-link to="/robust_advTraining"><button class="labelselected">CNN对抗训练</button></router-link>
+                    <router-link to="/gcn_robustTraining"><button class="labelunselected">GCN可认证鲁棒训练</button></router-link>
+                    <router-link to="/featurescatter_robustTraining"><button class="labelunselected">特征散射鲁棒性训练</button></router-link>
+                    <router-link to="/seat_robustTraining"><button class="labelunselected">异常感知鲁棒性训练</button></router-link>
+                    <router-link to="/smoothing_robustTraining"><button class="labelunselected">随机平滑鲁棒性训练</button></router-link>
                 </div>
                 <div class="funcParam">
                     <div class="paramTitle" >
@@ -39,6 +39,19 @@
                             <p class="mainParamNameNotop">请选择数据集</p>
                             <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
                                 <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="CIFAR10" >
+                                        CIFAR10
+                                    </a-radio>
+                                    <p class="matchedMethodText"><span>CIFAR10数据集：</span>是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。</p>
+                                    <p class="matchedMethodText">图例：</p>
+                                    <div class="demoData" >
+                                        <div v-for="(item, index) in CIFAR10_imgs" :key="index">
+                                            <img :src="item.imgUrl">
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="matchedDes">
                                     <a-radio :style="radioStyle" value="MNIST">
                                         MNIST
                                     </a-radio>
@@ -56,27 +69,22 @@
                             <p class="mainParamName">请选择模型</p>
                             <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
                                 <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="LeNet5">LeNet5</a-radio>
+                                    <a-radio :style="radioStyle" value="ResNet18" >ResNet18</a-radio>
+                                    <a-radio :style="radioStyle" value="ResNet34" >ResNet34</a-radio>
+                                    <a-radio :style="radioStyle" value="ResNet50" >ResNet50</a-radio>
                                 </div>
                             </a-radio-group>
                         </div>
-                        <div class="npyfile">
-                            <p class="mainParamName">选择/上传敏感度文件</p>
-                            <a-checkbox-group v-model="fileChoice">
-                                <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="npp.npy" checked>npp.npy</a-radio>
-                                    <a-radio :style="radioStyle" value="mnn.npy" checked>mnn.npy</a-radio>
-                                </div>
-                            </a-checkbox-group>
-                        </div>
-                        <div class="sliderSelected">
-                            <div class="sliderParams">
-                                <p class="mainParamName">请选择修改神经元比例</p>
-                                <a-row>
-                                    <a-slider v-model="PertubeChoice" :min="0.01" :max="0.3" :step="0.01"  :marks="marks"/>
-                                    <a-input-number v-model="PertubeChoice" :min="0.01" :max="0.3" :step="0.01" :formatter="(value) => `${100*value}%`"/>
+                        <div class="thresholdSet">
+                            <p class="mainParamName">请输入选择攻击方法（可多选）</p>
+                            <div v-for="(methods, i) in showmethodInfo" :key="i" style="margin-bottom: 16px;">
+                                <a-row :gutter="16" style="height:50px;" type="flex">
+                                    <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod">
+                                        <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
+                                            >{{ method.name }}</a-button>
+                                    </a-col>
                                 </a-row>
-                                
+                                <div v-if="methodHoverIndex==i && methodDescription !== ''" style="padding:14px 24px;margin: 16px auto; "> {{ methodDescription }} </div>
                             </div>
                         </div>
                     </div>
@@ -95,7 +103,7 @@
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <h1>敏感神经元测试准则</h1>
+                        <h1>CNN对抗训练</h1>
                     </div>
                 </div>
                 <div class="dialog_publish_main" slot="main" id="pdfDom">
@@ -105,19 +113,17 @@
                             <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
                             <p class="result_annotation">数据集：{{ datasetChoice }}</p>
                             <p class="result_annotation">模型：{{ modelChoice }}</p>
-                            <p class="result_annotation">敏感度文件：{{ fileChoice }}</p>
-                            <p class="result_annotation">修改神经元比例：{{ PertubeChoice*100 }}%</p>
-                        </div>
-                        <div class=" main_top_echarts_con_title ">敏感神经元测试样例</div>
-                        <div id="rdeva">
-                            <div class="box">
-                                <div class="graph_show" v-for="(item, index) in result.img_list" :key="index">
-                                    <img :src="item" alt="">
-                                </div>
+                            <p class="result_annotation">攻击方法：</p>
+                            <div class="result_annotation" style="word-wrap: break-word; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start;align-items: center;gap: 10px;"> 
+                                <p  v-for="(item, index) in selectedMethod" :key="index">{{ item }}</p>
                             </div>
+                            
+                        </div>
+                        <div class=" main_top_echarts_con_title ">模型对抗训练效果</div>
+                        <div id="rdeva">
+                            <div class="box" id="adv_robust_result"></div>
                             <div class="conclusion">
-                                <p class="result_text">共生成测试样例{{ result.number }}张，模型鲁棒性{{ result.res}} </p>
-                                <p class="result_text">*生成样本越多，鲁棒性越差(500以内算优，500到5000算中，5000以外算差)</p>
+                                <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用对抗训练方法进行模型鲁棒性训练，鲁棒性提升了{{result.up}}。</p>
                             </div>
                         </div>
                     </div>
@@ -134,11 +140,6 @@
         </a-layout>
      </div>
 </template>
-<!-- 画卷积神经网络convnetdraw -->
-<!-- <script src="../assets/js/convnetdraw.js"></script> -->
-<script type="text/javascript">
-
-</script>
 <script>
 /* 引入组件，导航栏 */
 import navmodule from "../components/nav_homme.vue";
@@ -151,9 +152,8 @@ import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
 
 /* 引入图片 */
-import funcicon from "../assets/img/coverageneuralIcon.png"
+import funcicon from "../assets/img/robustTrainingIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
-import { defineComponent, ref } from 'vue';
 
 const selectSvg = {
         template:`
@@ -171,33 +171,27 @@ const selectIcon = {
     },
 }
 
-const marks = ref({
-                0.01:"1%",
-                0.3:"30%"
-            })
-
 export default {
-    name:"deepsst",
+    name:"coverage_layer",
     components:{
-    /* 注册组件 */
+        /* 注册组件 */
     navmodule: navmodule,
     func_introduce: func_introduce,
     showLog: showLog,
     resultDialog: resultDialog,
-    selectIcon,marks
+    selectIcon
     },
-    // setup(){
-        
-    // },
     data(){
         return{
-            htmlTitle:"敏感神经元测试准则",
+            htmlTitle:"CNN对抗训练",
             /* 单选按钮样式 */
+            methodHoverIndex:-1,
+            methodDescription:"",
             radioStyle: {
                 display: 'block',
                 lineHeight: '30px',
             },
-            datasetChoice: "MNIST",
+            datasetChoice: "CIFAR10",
             MNIST_imgs:[
                 {imgUrl:require('../assets/img/mnist0.jpg'),name:'mnist0'},
                 {imgUrl:require("../assets/img/mnist1.jpg"),name:'mnist1'},
@@ -210,10 +204,38 @@ export default {
                 {imgUrl:require("../assets/img/mnist8.jpg"),name:'mnist8'},
                 {imgUrl:require("../assets/img/mnist9.jpg"),name:'mnist9'},
                 ],
-            modelChoice: "LeNet5",
-            fileChoice: ["npp.npy", "mnn.npy"],
-            PertubeChoice:0.05,
-            marks,
+            CIFAR10_imgs:[
+                {imgUrl:require('../assets/img/cifar100.jpg'),name:'mnist0'},
+                {imgUrl:require("../assets/img/cifar101.jpg"),name:'mnist1'},
+                {imgUrl:require("../assets/img/cifar102.jpg"),name:'mnist2'},
+                {imgUrl:require("../assets/img/cifar103.jpg"),name:'mnist3'},
+                {imgUrl:require("../assets/img/cifar104.jpg"),name:'mnist4'},
+                {imgUrl:require("../assets/img/cifar105.jpg"),name:'mnist5'},
+                {imgUrl:require("../assets/img/cifar106.jpg"),name:'mnist6'},
+                {imgUrl:require("../assets/img/cifar107.jpg"),name:'mnist7'},
+                {imgUrl:require("../assets/img/cifar108.jpg"),name:'mnist8'},
+                {imgUrl:require("../assets/img/cifar109.jpg"),name:'mnist9'},
+                ],
+            modelChoice: "VGG11",
+            selectedMethod:[],
+            selectedAttributes:"",
+            showmethodInfo:[[
+                {name:"FGSM",description:"FGSM算法:快速梯度符号法是一种简单而有效的生成对抗样本的方法，其工作方式如下：在给定输入数据后，利用已训练的模型输出预测并计算损失函数的梯度，然后使用梯度的符号来创建使损失最大化的新数据",},
+                {name:"FFGSM",description:"FFGSM算法：在使用FGSM攻击算法前加入随机初始化的扰动，经过实验发现基于FFGSM的对抗训练拥有高效性",},
+                {name:"RFGSM",description:"RFGSM算法：R+FGSM在FGSM中加入随机的步骤, 是一个在白盒设置下高效的能替代迭代攻击的方法",},
+                {name:"MIFGSM",description:"MIFGSM算法：momentum iterative FGSM是一种使用momentum迭代梯度的方法，该方法在迭代梯度对抗攻击(如BIM)的基础上，累计每次梯度方向的速度向量作为momentum，每次对抗扰动不再直接使用梯度方向，转而采用momentum方向，从而稳定更新方向并避免局部极值，更好提高攻击迁移性",},
+                ],
+                [
+                {name:"BIM",description:"BIM算法：Basic Iterative MethodBIM迭代式FGSM是对FGSM的改进方法，主要的改进有两点，其一是FGSM方法是一步完成的，而BIM方法通过多次迭代来寻找对抗样本；其次，为了避免迭代过程中出现超出有效值的情况出现，使用了一个修建方法严格限制像素值的范围",},
+                {name:"PGD",description:"PGD算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
+                {name:"PGDL2",description:"PGDL2算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
+                {name:"DIFGSM",description:"DIFGSM算法：Diverse Inputs Iterative Fast Gradient Sign Method,通过创建多样的输入模式提高对抗样本的迁移性。做法是对输入的原图像以p的概率加上随机且可导的变换(transformation)，使用梯度的方法最大化模型对变换后的原图像的损失函数值从而得到对抗图像",},
+                ],
+                [
+                {name:"ETOPGD",description:"ETOPGD算法：暂无解释",},
+                {name:"C&W",description:"C&W算法：该方法的出发点是攻击比较有名的对抗样本防御方法-防御蒸馏(就防御蒸馏方法而言，它在基本的L-BFGS，FGSM攻击方法上表现本身就比较差)。对于寻找对抗样本过程中目标函数的设置将会极大的影响对抗样本的攻击效果，为此，通过目标函数的设定，在零范数，二范数和无穷范数的限制下分别设计了三种不同的寻找对抗样本的目标函数，这三种方法均可以绕过防御蒸馏的防御",},
+                {name:"TPGD",description:"TPGD算法：基于KL-Divergence loss的pgd攻击",}
+            ]],
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -230,27 +252,30 @@ export default {
             /* 功能介绍模块信息 */
             funcDesText:{
                 /* 功能名称 */
-                name:"标准化单元测试",
+                name:"模型鲁棒性训练",
                 /* 功能icon，需先引入 */
                 imgpath:funcicon,
                 /* 功能背景图片，需先引入 */
                 bgimg:bgimg,
                 /* 功能介绍下的总介绍 */
-                destext:"多测试准则的标准化AI模型单元测试方法",
+                destext:"提升模型在对抗样本攻击下的鲁棒性",
                 /* 背景介绍 */
-                backinfo:"评估模型训练效果时，由于测试数据有限，容易出现模型行中的某些行为无法被测试到的情况；平台开发标准化单元测试模块，提出制定多测试准则的标准化AI模型单元测试方法，全面评估模型训练效果。",
+                backinfo:"对抗攻击对于模型危害巨大，轻则造成模型失效，重则影响人工智能安全性。通过可认证鲁棒训练、对抗训练等方式来对AI模型进行安全加固，提升模型在对抗样本攻击下的鲁棒性。",
                 /* 亮点介绍 */
                 highlight:[
-                    "测试准则5种，满足模型鲁棒性评估与测试数据充分性评估需求",
-                    "多粒度神经元覆盖准则（包含单神经元和神经层覆盖测试准则）与重要神经元覆盖准则从不同角度评估测试数据集的充分性",
-                    "敏感神经元测试准则用于评估模型鲁棒性、逻辑神经元测试准则用于评估模型安全性"
+                    "鲁棒性训练方法5种，满足多任务类型模型的鲁棒性提升需求；",
+                    "面向GCN的可认证鲁棒训练，能够有效提升图神经网络模型的鲁棒性；",
+                    "面向CNN的对抗训练、基于特征散射的鲁棒性训练、基于异常感知的鲁棒性训练以及基于随机平滑的鲁棒性训练，能够有效提升卷积神经网络的鲁棒性。"
                 ]
             },
             /* 结果弹窗状态信息 */
             isShowPublish:false,
             /* 评估结果 */
-            result:{},
-            mark:0,
+            result:{
+                "before":0.75,
+                "after":0.92,
+                "paca": 0.88
+            },
             res_tmp:{},
             /* 主任务id */ 
             tid:"",
@@ -276,7 +301,7 @@ export default {
         }
     },
     created() {
-        document.title = '标准化单元测试';
+        document.title = '模型鲁棒性训练';
         },
     methods: { 
         /* 关闭结果窗口 */
@@ -292,18 +317,27 @@ export default {
             // 修改选择模型
             console.log('radio checked', e.target.value);
         },
-        onImagesNumberChange(e) {
-            // 修改测试图像数量
-            if (e.target.value != "") {
-                console.log('ImagesNumber: ', e.target.value);
-                this.imageNumber = e.target.value;   
-            } 
-        },
-        downloadGeneration(){
-            if (confirm("您确认下载生成测试样本？") ) {
-                // 下载生成测试样本
-                var that = this;
-                alert("开发中，敬请期待！")
+        // 防御方法点击选中
+        changeMethods(i, j) {
+            // debugger;
+            let button = document.getElementById("button" + i + j)
+            if (button.style.color == "") {
+                this.methodHoverIndex = i
+                this.methodDescription = this.showmethodInfo[i][j].description
+                button.style.color = "#0B55F4"
+                button.style.borderColor = "#C8DCFB"
+                button.style.background = "#E7F0FD"
+                this.selectedMethod.push(this.showmethodInfo[i][j].name)
+                this.selectedAttributes[this.showmethodInfo[i][j].name] = {}
+            } else {
+                this.methodHoverIndex = -1
+                this.methodDescription = ""
+                button.style.color = ""
+                button.style.borderColor = "#C8DCFB"
+                button.style.background = "#F2F4F9"
+                button.blur()
+                this.selectedMethod.splice(this.selectedMethod.indexOf(this.showmethodInfo[i][j].name), 1 )
+                delete this.selectedAttributes[this.showmethodInfo[i][j].name]
             }
         },
         exportResult(){
@@ -322,21 +356,13 @@ export default {
         /* result 处理*/
         resultPro(res){
             debugger;
-            // this.PertubeChoice = parseInt(100*this.PertubeChoice)
-            this.result.number = res.DeepSst.SampleNum;
-            if(this.result.number<500) {
-                this.result.res = "强"
-            } else if(this.result.number<5000) {
-                this.result.res = "中等"
-            } else {
-                this.result.res = "差"
-            }
-            this.result.img_list  = res.DeepSst.SampleForPre;
-            for(var i in this.result.img_list){
-                this.result.img_list[i] = 'static/output'+this.result.img_list[i].split('output')[1];
+            // let
+            this.result.img_list = res.CoverageLayer.coverage_test_yz.coverage_layer;
+            for(var i=0; i<this.result.img_list.length;i++){
+                this.result.img_list[i]["coverage"] = parseInt(100*this.result.img_list[i]["coverage"]);
+                this.result.img_list[i]["imgUrl"]='static/output'+this.result.img_list[i]["imgUrl"].split('output')[1];
             }
         },
-
         /* 获取结果 */ 
         getData(){
             // debugger
@@ -371,6 +397,7 @@ export default {
             // var that = this;
             if (this.res_tmp.data.stop) {
                 // 关闭日志显示
+                this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
                 clearInterval(this.clk);
@@ -391,45 +418,38 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
+        // 切换页面
+        changeSelectPage(){
+
+        },
         /* 点击评估触发事件 */
         dataEvaClick(){
             // debugger
-            /*判断选择*/
 
             /* 备份 */ 
             var that = this;
-            
+            that.isShowPublish = true;
             /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-                that.tid = result.data.Taskid;
-                                
-                /* 请求体 postdata*/
-                const postdata={
-                    dataset:that.datasetChoice,
-                    model:that.modelChoice,
-                    pertube: that.PertubeChoice,
-                    m_dir: "",
-                    tid:that.tid};
-                that.$axios.post("/UnitTest/DeepSstParamSet", postdata).then((res) => {
-                    
-                    that.logflag = true;
-                    // console.log(res);
-                    /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示，异步任务返回stid */
-                    // 同步任务
-                    // that.logflag = false;
-                    // that.isShowPublish = true;
-                    // that.result = res.data;
-                    // that.resultPro(res.data);
-                    // 异步任务
-                    that.stidlist =  {"DeepSst":res.data.stid}
-                    that.logclk = self.setInterval(that.getLog, 3000);
-                    that.clk = self.setInterval(that.update, 3000);
-                }).catch((err) => {
-                        console.log(err)
-                });
-            }).catch((err) => {
-                console.log(err)
-            });    
+            // this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+            //     that.tid = result.data.Taskid;
+                
+            //     /* 请求体 postdata*/
+            //     const postdata={
+            //         dataset:that.datasetChoice,
+            //         model:that.modelChoice,
+            //         tid:that.tid};
+            //     that.$axios.post("/RobustTraining/AdvTraingParamSet", postdata).then((res) => {
+            //         that.logflag = true;
+            //         // 异步任务
+            //         that.stidlist =  {"AdvTraing":res.data.stid}
+            //         that.logclk = self.setInterval(that.getLog, 3000);
+            //         that.clk = self.setInterval(that.update, 3000);
+            //     }).catch((err) => {
+            //             console.log(err)
+            //     });
+            // }).catch((err) => {
+            //     console.log(err)
+            // });    
         }
     }
 }
@@ -562,36 +582,18 @@ text-align: left;
     flex-grow: 0;
 }
 
-.npyfile{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0px;
-    /* gap: 16px; */
-    width: 1104px;
-    /* height: 228px; */
-    /* Inside auto layout */
-    flex: none;
-    order: 1;
-    align-self: stretch;
-    flex-grow: 0;
-}
-
-.ant-row{
-    width: 50%;
-    /* margin:10px; */
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-}
-
-.ant-slider{
-    width: 50%;
-    margin: 10px 20px;
-}
-.ant-input-number{
-    width: 15%;
+.denfenseMethod .ant-btn{
+    width: 100%;
+    background-color: #F2F4F9;
+    height:60px;
+    color:#000;
+    border:0px;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px; 
 }
 
 /* 按钮样式 */
@@ -618,7 +620,6 @@ text-align: left;
 .ant-divider-horizontal{
     margin: 0 0;
 }
-
 .conclusion_info{
     box-sizing: border-box;
     display: flex;
@@ -639,24 +640,14 @@ text-align: left;
     margin-top: 0;
 }
 
-.box {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    width: 900px;
-    margin-top: 5%;
-}
 
 .graph_show {
-    width: 250px;
-    height: 150px;
+    margin:10% auto;
+    /* width: 400px; */
+    max-width: 700px;
+    height: 400px;
 }
 
-.graph_show img{
-    width: 100px;
-}
 
 .title_annotation{
     /* width: 217px;

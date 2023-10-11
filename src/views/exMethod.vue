@@ -48,8 +48,17 @@
                             </a-upload>
                         </div>
                         <ModelCard style="width: 1104px; margin-bottom: 16px;"
+                            v-for="(info, index) in modelInfo_imagenet" :key="'Model' + index" 
+                            v-bind="info"
+                            v-show="selectedDataset=='0'"
+                            :indexInParent="index"
+                            @selectModel="changeModel"
+                            :checked="index == selectedModel">
+                        </ModelCard>
+                        <ModelCard style="width: 1104px; margin-bottom: 16px;"
                             v-for="(info, index) in modelInfo" :key="'Model' + index" 
                             v-bind="info"
+                            v-show="selectedDataset!='0'"
                             :indexInParent="index"
                             @selectModel="changeModel"
                             :checked="index == selectedModel">
@@ -240,7 +249,7 @@ export default {
                 
             ],
             selectedDataset: 0,
-            modelInfo: [
+            modelInfo_imagenet: [
                 {
                     name:"VGG",
                     subset: ["vgg11", "vgg13", "vgg16", "vgg19"]
@@ -252,6 +261,20 @@ export default {
                 {
                     name:"DenseNet",
                     subset: ["DenseNet121",  "DenseNet169", "DenseNet201"]
+                }
+            ],
+            modelInfo: [
+                {
+                    name:"VGG",
+                    subset: ["vgg11", "vgg13", "vgg16", "vgg19"]
+                },
+                {
+                    name:"ResNet",
+                    subset: ["ResNet18", "ResNet34", "ResNet50"]
+                },
+                {
+                    name:"DenseNet",
+                    subset: ["DenseNet121", "DenseNet161", "DenseNet169", "DenseNet201"]
                 }
             ],
             selectedModel: 0,

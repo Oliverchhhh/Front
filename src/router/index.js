@@ -178,6 +178,36 @@ const router = new Router({
     name: 'side',
     component: () => import('../views/side.vue')
   },
+  // 组装的鲁棒性训练-对抗训练
+  {
+    path: '/robust_advTraining',
+    name: 'robust_advTraining',
+    component: () => import('../views/robust_advTraining.vue')
+  },
+  // 组装的鲁棒性训练-GCN可认证鲁棒训练
+  {
+    path: '/gcn_robustTraining',
+    name: 'gcn_robustTraining',
+    component: () => import('../views/gcn_robustTraining.vue')
+  },
+  // 组装的鲁棒性训练-特征散射
+  {
+    path: '/featurescatter_robustTraining',
+    name: 'featurescatter_robustTraining',
+    component: () => import('../views/featurescatter_robustTraining.vue')
+  },
+  // 组装的鲁棒性训练-异常感知
+  {
+    path: '/seat_robustTraining',
+    name: 'seat_robustTraining',
+    component: () => import('../views/seat_robustTraining.vue')
+  },
+  // 组装的鲁棒性训练-随机平滑
+  {
+    path: '/smoothing_robustTraining',
+    name: 'smoothing_robustTraining',
+    component: () => import('../views/smoothing_robustTraining.vue')
+  },
   ]
   
 })

@@ -84,6 +84,7 @@ line-height: 113px;
     display: flex;
     padding: 6px 10px;
     align-items: center;
+    justify-content: space-evenly;
     border-radius: 2px;
     border-color: transparent;
     color: var(--gray-2, #3E4453);
