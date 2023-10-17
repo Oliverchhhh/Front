@@ -36,10 +36,10 @@
                                     <a-radio :style="radioStyle" value="DREAM" >DREAM</a-radio>
                                     <p class="matchedMethodText">使用基于反馈的AutoML模型搜索方法， 高效率搜索并构建AI模型</p>
                                 </div>
-                                <!-- <div class="matchedDes">
+                                <div class="matchedDes">
                                     <a-radio :style="radioStyle" value="DeepAlchemy" >DeepAlchemy</a-radio>
                                     <p class="matchedMethodText">使用Nelder-Mead算法与Hyperas算法的联合优化模型尺寸搜索方法</p>
-                                </div> -->
+                                </div>
                             </a-radio-group>
                         </div>
                         <div class="modelSelected" v-if="searchChoice == 'DREAM'">
