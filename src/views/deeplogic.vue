@@ -69,9 +69,9 @@
                             <p class="mainParamName">请选择模型</p>
                             <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
                                 <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="VGG16" >VGG16</a-radio>
-                                    <a-radio :style="radioStyle" value="ResNet18" >ResNet18</a-radio>
-                                    <a-radio :style="radioStyle" value="ResNet34" >ResNet34</a-radio>
+                                    <a-radio :style="radioStyle" value="VGG16" :disabled="datasetChoice=='FashionMNIST'">VGG16</a-radio>
+                                    <a-radio :style="radioStyle" value="ResNet18" :disabled="datasetChoice=='CIFAR10'">ResNet18</a-radio>
+                                    <a-radio :style="radioStyle" value="ResNet34" :disabled="datasetChoice=='FashionMNIST'">ResNet34</a-radio>
                                 </div>
                             </a-radio-group>
                         </div>
@@ -102,17 +102,11 @@
                             <p class="result_annotation">数据集：{{ datasetChoice }}</p>
                             <p class="result_annotation">模型：{{ modelChoice }}</p>
                         </div>
-                        <div class=" main_top_echarts_con_title ">神经层覆盖测试准则</div>
+                        <div class=" main_top_echarts_con_title ">逻辑神经元测试结果</div>
                         <div id="rdeva">
-                            <div class="box">
-                                <div v-for="(item, index) in result.img_list" v-show="index==mark" :key="index">
-                                    <!-- <iframe class="graph_show" :src="item.imgUrl"></iframe> -->
-                                    <img class="graph_show" :src="item.imgUrl" alt="">
-                                    <p>当前覆盖率：{{ item.coverage }}%</p>
-                                </div>
-                            </div>
+                            <div id="deep_logic_result" class="box" style="height: 500px; width: 800px;"> </div>
                             <div class="conclusion">
-                                <p class="result_text">理论上经过充分测试的模型覆盖率应该接近100%，如果覆盖率小于80%，则模型存在安全隐患的可能性较大。由于深度网络参数过多，图片里进行压缩显示，每个圆点代表多个神经元，圆点的深度代表对应神经元被激活的比例，深蓝色为全部激活。对于超大模型，只显示前20层的激活情况，但覆盖率数值对应整个模型。</p>
+                                <p class="result_text">输出随着测试用例变化，待测试模型缺陷检出率变化曲线图，缺陷检出率越大模型风险越高。使用逻辑神经元测试准则DEEPLOGIC筛选出的数据能达到最高的缺陷检出率。</p>
                             </div>
                         </div>
                     </div>
@@ -138,11 +132,13 @@ import func_introduce from "../components/funcIntroduce.vue"
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
+import {drawFormalLine} from"../../src/assets/js/drawEcharts.js"
 /* 引入自定义js，结果显示 */
 
 /* 引入图片 */
 import funcicon from "../assets/img/coverageneuralIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
+import { Legend } from '@antv/g6';
 
 const selectSvg = {
         template:`
@@ -168,6 +164,7 @@ export default {
     func_introduce: func_introduce,
     showLog: showLog,
     resultDialog: resultDialog,
+    drawFormalLine,
     selectIcon
     },
     data(){
@@ -178,7 +175,7 @@ export default {
                 display: 'block',
                 lineHeight: '30px',
             },
-            datasetChoice: "CIFAR10",
+            datasetChoice: "",
             FashionMNIST_imgs:[
                 {imgUrl:require('../assets/img/fashionmnist0.png'),name:'fashionmnist0'},
                 {imgUrl:require("../assets/img/fashionmnist1.png"),name:'fashionmnist1'},
@@ -203,7 +200,7 @@ export default {
                 {imgUrl:require("../assets/img/cifar108.jpg"),name:'mnist8'},
                 {imgUrl:require("../assets/img/cifar109.jpg"),name:'mnist9'},
                 ],
-            modelChoice: "VGG11",
+            modelChoice: "",
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -304,10 +301,22 @@ export default {
         /* result 处理*/
         resultPro(res){
             debugger;
-            this.result.img_list = res.CoverageLayer.coverage_test_yz.coverage_layer;
-            for(var i=0; i<this.result.img_list.length;i++){
-                this.result.img_list[i]["coverage"] = parseInt(100*this.result.img_list[i]["coverage"])
-            }
+            this.result.test_img = res.DeepLogic.result;
+            this.result.score = res.DeepLogic.apfd;
+            var lable = [];
+            var seriesList = [];
+            var x_data = [0,20,40,60,80,100]
+            for(let i in this.result.test_img){
+                var temp = i.split('_');
+                if(temp[1]=='fault'){
+                    lable.push(temp[0]);
+                    seriesList.push({
+                        "name": temp[0],
+                        "type": "line",
+                        "data": this.result.test_img[i]});
+                }
+            };
+            drawFormalLine("deep_logic_result", lable, x_data, seriesList, "Percentage of fault detected")
         },
         /* 获取结果 */ 
         getData(){
@@ -367,7 +376,10 @@ export default {
         dataEvaClick(){
             // debugger
             /*判断选择*/
-
+            if(this.datasetChoice=='' | this.modelChoice==''){
+                alert("必选项未选择，请选择后重试！");
+                return;
+            };
             /* 备份 */ 
             var that = this;
             

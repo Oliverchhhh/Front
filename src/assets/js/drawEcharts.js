@@ -1686,6 +1686,46 @@ function drawALLPA(ID, legend, x_data, serieslist) {
   },500)
 }
 
+function drawFormalLine(ID, legend, x_data, serieslist, yname) {
+  // debugger
+  // console.log(legend);
+  // console.log(x_data);
+  // console.log(serieslist);
+  var option;
+  option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+    legend: {
+      data: legend
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: x_data,
+    },
+    yAxis: {
+      type: 'value',
+      name: yname,
+      max:100
+    },
+    series: serieslist
+  }
+
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+    option && myChartcons.setOption(option);
+  },500)
+}
+
 export {
   drawclass1pro,
   drawbar,
@@ -1702,5 +1742,5 @@ export {
   drawAcc_or_loss,
   draw_score_polar, 
   drawside, drawTtest, drawALLPA,
-  drawbarhigh
+  drawbarhigh,drawFormalLine
 }
