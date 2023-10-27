@@ -92,7 +92,6 @@ export default {
     },
     updateAttributes() {
       // 生成当前的参数列表并返回给父组件
-      debugger
       let attributes_dict = {}
       if (this.checked) {
         for(let i = 0; i < this.attributesValues.length; i++) {
@@ -107,7 +106,6 @@ export default {
       this.$emit("updateAttributes", this.indexInParent, attributes_dict)
     },
     selectgroupChange(e){
-      console.log(e)
         this.updateAttributes()
     },
     changeSelectAttribute(i,j) {

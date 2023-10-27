@@ -82,7 +82,7 @@
           <div slot="header" class="func_name">后门攻击评估</div>
           <div slot="des_func" class="func_des">集成多种主流投毒攻击方法，对深度学习数据和模型进行攻击，评估模型在后门攻击层面上的应变能力，可视化评估投毒攻击影响</div>
         </ifreme>
-        <ifreme @click.native="goFuncPage('')">
+        <ifreme @click.native="goFuncPage('/autoAttack')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/advTestIcon.png">
           </div>

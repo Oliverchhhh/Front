@@ -208,6 +208,12 @@ const router = new Router({
     name: 'smoothing_robustTraining',
     component: () => import('../views/smoothing_robustTraining.vue')
   },
+  // 组装的模型对抗性测试
+  {
+    path: '/autoAttack',
+    name: 'autoAttack',
+    component: () => import('../views/autoAdvAttack.vue')
+  },
   ]
   
 })

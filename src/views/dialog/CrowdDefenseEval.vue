@@ -329,7 +329,7 @@ export default {
             },
             series: lime_series
           }
-          if (lime_series.length > 1){
+          if (lime_series.length > 0){
             setTimeout(function(){
               var conseva = document.getElementById("bal_Chart");
               var myChartcons = echarts.init(conseva);
@@ -467,8 +467,8 @@ export default {
           }
         };
         if(data.EnsembleDefense){
-          sourcelist[0].push("集成防御后的防御成功率");
-          asr_sourcelist[0].push("集成防御后的攻击成功率");
+          sourcelist[0].push("群智防御后的防御成功率");
+          asr_sourcelist[0].push("群智防御后的攻击成功率");
           robustmethod+="群智化防御";
           i = 1;
           for ( var key in data.EnsembleDefense.ens_acc){
@@ -483,10 +483,43 @@ export default {
             i++;
           }
         };
-        
+        if(data.CAFD){
+          sourcelist[0].push("异常过滤后的防御成功率");
+          asr_sourcelist[0].push("异常过滤后的攻击成功率");
+          robustmethod+="异常过滤防御";
+          i = 1;
+          for ( var key in data.CAFD.CAFD_acc){
+            if (sourcelist[i].length==0){
+              sourcelist[i]=[];
+              asr_sourcelist[i] = []
+              sourcelist[i].push(key);
+              asr_sourcelist[i].push(key);
+            }
+            sourcelist[i].push(data.CAFD.CAFD_acc[key]);
+            asr_sourcelist[i].push(data.CAFD.CAFD_asr[key]);
+            i++;
+          }
+        };
+        if(data.InteDefense){
+          sourcelist[0].push("集成防御后的防御成功率");
+          asr_sourcelist[0].push("集成防御后的攻击成功率");
+          robustmethod+="集成化防御";
+          i = 1;
+          for ( var key in data.InteDefense.Inte_acc){
+            if (sourcelist[i].length==0){
+              sourcelist[i]=[];
+              asr_sourcelist[i] = []
+              sourcelist[i].push(key);
+              asr_sourcelist[i].push(key);
+            }
+            sourcelist[i].push(data.InteDefense.Inte_acc[key]);
+            asr_sourcelist[i].push(data.InteDefense.Inte_asr[key]);
+            i++;
+          }
+        };
         if(data.PACA){
           sourcelist[0].push("PACA自动化攻击检测");
-          asr_sourcelist[0].push("PACA自动化攻击检测后的防御成功率");
+          asr_sourcelist[0].push("PACA防御成功率");
           robustmethod += " PACA自动化攻击检测";
           i = 1;
           for (var key in data.PACA){
