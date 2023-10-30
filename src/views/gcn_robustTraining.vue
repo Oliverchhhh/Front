@@ -51,19 +51,23 @@
                             <div class="paramsSelected">
                                 <div>
                                     <p class="matchedMethodText paramblock">批处理大小：</p> 
-                                    <el-input-number :min="1" :max="1000" v-model="batchsize"></el-input-number>
+                                    <el-input-number :min="1" :max="1000" v-model="batch_size"></el-input-number>
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">训练集比例：</p> 
-                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="trainset"></el-input-number>
+                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="train_size"></el-input-number>
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">测试集比例：</p> 
-                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="testset"></el-input-number>
+                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="test_size"></el-input-number>
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">验证集比例：</p> 
-                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="valset"></el-input-number>
+                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="val_size"></el-input-number>
+                                </div>
+                                <div>
+                                    <p class="matchedMethodText paramblock">随机数种子：</p> 
+                                    <el-input-number :min="1" :max="1000"  v-model="random_state"></el-input-number>
                                 </div>
                             </div>
                         </div>
@@ -80,23 +84,23 @@
                             <div class="paramsSelected">
                                 <div>
                                     <p class="matchedMethodText paramblock">最大迭代次数：</p> 
-                                    <el-input-number :min="1" :max="2000" v-model="maxiter"></el-input-number>
+                                    <el-input-number :min="1" :max="2000" v-model="n_iters"></el-input-number>
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">全局扰动数量：</p> 
-                                    <el-input-number :min="1" :max="100"  v-model="globaldis"></el-input-number>
+                                    <el-input-number :min="1" :max="100"  v-model="train_Q"></el-input-number>
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">鲁棒损失梯度迭代次数：</p> 
-                                    <el-input-number :min="1" :max="100"  v-model="lossiter"></el-input-number>
+                                    <el-input-number :min="1" :max="100"  v-model="margin_iters"></el-input-number>
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">属性扰动数量：</p> 
-                                    <el-input-number :min="0" :max="1" :step="0.01" v-model="attributedis"></el-input-number>
+                                    <el-input-number :min="0" :max="1" :step="0.01" v-model="q_ratio"></el-input-number>
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">未优化鲁棒损失迭代次数：</p> 
-                                    <el-input-number :min="0" :max="1000" v-model="orilossiter"></el-input-number>
+                                    <el-input-number :min="0" :max="1000" v-model="burn_in"></el-input-number>
                                 </div>
                             </div>
                         </div>
@@ -125,23 +129,24 @@
                         <div class="conclusion_info">
                             <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
                             <p class="result_annotation">数据集：{{ dataname[datasetChoice] }}</p>
-                            <p class="result_annotation">批处理大小：{{ batchsize }}</p>
-                            <p class="result_annotation">训练集比例：{{ trainset }}</p>
-                            <p class="result_annotation">测试集比例：{{ testset }}</p>
-                            <p class="result_annotation">验证集比例：{{ valset }}</p>  <br>
+                            <p class="result_annotation">批处理大小：{{ batch_size }}</p>
+                            <p class="result_annotation">训练集比例：{{ train_size }}</p>
+                            <p class="result_annotation">测试集比例：{{ test_size }}</p>
+                            <p class="result_annotation">验证集比例：{{ val_size }}</p>  <br>
+                            <p class="result_annotation">随机数种子：{{ random_state }}</p>
                             <p class="result_annotation">模型：{{ modelChoice }}</p>
-                            <p class="result_annotation">最大迭代次数：{{ maxiter }}</p>
-                            <p class="result_annotation">全局扰动数量：{{ globaldis }}</p>
-                            <p class="result_annotation">鲁棒损失梯度迭代次数：{{ lossiter }}</p>
-                            <p class="result_annotation">属性扰动数量：{{ attributedis }}</p>
-                            <p class="result_annotation">未优化鲁棒损失迭代次数：{{ orilossiter }}</p>
+                            <p class="result_annotation">最大迭代次数：{{ n_iters }}</p>
+                            <p class="result_annotation">全局扰动数量：{{ train_Q }}</p>
+                            <p class="result_annotation">鲁棒损失梯度迭代次数：{{ margin_iters }}</p>
+                            <p class="result_annotation">属性扰动数量：{{ q_ratio }}</p>
+                            <p class="result_annotation">未优化鲁棒损失迭代次数：{{ burn_in }}</p>
                         </div>
-                        <div class=" main_top_echarts_con_title ">鲁棒性训练</div>
-                        <div class="box" id="adv_robust_result">xxx</div>
-                        <div class=" main_top_echarts_con_title ">非鲁棒性训练</div>
-                        <div class="box" id="adv_robust_result">yyy</div>
+                        <div class=" main_top_echarts_con_title ">GCN可认证鲁棒训练效果</div>
+                        <div style="width: 1000px; height: 450px;" id="adv_robust_result"></div>
+                        <!-- <div class=" main_top_echarts_con_title ">非鲁棒性训练</div> -->
+                        <div style="width: 1000px; height: 400px;" id="unadv_robust_result"></div>
                         <div class="conclusion">
-                            <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用对抗训练方法进行模型鲁棒性训练，鲁棒性提升了{{result.up}}。</p>
+                            <p class="result_text">通过鲁棒性训练，系统中抗扰动节点与总节点数量的比例得到提升，表明本鲁棒性训练算法能极大提升系统的鲁棒性和抗攻击性。{{ modelChoice }}模型、{{ dataname[datasetChoice] }}数据集，用可信鲁棒训练方法进行GCN模型鲁棒性训练，鲁棒性提升了{{result.up}}%。</p>
                         </div>
                     </div>
                     <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
@@ -168,6 +173,7 @@ import datatable from "../components/dataTable.vue"
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
+import {initGraph1, initGraph2} from "../assets/js/drawEcharts.js"
 /* 引入自定义js，结果显示 */
 
 /* 引入图片 */
@@ -251,17 +257,17 @@ export default {
                 {name: "训练集比例", value: 0.8, min:0, max:1},
                 {name: "验证集比例", value: 0.1, min:0, max:1}
             ],
-            batchsize: 8,
-            trainset:0.8,
-            testset:0.1,
-            valset:0.1,
-            maxiter:500,
-            globaldis:12,
-            lossiter:5,
-            attributedis:0.01,
-            orilossiter:100,
+            batch_size: 8,
+            train_size:0.8,
+            test_size:0.1,
+            val_size:0.1,
+            n_iters:500,
+            train_Q:12,
+            margin_iters:5,
+            q_ratio:0.01,
+            burn_in:100,
             modelChoice: "GCN",
-
+            random_state:123,
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -359,8 +365,9 @@ export default {
         /* result 处理*/
         resultPro(res){
             debugger;
-            // let
-
+            initGraph1("adv_robust_result",res.AdvTraining_GNN); 
+            initGraph2("unadv_robust_result",res.AdvTraining_GNN);
+            this.result.up = (res.AdvTraining_GNN.data.robust_test_result.robust_method-res.AdvTraining_GNN.data.robust_test_result.normal_method).toFixed(2)
         },
         /* 获取结果 */ 
         getData(){
@@ -426,17 +433,32 @@ export default {
 
             /* 备份 */ 
             var that = this;
-            that.isShowPublish = true;
+            that.tid = "20231024_1512_6993cb5";
+            that.stidlist =  {"AdvTraing":"S20231024_1512_e49f6e5"};
+            that.clk = window.setInterval(() => {
+                                that.update();
+                            }, 300)
+                return
             /* 调用创建主任务接口，需开启后端程序 */
             // this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
             //     that.tid = result.data.Taskid;
                 
             //     /* 请求体 postdata*/
             //     const postdata={
-            //         dataset:that.datasetChoice,
-            //         model:that.modelChoice,
+            //         dataset:that.dataname[that.datasetChoice],
+            //         // model:that.modelChoice,
+            //         batch_size : that.batch_size,
+            //         train_size : that.train_size,
+            //         test_size : that.test_size,
+            //         val_size : that.val_size,
+            //         n_iters : that.n_iters,
+            //         train_Q : that.train_Q,
+            //         margin_iters : that.margin_iters,
+            //         q_ratio : that.q_ratio,
+            //         burn_in : that.burn_in,
+            //         random_state : that.random_state,
             //         tid:that.tid};
-            //     that.$axios.post("/RobustTraining/AdvTraingParamSet", postdata).then((res) => {
+            //     that.$axios.post("/Defense/AdvTraining_GNN", postdata).then((res) => {
             //         that.logflag = true;
             //         // 异步任务
             //         that.stidlist =  {"AdvTraing":res.data.stid}
