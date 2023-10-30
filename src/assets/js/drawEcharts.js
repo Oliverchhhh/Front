@@ -1726,6 +1726,226 @@ function drawFormalLine(ID, legend, x_data, serieslist, yname) {
   },500)
 }
 
+function initGraph1(ID, res) {
+  debugger;
+  console.log(res);
+  // data.data.robust_test_result.normal_method.toFixed(2)
+  var data = res.data.line_and_area;
+  var option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross',
+        label: {
+          backgroundColor: '#6a7985'
+        }
+      }
+    },
+    legend: {
+      data: ['鲁棒区域（鲁棒训练）', '非鲁棒区域（鲁棒训练）', '鲁棒边界（非鲁棒训练）', '非鲁棒边界（非鲁棒训练）']
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: [
+      {
+        type: 'value',
+        boundaryGap: false,
+        min:0,
+        max:50,
+        interval:10
+      }
+    ],
+    yAxis: [
+      {
+        type: 'value'
+      }
+    ],
+    series: [
+      {
+        name: '鲁棒区域（鲁棒训练）',
+        type: 'line',
+        smooth: true,
+        lineStyle: {
+          width: 2
+        },
+        showSymbol: false,
+        areaStyle: {
+          opacity: 0.8,
+          origin:'start'
+        },
+        emphasis: {
+          focus: 'series'
+        },
+        data: data.robust_line
+      },
+      {
+        name: '非鲁棒区域（鲁棒训练）',
+        type: 'line',
+        smooth: true,
+        lineStyle: {
+          width: 2
+        },
+        showSymbol: false,
+        areaStyle: {
+          opacity: 0.8,
+          origin:'end'
+        },
+        emphasis: {
+          focus: 'series'
+        },
+        data: data.nonrobust_line
+      },
+      {
+        name: '鲁棒边界（非鲁棒训练）',
+        type: 'line',
+        smooth: true,
+        lineStyle: {
+          width: 2,
+          type:'dashed'
+        },
+        showSymbol: false,
+        areaStyle: {
+          opacity: 0.8,
+          origin:'start'
+        },
+        emphasis: {
+          focus: 'series'
+        },
+        data: data.std_train_line1
+      },
+      {
+        name: '非鲁棒边界（非鲁棒训练）',
+        type: 'line',
+        smooth: true,
+        lineStyle: {
+          width: 2,
+          type:'dashed'
+        },
+        showSymbol: false,
+        areaStyle: {
+          opacity: 0.8,
+          origin:'end'
+        },
+        emphasis: {
+          focus: 'series'
+        },
+        data: data.std_train_line2
+      }
+    ]
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+    option && myChartcons.setOption(option);
+  },500)
+}
+
+function initGraph2(ID, data) {
+  debugger;
+  var option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross',
+        label: {
+          backgroundColor: '#6a7985'
+        }
+      }
+    },
+    xAxis: {
+      type: 'category',
+      data: ['非鲁棒训练', '鲁棒训练'],
+      name: '训练方式',
+    },
+    yAxis: {
+      type: 'value',
+      name: '扰动节点比例',
+    },
+    series: [
+      {
+        data: [
+        {
+          value:data.data.robust_test_result.normal_method.toFixed(2),
+          itemStyle: {
+              color: '#a90000'
+            }
+        }, {
+          value:data.data.robust_test_result.robust_method.toFixed(2),
+        }],
+        type: 'bar',
+        showBackground: true,
+        backgroundStyle: {
+          color: 'rgba(180, 180, 180, 0.2)'
+        }
+      }
+    ]
+  };
+  // var option = {
+  //     xAxis: {
+  //         type: 'category',
+  //         data: ['非鲁棒训练', '鲁棒训练'],
+  //         name: '训练方式',
+  //         // nameLocation: 'center',
+  //         // nameGap: 40,
+  //         nameTextStyle: {
+  //             fontSize: 20,
+  //             color: 'white'
+  //         },
+  //         axisLabel: {
+  //             textStyle: {
+  //                 fontSize: 20,
+  //                 // color: 'white'
+  //             }
+  //         }
+  //     },
+  //     yAxis: {
+  //         type: 'value',
+  //         name: '扰动节点比例',
+  //         nameLocation: 'center',
+  //         nameGap: 40,
+  //         nameTextStyle: {
+  //             fontSize: 20,
+  //             // color: 'white'
+  //         },
+  //         max: 100,
+  //         min: 0,
+  //         axisLabel: {
+  //             textStyle: {
+  //                 fontSize: 20,
+  //                 color: 'white'
+  //             }
+  //         }
+  //     },
+  //     series: [
+  //         {
+  //             data: [
+  //                 data.data.robust_test_result.normal_method.toFixed(2),
+  //                 {
+  //                     value: data.data.robust_test_result.robust_method.toFixed(2),
+  //                     itemStyle: {
+  //                         color: '#a90000'
+  //                     }
+  //                 }
+  //             ],
+  //             barWidth: 36,
+  //             type: 'bar'
+  //         }
+  //     ]
+  // };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+    option && myChartcons.setOption(option);
+  },500)
+}
+
+
 export {
   drawclass1pro,
   drawbar,
@@ -1742,5 +1962,6 @@ export {
   drawAcc_or_loss,
   draw_score_polar, 
   drawside, drawTtest, drawALLPA,
-  drawbarhigh,drawFormalLine
+  drawbarhigh,drawFormalLine,
+  initGraph1,initGraph2
 }
