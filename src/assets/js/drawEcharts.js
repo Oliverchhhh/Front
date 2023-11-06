@@ -1885,58 +1885,6 @@ function initGraph2(ID, data) {
       }
     ]
   };
-  // var option = {
-  //     xAxis: {
-  //         type: 'category',
-  //         data: ['非鲁棒训练', '鲁棒训练'],
-  //         name: '训练方式',
-  //         // nameLocation: 'center',
-  //         // nameGap: 40,
-  //         nameTextStyle: {
-  //             fontSize: 20,
-  //             color: 'white'
-  //         },
-  //         axisLabel: {
-  //             textStyle: {
-  //                 fontSize: 20,
-  //                 // color: 'white'
-  //             }
-  //         }
-  //     },
-  //     yAxis: {
-  //         type: 'value',
-  //         name: '扰动节点比例',
-  //         nameLocation: 'center',
-  //         nameGap: 40,
-  //         nameTextStyle: {
-  //             fontSize: 20,
-  //             // color: 'white'
-  //         },
-  //         max: 100,
-  //         min: 0,
-  //         axisLabel: {
-  //             textStyle: {
-  //                 fontSize: 20,
-  //                 color: 'white'
-  //             }
-  //         }
-  //     },
-  //     series: [
-  //         {
-  //             data: [
-  //                 data.data.robust_test_result.normal_method.toFixed(2),
-  //                 {
-  //                     value: data.data.robust_test_result.robust_method.toFixed(2),
-  //                     itemStyle: {
-  //                         color: '#a90000'
-  //                     }
-  //                 }
-  //             ],
-  //             barWidth: 36,
-  //             type: 'bar'
-  //         }
-  //     ]
-  // };
   setTimeout(function(){
     var myChartcons = echarts.init(document.getElementById(ID));
     window.addEventListener("resize", function () {
@@ -1945,6 +1893,68 @@ function initGraph2(ID, data) {
   },500)
 }
 
+function DrawRobustBar(ID, legend, xAxis, data1, data2) {
+  debugger;
+  var option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross',
+        crossStyle: {
+          color: '#999'
+        }
+      }
+    },
+    legend: {
+      data: legend
+    },
+    xAxis: [
+      {
+        type: 'category',
+        data: xAxis,
+        axisPointer: {
+          type: 'shadow'
+        }
+      }
+    ],
+    yAxis: [
+      {
+        type: 'value',
+        axisLabel: {
+          formatter: '{value} %'
+        }
+      },
+    ],
+    series: [
+      {
+        name: 'Normal Training',
+        type: 'bar',
+        tooltip: {
+          valueFormatter: function (value) {
+            return value + ' %';
+          }
+        },
+        data: data1
+      },
+      {
+        name: 'Feature Scatter',
+        type: 'bar',
+        tooltip: {
+          valueFormatter: function (value) {
+            return value + ' %';
+          }
+        },
+        data: data2
+      }
+    ]
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+    option && myChartcons.setOption(option);
+  },500)
+}
 
 export {
   drawclass1pro,
@@ -1963,5 +1973,6 @@ export {
   draw_score_polar, 
   drawside, drawTtest, drawALLPA,
   drawbarhigh,drawFormalLine,
-  initGraph1,initGraph2
+  initGraph1,initGraph2,
+  DrawRobustBar,
 }

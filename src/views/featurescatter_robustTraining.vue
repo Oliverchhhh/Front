@@ -76,7 +76,7 @@
                                 <div class="matchedDes">
                                     <a-radio :style="radioStyle" value="ResNet" >ResNet</a-radio>
                                     <a-radio :style="radioStyle" value="LeNet" >LeNet</a-radio>
-                                    <a-radio :style="radioStyle" value="VggNet" >VggNet</a-radio>
+                                    <a-radio :style="radioStyle" value="Vgg" >VggNet</a-radio>
                                     <a-radio :style="radioStyle" value="WideResNet" >WideResNet</a-radio>
                                 </div>
                             </a-radio-group>
@@ -145,9 +145,9 @@
                         </div>
                         <div class=" main_top_echarts_con_title ">特征散射鲁棒性训练效果</div>
                         <div id="rdeva">
-                            <div class="box" id="adv_robust_result"></div>
+                            <div style="width: 800px; height: 500px;" id="adv_robust_result"></div>
                             <div class="conclusion">
-                                <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用对抗训练方法进行模型鲁棒性训练，鲁棒性提升了{{result.up}}。</p>
+                                <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用Feature Scatter方法进行模型鲁棒性训练，鲁棒性提升了{{result.mean_value}}%。</p>
                             </div>
                         </div>
                     </div>
@@ -178,6 +178,7 @@ import resultDialog from "../components/resultDialog.vue"
 /* 引入图片 */
 import funcicon from "../assets/img/robustTrainingIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
+import { DrawRobustBar } from '../assets/js/drawEcharts'
 
 const selectSvg = {
         template:`
@@ -203,7 +204,7 @@ export default {
     func_introduce: func_introduce,
     showLog: showLog,
     resultDialog: resultDialog,
-    selectIcon
+    selectIcon, DrawRobustBar
     },
     data(){
         return{
@@ -253,11 +254,11 @@ export default {
                 {imgUrl:require("../assets/img/ex9.png"),name:'svhn9'},
                 ],
             modelChoice: "ResNet",
-            lr:0.001,
-            maxiter:20,
-            lr_decayiter:30,
+            lr:0.1,
+            maxiter:200,
+            lr_decayiter:60,
             lr_decayspd:0.1,
-            batchsize:32,
+            batchsize:128,
             weightdecay:0.01,
             /* 评估按钮样式和状态 */
             buttonBGColor:{
@@ -294,11 +295,7 @@ export default {
             /* 结果弹窗状态信息 */
             isShowPublish:false,
             /* 评估结果 */
-            result:{
-                "before":0.75,
-                "after":0.92,
-                "paca": 0.88
-            },
+            result:{},
             res_tmp:{},
             /* 主任务id */ 
             tid:"",
@@ -356,12 +353,19 @@ export default {
         /* result 处理*/
         resultPro(res){
             debugger;
-            // let
-            this.result.img_list = res.CoverageLayer.coverage_test_yz.coverage_layer;
-            for(var i=0; i<this.result.img_list.length;i++){
-                this.result.img_list[i]["coverage"] = parseInt(100*this.result.img_list[i]["coverage"]);
-                this.result.img_list[i]["imgUrl"]='static/output'+this.result.img_list[i]["imgUrl"].split('output')[1];
-            }
+            let data = res.FeatureScatter;
+            let legend = ['Normal Training', 'Feature Scatter'];
+            let xAxis = ['Natural', 'PGD', 'FGSM', 'CW'];
+            let data1 = [];
+            let data2 = [];
+            this.result.mean_value = 0;
+            for(let i=0; i<xAxis.length; i++){
+                data1.push(data.ori_acc[xAxis[i]]);
+                data2.push(data.enh_acc[xAxis[i]]);
+                this.result.mean_value = this.result.mean_value + data.enh_acc[xAxis[i]] - data.ori_acc[xAxis[i]];
+            };
+            this.result.mean_value = this.result.mean_value/4;
+            DrawRobustBar('adv_robust_result', legend, xAxis, data1, data2);
         },
         /* 获取结果 */ 
         getData(){
@@ -424,24 +428,34 @@ export default {
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
-            // debugger
+            debugger
 
             /* 备份 */ 
             var that = this;
-            that.isShowPublish = true;
+            that.tid = "20231106_1515_5f90b9c";
+            that.stidlist =  {"FeatureScatter":"S20231106_1515_89decca"};
+            that.clk = window.setInterval(() => {
+                that.update();
+            }, 300)
+                return
             /* 调用创建主任务接口，需开启后端程序 */
             // this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
             //     that.tid = result.data.Taskid;
-                
             //     /* 请求体 postdata*/
             //     const postdata={
             //         dataset:that.datasetChoice,
-            //         model:that.modelChoice,
+            //         modelname:that.modelChoice,
+            //         lr: that.lr,
+            //         batch_size: that.batchsize,
+            //         max_epoch: that.maxiter,
+            //         decay_epoch: that.lr_decayiter,
+            //         decay_rate: that.lr_decayspd,
+            //         weight_decay: that.weightdecay,
             //         tid:that.tid};
-            //     that.$axios.post("/RobustTraining/AdvTraingParamSet", postdata).then((res) => {
+            //     that.$axios.post("/Defense/AdvTraining_FeatureScatter", postdata).then((res) => {
             //         that.logflag = true;
             //         // 异步任务
-            //         that.stidlist =  {"AdvTraing":res.data.stid}
+            //         that.stidlist =  {"FeatureScatter":res.data.stid}
             //         that.logclk = self.setInterval(that.getLog, 3000);
             //         that.clk = self.setInterval(that.update, 3000);
             //     }).catch((err) => {
