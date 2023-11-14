@@ -1937,7 +1937,7 @@ function DrawRobustBar(ID, legend, xAxis, data1, data2) {
         data: data1
       },
       {
-        name: 'Feature Scatter',
+        name: 'Robust Training',
         type: 'bar',
         tooltip: {
           valueFormatter: function (value) {

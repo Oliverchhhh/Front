@@ -48,7 +48,17 @@
                                         </div>
                                     </div>
                                 </div>
-                                <a-radio :style="radioStyle" value="MNIST">  MNIST </a-radio>
+                                <a-radio :style="radioStyle" value="CIFAR100" >CIFAR100</a-radio>
+                                <div class="matchedDes" v-show="datasetChoice=='CIFAR100'">
+                                    <p class="matchedMethodText"><span>CIFAR100数据集：</span>CIFAR10数据集是CIFAR100数据集的子集。与CIFAR10类似，它有100个类，每个类包含600个图像，600个图像中有500个训练图像和100个测试图像。100类实际是由20个类(每个类又包含5个子类)构成。</p>
+                                    <p class="matchedMethodText">图例：</p>
+                                    <div class="demoData" >
+                                        <div v-for="(item, index) in CIFAR10_imgs" :key="index">
+                                            <img :src="item.imgUrl">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <a-radio :style="radioStyle" value="MNIST">  MNIST </a-radio>
                                 <div class="matchedDes" v-show="datasetChoice=='MNIST'">
                                     <p class="matchedMethodText"><span>MNIST数据集：</span>是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。</p>
                                     <p class="matchedMethodText">图例：</p>
@@ -57,7 +67,7 @@
                                             <img :src="item.imgUrl">
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                                 <a-radio :style="radioStyle" value="SVHN10"> SVHN10 </a-radio>
                                 <div class="matchedDes" v-show="datasetChoice=='SVHN10'">
                                     <p class="matchedMethodText"><span>SVHN10数据集：</span>是一个街景房屋号码数据集，该数据集来源于谷歌街景门牌号码。原生的数据集1(Format 1)是一些原始的未经处理的彩色图片，Format2 将这些数字裁剪成32x32的大小，包含10个类，73257位用于训练，26032位用于测试，531131 个额外的、难度稍低的样本，用作额外的训练数据。</p>
@@ -86,11 +96,11 @@
                             <div class="paramsSelected">
                                 <div>
                                     <p class="matchedMethodText paramblock">学习率：</p> 
-                                    <el-input-number :min="0" :max="1" :step="0.001" v-model="lr"></el-input-number>
+                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="lr"></el-input-number>
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">最大训练轮数：</p> 
-                                    <el-input-number :min="1" :max="20"  v-model="maxiter"></el-input-number>
+                                    <el-input-number :min="1" :max="200"  v-model="maxiter"></el-input-number>
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">学习率衰减的轮数：</p> 
@@ -106,7 +116,7 @@
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">权重衰减：</p> 
-                                    <el-input-number :min="0" :max="1" :step="0.01" v-model="weightdecay"></el-input-number>
+                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="weightdecay"></el-input-number>
                                 </div>
                             </div>
                         </div>
@@ -432,38 +442,38 @@ export default {
 
             /* 备份 */ 
             var that = this;
-            that.tid = "20231106_1515_5f90b9c";
-            that.stidlist =  {"FeatureScatter":"S20231106_1515_89decca"};
-            that.clk = window.setInterval(() => {
-                that.update();
-            }, 300)
-                return
+            // that.tid = "20231106_1515_5f90b9c";
+            // that.stidlist =  {"FeatureScatter":"S20231106_1515_89decca"};
+            // that.clk = window.setInterval(() => {
+            //     that.update();
+            // }, 300)
+            //     return
             /* 调用创建主任务接口，需开启后端程序 */
-            // this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-            //     that.tid = result.data.Taskid;
-            //     /* 请求体 postdata*/
-            //     const postdata={
-            //         dataset:that.datasetChoice,
-            //         modelname:that.modelChoice,
-            //         lr: that.lr,
-            //         batch_size: that.batchsize,
-            //         max_epoch: that.maxiter,
-            //         decay_epoch: that.lr_decayiter,
-            //         decay_rate: that.lr_decayspd,
-            //         weight_decay: that.weightdecay,
-            //         tid:that.tid};
-            //     that.$axios.post("/Defense/AdvTraining_FeatureScatter", postdata).then((res) => {
-            //         that.logflag = true;
-            //         // 异步任务
-            //         that.stidlist =  {"FeatureScatter":res.data.stid}
-            //         that.logclk = self.setInterval(that.getLog, 3000);
-            //         that.clk = self.setInterval(that.update, 3000);
-            //     }).catch((err) => {
-            //             console.log(err)
-            //     });
-            // }).catch((err) => {
-            //     console.log(err)
-            // });    
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+                that.tid = result.data.Taskid;
+                /* 请求体 postdata*/
+                const postdata={
+                    dataset:that.datasetChoice,
+                    modelname:that.modelChoice,
+                    lr: that.lr,
+                    batch_size: that.batchsize,
+                    max_epoch: that.maxiter,
+                    decay_epoch: that.lr_decayiter,
+                    decay_rate: that.lr_decayspd,
+                    weight_decay: that.weightdecay,
+                    tid:that.tid};
+                that.$axios.post("/Defense/AdvTraining_FeatureScatter", postdata).then((res) => {
+                    that.logflag = true;
+                    // 异步任务
+                    that.stidlist =  {"FeatureScatter":res.data.stid}
+                    that.logclk = self.setInterval(that.getLog, 3000);
+                    that.clk = self.setInterval(that.update, 3000);
+                }).catch((err) => {
+                        console.log(err)
+                });
+            }).catch((err) => {
+                console.log(err)
+            });    
         }
     }
 }
