@@ -464,7 +464,7 @@ export default {
                 };
                 for( let key1 in that.result.Proportion[key]){
                     var third_children={
-                    id:key1,
+                    id:key+'_'+key1,
                     label:key1,
                     population:that.result.Proportion[key][key1].toFixed(3),
                     isLeaf: true,
@@ -653,21 +653,16 @@ export default {
 /* 图表名称样式 */
 .echart_title{
     display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px 120px;
-gap: 4px;
-
-width: 960px;
-height: 62px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px 120px;
+    gap: 4px;
+    width: 960px;
+    height: 62px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
 }
 .dialog_publish_main{
 align-items: center;
@@ -682,13 +677,8 @@ width: 1080px;
     align-items: center;
     padding: 0px 120px;
     gap: 20px;
-
     width: 960px;
     height: 366px;
-
-
-    /* Inside auto layout */
-
     flex: none;
     order: 0;
     align-self: stretch;
@@ -711,13 +701,8 @@ width: 1080px;
 flex-direction: column;
 align-items: center;
 padding: 0px;
-
 width: 960px;
 height: 414px;
-
-
-/* Inside auto layout */
-
 flex: none;
 order: 1;
 flex-grow: 0
@@ -732,77 +717,56 @@ flex-grow: 0
     margin-top: -85px;
     margin-bottom: 85px;
     width: 86px;
-height: 16px;
-
-font-family: 'Helvetica Neue';
-font-style: normal;
-font-weight: 400;
-font-size: 16px;
-line-height: 16px;
-/* identical to box height, or 100% */
-
-text-align: center;
-
-/* gray-1 */
-
-color: #000000;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 1;
-flex-grow: 0;
+    height: 16px;
+    font-family: 'Helvetica Neue';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 16px;
+    text-align: center;
+    color: #000000;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
 }
 /* 群体公平性 */
 .group_echarts_div{
     display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-gap: 24px;
-margin-top: 32px;
-width: 960px;
-/* Inside auto layout */
-
-flex: none;
-order: 1;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 24px;
+    margin-top: 32px;
+    width: 960px;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
 }
 /* 群体-单个属性框样式 */
 .attr_echarts_div{
     display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-padding: 0px;
-
-width: 960px;
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-flex-grow: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    width: 960px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
 }
 /* 群体-属性标题框样式 */
 .attr_title_div{
     display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-padding: 0px;
-gap: 4px;
-
-width: 960px;
-height: 64px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-flex-grow: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    gap: 4px;
+    width: 960px;
+    height: 64px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
 }
 .attr_title_div h3{
     font-family: 'HONORSansCN-Bold';
@@ -852,20 +816,15 @@ flex-grow: 0;
 }
 .group_echart_content{
     display: flex;
-flex-direction: row;
-justify-content: center;
-align-items: center;
-padding: 0px;
-
-width: 960px;
-height: 358px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-flex-grow: 0;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    width: 960px;
+    height: 358px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
 }
 /* 左边直方图 */
 .group_left_echart{

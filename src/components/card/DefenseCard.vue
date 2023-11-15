@@ -3,7 +3,8 @@
     <!-- 按钮 -->
     <a-radio style="width: 100%;" :checked="checked" @click="selectedDefense">{{ name }}</a-radio>
     <div v-if="checked" class="describe_con"> <!-- 只有在被选中的时候才会打印信息 -->
-      <img style="width: fit-content; " :src="src">
+      <!-- <img style="width: fit-content; " :src="src"> -->
+      <p>{{ des }}</p>
     </div>
   </div>
 </template>
@@ -17,6 +18,7 @@ export default {
     src: {
       default: require('../../assets/img/NashBalanceImg.png')
     },
+    des:'',
     checked: {
       default: true
     },
@@ -33,7 +35,7 @@ export default {
 <style scoped>
 .describe_con{
   display: flex;
-  padding: 24px;
+  padding: 0px 24px 24px 24px;
   flex-direction: column;
   align-items: flex-start;
   gap: 24px;

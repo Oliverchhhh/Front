@@ -8,10 +8,14 @@
             </div>
             <div class="top_nav">
                 <a-menu v-model="current" mode="horizontal">
-                    <a-menu-item key="index"> <a href="/" >平台介绍</a> </a-menu-item>
-                    <a-menu-item key="join" > <router-link to="/homme_menu" target="_blank" rel="noopener noreferrer">在线体验 </router-link></a-menu-item>
-                    <a-menu-item v-show="username==''" key="login" @click="clicklogin()">登录/注册</a-menu-item>
-                    <a-menu-item v-show="username != ''" key="user" >{{username}}</a-menu-item>
+                    <a-menu-item key="index" class='menu-item'> <a href="/" >平台介绍</a> </a-menu-item>
+                    <a-menu-item key="join" class='menu-item'> <router-link to="/homme_menu" target="_blank" rel="noopener noreferrer">在线体验 </router-link></a-menu-item>
+                    <a-menu-item v-show="username==''" class='menu-item' key="login" @click="clicklogin()">登录/注册</a-menu-item>
+                    <a-sub-menu  class='menu-item' v-show="username != ''" >
+                        <span slot="title" class='menu-item sub-title' ><span>{{username}}</span></span>
+                        <a-menu-item key='taskList' class='sub-menu-item' ><router-link to="/taskList" >任务中心</router-link></a-menu-item>
+                        <a-menu-item key='loginout' class='sub-menu-item' @click="loginout()">注销</a-menu-item>
+                    </a-sub-menu>
                 </a-menu>
             </div>
         </div>
@@ -63,6 +67,12 @@ export default{
         }
     },
     methods:{
+        loginout(){
+            delCookie("username")
+            setTimeout(function(){
+                this.$router.push("/")
+            }.bind(this),1000)
+        },
         closeLoginDialog(){
             this.loginShow=false;
         //把绑定的弹窗数组 设为false即可关闭弹窗
@@ -131,7 +141,24 @@ export default{
     width: 280px;
 }
 /* 导航文字样式 */
-.ant-menu-item{
+/* .ant-menu-item{
+    
+    width: 72px;
+    height: 26px;
+    font-family: 'Microsoft YaHei';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 26px;
+    margin:21px 0 21px 48px;
+
+    color: #000000;
+
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+} */
+.menu-item{
     /* 平台介绍 */
     width: 72px;
     height: 26px;
@@ -141,28 +168,33 @@ export default{
     font-size: 18px;
     line-height: 26px;
     margin:21px 0 21px 48px;
-    /* identical to box height, or 144% */
-    color: #000000;
-    /* Inside auto layout */
-    flex: none;
-    order: 0;
-    flex-grow: 0;
 }
-
-.ant-menu-horizontal > .ant-menu-item:hover, .ant-menu-horizontal > .ant-menu-submenu:hover, .ant-menu-horizontal > .ant-menu-item-active, .ant-menu-horizontal > .ant-menu-submenu-active, .ant-menu-horizontal > .ant-menu-item-open, .ant-menu-horizontal > .ant-menu-submenu-open, .ant-menu-horizontal > .ant-menu-item-selected, .ant-menu-horizontal > .ant-menu-submenu-selected {
+.menu-item:hover {
+    color: #0B55F4;
+    border-bottom: none;
+    font-weight: 700;
+}
+.menu-item{
+    border-bottom: none;
+}
+/* .ant-menu-horizontal > .ant-menu-item:hover, .ant-menu-horizontal > .ant-menu-submenu:hover, .ant-menu-horizontal > .ant-menu-item-active, .ant-menu-horizontal > .ant-menu-submenu-active, .ant-menu-horizontal > .ant-menu-item-open, .ant-menu-horizontal > .ant-menu-submenu-open, .ant-menu-horizontal > .ant-menu-item-selected, .ant-menu-horizontal > .ant-menu-submenu-selected {
     color: #0B55F4;
     border-bottom: none;
     font-weight: 700;
 }
 .ant-menu-horizontal > .ant-menu-item, .ant-menu-horizontal > .ant-menu-item-selected{
     border-bottom: none;
-}
+} */
 /* 取消组件中的下划线 */
 .ant-menu.ant-menu-horizontal{
     border-bottom:none;
 }
 /* 取消padding */
-.ant-dropdown-menu__item, .ant-menu-item{
+/* .ant-dropdown-menu__item, .ant-menu-item{
+    padding: 0 0;
+} */
+/* 取消padding */
+.menu-item{
     padding: 0 0;
 }
 .ant-menu-horizontal > .ant-menu-item-selected > a {
@@ -178,6 +210,17 @@ export default{
     border-bottom: 2px solid #0B55F4;
     font-weight: 700;
 } 
+/* .sub-title{
+    line-height:60px
+} */
+.ant-menu-submenu-selected{
+    color:#0B55F4;
+    border-bottom:0px;
+}
+.ant-menu-submenu-title:hover {
+    color:#0B55F4;
+    border-bottom:0px;
+}
 .ant-menu{
     background: none;
 }

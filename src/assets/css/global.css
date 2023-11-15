@@ -79,7 +79,9 @@ line-height: 113px;
     font-weight: 500;
     line-height: 32px;
 }
-
+.dialog-cover{
+    z-index:1;
+}
 .labelunselected {
     display: flex;
     padding: 6px 10px;

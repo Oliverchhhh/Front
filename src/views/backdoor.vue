@@ -162,39 +162,39 @@ export default {
             // 数据集信息
             dataSetInfo: [
             {
-                    name: "CIFAR10",
-                    class:['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck'],
-                    description: "是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。",
-                    pictureSrcs: [
-                        [require('../assets/img/cifar100.jpg'), 
-                        require('../assets/img/cifar101.jpg'),
-                        require('../assets/img/cifar102.jpg'), 
-                        require('../assets/img/cifar103.jpg'), 
-                        require('../assets/img/cifar104.jpg'), 
-                        require('../assets/img/cifar105.jpg'), 
-                        require('../assets/img/cifar106.jpg'),
-                        require('../assets/img/cifar107.jpg'),
-                        require('../assets/img/cifar108.jpg'),
-                        require('../assets/img/cifar109.jpg')],
-                        ],
-                },
-                {
-                    name: "MNIST",
-                    description: "是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。",
-                    class:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'],
-                    pictureSrcs: [
-                        [require("../assets/img/mnist0.jpg"),
-                        require('../assets/img/mnist1.jpg'),
-                        require('../assets/img/mnist2.jpg'), 
-                        require('../assets/img/mnist3.jpg'), 
-                        require('../assets/img/mnist4.jpg'), 
-                        require('../assets/img/mnist5.jpg'), 
-                        require('../assets/img/mnist6.jpg'),
-                        require('../assets/img/mnist7.jpg'),
-                        require('../assets/img/mnist8.jpg'),
-                        require('../assets/img/mnist9.jpg'),],
+                name: "MNIST",
+                description: "是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。",
+                class:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'],
+                pictureSrcs: [
+                    [require("../assets/img/mnist0.jpg"),
+                    require('../assets/img/mnist1.jpg'),
+                    require('../assets/img/mnist2.jpg'), 
+                    require('../assets/img/mnist3.jpg'), 
+                    require('../assets/img/mnist4.jpg'), 
+                    require('../assets/img/mnist5.jpg'), 
+                    require('../assets/img/mnist6.jpg'),
+                    require('../assets/img/mnist7.jpg'),
+                    require('../assets/img/mnist8.jpg'),
+                    require('../assets/img/mnist9.jpg'),],
+                ],
+            },
+            {
+                name: "CIFAR10",
+                class:['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck'],
+                description: "是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。",
+                pictureSrcs: [
+                    [require('../assets/img/cifar100.jpg'), 
+                    require('../assets/img/cifar101.jpg'),
+                    require('../assets/img/cifar102.jpg'), 
+                    require('../assets/img/cifar103.jpg'), 
+                    require('../assets/img/cifar104.jpg'), 
+                    require('../assets/img/cifar105.jpg'), 
+                    require('../assets/img/cifar106.jpg'),
+                    require('../assets/img/cifar107.jpg'),
+                    require('../assets/img/cifar108.jpg'),
+                    require('../assets/img/cifar109.jpg')],
                     ],
-                },
+                }
                
             ],
             selectedDataset: 0,
@@ -459,6 +459,10 @@ export default {
                     this.postData[this.selectedMethod[i]] = attributes_dict
                 }else{
                     this.postData[this.selectedMethod[i]] = this.selectedAttributes[this.selectedMethod[i]]
+                }
+                if(!(this.postData[this.selectedMethod[i]]['save_num'] < this.postData[this.selectedMethod[i]]["test_sample_num"])){
+                    this.$message.warning(`${this.selectedMethod[i]}方法保存样本数需小于测试样本数！`,3);
+                    return
                 }
             }
             this.logtext = [];

@@ -470,14 +470,7 @@ export default {
    flex-direction: column;
    align-items: flex-start;
    padding: 0px;
-   /* gap: 16px; */
-
    width: 1104px;
-   /* height: 228px; */
-
-
-   /* Inside auto layout */
-
    flex: none;
    order: 1;
    align-self: stretch;
@@ -485,50 +478,39 @@ export default {
 }
 .frameRadioGroup{
    display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-gap: 16px;
-
-width: 1104px;
-height: 632px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 1;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 16px;
+    width: 1104px;
+    height: 632px;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
 }
 .frameworkDiv{
    display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-
-width: 1104px;
-height: 200px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    width: 1104px;
+    height: 200px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
 }
 /* 版本参数模块样式 */
 .frameVersionInput{
    display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 12px 24px;
-gap: 8px;
-
-width: 1104px;
-height: 94px;
-flex: none;
-order: 2;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 24px;
+    gap: 8px;
+    width: 1104px;
+    height: 94px;
+    flex: none;
+    order: 2;
+    flex-grow: 0;
 }
 .versionInput{
    height: 40px;
@@ -545,12 +527,12 @@ flex-grow: 0;
     }
 .frameVersionInput p{
    font-family: 'HONOR Sans CN';
-font-style: normal;
-font-weight: 400;
-font-size: 16px;
-line-height: 22px;
-color: #3E4453;
-margin-bottom: 0px;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 22px;
+    color: #3E4453;
+    margin-bottom: 0px;
 }
 /* 单选按钮width */
 .ant-radio-group{
@@ -558,21 +540,16 @@ margin-bottom: 0px;
 }
 .matchedDes{
    display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-
-width: 1104px;
-height: 106px;
-
-border-radius: 4px;
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    width: 1104px;
+    height: 106px;
+    border-radius: 4px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
 }
 /* 匹配机制解释样式 */
 .matchedMethodText{
@@ -597,17 +574,16 @@ flex-grow: 0;
 /* 开发框架样式 */
 .frameworkSelected{
    display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-/* gap: 24px; */
-margin-top: 24px;
-width: 1104px;
-height: 684px;
-flex: none;
-order: 2;
-align-self: stretch;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    margin-top: 24px;
+    width: 1104px;
+    height: 684px;
+    flex: none;
+    order: 2;
+    align-self: stretch;
+    flex-grow: 0;
 }
 .ant-radio-wrapper{
    margin-bottom: 0px;
@@ -623,8 +599,6 @@ flex-grow: 0;
     gap: 25px;
     margin-bottom: 20px;
     width: 1080px;
-    /* gray-7 */
-
     background: #F2F4F9;
     border-radius: 4px;
     
@@ -633,22 +607,22 @@ flex-grow: 0;
 /* 图表名称样式 */
 .echart_title{
    display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px 120px;
-gap: 4px;
-width: 960px;
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px 120px;
+    gap: 4px;
+    width: 960px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
 }
 .dialog_publish_main{
-align-items: center;
-flex-direction: column;
-position: absolute;
-display: flex;
-width: 1080px;
+    align-items: center;
+    flex-direction: column;
+    position: absolute;
+    display: flex;
+    width: 1080px;
 }
 .result_div{
    display: flex;
@@ -656,13 +630,7 @@ width: 1080px;
     align-items: center;
     padding: 0px 60px;
     gap: 24px;
-
     width: 1080px;
-/* height: 1134px; */
-
-
-    /* Inside auto layout */
-
     flex: none;
     order: 0;
     align-self: stretch;
@@ -672,7 +640,6 @@ width: 1080px;
 /* 结果文字样式 */
 .resultext{
    width: 100%;
-   /* height: 22px; */
    font-family: PingFangSC-Regular;
    font-size: 16px;
    color: #000000;
@@ -682,91 +649,72 @@ width: 1080px;
 /* 漏洞展示报告 */
 .bugShowDiv{
    display: flex;
-flex-direction: row;
-align-items: flex-start;
-padding: 24px;
-font-family: 'HONOR Sans CN';
-font-style: normal;
-font-weight: 400;
-font-size: 16px;
-line-height: 28px;
-color: #FFFFFF;
-width: 960px;
-height: 776px;
-
-/* gray-2 */
-
-background: #3E4453;
-border-radius: 4px;
-
-/* Inside auto layout */
-
-flex: none;
-order: 1;
-align-self: stretch;
-flex-grow: 0;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 24px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 28px;
+    color: #FFFFFF;
+    width: 960px;
+    height: 776px;
+    background: #3E4453;
+    border-radius: 4px;
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 0;
 }
 .bugShowDiv pre{
- white-space: pre-wrap;
- white-space: -moz-pre-wrap;
- white-space: -pre-wrap;
- white-space: -o-pre-wrap;
- word-wrap: break-word;
- text-align: left;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    text-align: left;
 }
 /* 得分图div */
 #rdeva{
    display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px;
-gap: 24px;
-width: 960px;
-flex: none;
-order: 1;
-flex-grow: 0
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    gap: 24px;
+    width: 960px;
+    flex: none;
+    order: 1;
+    flex-grow: 0
 }
 /* 得分图echart */
 .conclusion{
    box-sizing: border-box;
-
-/* Auto layout */
-
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: left;
-padding: 24px;
-gap: 8px;
-
-width: 960px;
-/* height: 144px; */
-
-/* gray-7 */
-
-background: #F2F4F9;
-border-radius: 4px;
-
-/* Inside auto layout */
-
-flex: none;
-order: 2;
-flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: left;
+    padding: 24px;
+    gap: 8px;
+    width: 960px;
+    background: #F2F4F9;
+    border-radius: 4px;
+    flex: none;
+    order: 2;
+    flex-grow: 0;
 }
 .result_text{
    width: 912px;
-/* height: 96px; */
-
-font-family: 'HONOR Sans CN';
-font-style: normal;
-font-weight: 400;
-font-size: 16px;
-line-height: 24px;
-text-align: left;
-color: #000000;
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: left;
+    color: #000000;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
 }
 </style>

@@ -779,12 +779,9 @@ text-align: left;
     gap: 10px;
     margin-bottom: 20px;
     width: 1080px;
-    /* gray-7 */
-
     background: #F2F4F9;
     border-radius: 4px;
-    flex-wrap: wrap;
-    
+    flex-wrap: wrap; 
 }
 .result_annotation {
     width: 200px
@@ -801,15 +798,15 @@ text-align: left;
 /* 图表名称样式 */
 .echart_title{
    display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px 120px;
-gap: 4px;
-width: 500px;
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px 120px;
+    gap: 4px;
+    width: 500px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
 }
 .dialog_publish_main{
 align-items: center;
@@ -824,13 +821,8 @@ width: 1080px;
     align-items: center;
     padding: 0px 60px;
     gap: 24px;
-
     width: 1080px;
     height: fit-content;
-
-
-    /* Inside auto layout */
-
     flex: none;
     order: 0;
     align-self: stretch;

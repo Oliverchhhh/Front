@@ -160,8 +160,8 @@ export default {
                 /* 亮点介绍 */
                 highlight:[
                     "具备自动攻击检测、脆弱感知、异常过滤、算法加固的能力；",
-                    "内置支持协同与博弈方法≥5种，包括Nash博弈、集成防御、xxxx、xxxxx、xxxxx，实现PACA自动攻击检测；",
-                    "可防御的攻击算法包含FGSM等超过20种对抗攻击算法，防御成功率超过90%。"
+                    "内置支持协同与博弈方法≥5种，包括Nash博弈、集成防御、群智防御、基于异常检测的CAFD算法，实现PACA自动攻击检测；",
+                    "可防御的攻击算法包含FGSM等超过60种对抗攻击算法，防御成功率超过90%。"
                 ]
             },
             /* 评估结果 */
@@ -623,7 +623,6 @@ export default {
                 {name:"TargetedUniversalPerturbationLinf", description:"产生1-无穷范数正则化的通用摄动的对抗性攻击算法，生成通用摄动（universal perturbation），以欺骗目标模型。该算法使用1-无穷范数正则化来生成摄动，以确保生成的摄动在图像中的扰动较小",},
                 ],
                 [
-                {name:"BoundaryAttack", description:"该算法旨在模型的决策边界上找到对抗的例子",},
                 {name:"VirtualAdversarialMethod", description:"基于虚拟对抗训练方法的对抗攻击算法。通过在原始样本的附近生成虚拟对抗样本，这些样本在输入空间中与原始样本非常接近，但在模型输出上具有最大化的不确定性。模型在原始样本和虚拟对抗样本之间进行训练，以增强模型对对抗性扰动的鲁棒性",},
                 {name:"SignOPTAttack", description:"使用Sign-OPT方法进行优化的对抗性攻击算法",},
                 ],
@@ -828,8 +827,8 @@ export default {
             // that.postData["ModelParam"] = {"name":model,"ckpt":null}
             // that.postData["AdvMethods"] = that.selectedMethod
             // that.postData["DefMethod"] = that.selectedDefense
-            // that.tid = "20231023_1055_415958c"
-            // that.stidlist =  {"Ensemble":"S20231023_1055_60760c7"};
+            // that.tid = "20231010_0845_969ccaf"
+            // that.stidlist =  {"Ensemble":"S20231010_0845_3911182"};
             // that.clk = window.setInterval(() => {
             //     that.update();
             // }, 600)

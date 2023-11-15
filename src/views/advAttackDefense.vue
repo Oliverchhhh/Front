@@ -466,45 +466,45 @@ export default {
                     window.clearInterval(that.logclk);
                     that.stid['advAttackDefense'] =  res.data.stid
                     that.getLog();
-                    let label=[];
-                    let rateList=[];
-                    let noDefenseACC=[];
-                    let maxRate = 0;
-                    let maxMethod="";
-                    let ATDefenseACC=[];
-                    let ATlabels=[];
-                    let ATMaxRate=0;
-                    let ATMaxMethod='';
-                    const ATMethod = ["Madry","TRADES","FreeAT","FastAT","CARTL","MART"];
-                    for (let temp in that.result.detect_rates){
-                        if (ATMethod.indexOf(temp) == -1){
-                            if (maxRate < that.result.detect_rates[temp]){
-                                maxMethod = temp
-                                maxRate = that.result.detect_rates[temp]
-                            }
-                            label.push(temp);
-                            rateList.push(that.result.detect_rates[temp])
+                    // let label=[];
+                    // let rateList=[];
+                    // let noDefenseACC=[];
+                    // let maxRate = 0;
+                    // let maxMethod="";
+                    // let ATDefenseACC=[];
+                    // let ATlabels=[];
+                    // let ATMaxRate=0;
+                    // let ATMaxMethod='';
+                    // const ATMethod = ["Madry","TRADES","FreeAT","FastAT","CARTL","MART"];
+                    // for (let temp in that.result.detect_rates){
+                    //     if (ATMethod.indexOf(temp) == -1){
+                    //         if (maxRate < that.result.detect_rates[temp]){
+                    //             maxMethod = temp
+                    //             maxRate = that.result.detect_rates[temp]
+                    //         }
+                    //         label.push(temp);
+                    //         rateList.push(that.result.detect_rates[temp])
                             
-                        }else{
-                            if (ATMaxRate < that.result.detect_rates[temp]){
-                                ATMaxMethod = temp
-                                ATMaxRate = that.result.detect_rates[temp]
-                            }
-                            ATlabels.push(temp);
-                            noDefenseACC.push(that.result.no_defense_accuracy)
-                            ATDefenseACC.push(that.result.detect_rates[temp])
-                        }
+                    //     }else{
+                    //         if (ATMaxRate < that.result.detect_rates[temp]){
+                    //             ATMaxMethod = temp
+                    //             ATMaxRate = that.result.detect_rates[temp]
+                    //         }
+                    //         ATlabels.push(temp);
+                    //         noDefenseACC.push(that.result.no_defense_accuracy)
+                    //         ATDefenseACC.push(that.result.detect_rates[temp])
+                    //     }
                         
-                    }
-                    that.result.maxRate = maxRate;
-                    that.result.maxMethod = maxMethod;
-                    that.result.ATMaxRate = ATMaxRate;
-                    that.result.ATMaxMethod = ATMaxMethod;
-                    that.result.detect_labels = label;
-                    that.result.detect_ratelist = rateList;
-                    that.result.ATlabels = ATlabels;
-                    that.result.ATDefenseACClist = ATDefenseACC;
-                    that.result.noDefenseACClist = noDefenseACC;
+                    // }
+                    // that.result.maxRate = maxRate;
+                    // that.result.maxMethod = maxMethod;
+                    // that.result.ATMaxRate = ATMaxRate;
+                    // that.result.ATMaxMethod = ATMaxMethod;
+                    // that.result.detect_labels = label;
+                    // that.result.detect_ratelist = rateList;
+                    // that.result.ATlabels = ATlabels;
+                    // that.result.ATDefenseACClist = ATDefenseACC;
+                    // that.result.noDefenseACClist = noDefenseACC;
                     
                     that.resultVisible = !that.resultVisible;
                     that.logflag = false;

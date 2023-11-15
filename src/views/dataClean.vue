@@ -926,21 +926,16 @@ export default {
 /* 图表名称样式 */
 .echart_title{
     display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px 120px;
-gap: 4px;
-
-width: 960px;
-height: 62px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px 120px;
+    gap: 4px;
+    width: 960px;
+    height: 62px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
 }
 .dialog_publish_main{
 align-items: center;
@@ -985,13 +980,8 @@ width: 1080px;
     align-items: center;
     padding: 0px 120px;
     gap: 20px;
-
     width: 960px;
     height: fit-content;
-
-
-    /* Inside auto layout */
-
     flex: none;
     order: 0;
     align-self: stretch;

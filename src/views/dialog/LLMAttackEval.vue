@@ -103,33 +103,6 @@ export default {
       result:{},
       postData:{
       },
-      //下面这些属性会绑定到div上面 详情参照上面的html结构
-      // 如： :style="{top:topDistance+'%',width:widNum+'%'}"
-      widNum:{
-      //内容宽度
-      type: Number,
-      default:50
-      },
-      leftSite:{
-      // 左定位
-      type: Number,
-      default:25.2
-      },
-      topDistance: {
-      //top上边距
-      type: Number,
-      default:10
-      },
-      pdt:{
-      //上padding
-      type: Number,
-      default:22
-      },
-      pdb:{
-      //下padding
-      type: Number,
-      default:47
-      }
       },
       
   data() {
@@ -138,9 +111,32 @@ export default {
       
     }
   },
+  created(){
+    console.log('LLM_attack reated:',this.result)
+    if ("LLM_attack" in this.result){
+      console.log('LLM_attack reated:',this.result)
+    }
+  },
+  watch:{
+    result(newValue, oldValue){
+      console.log('LLM_attack:',this.result)
+      if ("LLM_attack" in newValue){
+        console.log('LLM_attack reated:',this.result)
+      }
+    }
+  },
+  methods: {
+    closeMyself() {
+      this.$emit("on-close");
+      //如果需要传参的话，可以在"on-close"后面再加参数，然后在父组件的函数里接收就可以了。
+    },
+    _stopPropagation(ev){
+      var _this = this;
+      ev.stopPropagation();
+    },
+  }
   }
   
-
 </script>
 
 <style scoped>
@@ -215,8 +211,6 @@ border-radius: 8px;
 }
 
 .dialog-title{
-  display: inline;
-  margin-top: 38px;
   width: 279px;
   height: 36px;
   font-family: 'HONOR Sans CN';
@@ -250,5 +244,6 @@ border-radius: 8px;
   font-weight: 500;
   line-height: 28px; /* 140% */
   margin-bottom: 18px;
+  text-align:left
 }
 </style>

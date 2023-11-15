@@ -440,7 +440,7 @@ export default {
     methods: {
         /* 获取日志 */ 
         getLog(){
-            // debugger
+            debugger
             var that = this;
             if(that.percent < 99){
                that.percent += 1;
@@ -608,7 +608,7 @@ export default {
                 };
                 for( let key1 in that.result.Proportion[key]){
                     var third_children={
-                    id:key1,
+                    id:key+'_'+key1,
                     label:key1,
                     population:that.result.Proportion[key][key1].toFixed(3),
                     isLeaf: true,
@@ -1055,6 +1055,34 @@ width: 960px;
 flex: none;
 order: 1;
 flex-grow: 0;
+}
+#consevaBef{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+    height: 320px;
+}
+#consevaAft{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+    height: 320px;
+}
+.debias_res_score{
+    width: 360px;
+    height: 321px;
+    flex-shrink: 0;
+}
+.debias_res{
+    display: flex;
+    width: 814px;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    row-gap: 20px;
+    flex-wrap: wrap;
 }
 /* 群体-单个属性框样式 */
 .attr_echarts_div{
