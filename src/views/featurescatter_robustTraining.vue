@@ -14,11 +14,11 @@
                 <!-- 参数配置容器 -->
                 <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
                 <div class="labelSelection">
-                    <router-link to="/robust_advTraining"><button class="labelunselected">CNN对抗训练</button></router-link>
-                    <router-link to="/gcn_robustTraining"><button class="labelunselected">GCN可认证鲁棒训练</button></router-link>
+                    <router-link to="/robust_advTraining"><button class="labelunselected">对抗鲁棒训练</button></router-link>
+                    <router-link to="/gcn_robustTraining"><button class="labelunselected">可认证鲁棒性训练</button></router-link>
                     <router-link to="/featurescatter_robustTraining"><button class="labelselected">特征散射鲁棒性训练</button></router-link>
-                    <router-link to="/seat_robustTraining"><button class="labelunselected">异常感知鲁棒性训练</button></router-link>
-                    <router-link to="/smoothing_robustTraining"><button class="labelunselected">随机平滑鲁棒性训练</button></router-link>
+                    <router-link to="/seat_robustTraining"><button class="labelunselected">自我整合鲁棒性训练</button></router-link>
+                    <router-link to="/smoothing_robustTraining"><button class="labelunselected">关键参数微调鲁棒性训练</button></router-link>
                 </div>
                 <div class="funcParam">
                     <div class="paramTitle" >
