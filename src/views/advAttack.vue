@@ -630,7 +630,6 @@ export default {
                 {name:"TargetedUniversalPerturbationLinf", description:"产生1-无穷范数正则化的通用摄动的对抗性攻击算法，生成通用摄动（universal perturbation），以欺骗目标模型。该算法使用1-无穷范数正则化来生成摄动，以确保生成的摄动在图像中的扰动较小",},
                 ],
                 [
-                {name:"BoundaryAttack", description:"该算法旨在模型的决策边界上找到对抗的例子",},
                 {name:"VirtualAdversarialMethod", description:"基于虚拟对抗训练方法的对抗攻击算法。通过在原始样本的附近生成虚拟对抗样本，这些样本在输入空间中与原始样本非常接近，但在模型输出上具有最大化的不确定性。模型在原始样本和虚拟对抗样本之间进行训练，以增强模型对对抗性扰动的鲁棒性",},
                 {name:"SignOPTAttack", description:"使用Sign-OPT方法进行优化的对抗性攻击算法",},
                 ],

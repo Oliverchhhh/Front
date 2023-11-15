@@ -535,7 +535,7 @@ export default {
                     that.postData["VisMethods"] = that.selectedDimensionMethod
                     
                     that.$axios.post("/Attack/AttackDimReduciton", that.postData).then((res) => {
-                        that.stidlist["dimention"] =  res.data.stid;
+                        that.stidlist["attack_dim_reduciton"] =  res.data.stid;
                         that.clk = window.setInterval(() => {
                             that.update();
                         },60000)
@@ -548,7 +548,7 @@ export default {
                     that.postData["ExMethods"] = that.selectedFeatureMethod
                     that.postData["Use_layer_explain"] = that.layerchecked
                     that.$axios.post("/Attack/AttackAttrbutionAnalysis", that.postData).then((res) => {
-                        that.stidlist["feature"] =  res.data.stid;
+                        that.stidlist["attack_attrbution_analysis"] =  res.data.stid;
                         if(that.clk==""){
                             // that.clk = self.setInterval(that.update, 60000);
                             that.clk = window.setInterval(() => {

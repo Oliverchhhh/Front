@@ -643,7 +643,6 @@ export default {
             {name:"TargetedUniversalPerturbationLinf", description:"产生1-无穷范数正则化的通用摄动的对抗性攻击算法，生成通用摄动（universal perturbation），以欺骗目标模型。该算法使用1-无穷范数正则化来生成摄动，以确保生成的摄动在图像中的扰动较小",},
             ],
             [
-            {name:"BoundaryAttack", description:"该算法旨在模型的决策边界上找到对抗的例子",},
             {name:"VirtualAdversarialMethod", description:"基于虚拟对抗训练方法的对抗攻击算法。通过在原始样本的附近生成虚拟对抗样本，这些样本在输入空间中与原始样本非常接近，但在模型输出上具有最大化的不确定性。模型在原始样本和虚拟对抗样本之间进行训练，以增强模型对对抗性扰动的鲁棒性",},
             {name:"SignOPTAttack", description:"使用Sign-OPT方法进行优化的对抗性攻击算法",},
             ],
@@ -651,33 +650,34 @@ export default {
         selectedMethod:[],
         selectedAttributes: {},
         DefenseInfo:[{
-            name:"基于知识图谱的AI模型自动化攻防",
+            name:"基于知识图谱的自动化攻防测试",
             id:"graph",
-            src: require('../assets/img/graph.png'),
-            des:'',
-            },{
-            name:"融合规则驱动的知识图谱自动化攻防",
-            id:"graph_rule",
-            src: require('../assets/img/graph.png'),
-            des:'',
-            },{
-            name:"基于流水线的AI模型自动化攻防",
-            id:"flow",
             src:'',
-            // src: require('../assets/img/graph.png')
-            des:'',
+            des:'基于不同任务下的对抗样本攻防算法之间的关系构建AI技战术知识图谱，并通过知识图谱生成自动化攻防测试方案，实现AI模型自动化攻防测试；',
             },{
-            name:"规则驱动的AI模型自动化攻防",
+            name:"规则驱动的自动化攻防测试方法",
             id:"rule",
             src:'',
             // src: require('../assets/img/graph.png')
-            des:'',
+            des:'在不同攻防场景中，基于预设规则匹配攻防参数，从而实现对于AI模型的高效测试；',
             },{
-            name:"融合规则驱动的流水线自动化攻防",
+            name:"融合规则与知识图谱的自动化攻防测试",
+            id:"graph_rule",
+            src:'',
+            des:'基于规则驱动的攻防参数匹配方法与基于知识图谱的攻防算法智能推荐方法对AI模型的鲁棒性进行测试',
+            },{
+            name:"基于流水线的自动化攻防测试",
+            id:"flow",
+            src:'',
+            // src: require('../assets/img/graph.png')
+            des:'基于流水线模式，从数据加载、模型加载、攻防训练、报告生成等环节对AI模型的鲁棒性进行测试',
+            },
+            {
+            name:"融合规则与流水线的自动化攻防测试",
             id:"flow_rule",
             src:'',
             // src: require('../assets/img/graph.png')
-            des:'',
+            des:'基于规则驱动的攻防参数匹配方法与流水线模式的攻防测试策略对AI模型的鲁棒性进行测试',
             },
         ],
         selectedDefense:'graph',

@@ -21,6 +21,7 @@
                     <!--弹窗的内容-->
                     <slot name="main">
                         <!-- 防御信息 -->
+                        <!-- <div v-if="Object.keys(postData).length > 0" class="paramShow"> -->
                         <div class="paramShow">
                             <a-row style="width: 100%;">
                                 <a-col :span="2">
@@ -52,7 +53,6 @@
 
                         <!-- 图片表格 -->
                         <div class="result-title" style="margin-top: 169px;">攻击样本示例</div>
-
                         <PictureTable key="pictable0" table-id="table0" :header="true" :headerRow="true"
                             :headerColumn="false" :have-border="true" :content="selectPicList" :single-output="true"
                             :cellWidth="setCellWidth" cellHeight=100px class="center-horizon"
@@ -63,21 +63,21 @@
                         <div class="result-title">对抗攻击防御评估详情</div>
                         <div style="font-size:18px;text-align:center;margin-top: 10px;font-weight :bold">对抗攻击防御算法检出效果</div>
                         <div style="font-size:10px;color:#7f7f81;text-align: center">柱形图展示各个防御算法在所选攻击算法下的检出成功率</div>
-                        <div v-if="result.detect_labels.length > 0">
+                        <div v-if="'detect_labels' in res">
                             <div id="advAttackDefenseEvalChart" class="echart" style="width: 1000px; height: 400px;"></div>
                         </div>
-                        <div v-if="result.detect_labels.length > 0" class="describeMinor"
+                        <div v-if="'detect_labels' in res" class="describeMinor"
                             style="width: 1000px;height: 70px;line-height: 70px;margin-bottom: 20px;">
-                            如上图所示为对抗攻击防御效果图，其中{{ result.maxMethod }}对抗样本检测效果最佳，检出率为{{ result.maxRate }}。
+                            如上图所示为对抗攻击防御效果图，其中{{ res.maxMethod }}对抗样本检测效果最佳，检出率为{{ res.maxRate }}。
                         </div>
-                        <div v-if="result.ATlabels.length > 0" style="font-size:18px;text-align:center;margin-top: 40px;font-weight :bold">对抗训练防御效果</div>
+                        <div v-if="'ATlabels' in res" style="font-size:18px;text-align:center;margin-top: 40px;font-weight :bold">对抗训练防御效果</div>
 
-                        <div v-if="result.ATlabels.length > 0">
+                        <div v-if="'ATlabels' in res">
                             <div id="defenseATEchart" class="echart" style="width: 1000px; height: 400px;"></div>
                         </div>
-                        <div v-if="result.ATlabels.length > 0" class="describeMinor"
+                        <div v-if="'ATlabels' in res" class="describeMinor"
                             style="width: 1000px;height: 70px;line-height: 70px;">
-                            如上图所示为对抗训练防御效果图，其中{{ result.ATMaxMethod }}对抗攻击防御效果最佳，防御后的模型对对抗样本分类精度为{{ result.ATMaxRate }}。
+                            如上图所示为对抗训练防御效果图，其中{{ res.ATMaxMethod }}对抗攻击防御效果最佳，防御后的模型对对抗样本分类精度为{{ res.ATMaxRate }}。
                         </div>
 
                         <div class="downloadBtn">
@@ -156,7 +156,8 @@ export default {
                 [["./static/output/images/2/clean.jpeg", "pic"], ["./static/output/images/2/noise.jpeg", "pic"], ["./static/output/images/2/adv.jpeg", "pic"]]
             ],
             setCellWidth: [0.33, 0.34, 0.33],
-            htmlTitle: 'advAttackDefenseReport'
+            htmlTitle: 'advAttackDefenseReport',
+            res:{}
         }
     },
     // props:["is-show","top-distance"],
@@ -173,14 +174,78 @@ export default {
         _stopPropagation(ev) {
             var _this = this;
             ev.stopPropagation();
-        }
+        },
+        updated() {
+            debugger
+            
+            if ("attack_defense" in this.result){
+                this.res = this.result.attack_defense
+            }else{
+                this.res = this.result;
+            }
+            let label=[];
+            let rateList=[];
+            let noDefenseACC=[];
+            let maxRate = 0;
+            let maxMethod="";
+            let ATDefenseACC=[];
+            let ATlabels=[];
+            let ATMaxRate=0;
+            let ATMaxMethod='';
+            const ATMethod = ["Madry","TRADES","FreeAT","FastAT","CARTL","MART"];
+            for (let temp in this.res.detect_rates){
+                if (ATMethod.indexOf(temp) == -1){
+                    if (maxRate < this.res.detect_rates[temp]){
+                        maxMethod = temp
+                        maxRate = this.res.detect_rates[temp]
+                    }
+                    label.push(temp);
+                    rateList.push(this.res.detect_rates[temp])
+                    
+                }else{
+                    if (ATMaxRate < this.res.detect_rates[temp]){
+                        ATMaxMethod = temp
+                        ATMaxRate = this.res.detect_rates[temp]
+                    }
+                    ATlabels.push(temp);
+                    noDefenseACC.push(this.res.no_defense_accuracy)
+                    ATDefenseACC.push(this.res.detect_rates[temp])
+                }
+            }
+            if(label.length != 0){
+                this.res.maxRate = maxRate;
+                this.res.maxMethod = maxMethod;
+                this.res.detect_labels = label;
+                this.res.detect_ratelist = rateList;
+                drawbar("advAttackDefenseEvalChart", this.res.detect_ratelist, this.res.detect_labels, "", "算法名称", "检出率");
+            }
+            if (ATlabels.length != 0){
+                this.res.ATMaxRate = ATMaxRate;
+                this.res.ATMaxMethod = ATMaxMethod;
+                
+                this.res.ATlabels = ATlabels;
+                this.res.ATDefenseACClist = ATDefenseACC;
+                this.res.noDefenseACClist = noDefenseACC;
+                drawLineBar("defenseATEchart", this.res.ATDefenseACClist, this.res.ATlabels, this.res.noDefenseACClist);
+            }
+        },
     },
-
-    updated() {
-        debugger
-        drawbar("advAttackDefenseEvalChart", this.result.detect_ratelist, this.result.detect_labels, "", "算法名称", "检出率");
-        if("ATDefenseACClist" in this.result){
-            drawLineBar("defenseATEchart", this.result.ATDefenseACClist, this.result.ATlabels, this.result.noDefenseACClist);
+    watch:{
+        result(newValue, oldValue){
+            console.log('watch:',this.result)
+            if ("attack_defense" in this.result){
+                this.updated()
+            }else if('detect_rates' in this.result){
+                this.updated()
+            }
+        },
+    },
+    created(){
+        console.log('created:',this.result)
+        if ("attack_defense" in this.result){
+            this.updated()
+        }else if('detect_rates' in this.result){
+            this.updated()
         }
     }
 }
@@ -270,9 +335,9 @@ export default {
 }
 
 .dialog-title {
-    display: inline;
-    margin-top: 38px;
-    width: 279px;
+    /* display: inline;
+    margin-top: 38px; */
+    width: 340px;
     height: 36px;
     font-family: HONOR Sans CN;
     font-size: 24px;

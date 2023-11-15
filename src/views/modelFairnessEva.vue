@@ -34,9 +34,24 @@
                         <!-- 选模型 -->
                         <div class="model">
                             <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择模型结构</p>
-                            <a-radio :style="radioStyle" defaultChecked disabled>
+                            <div style="width: 1104px;margin-bottom: 16px;">
+                                <a-upload 
+                                action="/fairness/uploadModel"
+                                :file-list="fileList"
+                                name="ckpt"
+                                @change="uploadModel">
+                                <div class="uploadModelStyle" >请上传模型</div>
+                                </a-upload>
+                            </div>
+                            <a-radio :style="radioStyle" defaultChecked disabled v-if="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) > -1">
                                 3 Hidden-layer FCN
                             </a-radio>
+                            <a-radio :style="radioStyle" defaultChecked disabled v-else>
+                                Resnet50
+                            </a-radio>
+                            <p v-if="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) === -1">使用缓存模型
+                                <a-switch checked-children="开"  un-checked-children="关" :checked='test_mode' :disabled="retrain_disabled" @change="onChangeSwitch"/>
+                            </p>
                         </div>
                         <!-- 选算法 -->
                         <div class="selectMethod">
@@ -333,6 +348,7 @@ export default {
         return{
             htmlTitle: '模型公平性评估报告',
             stidlist:{},
+            fileList:[],
             /* 评估行 */
             rowkey:0,
             colkey:0,
@@ -432,15 +448,19 @@ export default {
             grouptext:{},
             /* 公平性结果 */
             result:{},
+            retrain_disabled:false,
             resultbef:{},
+            test_mode:false,
             /* 评估算法选择结果*/
             evaCheckedValues:[],
             evaImgCheckedValues:[],
+            modelpath:'',
             /* 日志查询clock*/
             logclk:"", 
             /*主任务id*/ 
             tid:"",
             postData:{},
+            response:{},
             disablestyle:{
                 'color': 'rgba(0,0,0,.25)',
                 'background-color': '#f5f5f5'
@@ -463,6 +483,16 @@ export default {
     created() {
         document.title = '模型公平性评估';
         },
+    // watch:{
+    //     response(newValue, oldValue){
+    //         console.log('watch:', this.response)
+    //         if ("model_evaluate" in newValue){
+    //             this.result = JSON.parse(JSON.stringify(this.response.model_evaluate))
+    //             this.resultPro(this.result)
+    //         }
+    //     }
+        
+    // },
     //在离开页面时执行
     beforeDestroy() {
         if(this.clk) { //如果定时器还在运行,关闭定时器
@@ -478,8 +508,12 @@ export default {
             let param = JSON.parse(method);
             return param.join('、');
         },
+        onChangeSwitch(checked){
+            this.test_mode = checked
+            
+        },
         changeMethods(i, j) {
-            debugger;
+            // debugger;
             let button = document.getElementById("button" + i + j)
             if (button.style.color == "") {
                 this.methodHoverIndex = i
@@ -500,7 +534,8 @@ export default {
         },
         /* 获取日志 */ 
         getLog(){
-            debugger
+            // debugger
+            let data=null
             var that = this;
             if(that.percent < 99){
                that.percent += 1;
@@ -518,15 +553,19 @@ export default {
             });
         },
         getData(){
+            let data=null
             var that = this;
             that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
-                console.log("dataget:",data);
-                that.resultbef=data;
+                if(data.data.result.tid==that.tid){
+                    console.log("dataget:",data);
+                    that.resultbef=data;
+                }
+                
             });
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            if (this.resultbef.data.stop == 1) {
+            if (this.resultbef.data.stop == 1 && this.resultbef.data.result.tid==this.tid) {
                 // 关闭日志显示
                 this.percent=100
                 this.logflag = false;
@@ -537,8 +576,8 @@ export default {
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
-                this.result = this.resultbef.data.result.model_evaluate;
-                this.resultPro(this.result);
+                this.response = this.resultbef.data.result;
+                this.resultPro(this.response.model_evaluate);
             }
         },
         /* 更新结果*/ 
@@ -551,6 +590,7 @@ export default {
         /* 关闭结果窗口 */
         closeDialog(){
         this.isShowPublish=false;
+        // Object.assign(this.$data, this.$options.data.call(this))
         //把绑定的弹窗数组 设为false即可关闭弹窗
         },
         onChangeEvaMethod(checkedValues){
@@ -586,6 +626,38 @@ export default {
             }
             
         },
+        // 上传模型
+        uploadModel(info){
+            let fileList = [...info.fileList];
+            fileList = fileList.slice(-1);
+            fileList = fileList.map(file => {
+                if (file.response) {
+                // Component will show file.url as link
+                    file.url = "static/"+file.response.filepath
+                    file.filepath = file.response.filepath;
+                }
+                return file;
+            });
+            this.fileList = fileList;
+            if (info.file.status !== 'uploading') {
+                console.log(info.fileList)
+            }
+            if (info.file.status === 'done') {
+                if(info.file.response.code === 10000){
+                    this.$message.success(`${info.file.name} file uploaded successfully`);
+                    this.test_mode = true
+                    this.retrain_disabled = true
+                    this.modelpath = info.file.response.filepath
+                }
+            } else if (info.file.status === 'error') {
+                this.$message.error(`${info.file.name} file upload failed.`);
+            }
+            if (info.file.status === 'removed'){
+                this.modelpath = ''
+                // this.test_mode = true
+                this.retrain_disabled = false
+            }
+        },
         /* 监听数据集选择 */
         clientDatasetSelect(value, senAttrList, tarAttrList, staAttrList){
             this.dataNameValue = value;
@@ -601,6 +673,7 @@ export default {
                 this.disableImgMehod()
             }else{
                 this.ableImgMehod()
+                this.buttonBGColor.background = "#0B55F4";
             }
         },
 
@@ -613,8 +686,9 @@ export default {
         },
         /* result 处理*/
         resultPro(res){
+            this.result = this.response.model_evaluate
             var that = this;
-            that.percent=100;
+            
             // 总分判断
             that.result["score"] = res["Overall fairness"].toFixed(2)*100;
             
@@ -631,7 +705,7 @@ export default {
             if ( "Consistency" in that.result){
                 that.result["consistency_score"] = res["Overall individual fairness"].toFixed(2)*100;
                 that.result["group_score"] =  res["Overall group fairness"].toFixed(2)*100;
-                that.result["Consistency"]=res.Consistency.toFixed(2);
+                that.result["Consistency"]=res.Consistency.toFixed(2) * 100;
                 that.result["Proportion"]=res.Proportion;
                 
                 //得分图
@@ -673,34 +747,7 @@ export default {
                     that.grouptext[attrTemp]="本次测试敏感属性为"+attrTemp+"，目标属性为"+that.tarAttrList.toString()+"\
                     ，直方图根据"+ labels.toString()+"算法评估结果绘制。"
                 }
-                // 占比图
-                var data = {
-                    id: "center_"+that.dataname[that.dataNameValue],
-                    label: that.dataname[that.dataNameValue],
-                    population: 1,
-                    children: []};
                 
-                for (let key in that.result.Proportion){
-                    var second_children={
-                        id:"second_"+key,
-                        label:key,
-                        population:1,
-                        children:[]
-                    };
-                    for( let key1 in that.result.Proportion[key]){
-                        var third_children={
-                        id:key1,
-                        label:key1,
-                        population:that.result.Proportion[key][key1].toFixed(3),
-                        isLeaf: true,
-                        };
-                        second_children["children"].push(third_children);
-                    }
-                    data["children"].push(second_children);
-                }
-                
-                console.log("centerPng11:",centerPng);
-                drawPopGraph("pro_tree", data, centerPng, secondPng)
                 // 热力图
                 var heatX=[];
                 var X_index={}
@@ -745,6 +792,34 @@ export default {
                 drawCorelationHeat("person", heatX, personData, personColorList);
                 drawCorelationHeat("spearman", heatX, spearmanData, spearmanColorList);
                 drawCorelationHeat("Kendall", heatX, kendallData, kendallColorList);
+                // 占比图
+                var data = {
+                    id: "center_"+that.dataname[that.dataNameValue],
+                    label: that.dataname[that.dataNameValue],
+                    population: 1,
+                    children: []};
+                
+                for (let key in that.result.Proportion){
+                    var second_children={
+                        id:"second_"+key,
+                        label:key,
+                        population:1,
+                        children:[]
+                    };
+                    for( let key1 in that.result.Proportion[key]){
+                        var third_children={
+                        id:key+'_'+key1,
+                        label:key1,
+                        population:that.result.Proportion[key][key1].toFixed(3),
+                        isLeaf: true,
+                        };
+                        second_children["children"].push(third_children);
+                    }
+                    data["children"].push(second_children);
+                }
+                
+                console.log("centerPng11:",centerPng);
+                drawPopGraph("pro_tree", data, centerPng, secondPng)
             }else{
                 //直方图
                 var attrEvaValue=[];
@@ -769,10 +844,12 @@ export default {
 
         },
         initParam(){
+            
             this.logtext=[]
             this.percent=0
             this.postData={}
             this.result = {}
+            this.resultbef={}
             this.tid=''
             this.stidlist = {}
             if(this.clk != ''){
@@ -788,28 +865,31 @@ export default {
         dataEvaClick(){
             this.initParam()
             let evaMethod = []
+            let modelname="3 Hidden-layer FCN"
             if (["German","Adult","Compas"].indexOf(this.dataname[this.dataNameValue]) > -1){
                 evaMethod = this.evaCheckedValues
+                /*判断选择*/
+                if (this.senAttrList.length ==0 ){
+                    this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
+                    return 0;
+                };
+                if (this.tarAttrList.length ==0 ){
+                    this.$message.warning('请在数据集里面选择一项目标属性！',3);
+                    return 0;
+                };
+                if (this.tarAttrList.length >1 ){
+                    this.$message.warning('模型公平性评估只能选择一项目标属性！',3);
+                    return 0;
+                };
+                if (this.staAttrList.length ==0 ){
+                    this.$message.warning('请在数据集里面至少选择一项统计属性！',3);
+                    return 0;
+                };
+                modelname="3 Hidden-layer FCN"
             }else{
                 evaMethod = this.evaImgCheckedValues
+                modelname="Resnet50"
             }
-            /*判断选择*/
-            if (this.senAttrList.length ==0 ){
-                this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
-                return 0;
-            };
-            if (this.tarAttrList.length ==0 ){
-                this.$message.warning('请在数据集里面选择一项目标属性！',3);
-                return 0;
-            };
-            if (this.tarAttrList.length >1 ){
-                this.$message.warning('模型公平性评估只能选择一项目标属性！',3);
-                return 0;
-            };
-            if (this.staAttrList.length ==0 ){
-                this.$message.warning('请在数据集里面至少选择一项统计属性！',3);
-                return 0;
-            };
             if (evaMethod.length == 0 ){
                 this.$message.warning('请在评估算法中至少选择一项评估算法！',3);
                 return 0;
@@ -843,17 +923,20 @@ export default {
                 tarAttrList:that.tarAttrList[0],
                 staAttrList:JSON.stringify(that.staAttrList),
                 metrics:JSON.stringify(evaMethod),
-                modelname:"3 Hidden-layer FCN",
+                modelname:modelname,
+                modelpath:that.modelpath,
+                test_mode:that.test_mode,
                 tid:that.tid}
                 that.percent = 40;
+                that.logclk = window.setInterval(() => {
+                        that.getLog();
+                    },2000)
                 that.$axios.post("/ModelFairnessEvaluate",that.postData).then((res) => {
+                    console.log(res)
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.logflag = true;
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.stidlist =  {"ModelFairnessEvaluate":res.data.stid};
-                    that.logclk = window.setInterval(() => {
-                        that.getLog();
-                    },2000)
                     that.clk = window.setInterval(() => {
                             that.update();
                         },6000)
@@ -953,7 +1036,22 @@ export default {
 
     margin-bottom: 10px;
 }
-
+.uploadModelStyle{
+    display: flex;
+    padding: 16px 24px;
+    align-items: center;
+    width: 1104px;
+    gap: 16px;
+    align-self: stretch;
+    border-radius: 4px;
+    background: var(--gray-7, #F2F4F9);
+    color: var(--blue-3, #0B55F4);
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+}
 .formula{
     height:24px;
     width:15px;
@@ -1037,10 +1135,6 @@ width: 1080px;
 
     width: 960px;
     height: 366px;
-
-
-    /* Inside auto layout */
-
     flex: none;
     order: 0;
     align-self: stretch;

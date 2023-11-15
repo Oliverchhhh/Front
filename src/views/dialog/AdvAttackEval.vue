@@ -152,11 +152,16 @@ export default {
   watch:{
     result(newValue, oldValue){
       if ("adv_attack" in newValue){
-
         this.updated()
       }
     }
     
+  },
+  created(){
+    console.log('created:', this.result)
+    if ("adv_attack" in this.result){
+      this.updated()
+    }
   },
   // props:["is-show","top-distance"],
   methods: {
@@ -219,7 +224,7 @@ export default {
             
           }
         }
-        this.res["score"] = 100-this.res.maxasr
+        this.res["score"] = (100-this.res.maxasr).toFixed(1)
         if (this.res["score"] < 40){
           this.res["score"] += 10
         }

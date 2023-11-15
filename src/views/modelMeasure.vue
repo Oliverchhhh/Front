@@ -772,11 +772,8 @@ flex-grow: 0;
     gap: 25px;
     margin-bottom: 20px;
     width: 1080px;
-    /* gray-7 */
-
     background: #F2F4F9;
     border-radius: 4px;
-    
 }
 
 .result_pro{
@@ -792,15 +789,15 @@ flex-grow: 0;
 /* 图表名称样式 */
 .echart_title{
    display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px 120px;
-gap: 4px;
-width: 960px;
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px 120px;
+    gap: 4px;
+    width: 960px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
 }
 .dialog_publish_main{
 align-items: center;
@@ -815,13 +812,8 @@ width: 1080px;
     align-items: center;
     padding: 0px 60px;
     gap: 24px;
-
     width: 1080px;
     height: 1200px;
-
-
-    /* Inside auto layout */
-
     flex: none;
     order: 0;
     align-self: stretch;
@@ -894,44 +886,31 @@ flex-grow: 0;
 /* 得分图echart */
 .conclusion{
    box-sizing: border-box;
-
-/* Auto layout */
-
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: left;
-padding: 24px;
-gap: 8px;
-
-width: 960px;
-/* height: 144px; */
-
-/* gray-7 */
-
-background: #F2F4F9;
-border-radius: 4px;
-
-/* Inside auto layout */
-
-flex: none;
-order: 2;
-flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: left;
+    padding: 24px;
+    gap: 8px;
+    width: 960px;
+    background: #F2F4F9;
+    border-radius: 4px;
+    flex: none;
+    order: 2;
+    flex-grow: 0;
 }
 .result_text{
    width: 912px;
-/* height: 96px; */
-
-font-family: 'HONOR Sans CN';
-font-style: normal;
-font-weight: 400;
-font-size: 16px;
-line-height: 24px;
-text-align: left;
-color: #000000;
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
+    color: #000000;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
 }
 </style>

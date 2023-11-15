@@ -214,6 +214,12 @@ const router = new Router({
     name: 'autoAttack',
     component: () => import('../views/autoAdvAttack.vue')
   },
+  // 组装的任务中心
+  {
+    path: '/taskList',
+    name: 'taskList',
+    component: () => import('../views/task_center.vue')
+  },
   ]
   
 })

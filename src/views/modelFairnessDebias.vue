@@ -34,12 +34,24 @@
                         <!-- 选模型 -->
                         <div class="model">
                             <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择模型结构</p>
+                            <div style="width: 1104px;margin-bottom: 16px;">
+                                <a-upload 
+                                action="/fairness/uploadModel"
+                                :file-list="fileList"
+                                name="ckpt"
+                                @change="uploadModel">
+                                <div class="uploadModelStyle" >请上传模型</div>
+                                </a-upload>
+                            </div>
                             <a-radio :style="radioStyle" defaultChecked disabled v-if="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) > -1">
                                 3 Hidden-layer FCN
                             </a-radio>
-                            <a-radio :style="radioStyle" defaultChecked disabled v-else>
+                            <a-radio :style="radioStyle" defaultChecked v-else>
                                 Resnet50
                             </a-radio>
+                            <p v-if="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) === -1">使用缓存模型
+                                <a-switch checked-children="开"  un-checked-children="关" :checked='test_mode' :disabled="retrain_disabled" @change="onChangeSwitch"/>
+                            </p>
                         </div>
                         <!-- 选优化算法 -->
                         <div class="selectDebiasMethod">
@@ -308,10 +320,16 @@
                         </div>
                         
                     </div>
-                    <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;
-                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
-                      导出报告内容
-                    </a-button>
+                    <div>
+                        <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;
+                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                        导出报告内容
+                        </a-button>
+                        <a-button @click="downloadmodel()" style="width:160px;height:40px;margin-bottom:30px;
+                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;display:inline">
+                            下载模型
+                        </a-button>
+                    </div>
                 </div>
             </resultDialog>
         </a-layout-content>
@@ -371,6 +389,7 @@ export default {
             /* 评估行 */
             rowkey:0,
             colkey:0,
+            retrain_disabled:false,
             /* 选中的提升算法值 */ 
             debiasMethodValue:"",
             methodDesShow:[false,false,false,false,false,false,false,false],
@@ -425,6 +444,7 @@ export default {
                 "uniconf_adv":{'name':'Domain Conditional Training',"des":"领域条件训练类似于InclusiveFaceNet的训练方式，通过在训练过程中显式地考虑数据中的偏见信息，使模型能够在不同的子群体中都有良好的性能。优点是可以有效地减少模型对偏见的依赖。","class":['pic']},
                 
             },
+            fileList:[],
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
@@ -443,6 +463,7 @@ export default {
             propTextsub:"",
             /* 日志框是否显示，false不显示，true显示，默认不显示 */
             logflag:false,
+            test_mode:false,
             /* 进度 */
             percent:10,
             /* 日志内容 */
@@ -508,6 +529,7 @@ export default {
             /* 评估算法选择结果*/
             evaCheckedValues:[],
             evaImgCheckedValues:[],
+            modelpath:'',
             /* 日志查询clock*/
             logclk:"", 
             /*主任务id*/ 
@@ -527,6 +549,7 @@ export default {
                 "Calibrated EOD-weighted":false,
             },
             postData:{},
+            downloadURL:'',
             disablestyle:{
                 'color': 'rgba(0,0,0,.25)',
                 'background-color': '#f5f5f5'
@@ -567,6 +590,75 @@ export default {
         defenseShow(method="[]"){
             let param = JSON.parse(method);
             return param.join('、');
+        },
+        onChangeSwitch(checked){
+            this.test_mode = checked
+        },
+        // 下载模型
+        downloadmodel(){
+            if (confirm("您确认下载模型？") ) {
+                let param = new FormData();       // 创建form对象    
+                let file = this.downloadURL
+                param.append('file', file);       // 通过append向form对象添加数据
+                param.append("type", 'dictionary'); // 添加form表单中其他数据
+                let post_file = param;
+                let config = {
+                    headers: {'Content-Type': 'multipart/form-data'},
+                    responseType: "blob"
+                };
+                this.$axios.post("/Task/DownloadData", post_file, config).then((res)=>{
+                    console.log(res);
+                    var zipName = "download.pth"; // 下载的文件名
+                    // let blob = new Blob([res.data], { type: "application/zip" }); // 下载格式为zip
+                    let blob = new Blob([res.data], { type: "application/octet-stream" });
+                    if ("download" in document.createElement("a")) {
+                        let elink = document.createElement("a"); // 创建一个<a>标签
+                        elink.style.display = "none"; // 隐藏标签
+                        elink.href = window.URL.createObjectURL(blob); // 配置href
+                        elink.download = zipName;
+                        elink.click();
+                        URL.revokeObjectURL(elink.href); // 释放URL 对象
+                        document.body.removeChild(elink); // 移除<a>标签
+                    } else {
+                    //IE10+
+                    navigator.msSaveBlob(blob, zipName);
+                    }
+                }).catch((err)=>{
+                    console.log(err)
+                })
+            }
+        },
+        // 上传模型
+        uploadModel(info){
+            let fileList = [...info.fileList];
+            fileList = fileList.slice(-1);
+            fileList = fileList.map(file => {
+                if (file.response) {
+                // Component will show file.url as link
+                    file.url = "static/"+file.response.filepath
+                    file.filepath = file.response.filepath;
+                }
+                return file;
+            });
+            this.fileList = fileList;
+            if (info.file.status !== 'uploading') {
+                console.log(info.fileList)
+            }
+            if (info.file.status === 'done') {
+                if(info.file.response.code === 10000){
+                    this.$message.success(`${info.file.name} file uploaded successfully`);
+                    this.test_mode = true
+                    this.retrain_disabled = true
+                    this.modelpath = info.file.response.filepath
+                }
+            } else if (info.file.status === 'error') {
+                this.$message.error(`${info.file.name} file upload failed.`);
+            }
+            if (info.file.status === 'removed'){
+                this.modelpath = ''
+                this.retrain_disabled = false
+                // this.test_mode = false
+            }
         },
         changeMethods(i, j) {
             // debugger;
@@ -721,7 +813,7 @@ export default {
                     this.debiasMethodValue = 'domain_independent'
                 ) 
             }else{
-                
+                this.buttonBGColor.background = "#0B55F4";
                 this.ableImgMehod()
                 this.debiasDisabled={
                 "domain_discriminative":false,
@@ -753,13 +845,16 @@ export default {
         resultPro(res1){
             var that = this;
             that.percent=100;
+            
             that.res.labels = []
             if ("Consistency" in that.result){
                 that.res["score"]["bef"] = that.result["Overall fairness"][0].toFixed(2)*100;
                 that.res["score"]["aft"] = that.result["Overall fairness"][1].toFixed(2)*100;
+                that.downloadURL = that.result["Overall model path"]
             }else{
                 that.res["score"]["bef"] = that.result["model_evaluate"]["Overall fairness"].toFixed(2)*100
                 that.res["score"]["aft"] = that.result["model_debias"]["Overall fairness"].toFixed(2)*100
+                that.downloadURL = that.result["model_debias"]["Overall model path"]
             }
             // 总分判断
             if(that.res.score.bef > 80){
@@ -841,7 +936,7 @@ export default {
                     };
                     for( let key1 in that.result.Proportion[key]){
                         var third_children={
-                        id:key1,
+                        id:key+'_'+key1,
                         label:key1,
                         population:that.result.Proportion[key][key1].toFixed(3),
                         isLeaf: true,
@@ -920,6 +1015,7 @@ export default {
             this.percent=0
             this.postData={}
             this.result = {}
+            this.resultbef ={}
             this.tid=''
             this.stidlist = {}
             if(this.clk != ''){
@@ -940,27 +1036,28 @@ export default {
                 if (this.debiasMethodValue == 'domain_independent') {
                     this.debiasMethodValue = "Domain Independent"
                 }
+                if (this.senAttrList.length ==0 ){
+                    this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
+                    return 0;
+                };
+                if (this.tarAttrList.length ==0 ){
+                    this.$message.warning('请在数据集里面选择一项目标属性！',3);
+                    return 0;
+                };
+                if (this.tarAttrList.length >1 ){
+                    this.$message.warning('模型公平性提升只能选择一项目标属性！',3);
+                    return 0;
+                };
+                if (this.staAttrList.length ==0 ){
+                    this.$message.warning('请在数据集里面至少选择一项统计属性！',3);
+                    return 0;
+                };
             }else{
                 evaMethod = this.evaImgCheckedValues
             }
             /*判断选择*/
 
-            if (this.senAttrList.length ==0 ){
-                this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
-                return 0;
-            };
-            if (this.tarAttrList.length ==0 ){
-                this.$message.warning('请在数据集里面选择一项目标属性！',3);
-                return 0;
-            };
-            if (this.tarAttrList.length >1 ){
-                this.$message.warning('模型公平性提升只能选择一项目标属性！',3);
-                return 0;
-            };
-            if (this.staAttrList.length ==0 ){
-                this.$message.warning('请在数据集里面至少选择一项统计属性！',3);
-                return 0;
-            };
+            
             if (evaMethod.length == 0){
                 this.$message.warning('请在评估算法中至少选择一项评估算法！',3);
                 return 0;
@@ -1000,46 +1097,54 @@ export default {
                 staAttrList:JSON.stringify(that.staAttrList),
                 metrics:JSON.stringify(evaMethod),
                 modelname:"3 Hidden-layer FCN",
+                modelpath:that.modelpath,
                 algorithmname:that.debiasMethodValue,
-                test_mode:false,
+                test_mode:that.test_mode,
                 tid:that.tid};
                 console.log(that.postData)
                 that.percent = 40;
                 that.logflag = true;
+                that.logclk = window.setInterval(() => {
+                                    that.getLog();
+                                },2000)
                 if(['Cifar10-S', 'CelebA'].indexOf(that.postData.dataname) >-1){
                     that.postData.modelname = "Resnet50"
                     that.$axios.post("/ModelFairnessEvaluate",that.postData).then((res) => {
                         /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
+                        console.log('eva res:', res)
+                        that.postData.test_mode = false
                         that.stidlist["ModelFairnessEvaluate"] = res.data.stid
-                        that.logclk = window.setInterval(() => {
-                            that.getLog();
-                        },2000)
-                        that.clk = window.setInterval(() => {
-                                that.update();
-                            },6000)
-                        console.log(that.logflag);
+                        that.$axios.post("ModelFairnessDebias",that.postData).then((res) => {
+                            /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
+                            that.stidlist["ModelFairnessDebias"] = res.data.stid
+                            that.clk = window.setInterval(() => {
+                                    that.update();
+                                },6000)
+                        }).catch((err) => {
+                                console.log(err)
+                                window.clearInterval(that.clk)
+                                window.clearInterval(that.logclk)
+                        });
                     }).catch((err) => {
                         console.log(err)
                         window.clearInterval(that.clk)
                         window.clearInterval(that.logclk)
                     });
                 }
-                that.$axios.post("ModelFairnessDebias",that.postData).then((res) => {
+                else{
+                    that.$axios.post("ModelFairnessDebias",that.postData).then((res) => {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.stidlist["ModelFairnessDebias"] = res.data.stid
-                    if (that.logclk==''){
-                        that.logclk = window.setInterval(() => {
-                            that.getLog();
-                        },2000)
-                        that.clk = window.setInterval(() => {
+                    that.clk = window.setInterval(() => {
                             that.update();
                         },6000)
-                    }
-                }).catch((err) => {
-                        console.log(err)
-                        window.clearInterval(that.clk)
-                        window.clearInterval(that.logclk)
-                });
+                    }).catch((err) => {
+                            console.log(err)
+                            window.clearInterval(that.clk)
+                            window.clearInterval(that.logclk)
+                    });
+                }
+                
             }).catch((err) => {
                 console.log(err)
             });    
@@ -1256,6 +1361,22 @@ flex: none;
 order: 0;
 align-self: stretch;
 flex-grow: 0;
+}
+.uploadModelStyle{
+    display: flex;
+    padding: 16px 24px;
+    align-items: center;
+    width: 1104px;
+    gap: 16px;
+    align-self: stretch;
+    border-radius: 4px;
+    background: var(--gray-7, #F2F4F9);
+    color: var(--blue-3, #0B55F4);
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
 }
 .dialog_publish_main{
 align-items: center;

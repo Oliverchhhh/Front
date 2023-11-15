@@ -475,6 +475,9 @@ export default {
         /* 点击评估触发事件 */
         dataEvaClick(){
             /*判断选择*/
+            window.clearInterval(this.clk);
+            // 关闭日志获取结果获取
+            window.clearInterval(this.logclk);
             if (this.dataChoice =="" | this.methodChoice=='' ){
                 this.$message.warning('请选择能耗文件与分析方法！',3);
                 return 0;
@@ -577,13 +580,8 @@ width: 1080px;
     align-items: center;
     padding: 0px 120px;
     gap: 20px;
-
     width: 960px;
     height: 366px;
-
-
-    /* Inside auto layout */
-
     flex: none;
     order: 0;
     align-self: stretch;

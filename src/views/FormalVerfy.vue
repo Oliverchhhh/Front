@@ -482,7 +482,7 @@
                     <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
                         font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
                         <a-icon type="upload" />导出报告内容
-                        </a-button>
+                    </a-button>
                 </div>
                 <!-- 鲁棒性评估报告 -->
                 <div slot="header" v-if="mode=='robust'">
@@ -661,7 +661,7 @@
                     <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
                         font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
                         <a-icon type="upload" />导出报告内容
-                        </a-button>
+                    </a-button>
                 </div>
                 <!-- 可达性报告 -->
                 <div slot="header" v-if="mode=='reach'">
@@ -724,7 +724,7 @@
                     <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
                         font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
                         <a-icon type="upload" />导出报告内容
-                        </a-button>
+                    </a-button>
                 </div>
                 
             </resultDialog>
@@ -1719,20 +1719,15 @@ export default {
 }
 .IBPChart{
     display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-gap: 24px;
-
-width: 960px;
-height: 505px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 1;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 24px;
+    width: 960px;
+    height: 505px;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
 }
 #IBP{
     width: 960px;
@@ -1748,13 +1743,8 @@ flex-grow: 0;
     align-items: center;
     padding: 0px;
     gap: 24px;
-
     width: 960px;
     height: 132px;
-
-
-    /* Inside auto layout */
-
     flex: none;
     order: 0;
     flex-grow: 0;
@@ -1762,21 +1752,16 @@ flex-grow: 0;
 /* 图表名称样式 */
 .echart_title{
     display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px 120px;
-gap: 4px;
-
-width: 960px;
-height: 62px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px 120px;
+    gap: 4px;
+    width: 960px;
+    height: 62px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
 }
 .dialog_publish_main{
 align-items: center;
@@ -1791,13 +1776,8 @@ width: 1080px;
     align-items: center;
     padding: 0px 120px;
     gap: 20px;
-
     width: 960px;
     height: 366px;
-
-
-    /* Inside auto layout */
-
     flex: none;
     order: 0;
     align-self: stretch;
@@ -1808,19 +1788,14 @@ width: 1080px;
 
 #rdeva{
     display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0px;
-
-width: 960px;
-height: 414px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 1;
-flex-grow: 0
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    width: 960px;
+    height: 414px;
+    flex: none;
+    order: 1;
+    flex-grow: 0
 }
 /* 得分图echart */
 #conseva{
@@ -1928,13 +1903,6 @@ imgShowtable{
     justify-content: flex-end;
     align-items: center;
     border: 1px solid var(--gray-4, #B4B9C5);
-}
-.reachImgbg{
-   
-    display: inline-flex;
-    padding: 30px 17px 22px 23px;
-    justify-content: flex-end;
-    align-items: center;
 }
 .xlabel{
     color: #000;

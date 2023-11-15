@@ -12,18 +12,19 @@
             <div class="datades"  v-show="labelshow[index]">
                 <p class="bgInfo" style=" height: auto;"><a :href="datainfo[temp].href">{{ datainfo[temp].name }}</a>：{{ datainfo[temp].text }}</p>
                 <datatable :tabledata="datainfo[temp].tabledata"></datatable>
-                <p class="paramName"><select-icon :stlye="{width:'4px'}" />请选择敏感属性</p>
-                <div>
+                <p class="paramName" v-if="['German','Adult','Compas'].indexOf(temp) >-1"><select-icon :stlye="{width:'4px'}" />请选择敏感属性</p>
+                <div v-if="['German','Adult','Compas'].indexOf(temp) >-1">
                     <dataAttrTranfer :mockData="senMockData" :targetKeys="senTargetKeys" @clientTransfer="senClientTransfer"></dataAttrTranfer>
                 </div>
-                <p class="paramName"><select-icon :stlye="{width:'4px'}" />请选择目标属性</p>
-                <div>
+                <p class="paramName" v-if="['German','Adult','Compas'].indexOf(temp) >-1"><select-icon :stlye="{width:'4px'}" />请选择目标属性</p>
+                <div v-if="['German','Adult','Compas'].indexOf(temp) >-1">
                     <dataAttrTranfer :mockData="tarMockData" :targetKeys="tarTargetKeys" @clientTransfer="tarClientTransfer"></dataAttrTranfer>
                 </div>
-                <p class="paramName"><select-icon :stlye="{width:'4px'}" />请选择统计属性</p>
-                <div style="margin-bottom: 24px;">
+                <p class="paramName" v-if="['German','Adult','Compas'].indexOf(temp) >-1"><select-icon :stlye="{width:'4px'}" />请选择统计属性</p>
+                <div  v-if="['German','Adult','Compas'].indexOf(temp) >-1">
                     <dataAttrTranfer :mockData="staMockData" :targetKeys="staTargetKeys" @clientTransfer="staClientTransfer"></dataAttrTranfer>
                 </div>
+                <div style="margin-bottom: 24px;" ></div>
             </div>
         </a-radio-group>
     </template>
@@ -78,59 +79,65 @@
                 /* 每个数据集可选属性列表 type:sta--统计属性 tar--目标属性 sen--敏感属性 */
                 dataAttrlist:{
                 German:[
-                {title:"status",description:"现有支票账户的状态 ",chosen:false,type:"sta"},
-                {title:"month",description:"贷款期限（以月计） ",chosen:false,type:"sta"},
-                {title:"credit_history",description:"以前的信用记录和信贷经验",chosen:false,type:"sta"},
-                {title:"purpose",description:"申请贷款的原因 ",chosen:false,type:"sta"},
+                {title:"credit",description:"银行是否批准贷款 ",chosen:false,type:"tar"},
+                {title:"skill_level",description:"客户的职业 ",chosen:false,type:"tar"},
                 {title:"credit_amount",description:"申请贷款的金额 ",chosen:true,type:"tar"},
+                {title:"sex",description:"客户的性别 ",chosen:false,type:"sen"},
+                {title:"age",description:"客户的年龄 ",chosen:true,type:"sen"},
+                {title:"status",description:"现有支票账户的状态 ",chosen:true,type:"sta"},
+                // {title:"month",description:"贷款期限（以月计） ",chosen:false,type:"sta"},
+                {title:"credit_history",description:"以前的信用记录和信贷经验",chosen:true,type:"sta"},
+                {title:"purpose",description:"申请贷款的原因 ",chosen:true,type:"sta"},
                 {title:"savings",description:"储蓄账户和债券的状态 ",chosen:false,type:"sta"},
                 {title:"employment",description:"客户现在的工作时长 ",chosen:false,type:"sta"},
-                {title:"investment_as_income_percentage",description:"分期付款所占收入的百分比 ",chosen:false,type:"sta"},
-                {title:"personal_status",description:"客户的个人状况和性别 ",chosen:false,type:"sta"},
-                {title:"sex",description:"客户的性别 ",chosen:false,type:"sen"},
                 {title:"other_debtors",description:"是否有其他债务人或担保人 ",chosen:false,type:"sta"},
-                {title:"residence_since",description:"客户现在的住址所在地的居住时长 ",chosen:false,type:"sta"},
+                // {title:"investment_as_income_percentage",description:"分期付款所占收入的百分比 ",chosen:false,type:"sta"},
+                {title:"personal_status",description:"客户的个人状况和性别 ",chosen:false,type:"sta"},
+                // {title:"residence_since",description:"客户现在的住址所在地的居住时长 ",chosen:false,type:"sta"},
                 {title:"property",description:"客户的财产状况 ",chosen:false,type:"sta"},
-                {title:"age",description:"客户的年龄 ",chosen:true,type:"sen"},
                 {title:"installment_plans",description:"客户是否有其他分期付款计划 ",chosen:false,type:"sta"},
                 {title:"housing",description:"客户的住房状况 ",chosen:false,type:"sta"},
-                {title:"number_of_credits",description:"客户在该银行的现有信贷数量 ",chosen:false,type:"sta"},
-                {title:"skill_level",description:"客户的职业 ",chosen:false,type:"tar"},
-                {title:"people_liable_for",description:"客户需要供养的人数 ",chosen:false,type:"sta"},
+                {title:"skill_level",description:"客户的职业 ",chosen:false,type:"sta"},
+                // {title:"number_of_credits",description:"客户在该银行的现有信贷数量 ",chosen:false,type:"sta"},
+                // {title:"people_liable_for",description:"客户需要供养的人数 ",chosen:false,type:"sta"},
                 {title:"telephone",description:"客户是否有电话 ",chosen:false,type:"sta"},
                 {title:"foreign_worker",description:"客户是否为外籍工人 ",chosen:false,type:"sta"},
-                {title:"credit",description:"银行是否批准贷款 ",chosen:false,type:"tar"},
+                
             ],
                 Adult:[
-                {title:"age",description:"年龄",chosen:false, type:"sta"},
-                {title:"workclass",description:"工作类型",chosen:false, type:"sta"},
-                {title:"fnlwgt",description:"最终权重",chosen:false, type:"sta"},
-                {title:"education",description:"受教育程度 ",chosen:false, type:"sta"},
-                {title:"education-num",description:"受教育年数 ",chosen:false, type:"sta"},
-                {title:"marital-status",description:"婚姻状况",chosen:false, type:"sta"},
-                {title:"occupation",description:"职业",chosen:false, type:"sta"},
-                {title:"relationship",description:"家庭关系",chosen:false, type:"sta"},
-                {title:"race",description:"种族",chosen:true, type:"sen"},
-                {title:"sex",description:"性别",chosen:false, type:"sen"},
+                {title:"income-per-year",description:"年收入",chosen:false, type:"tar"},
                 {title:"capital-gain",description:"资本收益",chosen:true, type:"tar"},
                 {title:"capital-loss",description:"资本损失",chosen:false, type:"tar"},
-                {title:"hours-per-week",description:"每周工作时长",chosen:false, type:"sta"},
+                {title:"race",description:"种族",chosen:true, type:"sen"},
+                {title:"sex",description:"性别",chosen:false, type:"sen"},
+                // {title:"age",description:"年龄",chosen:false, type:"sta"},
+                {title:"workclass",description:"工作类型",chosen:true, type:"sta"},
+                // {title:"fnlwgt",description:"最终权重",chosen:false, type:"sta"},
+                {title:"education",description:"受教育程度 ",chosen:true, type:"sta"},
+                // {title:"education-num",description:"受教育年数 ",chosen:false, type:"sta"},
+                {title:"marital-status",description:"婚姻状况",chosen:true, type:"sta"},
+                {title:"occupation",description:"职业",chosen:false, type:"sta"},
+                {title:"relationship",description:"家庭关系",chosen:false, type:"sta"},
+                // {title:"hours-per-week",description:"每周工作时长",chosen:false, type:"sta"},
                 {title:"native-country",description:"国籍",chosen:false, type:"sta"},
-                {title:"income-per-year",description:"年收入",chosen:false, type:"tar"},
+                {title:"income-per-year",description:"年收入",chosen:false, type:"sta"},
+                
             ],
             
                 Compas:[
-                {title:"age",description:"被告的年龄",chosen:false, type:"sta"},
-                {title:"c_charge_degree",description:"被告的罪名程度。F: 重罪，M: 轻罪",chosen:false, type:"sta"},
-                {title:"race",description:"被告的种族",chosen:true, type:"sen"},
-                {title:"age_cat",description:"被告的年龄类别",chosen:false, type:"sta"},
+                {title:"two_year_recid",description:"二元变量，表示被告是否在两年内再次被逮捕",chosen:false, type:"tar"},
+                {title:"decile_score",description:"十分制的被告人得分",chosen:false, type:"tar"},
                 {title:"score_text",description:"被告的得分类别",chosen:true, type:"tar"},
                 {title:"sex",description:"被告的性别",chosen:false, type:"sen"},
-                {title:"priors_count",description:"被告之前的犯罪记录数",chosen:false, type:"sta"},
-                {title:"two_year_recid",description:"二元变量，表示被告是否在两年内再次被逮捕",chosen:false, type:"tar"},
-                {title:"juv_fel_count",description:"未成年人犯罪数量",chosen:false, type:"sta"},
-                {title:"juv_misd_count",description:"未成年人轻罪数量",chosen:false, type:"sta"},
-                {title:"juv_other_count",description:"未成年人除了重罪或轻罪之外的罪行数量",chosen:false, type:"sta"},
+                {title:"race",description:"被告的种族",chosen:true, type:"sen"},
+                {title:"age_cat",description:"被告的年龄类别",chosen:true, type:"sta"},
+                {title:"c_charge_degree",description:"被告的罪名程度。F: 重罪，M: 轻罪",chosen:true, type:"sta"},
+                {title:"c_charge_desc",description:"用文字描述的被告人罪名",chosen:false, type:"sta"},
+                // {title:"age",description:"被告的年龄",chosen:false, type:"sta"},
+                // {title:"priors_count",description:"被告之前的犯罪记录数",chosen:false, type:"sta"},
+                // {title:"juv_fel_count",description:"未成年人犯罪数量",chosen:false, type:"sta"},
+                // {title:"juv_misd_count",description:"未成年人轻罪数量",chosen:false, type:"sta"},
+                // {title:"juv_other_count",description:"未成年人除了重罪或轻罪之外的罪行数量",chosen:false, type:"sta"},
                 ],
             CelebA:[
                 {title:"5_o_Clock_Shadow",description:"是否有五点钟阴影（下巴上的短须）",chosen:false, type:"tar"},
@@ -317,11 +324,12 @@
                             tarTargetKeys.push(data.key);
                         }
                         break;
+                        case "sta":staMockData.push(data);
+                        if (data.chosen) {
+                            staTargetKeys.push(data.key);
+                        }
+                        break;
                     }
-                    if (data.chosen) {
-                        staTargetKeys.push(data.key);
-                    }
-                    staMockData.push(data);
                 }
                 this.senMockData = senMockData;
                 this.senTargetKeys = senTargetKeys;

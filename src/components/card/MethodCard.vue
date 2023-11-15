@@ -96,7 +96,12 @@ export default {
       if (this.checked) {
         for(let i = 0; i < this.attributesValues.length; i++) {
           for(let j = 0; j < this.attributesValues[i].length; j++) {
-            attributes_dict[this.attributesValues[i][j].key] = this.attributesValues[i][j].number
+            if ( this.attack_type=='backdoor' && this.attributesValues[i][j].type ==  "selectgroup"){
+              attributes_dict[this.attributesValues[i][j].key] = this.attributesValues[i][j].valuelist.indexOf(this.attributesValues[i][j].number)
+            }else{
+              attributes_dict[this.attributesValues[i][j].key] = this.attributesValues[i][j].number
+            }
+            
           }
         }
       }
@@ -117,7 +122,9 @@ export default {
       for(let i = 0; i < this.attributesValues.length; i++) {
         for(let j = 0; j < this.attributesValues[i].length; j++) {
           if ( this.attack_type=='advAttack' && this.attributesValues[i][j].type ==  "selectgroup"){
-            attributes_dict[this.attributesValues[i][j].key] = this.attributesValues[i][j].valuelist[this.attributesValues[i][j].number]
+            attributes_dict[this.attributesValues[i][j].key] = this.attributesValues[i][j].number
+          }else if(this.attack_type=='backdoor' && this.attributesValues[i][j].type ==  "selectgroup"){
+            attributes_dict[this.attributesValues[i][j].key] = this.attributesValues[i][j].valuelist.indexOf(this.attributesValues[i][j].number)
           }else{
             attributes_dict[this.attributesValues[i][j].key] = this.attributesValues[i][j].number
           }

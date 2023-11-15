@@ -33,7 +33,7 @@
 
                         </a-col>
                         <a-col :span="4">
-                          <div class="grid-content-value" v-if="postdata.ExMethods.length > 0">{{defenseShow(postdata.ExMethods)}}</div>
+                          <div class="grid-content-value" v-if="'ExMethods' in postdata">{{defenseShow(postdata.ExMethods)}}</div>
                           <div class="grid-content-value" v-else>未选</div>
  
                         </a-col>
@@ -245,7 +245,7 @@ export default {
     getInstanceResult(pictureId){
       // debugger
       let resultList = []
-      let baseURL = `./static/output/${this.tid}/${this.stidlist.feature}/`
+      let baseURL = `./static/output/${this.tid}/${this.stidlist.attack_attrbution_analysis}/`
       // 表头
       let tablehead = ["解释方法", "原始样本"]
       let reskey = [];
@@ -293,7 +293,7 @@ export default {
     getInstanceLayerResult(pictureId, adv_method){
       // debugger
       let resultList = []
-      let baseURL = `./static/output/${this.tid}/${this.stidlist.feature}/`
+      let baseURL = `./static/output/${this.tid}/${this.stidlist.attack_attrbution_analysis}/`
       // 表头
       resultList.push(["卷积层", "原始样本结果", "对抗样本结果", "相似性指数"])
       // 正常样本layer解释
@@ -487,13 +487,14 @@ export default {
         this.tid = newValue.tid
         this.stidlist = newValue.stidlist
         this.postdata = this.postData
+        this.attackMethods = this.postdata.AdvMethods
         if("attack_attrbution_analysis" in this.result){
           this.allPictures = this.result.attack_attrbution_analysis.adv_ex
           
           this.attackMethods = this.result.attack_attrbution_analysis.adv_ex.adv_methods
           let temp = []
           for(let i=0;i<this.result.attack_attrbution_analysis.adv_ex.nor.nor_imgs.length;i++){
-            let url = [`./static/output/${this.tid}/${this.stidlist.feature}/` + this.result.attack_attrbution_analysis.adv_ex.nor.nor_imgs[i], 'pic']
+            let url = [`./static/output/${this.tid}/${this.stidlist.attack_attrbution_analysis}/` + this.result.attack_attrbution_analysis.adv_ex.nor.nor_imgs[i], 'pic']
             temp.push(url)
           }
           this.selectedMethod = this.attackMethods[0]
@@ -508,17 +509,47 @@ export default {
           this.allDimReduction = this.result.attack_dim_reduciton
           this.DimReducitonResult = this.getDimReducitonResult()
         }
-        // this.webupdate()
+        this.webupdate()
       }
     }
   },
-  mounted() {
-    this.webupdate()},
-  updated(){
-    // debugger
-    //code
+  created(){
+    console.log("create")
+    this.tid = this.result.tid
+    this.stidlist = this.result.stidlist
+    this.postdata = this.postData
+    this.attackMethods = this.postdata.AdvMethods
+    if("attack_attrbution_analysis" in this.result){
+      this.allPictures = this.result.attack_attrbution_analysis.adv_ex
+      
+      this.attackMethods = this.result.attack_attrbution_analysis.adv_ex.adv_methods
+      let temp = []
+      for(let i=0;i<this.result.attack_attrbution_analysis.adv_ex.nor.nor_imgs.length;i++){
+        let url = [`./static/output/${this.tid}/${this.stidlist.attack_attrbution_analysis}/` + this.result.attack_attrbution_analysis.adv_ex.nor.nor_imgs[i], 'pic']
+        temp.push(url)
+      }
+      this.selectedMethod = this.attackMethods[0]
+      this.selectPicList = this.splitArr(temp, 10)
+      this.instanceResultList = this.getInstanceResult(0)
+      if("layer_ex" in this.result.attack_attrbution_analysis){
+        this.allLayerPictures = this.result.attack_attrbution_analysis.layer_ex
+        this.instanceLayerResultList = this.getInstanceLayerResult(0, this.selectedMethod)
+      }
+    }
+    if("attack_dim_reduciton" in this.result){
+      this.allDimReduction = this.result.attack_dim_reduciton
+      this.DimReducitonResult = this.getDimReducitonResult()
+    }
     this.webupdate()
   },
+  // mounted(){
+  //   this.webupdate()
+  // },
+  // updated(){
+  //   // debugger
+  //   //code
+  //   this.webupdate()
+  // },
 }
 
 </script>

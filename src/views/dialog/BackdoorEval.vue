@@ -167,6 +167,12 @@ export default {
     }
     
   },
+  created(){
+    console.log('created:', this.result)
+    if ("backdoor_attack" in this.result){
+      this.updated()
+    }
+  },
   // props:["is-show","top-distance"],
   methods: {
     closeMyself() {
@@ -198,7 +204,10 @@ export default {
     this.res.maxraccmethod = ""
     let pp_asr_serieslist = []
     // output路径
-    let pic_base_path=`./static/output/${this.result.tid}/${this.result.stidlist.backdoor}`
+    let tid = this.result.tid
+    let stid = this.result.stidlist.backdoor_attack
+    // let pic_base_path=`./static/output/${this.result.tid}/${this.result.stidlist.backdoor}`
+    let pic_base_path=`static/output/${tid}/${stid}`
     this.selectPicList=[["0", "1", "2", "3", "4"],]
     for(let temp in this.result.backdoor_attack){
       if( ["stop","tid", "stid"] .indexOf(temp) == -1){

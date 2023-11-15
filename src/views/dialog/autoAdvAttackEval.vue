@@ -198,11 +198,18 @@ export default {
   },
   watch:{
     result(newValue, oldValue){
+      console.log('watch:', this.result)
       if ("Auto_Attack" in newValue){
         this.updated()
       }
     }
     
+  },
+  created(){
+    console.log('created:', this.result)
+    if ("Auto_Attack" in this.result){
+      this.updated()
+    }
   },
   // props:["is-show","top-distance"],
   methods: {
@@ -504,8 +511,8 @@ border-radius: 8px;
   height: 50px;
 }
 .dialog-title{
-  display: inline;
-  margin-top: 38px;
+  /* display: inline;
+  margin-top: 38px; */
   width: 279px;
   height: 36px;
   font-family: 'HONOR Sans CN';

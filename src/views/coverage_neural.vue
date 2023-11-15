@@ -431,6 +431,7 @@ export default {
         dataEvaClick(){
             // debugger
             /*判断选择*/
+            this.res_tmp={}
             if(this.thresHold==""){
                 this.$message.warning("请输入神经元激活阈值！",3);
                 return ;
