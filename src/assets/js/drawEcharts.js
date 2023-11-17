@@ -1302,7 +1302,7 @@ function draw_score_polar(ID, data, title){
       color: colorList[i]
     });
   }
-  debugger;
+  // debugger;
   var option;
   option = {
     title: [
