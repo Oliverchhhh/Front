@@ -400,7 +400,7 @@ export default {
         stopTimer() {
             // debugger;
             // var that = this;
-            if (this.res_tmp.data.stop) {
+            if (this.res_tmp.data.stop==1 && this.tid == this.res_tmp.data.result.tid) {
                 // 关闭日志显示
                 this.percent=100
                 this.logflag = false;

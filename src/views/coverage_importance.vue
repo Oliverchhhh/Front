@@ -412,7 +412,7 @@ export default {
         stopTimer() {
             // debugger;
             // var that = this;
-            if (this.res_tmp.data.stop) {
+            if (this.res_tmp.data.stop==1  && this.tid == this.res_tmp.data.result.tid) {
                 // 关闭日志显示
                 this.percent=100
                 this.logflag = false;
@@ -442,6 +442,7 @@ export default {
             /*判断选择*/
 
             /* 备份 */ 
+            this.mark=0
             var that = this;
             
             /* 调用创建主任务接口，需开启后端程序 */

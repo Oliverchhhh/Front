@@ -80,13 +80,13 @@
               <div id="backdoorEvalChart2" class="echart" style="width: 960px; height: 400px;"></div>
             </div>
             <div class="describeMinor" style="width: 960px;height: 50px;line-height: 50px;margin-top: 20px;">
-              C-Acc: 模型在干净样本上的预测准确率
+              Acc: 模型在总样本上的预测准确率
             </div>
             <div class="describeMinor" style="width: 960px;height: 20px;line-height: 20px;">
               ASR: 模型将投毒样本预测为目标类的准确率
             </div>
             <div class="describeMinor" style="width: 960px;height: 50px;line-height: 50px;margin-bottom: 40px;">
-              R-Acc: 模型将投毒样本预测为原类别的概率
+              R-Acc: 模型在干净样本上的预测准确率
             </div>
 
             <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
@@ -167,7 +167,7 @@ export default {
     }
     
   },
-  created(){
+  mounted(){
     console.log('created:', this.result)
     if ("backdoor_attack" in this.result){
       this.updated()
@@ -210,7 +210,9 @@ export default {
     let pic_base_path=`static/output/${tid}/${stid}`
     this.selectPicList=[["0", "1", "2", "3", "4"],]
     for(let temp in this.result.backdoor_attack){
-      if( ["stop","tid", "stid"] .indexOf(temp) == -1){
+      
+      if( ["stop","tid", "stid"].indexOf(temp) == -1){
+        this.res.maxmethod = temp
         if (this.res.maxasr < this.result.backdoor_attack[temp].attack_success_rate){
           this.res.maxasr = this.result.backdoor_attack[temp].attack_success_rate
           this.res.maxmethod = temp
@@ -302,8 +304,8 @@ export default {
       yAxis: {
         type: 'value',
         name: '攻击成功率(%)',
-        min: 20,
-        max: 110
+        min: 0,
+        max: 100
       },
     };
     option1.series=pp_asr_serieslist;
@@ -341,7 +343,7 @@ export default {
       ],
       series: [
         {
-          name: 'C-Acc',
+          name: 'Acc',
           type: 'bar',
           barWidth: '10%',
           emphasis: {
@@ -359,7 +361,7 @@ export default {
           data: this.res.ASRlist
         },
         {
-          name: 'R-Acc',
+          name: 'C-Acc',
           type: 'bar',
           barWidth: '10%',
           barGap: '8%',

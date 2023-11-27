@@ -22,7 +22,7 @@
                         <a-row >
                             <a-col :span="6" >
                                 <div class="paramContent">
-                                    <p><span class="paramName">样本：</span><img class="paramShowSample" :src="'/static/img/tmp_imgs/'+res.tid+'/'+res.stidlist.auto_verify+'.png'" alt="sample"/></p>
+                                    <p><span class="paramName">样本：</span><img class="paramShowSample" :src="'/static/output/'+res.tid+'/'+res.stidlist.auto_verify+'/input.png'" alt="sample"/></p>
                                 </div>
                             </a-col>
                             <a-col :span="6" >

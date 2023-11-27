@@ -5,6 +5,9 @@ html, body, #app{
     padding: 0;
     margin: 0;
 }
+.tasktable .ant-table-pagination{
+    margin-right: 50px;
+}
 .a-layout{
     background-color: #FFFFFF;
 }

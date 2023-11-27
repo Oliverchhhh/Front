@@ -69,14 +69,14 @@ export default {
   created(){
     console.log('DeepLogic created:',this.result)
     if ("DeepLogic" in this.result){
-      this.updated()
+      this.resultPro(this.result)
     }
   },
   watch:{
     result(newValue, oldValue){
       console.log('DeepLogic:',this.result)
       if ("DeepLogic" in newValue){
-        this.updated()
+        this.resultPro(this.result)
       }
     }
   },

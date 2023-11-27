@@ -26,7 +26,10 @@
         <a-layout-content>
             <template>
                 <div class="tasktable">
-                    <a-table :columns="columns" :data-source="info" :scroll="{ x: 1080, y: 700 }">
+                    <a-table :columns="columns" 
+                    :data-source="info" 
+                    :scroll="{ x: 1080, y: 600 }"
+                    >
                         <div
                             slot="filterDropdown"
                             slot-scope="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }"
@@ -87,6 +90,14 @@
                             <a-button size="small" @click="deleteRecord(record)">删除</a-button>                        
                         </span>
                     </a-table>
+                    <a-tooltip placement="bottom">
+                        <template slot="title">
+                            刷新
+                        </template>
+                        <a-button shape="circle" icon="redo" style="top:-47px;right: -519px;" @click="queryTask()" />
+                    </a-tooltip>
+                    
+                    <!-- <a-button shape="circle" icon="redo" size="small" style="top:-50px;right: -140px;" @click="queryTask()"/> -->
                 </div>
             </template>
             <a-modal
@@ -215,7 +226,7 @@ export default {
         return{
             htmlTitle:"任务中心",
             columns:[
-                { title: '任务编号', width: 200, dataIndex: 'taskid', key: 'age', fixed: 'left',
+                { title: '任务编号', width: 200, dataIndex: 'taskid', key: 'age', 
                     scopedSlots: {
                         filterDropdown: 'filterDropdown',
                         filterIcon: 'filterIcon',
@@ -234,7 +245,7 @@ export default {
                         }
                     }
                 },
-                { title: '任务状态', dataIndex: 'state', key: '1', width: 100,
+                { title: '任务状态', dataIndex: 'state', key: '1', width: 120,
                     scopedSlots: {
                         filterDropdown: 'filterDropdown',
                         filterIcon: 'filterIcon',
@@ -278,7 +289,7 @@ export default {
                 {
                     title: '任务操作',
                     key: 'operation',
-                    fixed: 'right',
+                    
                     // width: 180,
                     scopedSlots: { customRender: 'action' },
                 },
@@ -375,9 +386,12 @@ export default {
         deleteRecord(record){
             var that = this;
             that.$axios.delete('/Task/DeleteTask', { params: { Taskid:  record.taskid  } }).then((data) => {
-                console.log(data)
+                console.log('delete',data)
+                if(data.data.code == 1){
+                    that.queryTask()
+                }
             });
-            that.queryTask()
+            
         },
         proResult(){
             this.info = []
@@ -610,4 +624,6 @@ export default {
 .ant-menu{
     background: none;
 }
+
+
 </style>

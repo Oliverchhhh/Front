@@ -96,6 +96,7 @@ import {drawAcc_or_loss} from "../../assets/js/drawEcharts.js"
 export default {
   name:"modularDevelopDialog",
   components: {
+    popDialog,onlineProcess
   },
   props: {
     isShow: {

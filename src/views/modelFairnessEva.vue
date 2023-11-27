@@ -251,39 +251,39 @@
                         </div>           
                     </div>
                     <!-- 相关性 -->
-                    <div class="result_div" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
-                        <div class="echart_title">
-                            <div class=" main_top_echarts_con_title ">数据集的各属性之间的相关性</div>
-                            <p class="title_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
-                        </div>
-                        <div class="heat_content">
-                            <h3>互信息系数</h3>
-                            <div id="NMI" class="heat_canvas" :style="{height:heat_height}"></div>
-                            <div class="conclusion">
-                                <p class="result_text">互信息的值大于等于0，值越大表示两个变量之间的依赖关系越强。互信息为0时，表示两个变量相互独立。但是需要注意的是，互信息值的上限取决于两个变量的熵，因此互信息值本身并不具有直接的对比意义。可以使用归一化互信息（Normalized Mutual Information，NMI）进行归一化处理，将其值映射到0到1之间。</p>
-                            </div>
-                        </div>
-                        <div class="heat_content">
-                            <h3>Pearson相关系数</h3>
-                            <div id="person" class="heat_canvas" :style="{height:heat_height}"></div>
-                            <div class="conclusion">
-                                <p class="result_text ">Pearson相关系数的取值范围为-1到1。1表示完全正相关，0表示无关，-1表示完全负相关。</p>
-                            </div>
-                        </div>
-                        <div class="heat_content">
-                        <h3>Spearman秩相关系数</h3>
-                            <div id="spearman" class="heat_canvas" :style="{height:heat_height}"></div>
-                            <div class="conclusion" >
-                                <p class="result_text ">Spearman秩相关系数的取值范围也为-1到1。1表示完全正单调关系，0表示无单调关系，-1表示完全负单调关系。</p>
-                            </div>
-                        </div>
-                        <div class="heat_content">
-                            <h3>Kendall Tau相关系数</h3>
-                            <div id="Kendall" class="heat_canvas" :style="{height:heat_height}"></div>
-                            <div class="conclusion">
-                                <p class="result_text ">Kendall Tau相关系数的取值范围也为-1到1。1表示完全正序关系，0表示无序关系，-1表示完全负序关系。</p>
-                            </div>
-                        </div>
+                    <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
+                      <div class="echart_title">
+                          <div class=" main_top_echarts_con_title ">数据集的各属性之间的相关性</div>
+                          <p class="title_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
+                      </div>
+                      <div class="heat_content" v-if="flag.nmi">
+                          <h3>互信息系数</h3>
+                          <div id="NMI" class="heat_canvas" :style="{height:heat_height.nmi}"></div>
+                          <div class="conclusion">
+                              <p class="result_text">互信息的值大于等于0，值越大表示两个变量之间的依赖关系越强。互信息为0时，表示两个变量相互独立。但是需要注意的是，互信息值的上限取决于两个变量的熵，因此互信息值本身并不具有直接的对比意义。可以使用归一化互信息（Normalized Mutual Information，NMI）进行归一化处理，将其值映射到0到1之间。</p>
+                          </div>
+                      </div>
+                      <div class="heat_content" v-if="flag.pearson">
+                          <h3>Pearson相关系数</h3>
+                          <div id="person" class="heat_canvas" :style="{height:heat_height.pearson}"></div>
+                          <div class="conclusion">
+                              <p class="result_text ">Pearson相关系数的取值范围为-1到1。1表示完全正相关，0表示无关，-1表示完全负相关。</p>
+                          </div>
+                      </div>
+                      <div class="heat_content" v-if="flag.spearman">
+                      <h3>Spearman秩相关系数</h3>
+                          <div id="spearman" class="heat_canvas" :style="{height:heat_height.spearman}"></div>
+                          <div class="conclusion" >
+                              <p class="result_text ">Spearman秩相关系数的取值范围也为-1到1。1表示完全正单调关系，0表示无单调关系，-1表示完全负单调关系。</p>
+                          </div>
+                      </div>
+                      <div class="heat_content" v-if="flag.kendalltau">
+                          <h3>Kendall Tau相关系数</h3>
+                          <div id="Kendall" class="heat_canvas" :style="{height:heat_height.kendalltau}"></div>
+                          <div class="conclusion">
+                              <p class="result_text ">Kendall Tau相关系数的取值范围也为-1到1。1表示完全正序关系，0表示无序关系，-1表示完全负序关系。</p>
+                          </div>
+                      </div>
                         
                     </div>
                     <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
@@ -397,7 +397,18 @@ export default {
                 lineHeight: '30px',
             },
             /* 热力图height*/
-            heat_height:"213px",
+            heat_height:{
+        pearson:"213px",
+        spearman:"213px",
+        kendalltau:"213px",
+        nmi:"213px",
+      },
+      flag:{
+        pearson:false,
+        spearman:false,
+        kendalltau:false,
+        nmi:false,
+      },
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -749,49 +760,89 @@ export default {
                 }
                 
                 // 热力图
-                var heatX=[];
-                var X_index={}
                 var personData=[];
                 var spearmanData=[];
                 var kendallData=[];
                 var NMIData=[];
-                var x_num = 0
-                for(let temp of that.result["Corelation coefficients"] ){
-                    if(heatX.indexOf(temp["attr"]) == -1){
-                        X_index[temp["attr"]] = x_num;
-                        heatX.push(temp["attr"])
-                        x_num += 1;
-                    }
-                    if(heatX.indexOf(temp["target"]) == -1){
-                        X_index[temp["target"]] = x_num;
-                        heatX.push(temp["target"])
-                        x_num += 1;
-                    }
+                var pearsonX=[];
+                var pearsonY=[];
+                var spearmanX=[];
+                var spearmanY=[];
+                var kendalltauX=[];
+                var kendalltauY=[];
+                var mutualX=[];
+                var mutualY=[];
+                for(let temp of this.result["Corelation coefficients"] ){
                     if(temp.values.pearson != null){
-                        personData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.pearson.toFixed(3)])
+                        if(pearsonX.indexOf(temp["attr"]) == -1){
+                            pearsonX.push(temp["attr"])
+                        }
+                        if(pearsonY.indexOf(temp["target"]) == -1){
+                            pearsonY.push(temp["target"])
+                        }
+                        personData.push([pearsonX.indexOf(temp["attr"]), pearsonY.indexOf(temp["target"]) ,temp.values.pearson.toFixed(3)])
                     }
                     if(temp.values.spearman != null){
-                        spearmanData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.spearman.toFixed(3)])
+                        if(spearmanX.indexOf(temp["attr"]) == -1){
+                            spearmanX.push(temp["attr"])
+                        }
+                        if(spearmanY.indexOf(temp["target"]) == -1){
+                            spearmanY.push(temp["target"])
+                        }
+                        spearmanData.push([spearmanX.indexOf(temp["attr"]) ,spearmanY.indexOf(temp["target"]) ,temp.values.spearman.toFixed(3)])
                     }
                     if(temp.values.kendalltau != null){
-                        kendallData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.kendalltau.toFixed(3)])
+                        if(kendalltauX.indexOf(temp["attr"]) == -1){
+                            kendalltauX.push(temp["attr"])
+                        }
+                        if(kendalltauY.indexOf(temp["target"]) == -1){
+                            kendalltauY.push(temp["target"])
+                        }
+                        kendallData.push([kendalltauX.indexOf(temp["attr"]), kendalltauY.indexOf(temp["target"]) ,temp.values.kendalltau.toFixed(3)])
                     }
                     if(temp.values.mutual_info != null){
-                        NMIData.push([X_index[temp["attr"]],X_index[temp["target"]],temp.values.mutual_info.toFixed(3)])
+                        if(mutualX.indexOf(temp["attr"]) == -1){
+                            mutualX.push(temp["attr"])
+                        }
+                        if(mutualY.indexOf(temp["target"]) == -1){
+                            mutualY.push(temp["target"])
+                        }
+                        NMIData.push([mutualX.indexOf(temp["attr"]), mutualY.indexOf(temp["target"]), temp.values.mutual_info.toFixed(3)])
                     }
                 };
-                if(x_num > 5){
-                    that.heat_height = 48 * x_num + "px";
+                if (mutualY.length>5){
+                    this.heat_height.nmi = 48 * mutualY.length + "px";
+                }
+                if (kendalltauY.length>5){
+                    this.heat_height.kendalltau = 48 * kendalltauY.length + "px";
+                }
+                if (spearmanY.length>5){
+                    this.heat_height.spearman = 48 * spearmanY.length + "px";
+                }
+                if (pearsonY.length>5){
+                    this.heat_height.pearson = 48 * pearsonY.length + "px";
                 }
                 var NMIColorList=["rgba(206, 221, 253, 1)", "rgba(157, 187, 251, 1)", "rgba(60, 119, 246, 1)", "rgba(11, 85, 244, 1)", "rgba(7, 51, 146, 1)"];
                 var spearmanColorList=["rgba(223, 206, 253, 1)", "rgba(191, 157, 251, 1)", "rgba(142, 84, 247, 1)" ,"rgba(94, 11, 244, 1)", "rgba(56, 7, 146, 1)"];
                 var kendallColorList=["rgba(253, 227, 206, 1)", "rgba(251, 199, 157, 1)", "rgba(247, 158, 84, 1)", "rgba(244, 116, 11, 1)", "rgba(146, 70, 7, 1)"];
                 var personColorList=["rgba(253, 206, 236, 1)", "rgba(251, 157, 218, 1)", "rgba(247, 84, 190, 1)", "rgba(244, 11, 162, 1)", "rgba(195, 9, 130, 1)"];
                 // person热力图
-                drawCorelationHeat("NMI", heatX, NMIData, NMIColorList);
-                drawCorelationHeat("person", heatX, personData, personColorList);
-                drawCorelationHeat("spearman", heatX, spearmanData, spearmanColorList);
-                drawCorelationHeat("Kendall", heatX, kendallData, kendallColorList);
+                if( NMIData.length > 0 ){
+                    this.flag.nmi = true
+                    drawCorelationHeat("NMI", mutualX, mutualY, NMIData, NMIColorList);
+                }
+                if(personData.length > 0){
+                    this.flag.pearson = true
+                    drawCorelationHeat("person", pearsonX, pearsonY, personData, personColorList);
+                }
+                if(spearmanData.length > 0){
+                    this.flag.spearman = true
+                    drawCorelationHeat("spearman", spearmanX, spearmanY, spearmanData, spearmanColorList);
+                }
+                if(kendallData.length > 0){
+                    this.flag.kendalltau = true
+                    drawCorelationHeat("Kendall", kendalltauX, kendalltauY, kendallData, kendallColorList);
+                }
                 // 占比图
                 var data = {
                     id: "center_"+that.dataname[that.dataNameValue],

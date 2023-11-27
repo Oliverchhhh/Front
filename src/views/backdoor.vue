@@ -45,7 +45,7 @@
                                 @selectMethod="updateMethod" :checked="selectedMethod.indexOf(methodInfo[index].id) > -1">
                             </MethodCard>
                             <!-- resultVisible -->
-                            <BackdoorEval :is-show="resultVisible" :result="result" :postData="postData" @on-close="() => { resultVisible = !resultVisible }">
+                            <BackdoorEval :is-show="resultVisible" :result="res" :postData="postData" @on-close="() => { resultVisible = !resultVisible }">
                             </BackdoorEval>
                         </div>
                     </div>
@@ -151,6 +151,7 @@ export default {
             },
             /* 评估结果 */
             result:{},
+            res:{},
             /* 主任务id */ 
             tid:"",
             /* 子任务id */ 
@@ -229,6 +230,7 @@ export default {
                     attributes: [
                         [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
                         { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "训练样本数量", key:"train_sample_num", defaultNumber: 10000, number: 0, type: "inputNumber" , min: 0, max: 50000, step:1000},
                         { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
                         ],
                         [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
@@ -241,6 +243,7 @@ export default {
                     attributes: [
                         [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
                         { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "训练样本数量", key:"train_sample_num", defaultNumber: 10000, number: 0, type: "inputNumber" , min: 0, max: 50000, step:1000},
                         { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
                         ],
                         [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
@@ -258,6 +261,7 @@ export default {
                     attributes: [
                         [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
                         { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "训练样本数量", key:"train_sample_num", defaultNumber: 10000, number: 0, type: "inputNumber" , min: 0, max: 50000, step:1000},
                         { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
                         ],
                         [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
@@ -275,6 +279,7 @@ export default {
                     attributes: [
                     [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
                         { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "训练样本数量", key:"train_sample_num", defaultNumber: 10000, number: 0, type: "inputNumber" , min: 0, max: 50000, step:1000},
                         { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
                         ],
                         [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
@@ -290,14 +295,15 @@ export default {
                     id:"FeatureCollisionAttack",
                     description: "算法是在保持样本数据和标签正确对应下的数据投毒攻击，在训练阶段选择需要攻击的目标数据和基本类，经过投毒攻击以后，在推理阶段出现该目标数据时，会被分类到基本类中。方法中的目标类数据指的是攻击方法所针对的攻击实体",
                     attributes: [
-                    [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                    [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 1, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
                         { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
-                        { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "训练样本数量", key:"train_sample_num", defaultNumber: 50000, number: 0, type: "inputNumber" , min: 0, max: 50000, step:1000},
+                        { name: "测试样本数量", key:"test_sample_num", defaultNumber: 10000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:100},
                         ],
                         [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
                         [
                         { name: "标识特征层", key:"feature_layer", defaultNumber: 3, number: 0, type: "inputNumber" , min: 0, max: 18, step:1},
-                        { name: "优化方法的学习率", key:"learning_rate", defaultNumber: 0.01, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
+                        { name: "优化方法的学习率", key:"learning_rate", defaultNumber: 25500, number: 0.0, type: "inputNumber" , min: 0, max: 1000000, step:10},
                         { name: "学习率的衰变系数", key:"decay_coeff", defaultNumber: 0.5, number: 0, type: "inputNumber" , min: 0, max: 1, step:0.1},
                         ],
                         [
@@ -319,6 +325,7 @@ export default {
                     attributes: [
                         [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 0.33, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
                         { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "训练样本数量", key:"train_sample_num", defaultNumber: 10000, number: 0, type: "inputNumber" , min: 0, max: 50000, step:1000},
                         { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
                         ],
                         [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
@@ -391,7 +398,7 @@ export default {
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            if (this.result.data.stop == 1) {
+            if (this.result.data.stop == 1 && this.tid == this.result.data.result.tid) {
                 // 关闭日志显示
                 this.logflag = false;
                 // 关闭结果数据获取data
@@ -400,9 +407,9 @@ export default {
                 window.clearInterval(this.logclk);
                 
                 // 处理结果
-                this.result = this.result.data.result;
-                this.result["tid"] = this.tid
-                this.result["stidlist"] = this.stidlist
+                this.res = this.result.data.result;
+                // this.result["tid"] = this.tid
+                // this.result["stidlist"] = this.stidlist
                 // 显示结果窗口
                 this.resultVisible = !this.resultVisible
             }
@@ -468,8 +475,8 @@ export default {
             this.logtext = [];
             this.logflag = true;
             var that = this;
-            // that.tid = "20231004_2003_7514589"
-            // that.stidlist =  {"backdoor":"S20231004_2003_86f85ea"};
+            // that.tid = "20231005_0841_44d01a7"
+            // that.stidlist =  {"backdoor_attack":"S20231005_0841_fbbb0d8"};
             // that.postData["Dataset"] = dataset
             // that.postData["Model"] = model
             // that.postData["Method"] = JSON.stringify(this.selectedMethod)
@@ -487,7 +494,7 @@ export default {
                 that.postData["Taskid"] = that.tid
                 console.log(that.postData)
                 that.$axios.post("/Attack/BackdoorAttack", that.postData).then((res) => {
-                    that.stidlist =  {"backdoor":res.data.stid};
+                    that.stidlist =  {"backdoor_attack":res.data.stid};
                     that.clk = window.setInterval(that.update, 30000);
                     
                     

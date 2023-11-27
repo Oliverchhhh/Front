@@ -740,7 +740,7 @@ export default {
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            if (this.result.data.stop == 1) {
+            if (this.result.data.stop == 1 && this.tid == this.result.data.result.tid) {
                 // 关闭日志显示
                 this.logflag = false;
                 // 关闭结果数据获取data
@@ -754,7 +754,7 @@ export default {
                 // 显示结果窗口
                 this.resultVisible = true
 
-            }else if(this.result.data.stop == 2){
+            }else if(this.result.data.stop == 2 && this.tid == this.result.data.result.tid){
                 this.percent=100
                 // 关闭结果数据获取data
                 window.clearInterval(this.clk);

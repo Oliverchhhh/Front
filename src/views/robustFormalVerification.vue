@@ -414,7 +414,7 @@ export default {
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            if (this.result.stop) {
+            if (this.result.stop==1 && this.tid == this.result.result.tid) {
                 this.percent=100;
                 // 关闭日志显示
                 // this.logflag = false;

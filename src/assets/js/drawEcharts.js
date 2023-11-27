@@ -143,17 +143,15 @@ function drawbar(ID, data, label, name='',xname='', yname='', min_max=[0,1,0.2])
           showBackground: false,
           barMaxWidth: '100',
           itemStyle:{
-            normal:{
               color:'rgba(11, 85, 244, 0.8)',
               label:{
-                show:true,
-                position:"top",
-                fontSize:12,
-                color:"rgba(0, 0, 0, 1)",
-                fontFamily : 'HONOR Sans CN',
-            fontStyle:'normal',
-            fontWeight:400,
-              }
+              show:true,
+              position:"top",
+              fontSize:12,
+              color:"rgba(0, 0, 0, 1)",
+              fontFamily : 'HONOR Sans CN',
+              fontStyle:'normal',
+              fontWeight:400,
             }
           }
         }
@@ -257,7 +255,7 @@ function drawbarhigh(ID, data, label, name='',xname='', yname=''){
         showBackground: false,
         barMaxWidth: '100',
         itemStyle:{
-          normal:{
+
             color:'rgba(11, 85, 244, 0.8)',
             label:{
               show:true,
@@ -267,9 +265,9 @@ function drawbarhigh(ID, data, label, name='',xname='', yname=''){
               fontFamily : 'HONOR Sans CN',
           fontStyle:'normal',
           fontWeight:400,
-            }
           }
         }
+        
       }
     ]
   };
@@ -361,14 +359,14 @@ function drawbarimproved( ID, data, data2, label, name){
             color: 'rgba(180, 180, 180, 0.2)'
           },
           itemStyle:{
-            normal:{
+
               color:'#91c7ae',
               label:{
                 show:true,
                 position:"top",
                 color:"rgba(0, 0, 0, 1)"
               }
-            }
+
           }
         },
         {
@@ -380,14 +378,14 @@ function drawbarimproved( ID, data, data2, label, name){
             color: 'rgba(180, 180, 180, 0.2)'
           },
           itemStyle:{
-            normal:{
+
               color:'rgb(61,163,216)',
               label:{
                 show:true,
                 position:"top",
                 color:"rgba(0, 0, 0, 1)"
               }
-            }
+            
           }
         }
       ]
@@ -493,7 +491,7 @@ function drawconseva1(ID, value, color='#0B55F4', titlename=''){
     },500)
   }
   // 热力图
-function drawCorelationHeat(ID, heatX, data, colorList,showflag=true, boundarylist=[-1,1]){
+function drawCorelationHeat(ID, heatX, heatY, data, colorList,showflag=true, boundarylist=[-1,1]){
   var option;
   var data1 = data.map(function (item) {
     return [item[1], item[0], item[2] || '-'];
@@ -518,7 +516,7 @@ function drawCorelationHeat(ID, heatX, data, colorList,showflag=true, boundaryli
     },
     yAxis: {
       type: 'category',
-      data: heatX,
+      data: heatY,
       splitArea: {
         show: true
       }
@@ -896,8 +894,8 @@ function drawPopGraph(ID, data, centerPng, secondPng){
   setTimeout(function(){
     const tooltip = new G6.Tooltip({
       // offsetX and offsetY include the padding of the parent container
-      offsetX: 10,
-      offsetY: 10,
+      offsetX: 15,
+      offsetY: 15,
       // the types of items that allow the tooltip show up
       // 允许出现 tooltip 的 item 类型
       itemTypes: ['node'],
@@ -925,7 +923,7 @@ function drawPopGraph(ID, data, centerPng, secondPng){
         
         outDiv.style.width = 'fit-content';
         //outDiv.style.padding = '0px 0px 20px 0px';
-        outDiv.innerHTML = `<div>${name}</div>`;
+        outDiv.innerHTML = `<div style="font-size: 16px;">${name}</div>`;
         return outDiv;
       },
     });

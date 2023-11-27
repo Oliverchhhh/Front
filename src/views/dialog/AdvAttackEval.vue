@@ -224,7 +224,7 @@ export default {
             
           }
         }
-        this.res["score"] = (100-this.res.maxasr).toFixed(1)
+        this.res["score"] = (100-this.res.maxasr)
         if (this.res["score"] < 40){
           this.res["score"] += 10
         }
@@ -235,6 +235,7 @@ export default {
         }else{
           this.res["Eva"] = "差"
         }
+        this.res["score"] = this.res["score"].toFixed(1)
         let methodstr = this.defenseShow(this.postData.Method)
         this.res["score_des"] = `${this.postData.Model}模型鲁棒性得分为${this.res.score}，是一个较${this.res.Eva}的模型，本次对抗攻击方法有${methodstr}，其中${this.res.maxmethod}的攻击效果最佳`
         let option = {

@@ -432,7 +432,7 @@ export default {
         },
         /* 停止结果获取循环 */ 
         stopTimer() {
-            if (this.result.data.stop==1) {
+            if (this.result.data.stop==1 && this.tid == this.result.data.result.tid) {
                 // 关闭日志显示
                 this.logflag = false;
                 // 关闭结果数据获取data

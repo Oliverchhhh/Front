@@ -79,6 +79,7 @@ export default {
   created(){
     console.log('CoverageLayer created:',this.result)
     if ("CoverageLayer" in this.result){
+      this.mark=0
       this.resultPro(this.result)
     }
   },
@@ -86,6 +87,7 @@ export default {
     result(newValue, oldValue){
       console.log('CoverageLayer:',this.result)
       if ("CoverageLayer" in newValue){
+        this.mark=0
         this.resultPro(this.result)
       }
     }

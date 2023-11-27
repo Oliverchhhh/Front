@@ -518,7 +518,7 @@ export default {
         /* 停止结果获取循环 */ 
         stopTimer() {
             // debugger;
-            if (this.res_tmp.data.stop) {
+            if (this.res_tmp.data.stop==1  && this.tid == this.res_tmp.data.result.tid) {
                 // 关闭日志显示
                 this.percent=100
                 this.logflag = false;
@@ -668,6 +668,7 @@ export default {
     margin: 0px 48px;
     height: 700px;
     overflow: auto;
+    padding:0px;
 }
 
 .datasetSelected{

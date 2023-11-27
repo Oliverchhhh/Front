@@ -350,7 +350,7 @@ export default {
         stopTimer() {
             // debugger;
             // var that = this;
-            if (this.res_tmp.data.stop) {
+            if (this.res_tmp.data.stop==1 && this.tid == this.res_tmp.data.result.tid) {
                 // 关闭日志显示
                 this.logflag = false;
                 // 关闭结果数据获取data
@@ -592,8 +592,6 @@ text-align: left;
     gap: 25px;
     margin-bottom: 20px;
     width: 1080px;
-    /* gray-7 */
-
     background: #F2F4F9;
     border-radius: 4px;
 }
@@ -711,12 +709,8 @@ height: fit-content;
     flex-direction: column;
     align-items: center;
     padding: 0px;
-
     width: 960px;
-    /* height: 414px; */
     height: auto;
-    /* Inside auto layout */
-
     flex: none;
     order: 1;
     flex-grow: 0

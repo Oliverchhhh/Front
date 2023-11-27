@@ -76,6 +76,7 @@ export default {
   created(){
     console.log('CoverageImportance created:',this.result)
     if ("CoverageImportance" in this.result){
+      this.mark=0
       this.resultPro(this.result)
     }
   },
@@ -83,6 +84,7 @@ export default {
     result(newValue, oldValue){
       console.log('CoverageImportance:',this.result)
       if ("CoverageImportance" in newValue){
+        this.mark=0
         this.resultPro(this.result)
       }
     }

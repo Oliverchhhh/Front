@@ -94,7 +94,7 @@
                     </div>
                     <!--  -->
                     <!-- Nash博弈结果 -->
-                    <div > 
+                    <div v-if="'Nash' in postData.DefMethod" > 
                       <div class="result-title">准确率收益直方图</div>
                       <div id="acc_Chart" class="echart" style="width: 1000px; height: 400px;"></div>
                       <!-- <div class="conclusion">
@@ -185,10 +185,17 @@ export default {
   watch:{
     result(newValue, oldValue){
       if ("Defense_Ensemble" in newValue){
+        console.log('eval:',newValue)
         this.drawrobust(newValue)
       }
     }
     
+  },
+  created(){
+    console.log('Defense_Ensemble created:',this.result)
+    if ("Defense_Ensemble" in this.result){
+      this.drawrobust(this.result)
+    }
   },
   // props:["is-show","top-distance"],
   methods: {

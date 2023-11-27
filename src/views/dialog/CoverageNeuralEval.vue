@@ -80,6 +80,7 @@ export default {
   created(){
     console.log('CoverageNeural created:',this.result)
     if ("CoverageNeural" in this.result){
+      this.mark=0
       this.resultPro(this.result)
     }
   },
@@ -87,6 +88,7 @@ export default {
     result(newValue, oldValue){
       console.log('CoverageNeural:',this.result)
       if ("CoverageNeural" in newValue){
+        this.mark=0
         this.resultPro(this.result)
       }
     }
