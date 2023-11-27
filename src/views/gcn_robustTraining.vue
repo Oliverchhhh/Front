@@ -14,11 +14,11 @@
                 <!-- 参数配置容器 -->
                 <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
                 <div class="labelSelection">
-                    <router-link to="/robust_advTraining"><button class="labelunselected">CNN对抗训练</button></router-link>
-                    <router-link to="/gcn_robustTraining"><button class="labelselected">GCN可认证鲁棒训练</button></router-link>
+                    <router-link to="/robust_advTraining"><button class="labelunselected">对抗鲁棒训练</button></router-link>
+                    <router-link to="/gcn_robustTraining"><button class="labelselected">可认证鲁棒性训练</button></router-link>
                     <router-link to="/featurescatter_robustTraining"><button class="labelunselected">特征散射鲁棒性训练</button></router-link>
-                    <router-link to="/seat_robustTraining"><button class="labelunselected">异常感知鲁棒性训练</button></router-link>
-                    <router-link to="/smoothing_robustTraining"><button class="labelunselected">随机平滑鲁棒性训练</button></router-link>
+                    <router-link to="/seat_robustTraining"><button class="labelunselected">自我整合鲁棒性训练</button></router-link>
+                    <router-link to="/smoothing_robustTraining"><button class="labelunselected">关键参数微调鲁棒性训练</button></router-link>
                 </div>
                 <div class="funcParam">
                     <div class="paramTitle" >
@@ -433,43 +433,43 @@ export default {
 
             /* 备份 */ 
             var that = this;
-            that.tid = "20231024_1512_6993cb5";
-            that.stidlist =  {"AdvTraing":"S20231024_1512_e49f6e5"};
-            that.clk = window.setInterval(() => {
-                                that.update();
-                            }, 300)
-                return
+            // that.tid = "20231024_1512_6993cb5";
+            // that.stidlist =  {"AdvTraing":"S20231024_1512_e49f6e5"};
+            // that.clk = window.setInterval(() => {
+            //                     that.update();
+            //                 }, 300)
+            //     return
             /* 调用创建主任务接口，需开启后端程序 */
-            // this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-            //     that.tid = result.data.Taskid;
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+                that.tid = result.data.Taskid;
                 
-            //     /* 请求体 postdata*/
-            //     const postdata={
-            //         dataset:that.dataname[that.datasetChoice],
-            //         // model:that.modelChoice,
-            //         batch_size : that.batch_size,
-            //         train_size : that.train_size,
-            //         test_size : that.test_size,
-            //         val_size : that.val_size,
-            //         n_iters : that.n_iters,
-            //         train_Q : that.train_Q,
-            //         margin_iters : that.margin_iters,
-            //         q_ratio : that.q_ratio,
-            //         burn_in : that.burn_in,
-            //         random_state : that.random_state,
-            //         tid:that.tid};
-            //     that.$axios.post("/Defense/AdvTraining_GNN", postdata).then((res) => {
-            //         that.logflag = true;
-            //         // 异步任务
-            //         that.stidlist =  {"AdvTraing":res.data.stid}
-            //         that.logclk = self.setInterval(that.getLog, 3000);
-            //         that.clk = self.setInterval(that.update, 3000);
-            //     }).catch((err) => {
-            //             console.log(err)
-            //     });
-            // }).catch((err) => {
-            //     console.log(err)
-            // });    
+                /* 请求体 postdata*/
+                const postdata={
+                    dataset:that.dataname[that.datasetChoice],
+                    // model:that.modelChoice,
+                    batch_size : that.batch_size,
+                    train_size : that.train_size,
+                    test_size : that.test_size,
+                    val_size : that.val_size,
+                    n_iters : that.n_iters,
+                    train_Q : that.train_Q,
+                    margin_iters : that.margin_iters,
+                    q_ratio : that.q_ratio,
+                    burn_in : that.burn_in,
+                    random_state : that.random_state,
+                    tid:that.tid};
+                that.$axios.post("/Defense/AdvTraining_GNN", postdata).then((res) => {
+                    that.logflag = true;
+                    // 异步任务
+                    that.stidlist =  {"AdvTraing":res.data.stid}
+                    that.logclk = self.setInterval(that.getLog, 3000);
+                    that.clk = self.setInterval(that.update, 3000);
+                }).catch((err) => {
+                        console.log(err)
+                });
+            }).catch((err) => {
+                console.log(err)
+            });    
         }
     }
 }

@@ -14,11 +14,11 @@
                 <!-- 参数配置容器 -->
                 <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
                 <div class="labelSelection">
-                    <router-link to="/robust_advTraining"><button class="labelselected">CNN对抗训练</button></router-link>
-                    <router-link to="/gcn_robustTraining"><button class="labelunselected">GCN可认证鲁棒训练</button></router-link>
+                    <router-link to="/robust_advTraining"><button class="labelselected">对抗鲁棒训练</button></router-link>
+                    <router-link to="/gcn_robustTraining"><button class="labelunselected">可认证鲁棒性训练</button></router-link>
                     <router-link to="/featurescatter_robustTraining"><button class="labelunselected">特征散射鲁棒性训练</button></router-link>
-                    <router-link to="/seat_robustTraining"><button class="labelunselected">异常感知鲁棒性训练</button></router-link>
-                    <router-link to="/smoothing_robustTraining"><button class="labelunselected">随机平滑鲁棒性训练</button></router-link>
+                    <router-link to="/seat_robustTraining"><button class="labelunselected">自我整合鲁棒性训练</button></router-link>
+                    <router-link to="/smoothing_robustTraining"><button class="labelunselected">关键参数微调鲁棒性训练</button></router-link>
                 </div>
                 <div class="funcParam">
                     <div class="paramTitle" >
@@ -75,6 +75,19 @@
                                 </div>
                             </a-radio-group>
                         </div>
+                        <div class="modelSelected">
+                            <p class="mainParamName">请选择对抗训练方法</p>
+                            <a-select
+                                style="width: 1104px;"
+                                v-model="advChoice"
+                                @focus="handleFocus"
+                                @blur="handleBlur"
+                                @change="onAdvChoiceChange" >
+                                <a-select-option v-for="temp in advTrainMethod" :value="temp">
+                                {{ temp }}
+                                </a-select-option>
+                            </a-select>
+                        </div>
                         <div class="thresholdSet">
                             <p class="mainParamName">请输入选择攻击方法（可多选）</p>
                             <div v-for="(methods, i) in showmethodInfo" :key="i" style="margin-bottom: 16px;">
@@ -113,6 +126,7 @@
                             <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
                             <p class="result_annotation">数据集：{{ datasetChoice }}</p>
                             <p class="result_annotation">模型：{{ modelChoice }}</p>
+                            <p class="result_annotation">对抗训练方法：{{ advChoice }}</p>
                             <p class="result_annotation">攻击方法：</p>
                             <div class="result_annotation" style="word-wrap: break-word; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start;align-items: center;gap: 10px;"> 
                                 <p  v-for="(item, index) in selectedMethod" :key="index">{{ item }}</p>
@@ -120,10 +134,15 @@
                             
                         </div>
                         <div class=" main_top_echarts_con_title ">模型对抗训练效果</div>
+                        <p class=" echart_title ">训练前后模型受攻击分类准确率</p>
                         <div id="rdeva">
-                            <div class="box" id="adv_robust_result"></div>
+                            <div style="width: 1000px;height: 500px;" id="adv_robust_result1"></div>
+                        </div>
+                        <p class=" echart_title ">训练前后模型攻击成功率</p>
+                        <div id="rdeva">
+                            <div style="width: 1000px;height: 500px;" id="adv_robust_result2"></div>
                             <div class="conclusion">
-                                <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用对抗训练方法进行模型鲁棒性训练，鲁棒性提升了{{result.up}}。</p>
+                                <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用{{ advChoice }}对抗训练方法对模型鲁棒性进行提升。</p>
                             </div>
                         </div>
                     </div>
@@ -150,7 +169,7 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
-
+import {DrawRobustBar} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
 import funcicon from "../assets/img/robustTrainingIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
@@ -179,7 +198,7 @@ export default {
     func_introduce: func_introduce,
     showLog: showLog,
     resultDialog: resultDialog,
-    selectIcon
+    selectIcon, DrawRobustBar
     },
     data(){
         return{
@@ -216,7 +235,9 @@ export default {
                 {imgUrl:require("../assets/img/cifar108.jpg"),name:'mnist8'},
                 {imgUrl:require("../assets/img/cifar109.jpg"),name:'mnist9'},
                 ],
-            modelChoice: "VGG11",
+            modelChoice: "ResNet18",
+            advChoice: 'FGSM',
+            advTrainMethod:['FGSM','FFGSM',"RFGSM","MIFGSM","BIM","PGD","DIFGSM","ETOPGD","C&W","TPGD"],
             selectedMethod:[],
             selectedAttributes:"",
             showmethodInfo:[[
@@ -229,10 +250,10 @@ export default {
                 {name:"BIM",description:"BIM算法：Basic Iterative MethodBIM迭代式FGSM是对FGSM的改进方法，主要的改进有两点，其一是FGSM方法是一步完成的，而BIM方法通过多次迭代来寻找对抗样本；其次，为了避免迭代过程中出现超出有效值的情况出现，使用了一个修建方法严格限制像素值的范围",},
                 {name:"PGD",description:"PGD算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
                 {name:"PGDL2",description:"PGDL2算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
-                {name:"DIFGSM",description:"DIFGSM算法：Diverse Inputs Iterative Fast Gradient Sign Method,通过创建多样的输入模式提高对抗样本的迁移性。做法是对输入的原图像以p的概率加上随机且可导的变换(transformation)，使用梯度的方法最大化模型对变换后的原图像的损失函数值从而得到对抗图像",},
+                
                 ],
                 [
-                {name:"ETOPGD",description:"ETOPGD算法：暂无解释",},
+                {name:"DIFGSM",description:"DIFGSM算法：Diverse Inputs Iterative Fast Gradient Sign Method,通过创建多样的输入模式提高对抗样本的迁移性。做法是对输入的原图像以p的概率加上随机且可导的变换(transformation)，使用梯度的方法最大化模型对变换后的原图像的损失函数值从而得到对抗图像",},
                 {name:"C&W",description:"C&W算法：该方法的出发点是攻击比较有名的对抗样本防御方法-防御蒸馏(就防御蒸馏方法而言，它在基本的L-BFGS，FGSM攻击方法上表现本身就比较差)。对于寻找对抗样本过程中目标函数的设置将会极大的影响对抗样本的攻击效果，为此，通过目标函数的设定，在零范数，二范数和无穷范数的限制下分别设计了三种不同的寻找对抗样本的目标函数，这三种方法均可以绕过防御蒸馏的防御",},
                 {name:"TPGD",description:"TPGD算法：基于KL-Divergence loss的pgd攻击",}
             ]],
@@ -271,11 +292,7 @@ export default {
             /* 结果弹窗状态信息 */
             isShowPublish:false,
             /* 评估结果 */
-            result:{
-                "before":0.75,
-                "after":0.92,
-                "paca": 0.88
-            },
+            result:{},
             res_tmp:{},
             /* 主任务id */ 
             tid:"",
@@ -317,6 +334,18 @@ export default {
             // 修改选择模型
             console.log('radio checked', e.target.value);
         },
+        onAdvChoiceChange(e){
+            // 修改选择模型
+            console.log('radio checked', e);
+        },
+
+        handleBlur() {
+            console.log('blur');
+        },
+        handleFocus() {
+            console.log('focus');
+        },
+
         // 防御方法点击选中
         changeMethods(i, j) {
             // debugger;
@@ -328,7 +357,7 @@ export default {
                 button.style.borderColor = "#C8DCFB"
                 button.style.background = "#E7F0FD"
                 this.selectedMethod.push(this.showmethodInfo[i][j].name)
-                this.selectedAttributes[this.showmethodInfo[i][j].name] = {}
+                // this.selectedAttributes[this.showmethodInfo[i][j].name] = {}
             } else {
                 this.methodHoverIndex = -1
                 this.methodDescription = ""
@@ -337,7 +366,7 @@ export default {
                 button.style.background = "#F2F4F9"
                 button.blur()
                 this.selectedMethod.splice(this.selectedMethod.indexOf(this.showmethodInfo[i][j].name), 1 )
-                delete this.selectedAttributes[this.showmethodInfo[i][j].name]
+                // delete this.selectedAttributes[this.showmethodInfo[i][j].name]
             }
         },
         exportResult(){
@@ -356,12 +385,16 @@ export default {
         /* result 处理*/
         resultPro(res){
             debugger;
-            // let
-            this.result.img_list = res.CoverageLayer.coverage_test_yz.coverage_layer;
-            for(var i=0; i<this.result.img_list.length;i++){
-                this.result.img_list[i]["coverage"] = parseInt(100*this.result.img_list[i]["coverage"]);
-                this.result.img_list[i]["imgUrl"]='static/output'+this.result.img_list[i]["imgUrl"].split('output')[1];
-            }
+            let data_ori = res.CNN_AT.Normal;
+            let data_robust = res.CNN_AT.Enhance;
+            let legend = ["Normal Training", "Robust Training"];
+            let xAxis =  Object.keys(data_ori.atk_acc);
+            let data_acc_ori = Object.values(data_ori.atk_acc);
+            let data_acc_enh = Object.values(data_robust.atk_acc);
+            let data_asr_ori = Object.values(data_ori.atk_asr);
+            let data_asr_enh = Object.values(data_robust.atk_asr);
+            DrawRobustBar("adv_robust_result1", legend, xAxis, data_acc_ori, data_acc_enh);
+            DrawRobustBar("adv_robust_result2", legend, xAxis, data_asr_ori, data_asr_enh);
         },
         /* 获取结果 */ 
         getData(){
@@ -425,23 +458,33 @@ export default {
         /* 点击评估触发事件 */
         dataEvaClick(){
             // debugger
-
             /* 备份 */ 
             var that = this;
-            that.isShowPublish = true;
+            if(that.selectedMethod.length==0){
+                that.$message.warning('请至少选择一项对抗攻击方法！',3);
+                return
+            }
+            that.tid = "20231115_1101_dc28b4d"
+            that.stidlist =  {"CNN_AT": "S20231115_1101_33daea0"};
+            that.clk = window.setInterval(() => {
+                            that.update();
+                        }, 300)
+            return
+            // that.isShowPublish = true;
             /* 调用创建主任务接口，需开启后端程序 */
             // this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
             //     that.tid = result.data.Taskid;
-                
             //     /* 请求体 postdata*/
             //     const postdata={
             //         dataset:that.datasetChoice,
-            //         model:that.modelChoice,
+            //         modelname:that.modelChoice,
+            //         attackmethod: that.advChoice,
+            //         evaluate_methods: that.selectedMethod,
             //         tid:that.tid};
-            //     that.$axios.post("/RobustTraining/AdvTraingParamSet", postdata).then((res) => {
+            //     that.$axios.post("/Defense/AdvTraining_CNNAT", postdata).then((res) => {
             //         that.logflag = true;
             //         // 异步任务
-            //         that.stidlist =  {"AdvTraing":res.data.stid}
+            //         that.stidlist =  {"CNN_AT":res.data.stid}
             //         that.logclk = self.setInterval(that.getLog, 3000);
             //         that.clk = self.setInterval(that.update, 3000);
             //     }).catch((err) => {
@@ -685,7 +728,7 @@ text-align: left;
     gap: 10px;
     isolation: isolate;
 
-    width: 960px;
+    /* width: 960px; */
     height: auto;
     /* Inside auto layout */
     flex: none;

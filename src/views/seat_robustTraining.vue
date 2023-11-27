@@ -14,11 +14,11 @@
                 <!-- 参数配置容器 -->
                 <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
                 <div class="labelSelection">
-                    <router-link to="/robust_advTraining"><button class="labelunselected">CNN对抗训练</button></router-link>
-                    <router-link to="/gcn_robustTraining"><button class="labelunselected">GCN可认证鲁棒训练</button></router-link>
+                    <router-link to="/robust_advTraining"><button class="labelunselected">对抗鲁棒训练</button></router-link>
+                    <router-link to="/gcn_robustTraining"><button class="labelunselected">可认证鲁棒性训练</button></router-link>
                     <router-link to="/featurescatter_robustTraining"><button class="labelunselected">特征散射鲁棒性训练</button></router-link>
-                    <router-link to="/seat_robustTraining"><button class="labelselected">异常感知鲁棒性训练</button></router-link>
-                    <router-link to="/smoothing_robustTraining"><button class="labelunselected">随机平滑鲁棒性训练</button></router-link>
+                    <router-link to="/seat_robustTraining"><button class="labelselected">自我整合鲁棒性训练</button></router-link>
+                    <router-link to="/smoothing_robustTraining"><button class="labelunselected">关键参数微调鲁棒性训练</button></router-link>
                 </div>
                 <div class="funcParam">
                     <div class="paramTitle" >
@@ -65,7 +65,7 @@
                             <div class="paramsSelected">
                                 <div>
                                     <p class="matchedMethodText paramblock">学习率：</p> 
-                                    <el-input-number :min="0" :max="1" :step="0.001" v-model="lr"></el-input-number>
+                                    <el-input-number :min="0" :max="1" :step="0.01" v-model="lr"></el-input-number>
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">训练轮数：</p> 
@@ -73,7 +73,7 @@
                                 </div>
                                 <div>
                                     <p class="matchedMethodText paramblock">分类的类别数：</p> 
-                                    <el-input-number :min="1" :max="100"  v-model="classnum"></el-input-number>
+                                    <el-input-number :min="10" :max="10"  v-model="classnum"></el-input-number>
                                 </div>
                             </div>
                         </div>
@@ -93,7 +93,7 @@
                 <div slot="header">
                     <div class="dialog_title">
                         <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <h1>异常感知鲁棒性训练</h1>
+                        <h1>自我整合鲁棒性训练</h1>
                     </div>
                 </div>
                 <div class="dialog_publish_main" slot="main" id="pdfDom">
@@ -107,7 +107,7 @@
                             <p class="result_annotation">训练轮数：{{ maxiter }}</p>
                             <p class="result_annotation">分类的类别数：{{ classnum }}</p>
                         </div>
-                        <div class=" main_top_echarts_con_title ">异常感知鲁棒性训练效果</div>
+                        <div class=" main_top_echarts_con_title ">自我整合鲁棒性训练效果</div>
                         <div id="rdeva">
                             <div class="box" id="adv_robust_result"></div>
                             <div class="conclusion">
@@ -171,7 +171,7 @@ export default {
     },
     data(){
         return{
-            htmlTitle:"异常感知鲁棒性训练",
+            htmlTitle:"自我整合鲁棒性训练",
             /* 单选按钮样式 */
             methodHoverIndex:-1,
             methodDescription:"",
@@ -193,7 +193,7 @@ export default {
                 {imgUrl:require("../assets/img/cifar109.jpg"),name:'mnist9'},
                 ],
             modelChoice: "ResNet18",
-            lr:0.001,
+            lr:0.01,
             maxiter:20,
             classnum:10,
             /* 评估按钮样式和状态 */
@@ -365,28 +365,28 @@ export default {
 
             /* 备份 */ 
             var that = this;
-            that.isShowPublish = true;
+            // that.isShowPublish = true;
             /* 调用创建主任务接口，需开启后端程序 */
-            // this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-            //     that.tid = result.data.Taskid;
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+                that.tid = result.data.Taskid;
                 
-            //     /* 请求体 postdata*/
-            //     const postdata={
-            //         dataset:that.datasetChoice,
-            //         model:that.modelChoice,
-            //         tid:that.tid};
-            //     that.$axios.post("/RobustTraining/AdvTraingParamSet", postdata).then((res) => {
-            //         that.logflag = true;
-            //         // 异步任务
-            //         that.stidlist =  {"AdvTraing":res.data.stid}
-            //         that.logclk = self.setInterval(that.getLog, 3000);
-            //         that.clk = self.setInterval(that.update, 3000);
-            //     }).catch((err) => {
-            //             console.log(err)
-            //     });
-            // }).catch((err) => {
-            //     console.log(err)
-            // });    
+                /* 请求体 postdata*/
+                const postdata={
+                    dataset:that.datasetChoice,
+                    model:that.modelChoice,
+                    tid:that.tid};
+                that.$axios.post("/Defense/AdvTraining_SEAT", postdata).then((res) => {
+                    that.logflag = true;
+                    // 异步任务
+                    that.stidlist =  {"AdvTraing":res.data.stid}
+                    that.logclk = self.setInterval(that.getLog, 3000);
+                    that.clk = self.setInterval(that.update, 3000);
+                }).catch((err) => {
+                        console.log(err)
+                });
+            }).catch((err) => {
+                console.log(err)
+            });    
         }
     }
 }
