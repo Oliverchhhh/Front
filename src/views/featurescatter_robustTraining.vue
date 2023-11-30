@@ -58,16 +58,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- <a-radio :style="radioStyle" value="MNIST">  MNIST </a-radio>
-                                <div class="matchedDes" v-show="datasetChoice=='MNIST'">
-                                    <p class="matchedMethodText"><span>MNIST数据集：</span>是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。</p>
-                                    <p class="matchedMethodText">图例：</p>
-                                    <div class="demoData" >
-                                        <div v-for="(item, index) in MNIST_imgs" :key="index">
-                                            <img :src="item.imgUrl">
-                                        </div>
-                                    </div>
-                                </div> -->
                                 <a-radio :style="radioStyle" value="SVHN10"> SVHN10 </a-radio>
                                 <div class="matchedDes" v-show="datasetChoice=='SVHN10'">
                                     <p class="matchedMethodText"><span>SVHN10数据集：</span>是一个街景房屋号码数据集，该数据集来源于谷歌街景门牌号码。原生的数据集1(Format 1)是一些原始的未经处理的彩色图片，Format2 将这些数字裁剪成32x32的大小，包含10个类，73257位用于训练，26032位用于测试，531131 个额外的、难度稍低的样本，用作额外的训练数据。</p>
@@ -92,6 +82,31 @@
                             </a-radio-group>
                         </div>
                         <div class="modelSelected">
+                            <p class="mainParamName">请选择对抗训练方法</p>
+                            <a-select
+                                style="width: 1104px;"
+                                v-model="advChoice"
+                                @focus="handleFocus"
+                                @blur="handleBlur"
+                                @change="onAdvChoiceChange">
+                                <a-select-option v-for="temp in advTrainMethod" :value="temp">
+                                {{ temp }}
+                                </a-select-option>
+                            </a-select>
+                        </div>
+                        <div class="thresholdSet">
+                            <p class="mainParamName">请输入选择评估算法（可多选）</p>
+                            <div v-for="(methods, i) in showmethodInfo" :key="i" style="margin-bottom: 16px;">
+                                <a-row :gutter="16" style="height:50px;" type="flex">
+                                    <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod">
+                                        <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
+                                            >{{ method.name }}</a-button>
+                                    </a-col>
+                                </a-row>
+                                <div v-if="methodHoverIndex==i && methodDescription !== ''" style="padding:14px 24px;margin: 16px auto; "> {{ methodDescription }} </div>
+                            </div>
+                        </div>
+                        <div class="modelSelected">
                             <p class="mainParamName">请设置训练参数</p>
                             <div class="paramsSelected">
                                 <div>
@@ -111,12 +126,8 @@
                                     <el-input-number :min="0" :max="1" :step="0.1" v-model="lr_decayspd"></el-input-number>
                                 </div>
                                 <div>
-                                    <p class="matchedMethodText paramblock">训练时的批量大小：</p> 
+                                    <p class="matchedMethodText paramblock">批量大小：</p> 
                                     <el-input-number :min="1" :max="1000" v-model="batchsize"></el-input-number>
-                                </div>
-                                <div>
-                                    <p class="matchedMethodText paramblock">权重衰减：</p> 
-                                    <el-input-number :min="0" :max="1" :step="0.1" v-model="weightdecay"></el-input-number>
                                 </div>
                             </div>
                         </div>
@@ -151,13 +162,12 @@
                             <p class="result_annotation">学习率衰减的速率：{{ lr_decayspd }}</p>
                             <p class="result_annotation">最大训练轮数：{{ maxiter }}</p>
                             <p class="result_annotation">训练时的批量大小：{{ batchsize }}</p>
-                            <p class="result_annotation">权重衰减：{{ weightdecay }}</p>
                         </div>
                         <div class=" main_top_echarts_con_title ">特征散射鲁棒性训练效果</div>
                         <div id="rdeva">
                             <div style="width: 800px; height: 500px;" id="adv_robust_result"></div>
                             <div class="conclusion">
-                                <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用Feature Scatter方法进行模型鲁棒性训练，鲁棒性提升了{{result.mean_value}}%。</p>
+                                <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用Feature Scatter方法进行模型鲁棒性训练后模型鲁棒性增强。</p>
                             </div>
                         </div>
                     </div>
@@ -264,12 +274,21 @@ export default {
                 {imgUrl:require("../assets/img/ex9.png"),name:'svhn9'},
                 ],
             modelChoice: "ResNet",
+            advChoice: 'FGSM',
+            advTrainMethod:['FGSM', "PGD","CW",],
+            selectedMethod:[],
+            // selectedAttributes:"",
+            showmethodInfo:[[
+            {name:"Natural",description:"没有对抗攻击的测试方法，只做分类准确率计算",},
+            {name:"FGSM",description:"FGSM算法:快速梯度符号法是一种简单而有效的生成对抗样本的方法，其工作方式如下：在给定输入数据后，利用已训练的模型输出预测并计算损失函数的梯度，然后使用梯度的符号来创建使损失最大化的新数据",},
+            {name:"PGD",description:"PGD算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
+            {name:"CW",description:"C&W算法：该方法的出发点是攻击比较有名的对抗样本防御方法-防御蒸馏(就防御蒸馏方法而言，它在基本的L-BFGS，FGSM攻击方法上表现本身就比较差)。对于寻找对抗样本过程中目标函数的设置将会极大的影响对抗样本的攻击效果，为此，通过目标函数的设定，在零范数，二范数和无穷范数的限制下分别设计了三种不同的寻找对抗样本的目标函数，这三种方法均可以绕过防御蒸馏的防御",},
+                ]],
             lr:0.1,
-            maxiter:200,
+            maxiter:1, //200
             lr_decayiter:60,
             lr_decayspd:0.1,
             batchsize:128,
-            weightdecay:0.01,
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -347,6 +366,38 @@ export default {
             // 修改选择模型
             console.log('radio checked', e.target.value);
         },
+        onAdvChoiceChange(e){
+            // debugger
+            console.log('radio checked', e);
+        },
+        handleBlur() {
+            console.log('blur');
+        },
+        handleFocus() {
+            console.log('focus');
+        },
+        // 攻击方法点击选中
+        changeMethods(i, j) {
+            let button = document.getElementById("button" + i + j)
+            if (button.style.color == "") {
+                this.methodHoverIndex = i
+                this.methodDescription = this.showmethodInfo[i][j].description
+                button.style.color = "#0B55F4"
+                button.style.borderColor = "#C8DCFB"
+                button.style.background = "#E7F0FD"
+                this.selectedMethod.push(this.showmethodInfo[i][j].name)
+                // this.selectedAttributes[this.showmethodInfo[i][j].name] = {}
+            } else {
+                this.methodHoverIndex = -1
+                this.methodDescription = ""
+                button.style.color = ""
+                button.style.borderColor = "#C8DCFB"
+                button.style.background = "#F2F4F9"
+                button.blur()
+                this.selectedMethod.splice(this.selectedMethod.indexOf(this.showmethodInfo[i][j].name), 1 )
+                // delete this.selectedAttributes[this.showmethodInfo[i][j].name]
+            }
+        },
         exportResult(){
             if (confirm("您确认下载该pdf文件吗？") ){
                 var element = document.getElementById("download_page");
@@ -364,18 +415,15 @@ export default {
         resultPro(res){
             debugger;
             let data = res.FeatureScatter;
-            let legend = ['Normal Training', 'Feature Scatter'];
-            let xAxis = ['Natural', 'PGD', 'FGSM', 'CW'];
-            let data1 = [];
-            let data2 = [];
-            this.result.mean_value = 0;
-            for(let i=0; i<xAxis.length; i++){
-                data1.push(data.ori_acc[xAxis[i]]);
-                data2.push(data.enh_acc[xAxis[i]]);
-                this.result.mean_value = this.result.mean_value + data.enh_acc[xAxis[i]] - data.ori_acc[xAxis[i]];
-            };
-            this.result.mean_value = this.result.mean_value/4;
-            DrawRobustBar('adv_robust_result', legend, xAxis, data1, data2);
+            let legend = ["Normal Training", "Robust Training"];
+            let xAxis = Object.keys(data.feature_scatter);
+            let data_ori = [];
+            let data_fs = [];
+            for(let i in xAxis){
+                data_ori.push(data.normal_train[xAxis[i]]);
+                data_fs.push(data.feature_scatter[xAxis[i]]);
+            }
+            DrawRobustBar('adv_robust_result', legend, xAxis, data_ori, data_fs);
         },
         /* 获取结果 */ 
         getData(){
@@ -432,18 +480,16 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
-        // 切换页面
-        changeSelectPage(){
-
-        },
         /* 点击评估触发事件 */
         dataEvaClick(){
-            debugger
-
             /* 备份 */ 
             var that = this;
-            // that.tid = "20231106_1515_5f90b9c";
-            // that.stidlist =  {"FeatureScatter":"S20231106_1515_89decca"};
+            if(that.selectedMethod.length==0){
+                that.$message.warning('请至少选择一项评估算法！',3);
+                return
+            }
+            // that.tid = "20231130_1553_7208602";
+            // that.stidlist =  {"FeatureScatter":"S20231130_1553_1fd2cee"};
             // that.clk = window.setInterval(() => {
             //     that.update();
             // }, 300)
@@ -455,12 +501,13 @@ export default {
                 const postdata={
                     dataset:that.datasetChoice,
                     modelname:that.modelChoice,
+                    attack_method: that.advChoice,
+                    evaluate_methods:that.selectedMethod,
                     lr: that.lr,
                     batch_size: that.batchsize,
                     max_epoch: that.maxiter,
                     decay_epoch: that.lr_decayiter,
                     decay_rate: that.lr_decayspd,
-                    weight_decay: that.weightdecay,
                     tid:that.tid};
                 that.$axios.post("/Defense/AdvTraining_FeatureScatter", postdata).then((res) => {
                     that.logflag = true;
@@ -617,6 +664,21 @@ text-align: left;
     order: 1;
     align-self: stretch;
     flex-grow: 0;
+}
+
+
+.denfenseMethod .ant-btn{
+    width: 100%;
+    background-color: #F2F4F9;
+    height:60px;
+    color:#000;
+    border:0px;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px; 
 }
 
 /* 按钮样式 */
