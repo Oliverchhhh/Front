@@ -58,8 +58,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <a-radio :style="radioStyle" value="SVHN10"> SVHN10 </a-radio>
-                                <div class="matchedDes" v-show="datasetChoice=='SVHN10'">
+                                <a-radio :style="radioStyle" value="SVHN"> SVHN10 </a-radio>
+                                <div class="matchedDes" v-show="datasetChoice=='SVHN'">
                                     <p class="matchedMethodText"><span>SVHN10数据集：</span>是一个街景房屋号码数据集，该数据集来源于谷歌街景门牌号码。原生的数据集1(Format 1)是一些原始的未经处理的彩色图片，Format2 将这些数字裁剪成32x32的大小，包含10个类，73257位用于训练，26032位用于测试，531131 个额外的、难度稍低的样本，用作额外的训练数据。</p>
                                     <p class="matchedMethodText">图例：</p>
                                     <div class="demoData" >
@@ -285,7 +285,7 @@ export default {
             {name:"CW",description:"C&W算法：该方法的出发点是攻击比较有名的对抗样本防御方法-防御蒸馏(就防御蒸馏方法而言，它在基本的L-BFGS，FGSM攻击方法上表现本身就比较差)。对于寻找对抗样本过程中目标函数的设置将会极大的影响对抗样本的攻击效果，为此，通过目标函数的设定，在零范数，二范数和无穷范数的限制下分别设计了三种不同的寻找对抗样本的目标函数，这三种方法均可以绕过防御蒸馏的防御",},
                 ]],
             lr:0.1,
-            maxiter:1, //200
+            maxiter:120, //200
             lr_decayiter:60,
             lr_decayspd:0.1,
             batchsize:128,
