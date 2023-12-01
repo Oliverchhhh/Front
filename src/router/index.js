@@ -220,6 +220,12 @@ const router = new Router({
     name: 'taskList',
     component: () => import('../views/task_center.vue')
   },
+  // 组装的大屏界面
+  {
+    path: '/big_view',
+    name: 'bigview',
+    component: () => import('../views/bigView/big_view_index.vue')
+  },
   ]
   
 })

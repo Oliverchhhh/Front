@@ -53,3 +53,9 @@ src: url('../font/HONORSansCN-Thin.ttf');
 font-weight: normal;
 font-style: normal;
 }
+@font-face {
+    font-family: "YouSheBiaoTiHei";
+    src: url('../font/YouSheBiaoTiHei.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
