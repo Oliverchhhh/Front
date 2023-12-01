@@ -54,8 +54,8 @@
                             <p class="mainParamName">请选择模型</p>
                             <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
                                 <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="SmallCNN" >SmallCNN</a-radio>
-                                    <a-radio :style="radioStyle" value="ResNet18" >ResNet18</a-radio>
+                                    <a-radio :style="radioStyle" value="resnet18" >ResNet18</a-radio>
+                                    <a-radio :style="radioStyle" value="preactresnet18" >PreactResNet18</a-radio>
                                     <a-radio :style="radioStyle" value="WRN" >WRN</a-radio>
                                 </div>
                             </a-radio-group>
@@ -68,13 +68,26 @@
                                     <el-input-number :min="0" :max="1" :step="0.01" v-model="lr"></el-input-number>
                                 </div>
                                 <div>
-                                    <p class="matchedMethodText paramblock">训练轮数：</p> 
-                                    <el-input-number :min="1" :max="100"  v-model="maxiter"></el-input-number>
+                                    <p class="matchedMethodText paramblock">扰动系数：</p> 
+                                    <el-input-number :min="0" :max="1" :step="0.001" v-model="epsilon"></el-input-number>
                                 </div>
                                 <div>
-                                    <p class="matchedMethodText paramblock">分类的类别数：</p> 
-                                    <el-input-number :min="10" :max="10"  v-model="classnum"></el-input-number>
+                                    <p class="matchedMethodText paramblock">训练轮数：</p> 
+                                    <el-input-number :min="1" :max="150"  v-model="maxiter"></el-input-number>
                                 </div>
+                                
+                            </div>
+                        </div>
+                        <div class="thresholdSet">
+                            <p class="mainParamName">请输入选择攻击方法（可多选）</p>
+                            <div v-for="(methods, i) in showmethodInfo" :key="i" style="margin-bottom: 16px;">
+                                <a-row :gutter="16" style="height:50px;" type="flex">
+                                    <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod">
+                                        <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
+                                            >{{ method.name }}</a-button>
+                                    </a-col>
+                                </a-row>
+                                <div v-if="methodHoverIndex==i && methodDescription !== ''" style="padding:14px 24px;margin: 16px auto; "> {{ methodDescription }} </div>
                             </div>
                         </div>
                     </div>
@@ -105,13 +118,13 @@
                             <p class="result_annotation">模型：{{ modelChoice }}</p>
                             <p class="result_annotation">学习率：{{ lr }}</p>
                             <p class="result_annotation">训练轮数：{{ maxiter }}</p>
-                            <p class="result_annotation">分类的类别数：{{ classnum }}</p>
+                            <p class="result_annotation">扰动系数：{{ epsilon }}</p>
                         </div>
                         <div class=" main_top_echarts_con_title ">自我整合鲁棒性训练效果</div>
                         <div id="rdeva">
-                            <div class="box" id="adv_robust_result"></div>
+                            <div style="width: 1000px; height: 500px;" id="adv_robust_result"></div>
                             <div class="conclusion">
-                                <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用对抗训练方法进行模型鲁棒性训练，鲁棒性提升了{{result.up}}。</p>
+                                <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用自我整合训练方法进行模型鲁棒性训练，受到对抗样本攻击时模型分类准确率提升。</p>
                             </div>
                         </div>
                     </div>
@@ -138,7 +151,7 @@ import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
-
+import { DrawRobustBar } from "../assets/js/drawEcharts.js";
 /* 引入图片 */
 import funcicon from "../assets/img/robustTrainingIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
@@ -167,7 +180,7 @@ export default {
     func_introduce: func_introduce,
     showLog: showLog,
     resultDialog: resultDialog,
-    selectIcon
+    selectIcon,DrawRobustBar
     },
     data(){
         return{
@@ -192,10 +205,28 @@ export default {
                 {imgUrl:require("../assets/img/cifar108.jpg"),name:'mnist8'},
                 {imgUrl:require("../assets/img/cifar109.jpg"),name:'mnist9'},
                 ],
-            modelChoice: "ResNet18",
+            modelChoice: "resnet18",
             lr:0.01,
-            maxiter:20,
-            classnum:10,
+            maxiter:1, //120
+            epsilon:0.031,
+            selectedMethod:[],
+            showmethodInfo:[[
+                {name:"FGSM",description:"FGSM算法:快速梯度符号法是一种简单而有效的生成对抗样本的方法，其工作方式如下：在给定输入数据后，利用已训练的模型输出预测并计算损失函数的梯度，然后使用梯度的符号来创建使损失最大化的新数据",},
+                {name:"FFGSM",description:"FFGSM算法：在使用FGSM攻击算法前加入随机初始化的扰动，经过实验发现基于FFGSM的对抗训练拥有高效性",},
+                {name:"RFGSM",description:"RFGSM算法：R+FGSM在FGSM中加入随机的步骤, 是一个在白盒设置下高效的能替代迭代攻击的方法",},
+                {name:"MIFGSM",description:"MIFGSM算法：momentum iterative FGSM是一种使用momentum迭代梯度的方法，该方法在迭代梯度对抗攻击(如BIM)的基础上，累计每次梯度方向的速度向量作为momentum，每次对抗扰动不再直接使用梯度方向，转而采用momentum方向，从而稳定更新方向并避免局部极值，更好提高攻击迁移性",},
+                ],
+                [
+                {name:"BIM",description:"BIM算法：Basic Iterative MethodBIM迭代式FGSM是对FGSM的改进方法，主要的改进有两点，其一是FGSM方法是一步完成的，而BIM方法通过多次迭代来寻找对抗样本；其次，为了避免迭代过程中出现超出有效值的情况出现，使用了一个修建方法严格限制像素值的范围",},
+                {name:"PGDL1",description:"PGD算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
+                {name:"PGDL2",description:"PGDL2算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
+                
+                ],
+                [
+                {name:"DIFGSM",description:"DIFGSM算法：Diverse Inputs Iterative Fast Gradient Sign Method,通过创建多样的输入模式提高对抗样本的迁移性。做法是对输入的原图像以p的概率加上随机且可导的变换(transformation)，使用梯度的方法最大化模型对变换后的原图像的损失函数值从而得到对抗图像",},
+                {name:"CW",description:"C&W算法：该方法的出发点是攻击比较有名的对抗样本防御方法-防御蒸馏(就防御蒸馏方法而言，它在基本的L-BFGS，FGSM攻击方法上表现本身就比较差)。对于寻找对抗样本过程中目标函数的设置将会极大的影响对抗样本的攻击效果，为此，通过目标函数的设定，在零范数，二范数和无穷范数的限制下分别设计了三种不同的寻找对抗样本的目标函数，这三种方法均可以绕过防御蒸馏的防御",},
+                {name:"TPGD",description:"TPGD算法：基于KL-Divergence loss的pgd攻击",}
+            ]],
             /* 评估按钮样式和状态 */
             buttonBGColor:{
                 background:"#0B55F4",
@@ -277,6 +308,28 @@ export default {
             // 修改选择模型
             console.log('radio checked', e.target.value);
         },
+        // 攻击方法点击选中
+        changeMethods(i, j) {
+            let button = document.getElementById("button" + i + j)
+            if (button.style.color == "") {
+                this.methodHoverIndex = i
+                this.methodDescription = this.showmethodInfo[i][j].description
+                button.style.color = "#0B55F4"
+                button.style.borderColor = "#C8DCFB"
+                button.style.background = "#E7F0FD"
+                this.selectedMethod.push(this.showmethodInfo[i][j].name)
+                // this.selectedAttributes[this.showmethodInfo[i][j].name] = {}
+            } else {
+                this.methodHoverIndex = -1
+                this.methodDescription = ""
+                button.style.color = ""
+                button.style.borderColor = "#C8DCFB"
+                button.style.background = "#F2F4F9"
+                button.blur()
+                this.selectedMethod.splice(this.selectedMethod.indexOf(this.showmethodInfo[i][j].name), 1 )
+                // delete this.selectedAttributes[this.showmethodInfo[i][j].name]
+            }
+        },
         exportResult(){
             if (confirm("您确认下载该pdf文件吗？") ){
                 var element = document.getElementById("download_page");
@@ -293,12 +346,17 @@ export default {
         /* result 处理*/
         resultPro(res){
             debugger;
-            // let
-            this.result.img_list = res.CoverageLayer.coverage_test_yz.coverage_layer;
-            for(var i=0; i<this.result.img_list.length;i++){
-                this.result.img_list[i]["coverage"] = parseInt(100*this.result.img_list[i]["coverage"]);
-                this.result.img_list[i]["imgUrl"]='static/output'+this.result.img_list[i]["imgUrl"].split('output')[1];
+            let data = res.SEAT;
+            let legend = ["Normal Training", "Robust Training"];
+            let xAxis = Object.keys(data);
+            xAxis.pop('stop');
+            let data_ori = [];
+            let data_seat = [];
+            for(let i in xAxis){
+                data_ori.push(data[xAxis[i]].at);
+                data_seat.push(data[xAxis[i]].seat);
             }
+            DrawRobustBar("adv_robust_result", legend, xAxis, data_ori, data_seat);
         },
         /* 获取结果 */ 
         getData(){
@@ -355,17 +413,22 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
-        // 切换页面
-        changeSelectPage(){
-
-        },
         /* 点击评估触发事件 */
         dataEvaClick(){
             // debugger
 
             /* 备份 */ 
             var that = this;
-            // that.isShowPublish = true;
+            if(that.selectedMethod.length==0){
+                that.$message.warning('请至少选择一项对抗攻击测试方法！',3);
+                return
+            }
+            // that.tid = "20231128_0943_b27b836"
+            // that.stidlist =  {"SEAT": "S20231128_0943_fdfe230"};
+            // that.clk = window.setInterval(() => {
+            //                 that.update();
+            //             }, 300)
+            // return
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 that.tid = result.data.Taskid;
@@ -373,12 +436,16 @@ export default {
                 /* 请求体 postdata*/
                 const postdata={
                     dataset:that.datasetChoice,
-                    model:that.modelChoice,
+                    modelname:that.modelChoice,
+                    lr:that.lr,
+                    epsilon:that.epsilon,
+                    max_epoch:that.maxiter,
+                    evaluate_method:that.selectedMethod,
                     tid:that.tid};
                 that.$axios.post("/Defense/AdvTraining_SEAT", postdata).then((res) => {
                     that.logflag = true;
                     // 异步任务
-                    that.stidlist =  {"AdvTraing":res.data.stid}
+                    that.stidlist =  {"SEAT":res.data.stid}
                     that.logclk = self.setInterval(that.getLog, 3000);
                     that.clk = self.setInterval(that.update, 3000);
                 }).catch((err) => {
@@ -531,6 +598,21 @@ text-align: left;
     align-self: stretch;
     flex-grow: 0;
 }
+
+.denfenseMethod .ant-btn{
+    width: 100%;
+    background-color: #F2F4F9;
+    height:60px;
+    color:#000;
+    border:0px;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px; 
+}
+
 
 /* 按钮样式 */
 .DataEva{

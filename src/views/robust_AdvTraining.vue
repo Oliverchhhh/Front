@@ -237,7 +237,7 @@ export default {
                 ],
             modelChoice: "ResNet18",
             advChoice: 'FGSM',
-            advTrainMethod:['FGSM','FFGSM',"RFGSM","MIFGSM","BIM","PGD","DIFGSM","ETOPGD","C&W","TPGD"],
+            advTrainMethod:['FGSM','FFGSM',"RFGSM","MIFGSM","BIM","PGDL1","PGDL2","DIFGSM","C&W","TPGD"],
             selectedMethod:[],
             selectedAttributes:"",
             showmethodInfo:[[
@@ -248,7 +248,7 @@ export default {
                 ],
                 [
                 {name:"BIM",description:"BIM算法：Basic Iterative MethodBIM迭代式FGSM是对FGSM的改进方法，主要的改进有两点，其一是FGSM方法是一步完成的，而BIM方法通过多次迭代来寻找对抗样本；其次，为了避免迭代过程中出现超出有效值的情况出现，使用了一个修建方法严格限制像素值的范围",},
-                {name:"PGD",description:"PGD算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
+                {name:"PGDL1",description:"PGD算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
                 {name:"PGDL2",description:"PGDL2算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
                 
                 ],
@@ -464,35 +464,35 @@ export default {
                 that.$message.warning('请至少选择一项对抗攻击方法！',3);
                 return
             }
-            that.tid = "20231115_1101_dc28b4d"
-            that.stidlist =  {"CNN_AT": "S20231115_1101_33daea0"};
-            that.clk = window.setInterval(() => {
-                            that.update();
-                        }, 300)
-            return
+            // that.tid = "20231115_1101_dc28b4d"
+            // that.stidlist =  {"CNN_AT": "S20231115_1101_33daea0"};
+            // that.clk = window.setInterval(() => {
+            //                 that.update();
+            //             }, 300)
+            // return
             // that.isShowPublish = true;
             /* 调用创建主任务接口，需开启后端程序 */
-            // this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-            //     that.tid = result.data.Taskid;
-            //     /* 请求体 postdata*/
-            //     const postdata={
-            //         dataset:that.datasetChoice,
-            //         modelname:that.modelChoice,
-            //         attackmethod: that.advChoice,
-            //         evaluate_methods: that.selectedMethod,
-            //         tid:that.tid};
-            //     that.$axios.post("/Defense/AdvTraining_CNNAT", postdata).then((res) => {
-            //         that.logflag = true;
-            //         // 异步任务
-            //         that.stidlist =  {"CNN_AT":res.data.stid}
-            //         that.logclk = self.setInterval(that.getLog, 3000);
-            //         that.clk = self.setInterval(that.update, 3000);
-            //     }).catch((err) => {
-            //             console.log(err)
-            //     });
-            // }).catch((err) => {
-            //     console.log(err)
-            // });    
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+                that.tid = result.data.Taskid;
+                /* 请求体 postdata*/
+                const postdata={
+                    dataset:that.datasetChoice,
+                    modelname:that.modelChoice,
+                    attackmethod: that.advChoice,
+                    evaluate_methods: that.selectedMethod,
+                    tid:that.tid};
+                that.$axios.post("/Defense/AdvTraining_CNNAT", postdata).then((res) => {
+                    that.logflag = true;
+                    // 异步任务
+                    that.stidlist =  {"CNN_AT":res.data.stid}
+                    that.logclk = self.setInterval(that.getLog, 3000);
+                    that.clk = self.setInterval(that.update, 3000);
+                }).catch((err) => {
+                        console.log(err)
+                });
+            }).catch((err) => {
+                console.log(err)
+            });    
         }
     }
 }
