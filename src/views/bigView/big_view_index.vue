@@ -236,8 +236,8 @@ export default {
             this.res={}
             var that = this;
             that.$axios.get('/output/Resultdata', {params:{ Taskid: this.res_group[this.dataname+'_'+this.modelname] }}).then((data)=>{
-                that.result=data.data.result;
-                console.log("dataget_result:",that.result);
+                that.res=data.data.result;
+                console.log("dataget_result:",that.res);
             });
         },
         setPieChart(){
@@ -300,7 +300,6 @@ export default {
                 six_label.style.backgroundImage = `url(${params.data.url})`
               })
               myChart1.on('mouseout',function(params){
-                debugger
                 that.show_score = that.result.score
                 let six_label = document.getElementById("six")
                 six_label.style.backgroundImage = `url(${noselectImg})`
