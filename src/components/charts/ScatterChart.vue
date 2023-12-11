@@ -25,13 +25,16 @@ export default {
         refresh_Width:{
           type: Boolean,
           default:true
+        },
+        color:{
+            type: Array,
+            default: [['#37A2DA','#e06343'],['#000']]
         }
     },
     data(){
         return{
             option : {},
             myChart : null,
-            color:['#37A2DA','#e06343'],
             type:["正常样本","对抗样本"]
             // 使用ref创建虚拟DOM引用，使用时用main.value
         }
@@ -57,17 +60,23 @@ export default {
                     type: "scatter",
                     data: this.inputData[i],
                     symbolSize: 2,
-                    itemStyle: { color: this.color[i], opacity:0.8 }
+                    itemStyle: { color: this.color[0][i], opacity:0.8 }
                 })
             }
             // 指定图表的配置项和数据
             this.option = {
                 legend: {
-                    top: 10,
-                    data: this.type
+                    top: 5,
+                    data: this.type,
+                    textStyle:{
+                        color:this.color[1][0]
+                    }
                 },
                 grid:{
-                    x:"18%",
+                    top:"30px",
+                    left:"20px",
+                    right:"10px",
+                    bottom:"20px",
                 },
                 xAxis: {},
                 yAxis: {

@@ -352,6 +352,14 @@ export default {
     created() {
         document.title = '模型鲁棒性训练';
         },
+    beforeDestroy() {
+        if(this.clk) { //如果定时器还在运行,关闭定时器
+            window.clearInterval(this.clk); //关闭
+        }
+        if(this.logclk){
+            window.clearInterval(this.logclk);
+        }
+    },
     methods: { 
         /* 关闭结果窗口 */
         closeDialog(){
@@ -462,9 +470,9 @@ export default {
                 this.percent=100
                 this.logflag = false;
                 // 关闭结果数据获取data
-                clearInterval(this.clk);
+                window.clearInterval(this.clk);
                 // 关闭日志获取结果获取
-                clearInterval(this.logclk);
+                window.clearInterval(this.logclk);
                 // 显示结果窗口
                 this.isShowPublish = true;
                 // 处理结果
@@ -513,8 +521,8 @@ export default {
                     that.logflag = true;
                     // 异步任务
                     that.stidlist =  {"FeatureScatter":res.data.stid}
-                    that.logclk = self.setInterval(that.getLog, 3000);
-                    that.clk = self.setInterval(that.update, 3000);
+                    that.logclk = window.setInterval(that.getLog, 3000);
+                    that.clk = window.setInterval(that.update, 3000);
                 }).catch((err) => {
                         console.log(err)
                 });

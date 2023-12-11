@@ -89,7 +89,7 @@
                             <div id = 'conseva'></div>
                             <div class="conseva_label">consistency</div>
                             <div class="conclusion">
-                                <p class="result_text">{{ consText }}</p>
+                                <p class="result_text">{{ res.consText }}</p>
                                 <p class="result_annotation">个体公平性指标越接近1，数据集越公平。</p>
                             </div>
                         </div>
@@ -492,7 +492,7 @@ border-radius: 8px;
   border-bottom: 1px solid #E0E3EB;
 }
 .result_text{
-  text-align: left;
+  text-align: center;
 }
 
 .dialog_main{

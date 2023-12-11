@@ -464,12 +464,12 @@ export default {
                 return
             }
 
-            that.tid = "20231114_1611_bbbd618"
-            that.stidlist =  {"RiFT": "S20231114_1611_cb2fe7d"};
-            that.clk = window.setInterval(() => {
-                            that.update();
-                        }, 300)
-            return
+            //that.tid = "20231114_1611_bbbd618"
+            //that.stidlist =  {"RiFT": "S20231114_1611_cb2fe7d"};
+            //that.clk = window.setInterval(() => {
+            //                that.update();
+            //            }, 300)
+            //return
 
             /* 调用创建主任务接口，需开启后端程序 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {

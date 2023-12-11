@@ -167,6 +167,201 @@
             </modelRobustVerifyEval>
             <backdoorDefenseEval v-if="'backdoor_defense' in result" :is-show="resultshow" :result="result" :postData="postData" @on-close="() => { resultshow = !resultshow }">
             </backdoorDefenseEval>
+            <!-- 关键参数微调鲁棒性训练 -->
+            <resultDialog  @on-close="() => { resultshow = !resultshow }"
+               :isShow="resultshow" 
+               v-if="'RiFT' in result"
+               >
+                <div slot="header">
+                    <div class="dialog_title">
+                        <img class="paramIcom" src="../assets/img/robustTrainingIcon.png" >
+                        <h1>关键参数微调鲁棒性训练</h1>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
+                    <!-- 图表 -->
+                    <div class="result_div">
+                        <div class="conclusion_info">
+                            <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
+                            <p class="result_annotation">数据集：{{ postData.dataset }}</p>
+                            <p class="result_annotation">模型：{{ postData.modelname }}</p>
+                            <p class="result_annotation">对抗训练方法：{{ postData.attack_method }}</p>
+                            <p class="result_annotation">攻击方法：{{ postData.evaluate_methods }}</p>
+                            <p class="result_annotation">正常训练次数：{{ postData.train_epoch }}</p>
+                            <p class="result_annotation">训练时的批量大小：{{ postData.at_epoch }}</p>
+                            <p class="result_annotation">对抗训练次数：{{ postData.batchsize }}</p>
+                        </div>
+                        <div class=" main_top_echarts_con_title ">关键参数微调鲁棒性训练效果</div>
+                        <div id="rdeva">
+                            <div style="width: 1000px; height: 500px;" id="adv_robust_result"></div>
+                            <div class="conclusion">
+                                <p class="result_text">{{ postData.modelname }}模型、{{ postData.dataset }}数据集，用关键参数微调鲁棒性训练方法提高模型鲁棒性，模型分类精度得到明显提升。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
+                </div>
+            </resultDialog>
+            <resultDialog  @on-close="() => { resultshow = !resultshow }"
+               :isShow="resultshow" 
+               v-if="'FeatureScatter' in result"
+               >
+                <div slot="header">
+                    <div class="dialog_title">
+                        <img class="paramIcom" src="../assets/img/robustTrainingIcon.png" >
+                        <h1>特征散射鲁棒性训练</h1>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
+                    <!-- 图表 -->
+                    <div class="result_div">
+                        <div class="conclusion_info">
+                            <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
+                            <p class="result_annotation">数据集：{{ postData.dataset }}</p>
+                            <p class="result_annotation">模型：{{ postData.modelname }}</p>
+                            <p class="result_annotation">学习率：{{ postData.lr }}</p>
+                            <p class="result_annotation">学习率衰减的轮数：{{ postData.decay_epoch }}</p>
+                            <p class="result_annotation">学习率衰减的速率：{{ postData.decay_rate }}</p>
+                            <p class="result_annotation">最大训练轮数：{{ postData.max_epoch }}</p>
+                            <p class="result_annotation">训练时的批量大小：{{ postData.batch_size }}</p>
+                        </div>
+                        <div class=" main_top_echarts_con_title ">特征散射鲁棒性训练效果</div>
+                        <div id="rdeva">
+                            <div style="width: 800px; height: 500px;" id="adv_robust_result"></div>
+                            <div class="conclusion">
+                                <p class="result_text">{{ postData.modelname }}模型、{{ postData.dataset }}数据集，用Feature Scatter方法进行模型鲁棒性训练后模型鲁棒性增强。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
+                </div>
+            </resultDialog>
+            <resultDialog  @on-close="() => { resultshow = !resultshow }"
+               :isShow="resultshow" 
+               v-if="'CNN_AT' in result"
+               >
+                <div slot="header">
+                    <div class="dialog_title">
+                        <img class="paramIcom" src="../assets/img/robustTrainingIcon.png" alt="">
+                        <h1>CNN对抗训练</h1>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
+                    <!-- 图表 -->
+                    <div class="result_div">
+                        <div class="conclusion_info">
+                            <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
+                            <p class="result_annotation">数据集：{{ postData.dataset }}</p>
+                            <p class="result_annotation">模型：{{ postData.modelname }}</p>
+                            <p class="result_annotation">对抗训练方法：{{ postData.attackmethod }}</p>
+                            <p class="result_annotation">攻击方法：</p>
+                            <div class="result_annotation" style="word-wrap: break-word; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start;align-items: center;gap: 10px;"> 
+                                <p  v-for="(item, index) in postData.evaluate_methods" :key="index">{{ item }}</p>
+                            </div>
+                            
+                        </div>
+                        <div class=" main_top_echarts_con_title ">模型对抗训练效果</div>
+                        <p class=" echart_title ">训练前后模型受攻击分类准确率</p>
+                        <div id="rdeva">
+                            <div style="width: 1000px;height: 500px;" id="adv_robust_result1"></div>
+                        </div>
+                        <p class=" echart_title ">训练前后模型攻击成功率</p>
+                        <div id="rdeva">
+                            <div style="width: 1000px;height: 500px;" id="adv_robust_result2"></div>
+                            <div class="conclusion">
+                                <p class="result_text">{{ postData.modelname }}模型、{{ postData.dataset }}数据集，用{{ postData.attackmethod }}对抗训练方法对模型鲁棒性进行提升。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
+                </div>
+            </resultDialog>
+            <resultDialog  @on-close="() => { resultshow = !resultshow }"
+               :isShow="resultshow" 
+               v-if="'SEAT' in result"
+               >
+                <div slot="header">
+                    <div class="dialog_title">
+                        <img class="paramIcom" src="../assets/img/robustTrainingIcon.png" alt="">
+                        <h1>自我整合鲁棒性训练</h1>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
+                    <!-- 图表 -->
+                    <div class="result_div">
+                        <div class="conclusion_info">
+                            <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
+                            <p class="result_annotation">数据集：{{ postData.dataset }}</p>
+                            <p class="result_annotation">模型：{{ postData.modelname }}</p>
+                            <p class="result_annotation">学习率：{{ postData.lr }}</p>
+                            <p class="result_annotation">训练轮数：{{ postData.epsilon }}</p>
+                            <p class="result_annotation">扰动系数：{{ postData.max_epoch }}</p>
+                        </div>
+                        <div class=" main_top_echarts_con_title ">自我整合鲁棒性训练效果</div>
+                        <div id="rdeva">
+                            <div style="width: 1000px; height: 500px;" id="adv_robust_result"></div>
+                            <div class="conclusion">
+                                <p class="result_text">{{ postData.modelname }}模型、{{ postData.dataset }}数据集，用自我整合训练方法进行模型鲁棒性训练，受到对抗样本攻击时模型分类准确率提升。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
+                </div>
+            </resultDialog>
+            <resultDialog @on-close="() => { resultshow = !resultshow }"
+               :isShow="resultshow" 
+               v-if="'AdvTraining_GNN' in result"
+               >
+                <div slot="header">
+                    <div class="dialog_title">
+                        <img class="paramIcom" src="../assets/img/robustTrainingIcon.png" alt="">
+                        <h1>GCN可信鲁棒训练</h1>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
+                    <!-- 图表 -->
+                    <div class="result_div">
+                        <div class="conclusion_info">
+                            <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
+                            <p class="result_annotation">数据集：{{ postData.dataset }}</p>
+                            <p class="result_annotation">批处理大小：{{ postData.batch_size }}</p>
+                            <p class="result_annotation">训练集比例：{{ postData.train_size }}</p>
+                            <p class="result_annotation">测试集比例：{{ postData.test_size }}</p>
+                            <p class="result_annotation">验证集比例：{{ postData.val_size }}</p>  <br>
+                            <p class="result_annotation">随机数种子：{{ postData.random_state }}</p>
+                            <p class="result_annotation">模型：GCN</p>
+                            <p class="result_annotation">最大迭代次数：{{ postData.n_iters }}</p>
+                            <p class="result_annotation">全局扰动数量：{{ postData.train_Q }}</p>
+                            <p class="result_annotation">鲁棒损失梯度迭代次数：{{ postData.margin_iters }}</p>
+                            <p class="result_annotation">属性扰动数量：{{ postData.q_ratio }}</p>
+                            <p class="result_annotation">未优化鲁棒损失迭代次数：{{ postData.burn_in }}</p>
+                        </div>
+                        <div class=" main_top_echarts_con_title ">GCN可认证鲁棒训练效果</div>
+                        <div style="width: 1000px; height: 450px;" id="adv_robust_result"></div>
+                        <!-- <div class=" main_top_echarts_con_title ">非鲁棒性训练</div> -->
+                        <div style="width: 1000px; height: 400px;" id="unadv_robust_result"></div>
+                        <div class="conclusion">
+                            <p class="result_text">通过鲁棒性训练，系统中抗扰动节点与总节点数量的比例得到提升，表明本鲁棒性训练算法能极大提升系统的鲁棒性和抗攻击性。GNN模型、{{ postData.dataset  }}数据集，用可信鲁棒训练方法进行GCN模型鲁棒性训练，鲁棒性提升了{{result.up}}%。</p>
+                        </div>
+                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
+                </div>
+            </resultDialog>
         </a-layout-content>
         <a-layout-footer>
 
@@ -176,6 +371,7 @@
 </template>
 <script>
 /* 引入组件，导航栏 */
+import resultDialog from "../components/resultDialog.vue"
 import navmodule from "../components/nav_homme.vue";
 import loginDialog from "../components/loginDialog.vue"
 import {getCookie} from '../assets/js/cookie.js'
@@ -208,6 +404,7 @@ import SideEval from "../views/dialog/SideEval.vue"
 import modelRobustVerifyEval from "../views/dialog/modelRobustVerifyEval.vue"
 import backdoorDefenseEval from "../views/dialog/backdoorDefenseEval.vue"
 import {delCookie} from '../assets/js/cookie.js'
+import {DrawRobustBar,initGraph1, initGraph2} from "../assets/js/drawEcharts.js"
 export default {
     name:"taskList",
     components:{
@@ -220,7 +417,7 @@ export default {
         ModelReachEval,ModelConsistencyEval,ModelAutoVerifyEval,ConcolicEval,DataCleanEval,
         CoverageNeuralEval,CoverageLayerEval,CoverageImportanceEval,DeepSstEval,ModelMeasureEval,
         DeepLogicEval,FrameworkTestEval,ModularDevelopEval, SideEval,modelRobustVerifyEval,EnvTestEval,
-        backdoorDefenseEval
+        backdoorDefenseEval,resultDialog,DrawRobustBar
     },
     data(){
         return{
@@ -335,6 +532,30 @@ export default {
         document.title = '任务中心';
         },
     methods: { 
+        resultProRiFT(res){
+            debugger;
+            console.log(res)
+            let data_ori = res.RiFT.ori;
+            let data_rift = res.RiFT.rift;
+            data_ori.robust_acc["No Attack"] = data_ori.test_acc;
+            data_rift.robust_acc["No Attack"] = data_rift.test_acc;
+            DrawRobustBar("adv_robust_result", ["Normal Training", "Robust Training"], Object.keys(data_rift.robust_acc), Object.values(data_ori.robust_acc), Object.values(data_rift.robust_acc))
+            // this.result.up = 
+        },
+        resultProSEAT(res){
+            debugger;
+            let data = res.SEAT;
+            let legend = ["Normal Training", "Robust Training"];
+            let xAxis = Object.keys(data);
+            xAxis.pop('stop');
+            let data_ori = [];
+            let data_seat = [];
+            for(let i in xAxis){
+                data_ori.push(data[xAxis[i]].at);
+                data_seat.push(data[xAxis[i]].seat);
+            }
+            DrawRobustBar("adv_robust_result", legend, xAxis, data_ori, data_seat);
+        },
         loginout(){
             delCookie("username")
             setTimeout(function(){
@@ -358,6 +579,7 @@ export default {
         },
         getResult(record){
             this.result={}
+            
             var that = this;
             that.$axios.get('/output/Resultdata', {params:{ Taskid: record.taskid }}).then((data)=>{
                 that.result=data.data.result;
@@ -369,9 +591,37 @@ export default {
                         }
                     }
                 }
-                console.log("dataget_result:",that.result);
+                console.log("data.data",data.data.result)
+                var stopflag = 1
+                for (let temp in data.data.result){
+                    if (temp !='tid' && 'stop' in data.data.result[temp] && data.data.result[temp].stop != 1){
+                        console.log( 'result stop',data.data.result[temp].stop)
+                        stopflag = data.data.result[temp].stop
+                        that.$message.warning('所选任务未执行成果！',3);
+                        return
+                    }
+                }
+                console.log('stopflag:',stopflag)
+                
+                if('RiFT' in data.data.result){
+                    that.resultProRiFT( data.data.result)
+                }
+                if('FeatureScatter' in data.data.result){
+                    that.resultProFeatureScatter(data.data.result)
+                }
+                if('CNN_AT' in data.data.result){
+                    that.resultProAT(data.data.result)
+                }
+                if('SEAT' in data.data.result){
+                    that.resultProSEAT(data.data.result)
+                }
+                if('AdvTraining_GNN' in data.data.result){
+                    that.resultProAdvTraining_GNN(data.data.result)
+                }
+                that.setresultshow(stopflag==1)
             });
-            this.setresultshow(true)
+            
+            
         },
         getLog(record){
             var that = this;
@@ -431,7 +681,12 @@ export default {
                 Defense_Ensemble:'模型群智化防御',
                 Auto_Attack:'模型对抗性测试',
                 LLM_attack:'大模型对抗攻击',
-                backdoor_defense:'后门攻击防御'
+                backdoor_defense:'后门攻击防御',
+                CNN_AT:'对抗鲁棒训练',
+                AdvTraining_GNN:'可认证鲁棒性训练',
+                FeatureScatter:'特征散射鲁棒性训练',
+                SEAT:'自我整合鲁棒性训练',
+                RiFT:'关键参数微调鲁棒性训练'
             }
             let num = 1
             for (let taskid in this.taskinfo){
@@ -467,9 +722,40 @@ export default {
                 this.info.push(temp)
             }
         },
-        /* 获取结果 */ 
+        resultProFeatureScatter(res){
+            debugger;
+            let data = res.FeatureScatter;
+            let legend = ["Normal Training", "Robust Training"];
+            let xAxis = Object.keys(data.feature_scatter);
+            let data_ori = [];
+            let data_fs = [];
+            for(let i in xAxis){
+                data_ori.push(data.normal_train[xAxis[i]]);
+                data_fs.push(data.feature_scatter[xAxis[i]]);
+            }
+            DrawRobustBar('adv_robust_result', legend, xAxis, data_ori, data_fs);
+        },
+        resultProAT(res){
+            debugger;
+            let data_ori = res.CNN_AT.Normal;
+            let data_robust = res.CNN_AT.Enhance;
+            let legend = ["Normal Training", "Robust Training"];
+            let xAxis =  Object.keys(data_ori.atk_acc);
+            let data_acc_ori = Object.values(data_ori.atk_acc);
+            let data_acc_enh = Object.values(data_robust.atk_acc);
+            let data_asr_ori = Object.values(data_ori.atk_asr);
+            let data_asr_enh = Object.values(data_robust.atk_asr);
+            DrawRobustBar("adv_robust_result1", legend, xAxis, data_acc_ori, data_acc_enh);
+            DrawRobustBar("adv_robust_result2", legend, xAxis, data_asr_ori, data_asr_enh);
+        },
+        resultProAdvTraining_GNN(res){
+            debugger;
+            initGraph1("adv_robust_result",res.AdvTraining_GNN); 
+            initGraph2("unadv_robust_result",res.AdvTraining_GNN);
+            this.result.up = (res.AdvTraining_GNN.data.robust_test_result.robust_method-res.AdvTraining_GNN.data.robust_test_result.normal_method).toFixed(2)
+        },
+        /* 获取tasklist */ 
         queryTask(){
-            // debugger
             var that = this;
             let postData = {
             }
@@ -478,6 +764,7 @@ export default {
                 that.result = data.data;
                 that.taskinfo = data.data.TaskList;
                 that.proResult()
+                
             });
         },
         clicklogin(){
@@ -624,6 +911,53 @@ export default {
 .ant-menu{
     background: none;
 }
+.result_div{
+    margin-top: 0;
+}
+.conclusion_info{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 20px;
+    gap: 25px;
+    margin-bottom: 20px;
+    width: 1080px;
+    /* gray-7 */
 
+    background: #F2F4F9;
+    border-radius: 4px;
+}
+#rdeva{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
 
+    width: 960px;
+    /* height: 414px; */
+    height: auto;
+    /* Inside auto layout */
+
+    flex: none;
+    order: 1;
+    flex-grow: 0
+}
+.echart_title{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 0px;
+    gap: 10px;
+    isolation: isolate;
+
+    /* width: 960px; */
+    height: auto;
+    /* Inside auto layout */
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+}
 </style>

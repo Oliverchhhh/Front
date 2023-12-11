@@ -94,7 +94,7 @@
                     </div>
                     <!--  -->
                     <!-- Nash博弈结果 -->
-                    <div v-if="'Nash' in postData.DefMethod" > 
+                    <div v-if="postData.DefMethod.indexOf('Nash' )>-1" > 
                       <div class="result-title">准确率收益直方图</div>
                       <div id="acc_Chart" class="echart" style="width: 1000px; height: 400px;"></div>
                       <!-- <div class="conclusion">
@@ -140,7 +140,11 @@ export default {
       },
       result:{},
       postData:{
-
+        default:{"DatasetParam": {"name":"MNIST"},
+        "ModelParam": {"name":"ResNet34"},
+        "AdvMethods":[],
+        "DefMethod":[]
+      }
       },
       //下面这些属性会绑定到div上面 详情参照上面的html结构
       // 如： :style="{top:topDistance+'%',width:widNum+'%'}"
@@ -175,11 +179,6 @@ export default {
     return {
       htmlTitle:"群智化防御报告",
       res:{},
-      postData:{
-        // 静态结果
-        "DatasetParam": {"name":"MNIST"},
-        "ModelParam": {"name":"ResNet34"},
-      },
     }
   },
   watch:{
@@ -338,11 +337,11 @@ export default {
           }
           if (lime_series.length > 0){
             setTimeout(function(){
-              var conseva = document.getElementById("bal_Chart");
-              var myChartcons = echarts.init(conseva);
+              var conseva1 = document.getElementById("bal_Chart");
+              var myChartcons1 = echarts.init(conseva1);
               window.addEventListener("resize", function () {
-                  myChartcons.resize()});
-                  option_profit && myChartcons.setOption(option_profit);
+                  myChartcons1.resize()});
+                  option_profit && myChartcons1.setOption(option_profit);
             },500)
           }
         }
@@ -427,13 +426,13 @@ export default {
             ]
         };
         setTimeout(function() {
-        var conseva = document.getElementById(ID);
-        var myChartcons = echarts.init(conseva);
+        var conseva2 = document.getElementById(ID);
+        var myChartcons2 = echarts.init(conseva2);
         
         window.addEventListener("resize", function () {
-          myChartcons.resize()});
-        option && myChartcons.setOption(option);
-        conseva.style.display="inline-block";},500)
+          myChartcons2.resize()});
+        option && myChartcons2.setOption(option);
+        conseva2.style.display="inline-block";},500)
       },
       draw_robust_echart(ID,data) {
         var sourcelist = [];
@@ -626,11 +625,11 @@ export default {
         //   echart_for_robust.hideLoading();
           let msg = "模型"+this.postData['ModelParam']['name']+"经过"+robustmethod+"等增强措施后，不同对抗攻击下的准确率直方图如上";
           setTimeout(function(){
-            var conseva = document.getElementById(ID);
-            var myChartcons = echarts.init(conseva);
+            var conseva3 = document.getElementById(ID);
+            var myChartcons3 = echarts.init(conseva3);
             window.addEventListener("resize", function () {
-                myChartcons.resize()});
-            option && myChartcons.setOption(option);
+                myChartcons3.resize()});
+            option && myChartcons3.setOption(option);
           },500)
         }
         if (asr_sourcelist.length > 1){
@@ -639,11 +638,11 @@ export default {
         //   echart_for_robust.hideLoading();
           let msg1 = "模型"+this.postData['ModelParam']['name']+"经过"+robustmethod+"等增强措施后，不同对抗攻击下的攻击成功率直方图如上";
           setTimeout(function(){
-            var conseva = document.getElementById("robust_asr");
-            var myChartcons = echarts.init(conseva);
+            var conseva4 = document.getElementById("robust_asr");
+            var myChartcons4 = echarts.init(conseva4);
             window.addEventListener("resize", function () {
-                myChartcons.resize()});
-                optionasr && myChartcons.setOption(optionasr);
+                myChartcons4.resize()});
+                optionasr && myChartcons4.setOption(optionasr);
           },500)
         }
       },

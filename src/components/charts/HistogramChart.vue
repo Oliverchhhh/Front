@@ -22,13 +22,16 @@ export default {
         refresh_Width:{
           type: Boolean,
           default:true
+        },
+        color:{
+            type: Array,
+            default: [['#37A2DA','#e06343'],['#000']]
         }
     },
     data(){
         return{
             option : {},
             myChart : null,
-            color:['#37A2DA','#e06343'],
             type:["正常样本","对抗样本"]
             // 使用ref创建虚拟DOM引用，使用时用main.value
         }
@@ -102,7 +105,7 @@ export default {
                 };
               },
               itemStyle: {
-                color: this.color[i]
+                color: this.color[0][i]
               }
             })
 
@@ -110,11 +113,17 @@ export default {
             // 指定图表的配置项和数据
             this.option = {
                 legend: {
-                    top: 10,
-                    data: legend
+                    top: 5,
+                    data: legend,
+                    textStyle:{
+                      color:this.color[1][0]
+                    }
                 },
                 grid:{
-                    x:"18%",
+                    top:"30px",
+                    left:"40px",
+                    right:"10px",
+                    bottom:"20px",
                 },
                 xAxis: {
                   type:"value",

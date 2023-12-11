@@ -23,10 +23,21 @@
             <div class="center_row">
                 <div class="center_left_content left_right">
                     <!-- 可解释性 -->
-                    <div class="explainability first">
-                        <div class="first_bg">
-                            <div id="explainability_left"></div>
-                            <div id="explainability_right"></div>
+                    <div class="explainability first" >
+                        <div class="first_bg" >
+                            <!-- 散点图 -->
+                            <ScatterChart v-if="'attack_dim_reduciton' in res" :inputData="res.attack_dim_reduciton['FGSM']['pca']"
+                                id="echartleft" class="ex_chart_content" style="
+                                            position: relative;
+                                            "
+                                :refreshWidth="'266px'" :color="excolor"></ScatterChart>
+                            <!-- 散点图 -->
+                            <HistogramChart v-if="'attack_dim_reduciton' in res" :inputData="res.attack_dim_reduciton['FGSM']['svm']"
+                                id="echartright" class="ex_chart_content" style="
+                                            position: relative;
+                                            "
+                                :refreshWidth="'266px'" :color="excolor">
+                            </HistogramChart>    
                         </div>
                         <div class="first_title">
                             <span class="first_title_name">可解释性</span>
@@ -37,10 +48,11 @@
                     <div class="usability first">
                         
                         <div class="first_bg">
-                            <div id="usability_left"></div>
-                            <div id="usability_right"></div>
+                            <resultTable  v-if="'tablehead' in useRes" :tableHead="useRes.tablehead" :tableBody="useRes.tablebody" id="usability_left"></resultTable>
+                            <div id="usability_right"><img id="model_img" :src="useRes.model_url"></div>
                         </div>
                         <div class="first_title">
+                            
                             <span class="first_title_name">可用性</span>
                             <a-icon type="right"  class="right_arrow"/>
                         </div>
@@ -101,7 +113,10 @@
                     <!-- 可验证性 -->
                     <div class="verifiability first">
                         <div class="first_bg">
-                            <div id="verifiability_chart"></div>
+                            <div class="verifiability_chart">
+                                <IBPChart v-if="'auto_verify' in res" class="verifiability_chart" :inputData="res.auto_verify.boundary1" :postData="res.param" :refreshWidth="'552px'"></IBPChart>
+                            </div>
+                            <!-- <div id="verifiability_chart"></div> -->
                         </div>
                         <div class="first_title">
                             <span class="first_title_name">可验证性</span>
@@ -146,7 +161,7 @@
                 </div>
             </div>
         </div>
-  </div>
+    </div>
 </template>
 <script>
 import drawMixin from "../../util/drawMixin";
@@ -158,6 +173,10 @@ import explainabilityImg from '../../assets/img/explainability_c.png'
 import verifiabilityImg from '../../assets/img/verifiability_c.png'
 import usabilityImg from '../../assets/img/usability_c.png'
 import noselectImg from '../../assets/img/noselect.png'
+import ScatterChart from "../../components/charts/ScatterChart.vue";
+import HistogramChart from "../../components/charts/HistogramChart.vue"
+import IBPChart from "../../components/charts/IBPChart.vue"
+import resultTable from "../../components/resultsTable.vue"
 import * as echarts from "echarts";
 export default {
     mixins: [ drawMixin ],
@@ -195,16 +214,25 @@ export default {
             'CIFAR10_ResNet101':'',
             'CIFAR10_ResNet152':'',
         },
+        useRes:{},
         res:{},
+        excolor:[['#00D1FF','#FF9D00'],['#fff']]
       }
     },
     components: {
-      
+        ScatterChart,
+        HistogramChart,
+        IBPChart,
+        resultTable
+    },
+    created(){
+        this.getResult()
+        
     },
     mounted() {
         this.show_score = this.result.score
         this.timeFn()
-        this.getResult()
+        
         this.cancelLoading()
         this.setPieChart()
     },
@@ -232,13 +260,90 @@ export default {
             this.modelname = value
             this.getResult()
         },
+        resultUsePro(res){
+            if(!('FrameworkTest' in res)){
+                return
+            }
+            this.useRes = res.FrameworkTest;
+            this.useRes.tablehead = ["触发样本", "正确标签",]
+            this.useRes.tablebody = []
+            var generate_fig_number = this.useRes.generate_figure.length;
+            for(var i=0; i<generate_fig_number; i++) {
+                var res = "figure-"+String(i);
+                this.useRes[res]["path"] = 'static/output/'+this.useRes.out_path.split('output')[1] +"/"+ this.useRes[res]["path"].split("/")[1];
+                var error_frame = this.useRes[res]["path"].split("bgbk")[1].slice(0,-6);
+                // 构造表格【行】
+                // var tablebody_tr = ["<img :src='{{this.res[res]['path']}}'>", this.res[res]["ground_truth"]];
+                var tablebody_tr = [this.useRes[res]['path'], this.useRes[res]["ground_truth"]];
+                for(var j=0;j<this.useRes.normal_backend.length;j++){
+                    tablebody_tr.push(this.useRes[res]["normal_backend_result"]);
+                };
+                tablebody_tr.push(this.useRes[res]["buggy_backend_result"])
+                // console.log(tablebody_tr);
+                // 将表格【行】添加到表格主题中
+                debugger;
+                this.useRes.tablebody.push(tablebody_tr);
+            };
+            for(var i in this.useRes.normal_backend) {
+                switch(this.useRes.normal_backend[i]) {
+                    case 'torch':
+                        this.useRes.normal_backend[i]='Pytorch';
+                        break;
+                    case 'theano':
+                        this.useRes.normal_backend[i] = "Theano";
+                        break;
+                    case 'paddle':
+                        this.useRes.normal_backend[i] = "PaddlePaddle";
+                        break;
+                    case 'tensorflow':
+                        this.useRes.normal_backend[i] = 'TensorFlow';
+                        break;
+                    case 'cntk':
+                        this.useRes.normal_backend[i] = 'CNTK';
+                        break;
+                }
+                // 将所需值添加到tablehead
+                this.useRes.tablehead.push(this.useRes.normal_backend[i]);
+            }
+            for(var i in this.useRes.buggy_backend) {
+                var temp_var = this.useRes.buggy_backend[i];
+                switch(this.useRes.buggy_backend[i]) {
+                    case 'torch':
+                        this.useRes.buggy_backend[i]='Pytorch';
+                        break;
+                    case 'theano':
+                        this.useRes.buggy_backend[i] = "Theano";
+                        break;
+                    case 'paddle':
+                        this.useRes.buggy_backend[i] = "PaddlePaddle";
+                        break;
+                    case 'tensorflow':
+                        this.useRes.buggy_backend[i] = 'TensorFlow';
+                        break;
+                    case 'cntk':
+                        this.useRes.buggy_backend[i] = 'CNTK';
+                        break;
+                }
+                if (temp_var == error_frame) {
+                this.useRes.tablehead.push(this.useRes.buggy_backend[i]);
+                };
+            };
+            this.useRes.normal_backend = this.useRes.normal_backend;
+            this.useRes.bugger_backend = this.useRes.buggy_backend;
+            this.useRes.buggy_layer = this.useRes.buggy_layer["0"];
+            this.useRes.model_url = 'static/output/'+this.useRes.out_path.split('output')[1]+"/model.png";       
+        },
         getResult(){
             this.res={}
             var that = this;
             that.$axios.get('/output/Resultdata', {params:{ Taskid: this.res_group[this.dataname+'_'+this.modelname] }}).then((data)=>{
                 that.res=data.data.result;
                 console.log("dataget_result:",that.res);
-            });
+                this.resultUsePro(this.res)
+            })
+        },
+        setExplainability(data){
+            console.log(data)
         },
         setPieChart(){
             var that = this
@@ -288,24 +393,23 @@ export default {
                 ]
                 };
             
-        setTimeout(function(){
-            let myChart1 = echarts.init(document.getElementById("piechart"));
-            window.addEventListener("resize", function () {
-              myChart1.resize()});
-              option1 && myChart1.setOption(option1);
-              myChart1.on('mousemove',function(params){
-                that.show_score = ''
-                let score = params.data.name
-                let six_label = document.getElementById("six")
-                six_label.style.backgroundImage = `url(${params.data.url})`
-              })
-              myChart1.on('mouseout',function(params){
-                that.show_score = that.result.score
-                let six_label = document.getElementById("six")
-                six_label.style.backgroundImage = `url(${noselectImg})`
-              })
-        },500)
-      }
+            setTimeout(function(){
+                let myChart1 = echarts.init(document.getElementById("piechart"));
+                window.addEventListener("resize", function () {
+                myChart1.resize()});
+                option1 && myChart1.setOption(option1);
+                myChart1.on('mousemove',function(params){
+                    that.show_score = ''
+                    let six_label = document.getElementById("six")
+                    six_label.style.backgroundImage = `url(${params.data.url})`
+                })
+                myChart1.on('mouseout',function(params){
+                    that.show_score = that.result.score
+                    let six_label = document.getElementById("six")
+                    six_label.style.backgroundImage = `url(${noselectImg})`
+                })
+            },500)
+        }
     }
   }
 </script>
@@ -488,24 +592,27 @@ export default {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(8px);
 }
-#explainability_left{
+.ex_chart_content{
     width: 266px;
     height: 228px;
 }
-#explainability_right{
-    width: 266px;
-    height: 228px;
-}
+
 #usability_left{
     width: 260px;
     height: 228px;
 }
-#usability_left{
+#usability_right{
     width: 272px;
     height: 228px;
+    overflow-y: scroll;
+}
+#model_img {
+    height: auto;
+    width: 272px;
+    overflow: hidden;
 }
 
-#verifiability_chart{
+.verifiability_chart{
     width: 552px;
     height: 228px;
 }

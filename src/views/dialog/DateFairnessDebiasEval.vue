@@ -530,7 +530,7 @@ border-radius: 8px;
   border-bottom: 1px solid #E0E3EB;
 }
 .result_text{
-  text-align: left;
+  text-align: center;
 }
 
 .dialog_main{
