@@ -4,7 +4,7 @@
            <!-- 顶部菜单栏 -->
        <a-layout-header>
            <!-- 导航栏 -->
-           <navmodule class="llm_nav"/>
+           <navmodule class="llm_nav" :current="current"/>
        </a-layout-header>
        <a-layout-content>
            <!-- 排行榜 -->
@@ -50,6 +50,7 @@ export default {
    },
    data(){
        return{
+            current: ['llm'],
             colunm_data:[],
             sheet_data:[],
             rank_num: [],

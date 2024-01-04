@@ -4,25 +4,7 @@
             <!-- 顶部菜单栏 -->
         <a-layout-header>
             <!-- 导航栏 -->
-            <div class="nav">
-            <div class="icon_title"> 
-                <img :src="require('../assets/img/index_icon.png')">
-                <p class="title_des"> AI安全理论及验证平台</p>
-            </div>
-            <div class="top_nav">
-                <a-menu v-model="current" mode="horizontal">
-                    <a-menu-item key="index" class='menu-item'> <a href="/" >平台介绍</a> </a-menu-item>
-                    <a-menu-item key="join" class='menu-item'> <router-link to="/homme_menu" target="_blank" rel="noopener noreferrer">在线体验 </router-link></a-menu-item>
-                    <a-menu-item key="llm" class='menu-item'> <router-link to="/llm">大模型排行榜 </router-link></a-menu-item>
-                    <a-menu-item class='menu-item' v-show="username==''" key="login" @click="clicklogin()">登录/注册</a-menu-item>
-                    <a-sub-menu v-show="username != ''" >
-                        <span slot="title" class='menu-item sub-title' ><span>{{username}}</span></span>
-                        <a-menu-item key='taskList' class='sub-menu-item' ><router-link to="/taskList" >任务中心</router-link></a-menu-item>
-                        <a-menu-item key='loginout' class='sub-menu-item' @click="loginout()">注销</a-menu-item>
-                    </a-sub-menu>
-                </a-menu>
-            </div>
-        </div>
+            <navmodule  class="tasklist" :current="current"/>
         </a-layout-header>
         <a-layout-content>
             <template>
@@ -795,6 +777,13 @@ export default {
     height:752px;
     margin-left:400px;
     margin-top:24px
+}
+.llm_nav{
+    height: 68px !important; 
+    width: 100% !important;
+}
+.tasklist >>> .pro_des {
+    display: none;
 }
 .highlight {
   background-color: rgb(255, 192, 105);

@@ -40,12 +40,15 @@ import loginDialog from "../components/loginDialog.vue"
 import {getCookie} from '../assets/js/cookie.js'
 export default{
     name:"navmodule",
+    props:{
+        current:['join']
+    },
     components:{
             loginDialog
         },
     data() {
         return {
-        current: ['join'],
+        // current: ['join'],
         loginShow:true,
         username:'',
         };
@@ -139,7 +142,7 @@ export default{
 .top_nav{
     float: right;
     margin-right: 400px;
-    width: 280px;
+    width: 425px;
 }
 /* 导航文字样式 */
 /* .ant-menu-item{
