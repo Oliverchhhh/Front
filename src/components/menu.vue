@@ -8,7 +8,7 @@
       <button @click="goAssignBlock('block'+ 3,50)">开发框架</button>
       <button @click="goAssignBlock('block'+ 4,50)">操作系统</button>
       <button @click="goAssignBlock('block'+ 5,50)">硬件</button>
-      <a-button type="primary" shape="circle" class="onceConf" @click="goFuncPage('')" >一键<br/>配置</a-button>     
+      <a-button type="primary" shape="circle" class="onceConf" @click="goFuncPage('/big_view')" >一键<br/>配置</a-button>     
     </div>
     <!-- 功能划分：数据 -->
     <div class="block" ref="block0">

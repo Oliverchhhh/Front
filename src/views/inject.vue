@@ -475,7 +475,7 @@ export default {
             this.logtext=[];
             this.logflag = true;
             var log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：开始故障注入';
-            this.logtext.push(log1);
+            this.logtext.push([log1]);
             console.log(`this result:${this.result[this.modelChoice]}`)
             let perObj = this.result[this.modelChoice].layers.find((item,i) =>{
                 
@@ -488,14 +488,14 @@ export default {
             this.clockObj = clockObj;
             this.percent=30;
             log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：统计故障注入前分类准确率';
-            this.logtext.push(log1);
+            this.logtext.push([log1]);
             let pristine_acc = parseFloat(this.result[this.modelChoice]["pristine-acc"].split("%")[0]);
             this.percent=40;
             log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：故障注入前平均分类准确率为'+pristine_acc+"%";
-            this.logtext.push(log1);
+            this.logtext.push([log1]);
             this.percent=50;
             log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：统计故障注入后分类准确率';
-            this.logtext.push(log1);
+            this.logtext.push([log1]);
             let inject_acc = clockObj["average-acc"];
             this.subACC = (pristine_acc-inject_acc).toFixed(2);
             this.injectRate = Math.round(inject_acc/pristine_acc*100)
@@ -508,7 +508,7 @@ export default {
             }
             this.percent = 60;
             log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：故障注入后平均分类准确率为'+inject_acc+"%,下降了"+this.subACC+"%";
-            this.logtext.push(log1);
+            this.logtext.push([log1]);
             
             // 画曲线图
             let legendlist = ["注入后准确率","注入前准确率"];
@@ -520,7 +520,7 @@ export default {
             drawLine("accLine", legendlist, datadict, xlable);
             this.percent=70;
             log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：采集故障注入前特征图数据';
-            this.logtext.push(log1);
+            this.logtext.push([log1]);
             let xhr = new XMLHttpRequest();
             let okStatus = document.location.protocol === "file:"?0:200;
             xhr.open("GET","../../static/injection/"+clockObj["heatmap"].split(".txt")[0]+"_pristine.txt",false);
@@ -542,7 +542,7 @@ export default {
             /* 原始的热力图 */ 
             drawCorelationHeat("pristine", heatX, pristine_heatmap, colorlist, false, boundarylist);
             log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：采集故障注入后特征图数据';
-            this.logtext.push(log1);
+            this.logtext.push([log1]);
             xhr.open("GET","../../static/injection/"+clockObj["heatmap"].split(".txt")[0]+"_noise.txt",false);
             xhr.overrideMimeType("text/html;charset=utf-8");
             xhr.send(null);
@@ -559,7 +559,7 @@ export default {
             drawCorelationHeat("noiseData", heatX, noise_heatmap, colorlist, false, boundarylist);
             this.percent=80;
             log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：计算故障注入前后特征图数据差值';
-            this.logtext.push(log1);
+            this.logtext.push([log1]);
             xhr.open("GET","../../static/injection/"+clockObj["heatmap"].split(".txt")[0]+"_noisedata.txt",false);
             xhr.overrideMimeType("text/html;charset=utf-8");
             xhr.send(null);
@@ -576,11 +576,11 @@ export default {
             drawCorelationHeat("noise", heatX, noiseData_heatmap, colorlist, false, boundarylist);
             this.percent=90;
             log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：故障注入评估结束';
-            this.logtext.push(log1);
+            this.logtext.push([log1]);
             this.percent=100;
             // this.logflag=false;
             this.isShowPublish=true;
-            this.logflag = false
+            this.logflag = true
             let endtime = new Date()
             this.runTime = (endtime-starttime)/1000
             if (this.runTime < 0.5){

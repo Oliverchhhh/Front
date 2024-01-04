@@ -1,8 +1,11 @@
 <template>
     <div id="index" ref="appRef1">
-        <video autoplay muted loop class="background_video">
-            <source src="../../assets/img/bg.mp4" type="video/mp4">
-        </video>
+        <div>
+            <video autoplay muted loop playbackrate="1" class="background_video">
+                <source src="../../assets/img/bg.mp4" type="video/mp4">
+            </video>
+            <!-- <div style="background-color: #000;opacity: 0.5;position: fixed;width: 100%;z-index: 1;height: 100%;"></div> -->
+        </div>
 
         <dv-loading v-if="loading">Loading...</dv-loading>
         <div v-else class="host-body">
@@ -10,7 +13,7 @@
                 <div class="head_text">
                     <div></div>
                     <div class="title_VoAI">
-                        AI安全理论及验证平台
+                        
                     </div>
                     <div>
                         <div class="time_text">{{ dateYear }} {{ dateWeek }} {{ dateDay }}</div>
@@ -48,7 +51,7 @@
                     <div class="usability first">
                         
                         <div class="first_bg">
-                            <resultTable  v-if="'tablehead' in useRes" :tableHead="useRes.tablehead" :tableBody="useRes.tablebody" id="usability_left"></resultTable>
+                            <resultTable  v-if="'tableBody' in useRes" :tableHead="useRes.tablehead" :tableBody="useRes.tableBody" :imgstyle="[32,32]" id="usability_left"></resultTable>
                             <div id="usability_right"><img id="model_img" :src="useRes.model_url"></div>
                         </div>
                         <div class="first_title">
@@ -139,8 +142,53 @@
                 <!-- 公平性 -->
                 <div class="fairness second">
                     <div class="second_bg">
-                        <div style="width: 316px;height: 220px;"></div>
-                        <div id="fairness_chart"></div>
+                        <div style="width: 316px;height: 220px;">
+                            <div class="leftup">
+                                <div class="circle1">
+                                    <div class="fairness_score">
+                                        <p class="score_num">{{fairnessRes.score}}</p>
+                                        <div style="width: 44px;height: 1px;background: rgba(255, 255, 255, 0.40);"></div>
+                                        <p class="score_evaluate">{{fairnessRes.score_evaluate}}</p>
+
+                                    </div>
+                                </div>
+                                <div id="consistency_div">
+
+                                </div>
+                            </div>
+                            <div class="leftdown">
+                                <div class="cons">
+                                    <div class="circl2">
+                                        <div id="individual_score"></div>
+                                    </div>
+                                    <div class="cons_des">
+                                        <p class="cons_text_name">个体公平性评估</p>
+                                        <dv-percent-pond :config="'value:'+fairnessRes.consistency_score" style="width:100%;height:8px;" />
+                                        <p>得分 {{ fairnessRes.consistency_score }}</p>
+                                    </div>
+                                </div>
+                                <div class="cons">
+                                    <div class="circl2">
+                                        <div id="group_score"></div>
+                                    </div>
+                                    <div class="cons_des">
+                                        <p class="cons_text_name">群体公平性评估</p>
+                                        <dv-percent-pond :config="'value:'+fairnessRes.consistency_score" style="width:100%;height:8px;" />
+                                        <p>得分 {{ fairnessRes.consistency_score }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fairness_chart">
+                            <div class="group_echart_content">
+                                <div  class="group_left_echart"  id="sexDifference"></div>
+                                <div class="group_right_echart"  id="sexRatio"></div>
+                            </div>
+                            <div class="group_echart_content">
+                                <div  class="group_left_echart"  id="ageDifference"></div>
+                                <div class="group_right_echart"  id="ageRatio"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="second_title">
                         <span class="first_title_name">公平性</span>
@@ -177,6 +225,7 @@ import ScatterChart from "../../components/charts/ScatterChart.vue";
 import HistogramChart from "../../components/charts/HistogramChart.vue"
 import IBPChart from "../../components/charts/IBPChart.vue"
 import resultTable from "../../components/resultsTable.vue"
+import {drawconseva1, drawbar, drawImportanceCoverage} from "../../assets/js/drawEcharts.js"
 import * as echarts from "echarts";
 export default {
     mixins: [ drawMixin ],
@@ -215,6 +264,7 @@ export default {
             'CIFAR10_ResNet152':'',
         },
         useRes:{},
+        fairnessRes:{},
         res:{},
         excolor:[['#00D1FF','#FF9D00'],['#fff']]
       }
@@ -260,78 +310,82 @@ export default {
             this.modelname = value
             this.getResult()
         },
+        deepClone(obj){
+            let _obj = JSON.stringify(obj)
+            let objClone = JSON.parse(_obj)
+            return objClone
+        },
         resultUsePro(res){
             if(!('FrameworkTest' in res)){
                 return
             }
-            this.useRes = res.FrameworkTest;
-            this.useRes.tablehead = ["触发样本", "正确标签",]
-            this.useRes.tablebody = []
+            this.useRes = this.deepClone(res.FrameworkTest) 
+            this.useRes.tablehead = []
+            this.useRes.tableBody = []
             var generate_fig_number = this.useRes.generate_figure.length;
-            for(var i=0; i<generate_fig_number; i++) {
-                var res = "figure-"+String(i);
-                this.useRes[res]["path"] = 'static/output/'+this.useRes.out_path.split('output')[1] +"/"+ this.useRes[res]["path"].split("/")[1];
-                var error_frame = this.useRes[res]["path"].split("bgbk")[1].slice(0,-6);
-                // 构造表格【行】
-                // var tablebody_tr = ["<img :src='{{this.res[res]['path']}}'>", this.res[res]["ground_truth"]];
-                var tablebody_tr = [this.useRes[res]['path'], this.useRes[res]["ground_truth"]];
-                for(var j=0;j<this.useRes.normal_backend.length;j++){
-                    tablebody_tr.push(this.useRes[res]["normal_backend_result"]);
-                };
-                tablebody_tr.push(this.useRes[res]["buggy_backend_result"])
-                // console.log(tablebody_tr);
-                // 将表格【行】添加到表格主题中
-                debugger;
-                this.useRes.tablebody.push(tablebody_tr);
-            };
-            for(var i in this.useRes.normal_backend) {
-                switch(this.useRes.normal_backend[i]) {
-                    case 'torch':
-                        this.useRes.normal_backend[i]='Pytorch';
-                        break;
-                    case 'theano':
-                        this.useRes.normal_backend[i] = "Theano";
-                        break;
-                    case 'paddle':
-                        this.useRes.normal_backend[i] = "PaddlePaddle";
-                        break;
-                    case 'tensorflow':
-                        this.useRes.normal_backend[i] = 'TensorFlow';
-                        break;
-                    case 'cntk':
-                        this.useRes.normal_backend[i] = 'CNTK';
-                        break;
-                }
-                // 将所需值添加到tablehead
-                this.useRes.tablehead.push(this.useRes.normal_backend[i]);
+            this.useRes.tableBody[0] = ["触发样本"]
+            this.useRes.tableBody[1] = ["正确标签"]
+            for(let j=0; j<generate_fig_number; j++) {
+                let key1 = "figure-"+String(j);
+                this.useRes[key1]["path"] = 'static/output/'+this.useRes.out_path.split('output')[1] +"/"+ this.useRes[key1]["path"].split("/")[1];
+                var error_frame = this.useRes[key1]["path"].split("bgbk")[1].slice(0,-6);
+                this.useRes.tableBody[0].push(this.useRes[key1]["path"])
+                this.useRes.tableBody[1].push(this.useRes[key1]["ground_truth"])
             }
-            for(var i in this.useRes.buggy_backend) {
-                var temp_var = this.useRes.buggy_backend[i];
-                switch(this.useRes.buggy_backend[i]) {
-                    case 'torch':
-                        this.useRes.buggy_backend[i]='Pytorch';
-                        break;
-                    case 'theano':
-                        this.useRes.buggy_backend[i] = "Theano";
-                        break;
-                    case 'paddle':
-                        this.useRes.buggy_backend[i] = "PaddlePaddle";
-                        break;
-                    case 'tensorflow':
-                        this.useRes.buggy_backend[i] = 'TensorFlow';
-                        break;
-                    case 'cntk':
-                        this.useRes.buggy_backend[i] = 'CNTK';
-                        break;
+            let bakend_dict = {
+                'torch':'Pytorch',
+                'theano':'Theano',
+                'paddle':'PaddlePaddle',
+                'tensorflow':'TensorFlow',
+                'cntk':'CNTK'
+            }
+            
+            for(let i = 0;i < this.useRes.normal_backend.length; i++){
+                this.useRes.tableBody[2+i] = [bakend_dict[this.useRes.normal_backend[i]]]
+                for(let j=0; j<generate_fig_number; j++) {
+                    let key1 = "figure-"+String(j);
+                    this.useRes.tableBody[2+i].push(this.useRes[key1]["normal_backend_result"])
                 }
-                if (temp_var == error_frame) {
-                this.useRes.tablehead.push(this.useRes.buggy_backend[i]);
+            }
+            var bodylen = this.useRes.tableBody.length
+            for(let i = 0;i < this.useRes.buggy_backend.length; i++){
+                if (this.useRes.buggy_backend[i] == error_frame) {
+                    this.useRes.tableBody[bodylen+i] = [bakend_dict[this.useRes.buggy_backend[i]]]
+                    for(let j=0; j<generate_fig_number; j++) {
+                        let key1 = "figure-"+String(j);
+                        this.useRes.tableBody[bodylen+i].push(this.useRes[key1]["buggy_backend_result"])
+                    }
                 };
-            };
-            this.useRes.normal_backend = this.useRes.normal_backend;
-            this.useRes.bugger_backend = this.useRes.buggy_backend;
+            }
             this.useRes.buggy_layer = this.useRes.buggy_layer["0"];
             this.useRes.model_url = 'static/output/'+this.useRes.out_path.split('output')[1]+"/model.png";       
+        },
+        reusltFairnessPro(res){
+            this.fairnessRes=this.deepClone(res.date_evaluate)
+            this.fairnessRes.score = this.fairnessRes["Overall fairness"].toFixed(2)*100;
+            this.fairnessRes.consistency_score = this.fairnessRes["Overall individual fairness"].toFixed(2)*100;
+            this.fairnessRes.group_score =  this.fairnessRes["Overall group fairness"].toFixed(2)*100;
+            // 总分判断
+            if(this.fairnessRes.score > 80){
+                this.fairnessRes.score_evaluate = "优秀";
+                this.fairnessRes.score_con = "公平";
+            }else if(this.fairnessRes.score > 60 && this.fairnessRes.score <=80){
+                this.fairnessRes.score_evaluate = "良好";
+                this.fairnessRes.score_con = "较公平";
+            }else{
+                this.fairnessRes.score_evaluate = "差";
+                this.fairnessRes.score_con = "较不公平";
+            }
+            this.fairnessRes["Consistency"]=this.fairnessRes.Consistency.toFixed(2)*100;
+            var color='#0B55F4';
+            if (this.fairnessRes["Consistency"]<=30){
+                color = "#F4320B";
+            }else if(this.fairnessRes["Consistency"]>70){
+                color='#07C168';
+            }else{
+                color = '#0B55F4';
+            }
+            drawconseva1("consistency_div",this.fairnessRes["Consistency"],color);
         },
         getResult(){
             this.res={}
@@ -340,6 +394,9 @@ export default {
                 that.res=data.data.result;
                 console.log("dataget_result:",that.res);
                 this.resultUsePro(this.res)
+                this.reusltFairnessPro(this.res)
+                let importanceData = data.data.result.CoverageImportance.ImportanceNeuronsCoverage.reldraw.reldraw;
+                drawImportanceCoverage("integrity_chart", importanceData, {'textcolor':'#fff','gridtop':60,'girdbottom':60,'type':'line'});
             })
         },
         setExplainability(data){
@@ -434,7 +491,7 @@ export default {
     background-position: center center;
 }
 .head_border_center{
-    margin-top: -5px;
+    margin-top: 45px;
     display: grid;
     place-items: center;
     height: 8px;
@@ -487,6 +544,8 @@ export default {
     margin-right: 24px;
 }
 .center_row{
+    width: 100%;
+    height: 652px;
     display: grid;
     padding:0px 24px;
     grid-template-columns:30% 40% 30%
@@ -494,6 +553,7 @@ export default {
 .left_right{
     width: 568px;
     height: 620px;
+    margin-top: 24px;
     display:flex;
     gap:24px;
     flex-direction:column
@@ -551,6 +611,27 @@ export default {
     border-radius: 12px;
     background: linear-gradient(90deg, #030A1C 0%, rgba(0, 0, 0, 0.00) 50%, #020A1A 100%);
 }
+.circle1{
+
+}
+.score_num{
+    color: #FFF;
+    text-align: center;
+    font-family: Alibaba PuHuiTi 2.0;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px; /* 87.5% */
+}
+.score_evaluate{
+    color: #06FFA5;
+    text-align: center;
+    font-family: Alibaba PuHuiTi 2.0;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 12px; /* 100% */
+}
 .select_content{
     display: flex;
     height: 34px;
@@ -583,6 +664,7 @@ export default {
 .first_bg{
     display: flex;
     width: 568px;
+    height: 298px;
     padding: 62px 8px 8px 8px;
     justify-content: center;
     align-items: flex-start;
@@ -644,6 +726,24 @@ export default {
     240px 240px ,
     498px 498px ,
     668px 580px ;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+.fairness_score{
+    display: flex;
+    padding: 7px;
+    justify-content: center;
+    align-items: center;
+    width: 148px;
+    height: 148px;
+    background-image:
+    url(../../assets/img/fairnessScore1.svg),
+    url(../../assets/img/fairnessScore2.svg),
+    url(../../assets/img/fairnessScore3.svg);
+    background-size:
+    134px 134px ,
+    118px 118px ,
+    90px 90px ;
     background-repeat: no-repeat;
     background-position: center center;
 }
@@ -713,5 +813,16 @@ export default {
     backdrop-filter: blur(8px);
     margin-top: -298px;
     width: 100%;
+}
+.fairness_chart{
+    display: flex;
+    gap:12px;
+    height:120px;
+}
+.group_echart_content{
+    display: flex;
+    gap:12px;
+    height:120px;
+    width: 281px;
 }
 </style>

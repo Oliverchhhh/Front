@@ -1149,7 +1149,7 @@ function drawStackedLine(ID, data,legendInfo, label, name){
 }
  
 // 重要神经元覆盖测试图
-function drawImportanceCoverage(ID, data) {
+function drawImportanceCoverage(ID, data, config={'type':'bar','textcolor':'#000','gridtop':80,'girdbottom':100,'titlesize':20}) {
   console.log(data);
   var inc_option;
   var reldraw = data;
@@ -1160,6 +1160,13 @@ function drawImportanceCoverage(ID, data) {
       baseOption: {
           textStyle: {
               fontSize: 15,
+              color:config.textcolor
+          },
+          title:{
+            textStyle:{
+              fontSize:config.titlesize,
+              color:config.textcolor
+            }
           },
           timeline: {
               axisType: 'category',
@@ -1180,12 +1187,15 @@ function drawImportanceCoverage(ID, data) {
           tooltip: {},
           legend: {
               left: 'right',
-              data: ['重要性']
+              data: ['重要性'],
+              textStyle:{
+                color:config.textcolor
+              }
           },
           calculable: true,
           grid: {
-              top: 80,
-              bottom: 100,
+              top: config.gridtop,
+              bottom: config.girdbottom,
               tooltip: {
                   trigger: 'axis',
                   axisPointer: {
@@ -1214,7 +1224,7 @@ function drawImportanceCoverage(ID, data) {
                   name: '重要性'
               }
           ],
-          series: [{ name: '重要性', type: 'bar' }]
+          series: [{ name: '重要性', type: config.type, }]
       },
       options: [
           {
@@ -1239,6 +1249,25 @@ function drawImportanceCoverage(ID, data) {
           }
       ]
   };
+  if (config.type === 'line'){
+    inc_option.baseOption.series[0]['areaStyle'] = {
+      color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+        {
+          offset: 0,
+          color: 'rgba(24, 89, 255, 0.68)'
+        },
+        {
+          offset: 1,
+          color: 'rgba(33, 228, 255, 0.00)'
+        }
+      ])
+    }
+    inc_option.baseOption.series[0]['symbol'] = 'none'
+    inc_option.baseOption.series[0]['sampling'] = 'sum'
+    inc_option.baseOption.series[0]['itemStyle'] = {
+      color: '#00ABFF'
+    }
+  }
   setTimeout(function(){
     var myChartcons = echarts.init(document.getElementById(ID));
     window.addEventListener("resize", function () {

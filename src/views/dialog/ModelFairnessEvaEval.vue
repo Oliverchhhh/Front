@@ -95,7 +95,7 @@
                         
                         <div class="echart_title">
                             
-                            <div class=" main_top_echarts_con_title ">个体公平性提升得分</div>
+                            <div class=" main_top_echarts_con_title ">个体公平性评估得分</div>
                             <p class="title_annotation">个体公平性是统计数据集中相似的个体是否有相似的标签或预测结果</p>
                             
                         </div>
@@ -117,7 +117,7 @@
                     <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
                         <div class="echart_title">
                             
-                            <div class=" main_top_echarts_con_title ">模型群体公平性提升</div>
+                            <div class=" main_top_echarts_con_title ">模型群体公平性评估</div>
                             <p class="title_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
                             
                         </div>
@@ -140,7 +140,7 @@
                     <!-- 图片数据集 -->
                     <div class="result_div" v-if="['Cifar10-S', 'CelebA'].indexOf(postData.dataname) >-1">
                         <div class="echart_title">
-                            <div class=" main_top_echarts_con_title ">图片数据集提升效果对比图</div>
+                            <div class=" main_top_echarts_con_title ">图片数据集评估效果</div>
                         </div>
                         <div class="group_echarts_div">
                             <div  class="model_group_echart"  id="evaBar"></div>

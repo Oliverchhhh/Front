@@ -1,7 +1,7 @@
 <template>
     <div>
         <table class='conclic_table'>
-            <thead class='conclic_thead'>
+            <thead class='conclic_thead' v-if="tableHead.length > 0">
                 <tr>
                     <th v-for="(item, index) in tableHead" :key="index">{{ item }}</th>
                 </tr>
@@ -9,8 +9,12 @@
             <tbody>
                 <tr v-for="(item, index) in tableBody" :key="index">
                     <!-- 判断为html标签就设置为图像格式，为普通字符串就填充表格 -->
-                    <td class='conclic_td' v-for="(it, ind) in item" :key="ind" v-if="checkImg(it)==true"><img class="resultTableImg" :src="it"></td>
-                    <td class='conclic_td' v-for="(it, ind) in item" :key="ind" v-if="checkImg(it)==false">{{ it }}</td>
+                    <td :class="imgstyle[0] != 80 ?'conclic_td1':'conclic_td'" v-for="(it, ind) in item" :key="ind" >
+                        <div v-if="checkImg(it)==false">{{ it }}</div>
+                        <div v-else>
+                            <img class="resultTableImg" :style="'width:' + imgstyle[0] +'px;height:' + imgstyle[1] +'px;'" :src="it">
+                        </div>
+                    </td>
                 </tr>
 
             </tbody>
@@ -30,6 +34,10 @@
             tableBody: {
                 type: Array,
                 default: []
+            },
+            imgstyle :{
+                type:Array,
+                default:[80,80]
             }
         },
         methods:  {
@@ -71,7 +79,16 @@
     padding: 10px;
     text-align: center;
   }
-  
+  .conclic_td1{
+    border: 1px solid #282D3F;
+    padding: 10px;
+    text-align: center;
+    color: white;
+    word-wrap: break-word;
+    word-break: break-all;
+    line-height: 12px;
+    font-size: 10px;
+  }
   .resultTableImg {
     width: 80px;
     height: 80px;
