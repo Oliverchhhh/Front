@@ -226,6 +226,12 @@ const router = new Router({
     name: 'bigview',
     component: () => import('../views/bigView/big_view_index.vue')
   },
+  // 大模型安全评测排行榜
+  {
+    path:"/llm",
+    name: 'llm',
+    component: () => import('../views/llm.vue')
+  },
   ]
   
 })

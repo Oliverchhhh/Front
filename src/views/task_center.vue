@@ -13,6 +13,7 @@
                 <a-menu v-model="current" mode="horizontal">
                     <a-menu-item key="index" class='menu-item'> <a href="/" >平台介绍</a> </a-menu-item>
                     <a-menu-item key="join" class='menu-item'> <router-link to="/homme_menu" target="_blank" rel="noopener noreferrer">在线体验 </router-link></a-menu-item>
+                    <a-menu-item key="llm" class='menu-item'> <router-link to="/llm">大模型排行榜 </router-link></a-menu-item>
                     <a-menu-item class='menu-item' v-show="username==''" key="login" @click="clicklogin()">登录/注册</a-menu-item>
                     <a-sub-menu v-show="username != ''" >
                         <span slot="title" class='menu-item sub-title' ><span>{{username}}</span></span>
@@ -363,7 +364,7 @@
                 </div>
             </resultDialog>
         </a-layout-content>
-        <a-layout-footer>
+        <a-layout-footer style="position: fixed; bottom: 0; width: 100%;">
 
         </a-layout-footer>
         </a-layout>
@@ -578,6 +579,7 @@ export default {
             this.resultshow = flag
         },
         getResult(record){
+            debugger
             this.result={}
             
             var that = this;
