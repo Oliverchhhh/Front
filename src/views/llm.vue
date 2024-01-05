@@ -8,7 +8,7 @@
        </a-layout-header>
        <a-layout-content>
            <!-- 排行榜 -->
-           <rank :colunm_data="colunm_data" :sheet_data="sheet_data"></rank>
+           <rank  :colunm_data="colunm_data" :sheet_data="sheet_data" ></rank>
        </a-layout-content>
        <a-layout-footer>
 
@@ -52,26 +52,14 @@ export default {
        return{
             colunm_data:[],
             sheet_data:[],
-            rank_num: [],
+            rank_num: 0,
+            test_var:false
         }
        },
-   watch:{
-       /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
-    //    isShowPublish:{
-    //        immediate:true,
-    //        handler(v){
-    //            if(v){
-    //                this.noScroll();
-    //            }else{
-    //                this.canScroll();
-    //            }
-    //        }
-    //    }
-   },
    created() {
         document.title = '大模型排行榜';
         this.$nextTick(()=>{
-            console.log('Loaded Excel !');
+            // console.log('Loaded Excel !');
             this.resultPro("static/output/test.xlsx");
             })
         },
@@ -82,30 +70,156 @@ export default {
             this.$axios.get(file_path,{responseType:'arraybuffer'}).then((res)=>{
                 let data = new Uint8Array(res.data);
                 let wb = XLSX.read(data, {type: "array"});
-                // console.log(wb);
                 let sheets = wb.Sheets;
-                this.content = this.transformSheets(sheets);
+                this.transformSheets(sheets);
             }) .catch( err=>{
                 this.err = err
             })
         },
+        // excel转换json，处理表头、表体数据
         transformSheets(sheets){
             let content = []
             let tmplist = []
             for (let key in sheets){
-                //读出来的workbook数据很难读,转换为json格式,参考https://github.com/SheetJS/js-xlsx#utility-functions
+                //参考https://github.com/SheetJS/js-xlsx#utility-functions
                 tmplist.push(XLSX.utils.sheet_to_json(sheets[key]).length);
                 content.push(XLSX.utils.sheet_to_json(sheets[key]));
-                // console.log(key);
-                // console.log(XLSX.utils.sheet_to_json(sheets[key]));
             }
-            debugger
+            // 排行榜模型数量
             this.rank_num = tmplist[0];
+            // 表头
+            this.colunm_data = [
+                {
+                    title: "模型名称",
+                    dataIndex: "name",
+                    key:"name",
+                    width:'8%',
+                    fix:'left'
+                }, 
+                {
+                    title: "组织机构",
+                    dataIndex: "institution",
+                    key:"institution",
+                    width:'10%',
+                    fix:'left'
+                },
+                {
+                    title: "参数规模",
+                    dataIndex: "size",
+                    key:"size",
+                    defaultSortOrder: 'descend',
+                    sorter: (a, b) => a.size - b.size,
+                    width:'6%',
+                    fix:'left'
+                },{
+                    title: "SST-2",
+                    children:[
+                        {  
+                            title: "Nor Attack Acc",
+                            dataIndex: "sst_nor",
+                            key:"sst_nor",
+                            sorter: (a, b) => a.sst_nor - b.sst_nor,
+                            // width:'max-content'
+                        },
+                        {
+                            title: "UT Acc",
+                            dataIndex: "sst_ut",
+                            key:"sst_ut",
+                            sorter: (a, b) => a.sst_ut - b.sst_ut,
+                            id: 'ut'
+                            // width:'max-content'
+                        },{
+                            title: "GCG Acc",
+                            dataIndex: "sst_gcg",
+                            key:"sst_gcg",
+                            sorter: (a, b) => a.sst_gcg - b.sst_gcg,
+                            id: 'gcg'
+                            // width:'max-content'
+                        }
+                        ]
+                },{
+                    title: "SNLI",
+                    children:[
+                        {  
+                            title: "Nor Attack Acc",
+                            dataIndex: "snli_nor",
+                            key:"snli_nor",
+                            sorter: (a, b) => a.snli_nor - b.snli_nor,
+                            // width:'max-content'
+                        },{
+                            title: "UT Acc",
+                            dataIndex: "snli_ut",
+                            key:"snli_ut",
+                            sorter: (a, b) => a.snli_ut - b.snli_ut,
+                            id: 'ut'
+                            // width:'max-content'
+                        },{
+                            title: "GCG Acc",
+                            dataIndex: "snli_gcg",
+                            key:"snli_gcg",
+                            sorter: (a, b) => a.snli_gcg - b.snli_gcg,
+                            id: 'gcg'
+                            // width:'max-content'
+                        }
+                        ]
+                },{
+                    title: "BoolQ",
+                    children:[
+                        {  
+                            title: "Nor Attack Acc",
+                            dataIndex: "boolq_nor",
+                            key:"boolq_nor",
+                            sorter: (a, b) => a.boolq_nor - b.boolq_nor,
+                            // width:'max-content'
+                        },{
+                            title: "UT Acc",
+                            dataIndex: "boolq_ut",
+                            key:"boolq_ut",
+                            sorter: (a, b) => a.boolq_ut - b.boolq_ut,
+                            id: 'ut'
+                            // width:'max-content'
+                        },{
+                            title: "GCG Acc",
+                            dataIndex: "boolq_gcg",
+                            key:"boolq_gcg",
+                            sorter: (a, b) => a.boolq_gcg - b.boolq_gcg,
+                            id: 'gcg'
+                            // width:'max-content'
+                        }
+                        ]
+                },{
+                    title: "MMLU",
+                    children:[
+                        {  
+                            title: "Nor Attack Acc",
+                            dataIndex: "mmlu_nor",
+                            key:"mmlu_nor",
+                            sorter: (a, b) => a.mmlu_nor - b.mmlu_nor,
+                            // width:'max-content'
+                        },{
+                            title: "UT Acc",
+                            dataIndex: "mmlu_ut",
+                            key:"mmlu_ut",
+                            sorter: (a, b) => a.mmlu_ut - b.mmlu_ut,
+                            id: 'ut'
+                            // width:'max-content'
+                        },{
+                            title: "GCG Acc",
+                            dataIndex: "mmlu_gcg",
+                            key:"mmlu_gcg",
+                            sorter: (a, b) => a.mmlu_gcg - b.mmlu_gcg,
+                            id: 'gcg'
+                            // width:'max-content'
+                        }
+                        ]
+                },
+            ]
             this.sheet_data = content[0];
-            console.log('--------------');
-            console.log(this.rank_num);
-            console.log(this.sheet_data);
-            // console.log(content.type)
+            for(var i=0;i<this.rank_num;i++){
+                // console.log(i);
+                // console.log(this.sheet_data[i]);
+                this.sheet_data[i].key=i+1;
+            } 
             }
     }
 }
@@ -135,6 +249,14 @@ export default {
 .llm_nav >>> .pro_des .product_text {
     display: none;
 }
+
+.tableHiddle {
+  display: none;
+}
+.tableShow{
+  display: revert;
+}
+
 
 .ant-layout-footer {
     display: none;
