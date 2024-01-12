@@ -27,18 +27,18 @@
         <!-- 表体：数据列表 -->
         <div v-if="value_show=='List'" class="table table_title" >
             <p class="title_text">排行榜</p>
-            <p>*注：</p>
-            <a-table :columns="colunm_data" :data-source="sheet_data"  :scroll="{x:'30%'}" :bordered="true" @change="handleChange" />
+            <p>*注：Acc为无/有对抗攻击下的任务准确率，其中Nor Attack指无对抗攻击下的任务准确率、UT Acc指Universal Triggers攻击下的任务准确率，GCG Acc指Greedy Coordinate Gradient攻击下任务准确率。</p>
+            <a-table :columns="colunm_data" :data-source="sheet_data"  :scroll="{x:'120%'}" :bordered="true" @change="handleChange" />
         </div>
         <!-- 表体：柱状图 -->
-        <div v-if="value_show=='Echart'" class="table"> 
-            <!--  -->
-            {{ sheet_data }}
-            {{ colunm_data }}
+        <div v-if="value_show=='Echart'" class="table" style="height: 74%;"> 暂未确认形式
+            <div class="echart" id="rank_bar"></div>
+            <!-- <div>{{ sheet_data }}</div> -->
         </div>
     </div>
 </template>
 <script>
+import { Draw_LM_Rank } from "../../assets/js/drawEcharts.js"
 export default {
     props:{
         sheet_data: Array,
@@ -46,6 +46,7 @@ export default {
     },
     components:{
         // MathJax,
+        Draw_LM_Rank
     },
     data() {
         return {
@@ -63,7 +64,7 @@ export default {
                 {label: '柱状图', value: 'Echart'},
             ],
             form_data: [
-                {'label':'攻击方法', 'data': ['Universal Triggers', 'Greedy Coordinate Gradient']},
+                // {'label':'攻击方法', 'data': ['Universal Triggers', 'Greedy Coordinate Gradient']},
                 // {'label':'数据集', 'data': ['SST-2', 'SNLI', 'BoolQ', 'MMLU']},
                 {'label':'展示方式', 'data': ['列表', '柱状图']},],
         };
@@ -74,11 +75,54 @@ export default {
     methods: {
         onChangeAtk(e) {
             this.value_atk = e.target.value;
-            console.log(`checked = ${e.target.value}`);
+            // console.log(`checked = ${e.target.value}`);
+            this.$emit('listen_com',e.target.value);
+            // console.log(this.colunm_data);
         },
         onChangeShow(e) {
             this.value_show = e.target.value;
             console.log(`checked = ${e.target.value}`);
+            // if(e.target.value == 'Echart'){
+            //     // 表格展示方式暂未确定
+            //     let x = ['SST-2', 'SNLI', 'BoolQ', 'MMLU'];
+            //     let legend = ['Nor', 'UT', 'GCG'];
+            //     let y1 = [1, 2, 3, 4];
+            //     let y2 = [10, 10, 13, 12];
+            //     let y3 = [40, 40, 30, 50];
+            //     let data = [
+            //         {
+            //         name: 'Nor',
+            //         type: 'bar',
+            //         tooltip: {
+            //         valueFormatter: function (value) {
+            //             return value + ' %';
+            //         }
+            //         },
+            //         data: y1
+            //     },
+            //     {
+            //         name: 'UT',
+            //         type: 'bar',
+            //         tooltip: {
+            //         valueFormatter: function (value) {
+            //             return value + ' %';
+            //         }
+            //         },
+            //         data: y2
+            //     },
+            //     {
+            //         name: 'GCG',
+            //         type: 'bar',
+            //         tooltip: {
+            //         valueFormatter: function (value) {
+            //             return value + ' %';
+            //         }
+            //         },
+            //         data: y3
+            //     }
+            //     ]
+            //     Draw_LM_Rank('rank_bar', legend, x, data);
+            // }
         },
         handleFormChange(e) {
             // 筛选功能
@@ -96,7 +140,9 @@ export default {
 .body{
     position: absolute;
     height: -webkit-fill-available;
+    width: 100%;
     background-color: #f3f7ff;
+    scrollbar-width: thin;
 }
 
 .table {
@@ -105,6 +151,12 @@ export default {
     margin: 1%;
     padding: 1%;
     background-color: white;
+}
+
+.echart {
+    /* width: 70%; */
+    height: 100%;
+    margin: auto;
 }
 
 /* .ant-table table{
@@ -155,9 +207,6 @@ export default {
     text-align: left;
 }
 
-.ratio_button {
-
-}
 
 .ant-form-item {
   margin-bottom: 0.2%;
@@ -169,6 +218,10 @@ export default {
     text-align: left  !important;
     float: left;
 }
+
+/* ::-webkit-scrollbar {
+  width: 10px;
+} */
 
 /* 
 .ant-form-item-control {
@@ -195,8 +248,18 @@ export default {
     font-size: 14px;
     font-style: normal;
     font-weight: 380;
-    line-height: 22px; /* 157.143% */
+    line-height: 22px; 
 }
+
+
+/* .ant-table-body  ::-webkit-scrollbar {
+    height: 12px;
+    width: 0px; 
+    overflow-y: auto;
+} */
+
+
+
 
 .table-operations {
 margin-bottom: 16px;

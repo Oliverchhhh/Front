@@ -41,7 +41,7 @@ import {getCookie} from '../assets/js/cookie.js'
 export default{
     name:"navmodule",
     props:{
-        current:['join']
+        current:[]
     },
     components:{
             loginDialog
