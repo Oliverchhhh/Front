@@ -701,7 +701,7 @@ export default {
             var that = this;
             
             // 总分判断
-            that.result["score"] = res["Overall fairness"].toFixed(2)*100;
+            that.result["score"] = parseFloat(res["Overall fairness"]).toFixed(2)*100;
             
             if(that.result.score > 80){
                 that.result.score_evaluate = "优秀";
@@ -714,9 +714,9 @@ export default {
                 that.result.score_con = "较不公平";
             }
             if ( "Consistency" in that.result){
-                that.result["consistency_score"] = res["Overall individual fairness"].toFixed(2)*100;
-                that.result["group_score"] =  res["Overall group fairness"].toFixed(2)*100;
-                that.result["Consistency"]=res.Consistency.toFixed(2) * 100;
+                that.result["consistency_score"] = parseFloat(res["Overall individual fairness"]).toFixed(2)*100;
+                that.result["group_score"] =  parseFloat(res["Overall group fairness"]).toFixed(2)*100;
+                that.result["Consistency"]=parseFloat(res.Consistency).toFixed(2) * 100;
                 that.result["Proportion"]=res.Proportion;
                 
                 //得分图
@@ -748,7 +748,7 @@ export default {
                     else{
                         labels.push(key);
                         for (let attrTemp in res[key]){
-                            attrEvaValue[attrTemp].push(res[key][attrTemp].toFixed(2));
+                            attrEvaValue[attrTemp].push(parseFloat(res[key][attrTemp]).toFixed(2));
                         }
                     }
                 }
@@ -780,7 +780,7 @@ export default {
                         if(pearsonY.indexOf(temp["target"]) == -1){
                             pearsonY.push(temp["target"])
                         }
-                        personData.push([pearsonX.indexOf(temp["attr"]), pearsonY.indexOf(temp["target"]) ,temp.values.pearson.toFixed(3)])
+                        personData.push([pearsonX.indexOf(temp["attr"]), pearsonY.indexOf(temp["target"]) ,parseFloat(temp.values.pearson).toFixed(3)])
                     }
                     if(temp.values.spearman != null){
                         if(spearmanX.indexOf(temp["attr"]) == -1){
@@ -789,7 +789,7 @@ export default {
                         if(spearmanY.indexOf(temp["target"]) == -1){
                             spearmanY.push(temp["target"])
                         }
-                        spearmanData.push([spearmanX.indexOf(temp["attr"]) ,spearmanY.indexOf(temp["target"]) ,temp.values.spearman.toFixed(3)])
+                        spearmanData.push([spearmanX.indexOf(temp["attr"]) ,spearmanY.indexOf(temp["target"]) ,parseFloat(temp.values.spearman).toFixed(3)])
                     }
                     if(temp.values.kendalltau != null){
                         if(kendalltauX.indexOf(temp["attr"]) == -1){
@@ -798,7 +798,7 @@ export default {
                         if(kendalltauY.indexOf(temp["target"]) == -1){
                             kendalltauY.push(temp["target"])
                         }
-                        kendallData.push([kendalltauX.indexOf(temp["attr"]), kendalltauY.indexOf(temp["target"]) ,temp.values.kendalltau.toFixed(3)])
+                        kendallData.push([kendalltauX.indexOf(temp["attr"]), kendalltauY.indexOf(temp["target"]) ,parseFloat(temp.values.kendalltau).toFixed(3)])
                     }
                     if(temp.values.mutual_info != null){
                         if(mutualX.indexOf(temp["attr"]) == -1){
@@ -807,7 +807,7 @@ export default {
                         if(mutualY.indexOf(temp["target"]) == -1){
                             mutualY.push(temp["target"])
                         }
-                        NMIData.push([mutualX.indexOf(temp["attr"]), mutualY.indexOf(temp["target"]), temp.values.mutual_info.toFixed(3)])
+                        NMIData.push([mutualX.indexOf(temp["attr"]), mutualY.indexOf(temp["target"]), parseFloat(temp.values.mutual_info).toFixed(3)])
                     }
                 };
                 if (mutualY.length>5){
@@ -861,7 +861,7 @@ export default {
                         var third_children={
                         id:key+'_'+key1,
                         label:key1,
-                        population:that.result.Proportion[key][key1].toFixed(3),
+                        population:parseFloat(that.result.Proportion[key][key1]).toFixed(3),
                         isLeaf: true,
                         };
                         second_children["children"].push(third_children);
@@ -883,7 +883,7 @@ export default {
                     }
                     else{
                         labels.push(key);
-                        attrEvaValue.push(res[key].toFixed(2));
+                        attrEvaValue.push(parseFloat(res[key]).toFixed(2));
                     }
                 }
                 // 画图

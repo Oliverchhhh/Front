@@ -162,7 +162,7 @@ export default {
                 highlight: [
                     "对抗样本检测技术：样本检测算法包括Twis、Feature Squeezing、Spatial Smoothing等主流检测算法，有效检出数据集中的对抗样本",
                     "对抗噪声擦除技术：噪声擦除算法包括Region-based Classification、InverseGAN、JPEG Compression等9种算法，高效抵御对抗攻击",
-                    "模型防御力增强技术：模型防御里增强包括CARTL、TRADES、FreeAT、FastAT等主流的6种对抗训练方法，提高模型对对抗样本的防御能力"
+                    "模型防御力增强技术：模型防御力增强包括CARTL、TRADES、FreeAT、FastAT等主流的6种对抗训练方法，提高模型对对抗样本的防御能力"
                 ]
             },
             /* 评估结果 */

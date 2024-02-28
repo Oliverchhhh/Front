@@ -76,7 +76,7 @@
                     </div>
                     <!-- 对抗训练后的攻击成功率 -->
                     <div>
-                      <div class="result-title">模型加固后的模攻击成功率对比</div>
+                      <div class="result-title">模型加固后的攻击成功率对比</div>
                       <div id="robust_asr" class="echart" style="width: 1000px; height: 400px;"></div>
                       <!-- <div class="conclusion">
                         <p class="result_text ">结论2</p> -->

@@ -146,15 +146,17 @@
                             <div class="leftup">
                                 <div class="circle1">
                                     <div class="fairness_score">
-                                        <p class="score_num">{{fairnessRes.score}}</p>
-                                        <div style="width: 44px;height: 1px;background: rgba(255, 255, 255, 0.40);"></div>
-                                        <p class="score_evaluate">{{fairnessRes.score_evaluate}}</p>
-
+                                        <div class="fairness_score_text">
+                                            <p class="score_num">{{fairnessRes.score}}</p>
+                                            <div style="width: 44px;height: 1px;background: rgba(255, 255, 255, 0.40);"></div>
+                                            <p class="score_evaluate">{{fairnessRes.score_evaluate}}</p>
+                                        </div>
                                     </div>
+                                    <dv-charts :option="option" style="width:148px;height:148px" />
+                                    <!-- <dv-active-ring-chart :config="datacons" style="width:148px;height:148px" /> -->
+                                    <!-- <div id="consistency_div"> </div> -->
                                 </div>
-                                <div id="consistency_div">
-
-                                </div>
+                                
                             </div>
                             <div class="leftdown">
                                 <div class="cons">
@@ -163,7 +165,7 @@
                                     </div>
                                     <div class="cons_des">
                                         <p class="cons_text_name">个体公平性评估</p>
-                                        <dv-percent-pond :config="'value:'+fairnessRes.consistency_score" style="width:100%;height:8px;" />
+                                        <dv-percent-pond :config="datavC" style="width:100%;" />
                                         <p>得分 {{ fairnessRes.consistency_score }}</p>
                                     </div>
                                 </div>
@@ -173,7 +175,7 @@
                                     </div>
                                     <div class="cons_des">
                                         <p class="cons_text_name">群体公平性评估</p>
-                                        <dv-percent-pond :config="'value:'+fairnessRes.consistency_score" style="width:100%;height:8px;" />
+                                        <dv-percent-pond :config="datavG" style="width:100%;" />
                                         <p>得分 {{ fairnessRes.consistency_score }}</p>
                                     </div>
                                 </div>
@@ -266,7 +268,57 @@ export default {
         useRes:{},
         fairnessRes:{},
         res:{},
-        excolor:[['#00D1FF','#FF9D00'],['#fff']]
+        excolor:[['#00D1FF','#FF9D00'],['#fff']],
+        datavC:{
+            value:0,
+            colors:['#06F7A1'],
+            borderWidth:8
+        },
+        datavG:{
+            value:0,
+            colors:['#00D6FF'],
+            borderWidth:8
+        },
+        option:{
+            series: [
+                {
+                type: 'gauge',
+                startAngle: -Math.PI / 2,
+                endAngle: Math.PI * 1.5,
+                arcLineWidth: 10,
+                grid:{
+                    left:'1%',
+                    right:'1%',
+                    top:'1%',
+                    bottom:'1%'
+                },
+                data: [
+                    { name: 'itemA', value: 65, gradient: ['#03c2fd', '#1ed3e5', '#2fded6'] }
+                ],
+                axisLabel: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                pointer: {
+                    show: false
+                },
+                dataItemStyle: {
+                    lineCap: 'round'
+                },
+                details: {
+                    show: true,
+                    formatter: '{value}%',
+                    style: {
+                        fill: '#1ed3e5',
+                        fontSize: 20
+                    }
+                }
+                }
+            ]
+        }
+
       }
     },
     components: {
@@ -365,6 +417,10 @@ export default {
             this.fairnessRes.score = this.fairnessRes["Overall fairness"].toFixed(2)*100;
             this.fairnessRes.consistency_score = this.fairnessRes["Overall individual fairness"].toFixed(2)*100;
             this.fairnessRes.group_score =  this.fairnessRes["Overall group fairness"].toFixed(2)*100;
+            this.datavC.value = this.fairnessRes.consistency_score 
+            this.datavG.value = this.fairnessRes.group_score 
+            this.option.series[0].data[0].value=this.fairnessRes.consistency_score
+            console.log('option:',this.option)
             // 总分判断
             if(this.fairnessRes.score > 80){
                 this.fairnessRes.score_evaluate = "优秀";
@@ -385,7 +441,7 @@ export default {
             }else{
                 color = '#0B55F4';
             }
-            drawconseva1("consistency_div",this.fairnessRes["Consistency"],color);
+            // drawconseva1("consistency_div",this.fairnessRes["Consistency"],color=color);
         },
         getResult(){
             this.res={}
@@ -567,6 +623,15 @@ export default {
     flex-direction:column;
     margin-left:10px;
 }
+#consistency_div{
+    display: flex;
+    width: 148px;
+    height: 148px;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
 .first_title{
     display: flex;
     width: 568px;
@@ -611,8 +676,15 @@ export default {
     border-radius: 12px;
     background: linear-gradient(90deg, #030A1C 0%, rgba(0, 0, 0, 0.00) 50%, #020A1A 100%);
 }
+.fairness_score_text{
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
 .circle1{
-
+display: flex;
+gap: 12px;
 }
 .score_num{
     color: #FFF;
@@ -737,13 +809,9 @@ export default {
     width: 148px;
     height: 148px;
     background-image:
-    url(../../assets/img/fairnessScore1.svg),
-    url(../../assets/img/fairnessScore2.svg),
-    url(../../assets/img/fairnessScore3.svg);
+    url(../../assets/img/fairnessScore1.png);
     background-size:
-    134px 134px ,
-    118px 118px ,
-    90px 90px ;
+    134px 134px;
     background-repeat: no-repeat;
     background-position: center center;
 }

@@ -302,7 +302,7 @@ export default {
     resultPro(){
             this.res.labels = []
             this.result = this.result1.model_evaluate
-            this.res["score"] =  this.result["Overall fairness"].toFixed(2)*100
+            this.res["score"] =  this.result["Overall fairness"]*100
             // 总分判断
             if(this.res.score > 80){
                 this.res.score_evaluate = "优秀";
@@ -316,7 +316,7 @@ export default {
             }
             if("Consistency" in this.result){
                 this.res["consistency_score"] = this.result["Overall individual fairness"].toFixed(2)*100;
-                this.res["group_score"] =  this.result["Overall group fairness"].toFixed(2)*100;
+                this.res["group_score"] =  this.result["Overall group fairness"]*100;
                 this.res["Consistency"] = this.result.Consistency.toFixed(2) * 100;
                 this.res["Proportion"]=this.result.Proportion;
                 //得分图

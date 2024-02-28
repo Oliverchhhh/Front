@@ -458,9 +458,9 @@
                                 <div id='IBP'></div>
                                 
                                 <div class="conclusion">
-                                    <p class="result_text">如上柱状图，在预测分类为{{ modeMsg.reach.label[datasetChoice][result["predicted"]] }}的图像上，
-                                        设置噪声强度为{{epsilon}},
-                                        验证模型的安全性，输出区域存在一定的重叠，对应安全特征存在且在风险</p>
+                                    <p class="result_text">如上柱状图，在预测标签为{{ modeMsg.reach.label[datasetChoice][result["predicted"]] }}的图像上，
+                                        设置攻击强度为{{epsilon}}，
+                                        验证模型的输出结果，观察真实标签与其他标签的输出置信区间重叠情况，重叠越多，表明在当前攻击强度下，模型有更大概率将卡车图片错误地预测为其他标签。</p>
                                 </div>
                             </div>
                         </div>
@@ -472,9 +472,9 @@
                                 <div id='CROWN'></div>
                                 
                                 <div class="conclusion">
-                                    <p class="result_text">如上柱状图，在预测分类为{{ modeMsg.reach.label[datasetChoice][result["predicted"]+1] }}的图像上，
-                                        设置噪声强度为{{epsilon}},
-                                        验证模型的安全性，输出区域存在一定的重叠，对应安全特征存在且在风险</p>
+                                    <p class="result_text">如上柱状图，在预测标签为{{ modeMsg.reach.label[datasetChoice][result["predicted"]+1] }}的图像上，
+                                        设置攻击强度为{{epsilon}}，
+                                        验证模型的输出结果，观察真实标签与其他标签的输出置信区间重叠情况，重叠越多，表明在当前攻击强度下，模型有更大概率将卡车图片错误地预测为其他标签。</p>
                                 </div>
                             </div>
                         </div>

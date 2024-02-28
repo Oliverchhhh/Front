@@ -10,7 +10,7 @@
                 <a-menu v-model="current" mode="horizontal">
                     <a-menu-item key="index" class='menu-item'> <a href="/" >平台介绍</a> </a-menu-item>
                     <a-menu-item key="join" class='menu-item'> <router-link to="/homme_menu" target="_blank" rel="noopener noreferrer">在线体验 </router-link></a-menu-item>
-                    <a-menu-item key="llm" class='menu-item'> <router-link  to="/llm" rel="noopener noreferrer">大模型排行榜 </router-link></a-menu-item>
+                    <!-- <a-menu-item key="llm" class='menu-item'> <router-link  to="/llm" rel="noopener noreferrer">大模型排行榜 </router-link></a-menu-item> -->
                     <a-menu-item v-show="username==''" class='menu-item' key="login" @click="clicklogin()">登录/注册</a-menu-item>
                     <a-sub-menu  class='menu-item' v-show="username != ''" >
                         <span slot="title" class='menu-item sub-title' ><span>{{username}}</span></span>
@@ -25,7 +25,7 @@
             <!-- 产品介绍 -->
             <div class="product_text">
                 <h1>人工智能<br/>安全理论及验证平台</h1>
-                <p>聚焦人工智能系统面临的安全问题，提供人工智能系统全生命周期一站式检测和一体化安全防御方案，适用于安防、交通、金融行业广泛应用的的人脸识别、目标检测等人工智能场景。</p>
+                <p>聚焦人工智能系统全链路安全威胁，提供一站式安全检测和多维度评估，助力人工智能系统安全防护。</p>
                 <!-- <a-button type="primary" class="join">立即体验</a-button> -->
                 <div class="pro_bottom"></div>
             </div>
@@ -37,18 +37,17 @@
 
 <script>
 import loginDialog from "../components/loginDialog.vue"
-import {getCookie} from '../assets/js/cookie.js'
+import {getCookie,delCookie} from '../assets/js/cookie.js'
 export default{
     name:"navmodule",
     props:{
-        current:['join']
+        current:[]
     },
     components:{
             loginDialog
         },
     data() {
         return {
-        // current: ['join'],
         loginShow:true,
         username:'',
         };
@@ -56,6 +55,7 @@ export default{
     mounted(){
         this.username = getCookie("username")
         console.log("nav username",this.username)
+        console.log("current",this.current)
     },
     watch:{
         /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/

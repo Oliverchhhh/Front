@@ -400,7 +400,6 @@ function drawbarimproved( ID, data, data2, label, name){
 //公平性评估大
 function drawconseva1(ID, value, color='#0B55F4', titlename=''){
     var option;
-
     console.log(value);
     option = {
       series: [
