@@ -1,6 +1,6 @@
-# fairness
+# AIcert
 
-> fairness
+> AIcert
 
 ## Build Setup
 
