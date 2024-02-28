@@ -1982,6 +1982,81 @@ function DrawRobustBar(ID, legend, xAxis, data1, data2) {
   },500)
 }
 
+function Draw_LM_Rank(ID, legend, xAxis, data) {
+  var option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross',
+        crossStyle: {
+          color: '#999'
+        }
+      }
+    },
+    legend: {
+      data: legend,
+    },
+    xAxis: [
+      {
+        type: 'category',
+        data: xAxis,
+        axisPointer: {
+          type: 'shadow'
+        }
+      }
+    ],
+    yAxis: {
+      type: 'value',
+      name: 'Accuracy',
+      min: 0,
+      max: 100,
+      interval: 10,
+      axisLabel: {
+        formatter: '{value} %'
+      }
+    },
+    series: data
+    // [
+    //   {
+    //     name: 'Nor',
+    //     type: 'bar',
+    //     tooltip: {
+    //       valueFormatter: function (value) {
+    //         return value + ' %';
+    //       }
+    //     },
+    //     data: y1
+    //   },
+    //   {
+    //     name: 'UT',
+    //     type: 'bar',
+    //     tooltip: {
+    //       valueFormatter: function (value) {
+    //         return value + ' %';
+    //       }
+    //     },
+    //     data: y2
+    //   },
+    //   {
+    //     name: 'GCG',
+    //     type: 'bar',
+    //     tooltip: {
+    //       valueFormatter: function (value) {
+    //         return value + ' %';
+    //       }
+    //     },
+    //     data: y3
+    //   }
+    // ]
+  };
+  setTimeout(function(){
+    var myChartcons = echarts.init(document.getElementById(ID));
+    window.addEventListener("resize", function () {
+        myChartcons.resize()});
+    option && myChartcons.setOption(option);
+  },500)
+}
+
 export {
   drawclass1pro,
   drawbar,
@@ -2000,5 +2075,5 @@ export {
   drawside, drawTtest, drawALLPA,
   drawbarhigh,drawFormalLine,
   initGraph1,initGraph2,
-  DrawRobustBar,
+  DrawRobustBar, Draw_LM_Rank
 }

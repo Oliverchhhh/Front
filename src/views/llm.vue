@@ -5,10 +5,31 @@
        <a-layout-header>
            <!-- 导航栏 -->
            <navmodule class="llm_nav" :current="current"/>
+           <div class="nav_title">  
+                <div class="title_block"> 
+                    <p class="nav_title_text">VoAI大模型排行榜</p>
+                </div>
+                <div class="info_block"> 
+                    <div class="info_unit"> 
+                        <div class="info_top"> 
+                            <p class="info_text1">20</p>
+                            <p class="info_text2">个</p>
+                        </div>
+                        <p class="info_text3">覆盖模型</p>
+                    </div>
+                    <div class="info_unit"> 
+                        <div class="info_top"> 
+                            <p class="info_text1">3</p>
+                            <p class="info_text2">种</p>
+                        </div>
+                        <p class="info_text3">多模态类型</p>
+                    </div>
+                </div>
+           </div>
        </a-layout-header>
        <a-layout-content>
            <!-- 排行榜 -->
-           <rank :colunm_data="colunm_data" :sheet_data="sheet_data"></rank>
+           <rank  :colunm_data="colunm_data" :sheet_data="sheet_data" @listen_com="getComValue"></rank>
        </a-layout-content>
        <a-layout-footer>
 
@@ -53,26 +74,15 @@ export default {
             current: ['llm'],
             colunm_data:[],
             sheet_data:[],
-            rank_num: [],
+            rank_num: 0,
+            attack_type: null,
+            test_var:false
         }
        },
-   watch:{
-       /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
-    //    isShowPublish:{
-    //        immediate:true,
-    //        handler(v){
-    //            if(v){
-    //                this.noScroll();
-    //            }else{
-    //                this.canScroll();
-    //            }
-    //        }
-    //    }
-   },
    created() {
         document.title = '大模型排行榜';
         this.$nextTick(()=>{
-            console.log('Loaded Excel !');
+            // console.log('Loaded Excel !');
             this.resultPro("static/output/test.xlsx");
             })
         },
@@ -83,31 +93,173 @@ export default {
             this.$axios.get(file_path,{responseType:'arraybuffer'}).then((res)=>{
                 let data = new Uint8Array(res.data);
                 let wb = XLSX.read(data, {type: "array"});
-                // console.log(wb);
                 let sheets = wb.Sheets;
-                this.content = this.transformSheets(sheets);
+                this.transformSheets(sheets);
             }) .catch( err=>{
                 this.err = err
             })
         },
+        // excel转换json，处理表头、表体数据
         transformSheets(sheets){
             let content = []
             let tmplist = []
             for (let key in sheets){
-                //读出来的workbook数据很难读,转换为json格式,参考https://github.com/SheetJS/js-xlsx#utility-functions
+                //参考https://github.com/SheetJS/js-xlsx#utility-functions
                 tmplist.push(XLSX.utils.sheet_to_json(sheets[key]).length);
                 content.push(XLSX.utils.sheet_to_json(sheets[key]));
-                // console.log(key);
-                // console.log(XLSX.utils.sheet_to_json(sheets[key]));
             }
-            debugger
+            // 排行榜模型数量
             this.rank_num = tmplist[0];
+            // 表头
+            this.colunm_data = [
+                {
+                    title: "模型名称",
+                    dataIndex: "name",
+                    key:"name",
+                    width:'108px',
+                    fixed:'left'
+                }, 
+                {
+                    title: "组织机构",
+                    dataIndex: "institution",
+                    key:"institution",
+                    width:'108px',
+                    fixed:'left'
+                },
+                {
+                    title: "参数规模",
+                    dataIndex: "size",
+                    key:"size",
+                    defaultSortOrder: 'descend',
+                    sorter: (a, b) => a.size - b.size,
+                    width:'120px',
+                    fixed:'left'
+                },{
+                    title: "SST-2",
+                    children:[
+                        {  
+                            title: "Nor Attack Acc",
+                            dataIndex: "sst_nor",
+                            key:"sst_nor",
+                            sorter: (a, b) => a.sst_nor - b.sst_nor,
+                            // width:'7%'
+                        },
+                        {
+                            title: "UT Acc",
+                            dataIndex: "sst_ut",
+                            key:"sst_ut",
+                            sorter: (a, b) => a.sst_ut - b.sst_ut,
+                            id: 'ut',
+                            // className:'tableHidden',
+                            // colSpan: 0,
+                            // customRender: (value, row, index) => {
+                            //     console.log('hahaha:',value, row, index)
+                            // }
+                            
+                            // this.attack_type!='gcg'?'tableShow':
+                        },{
+                            title: "GCG Acc",
+                            dataIndex: "sst_gcg",
+                            key:"sst_gcg",
+                            sorter: (a, b) => a.sst_gcg - b.sst_gcg,
+                            id: 'gcg',
+
+                            // width:'7%'
+                        }
+                        ]
+                },{
+                    title: "SNLI",
+                    children:[
+                        {  
+                            title: "Nor Attack Acc",
+                            dataIndex: "snli_nor",
+                            key:"snli_nor",
+                            sorter: (a, b) => a.snli_nor - b.snli_nor,
+                            // width:'7%'
+                        },{
+                            title: "UT Acc",
+                            dataIndex: "snli_ut",
+                            key:"snli_ut",
+                            sorter: (a, b) => a.snli_ut - b.snli_ut,
+                            id: 'ut',
+                            // width:'7%'
+                        },{
+                            title: "GCG Acc",
+                            dataIndex: "snli_gcg",
+                            key:"snli_gcg",
+                            sorter: (a, b) => a.snli_gcg - b.snli_gcg,
+                            id: 'gcg',
+                            // width:'7%'
+                            // width:'max-content'
+                        }
+                        ]
+                },{
+                    title: "BoolQ",
+                    children:[
+                        {  
+                            title: "Nor Attack Acc",
+                            dataIndex: "boolq_nor",
+                            key:"boolq_nor",
+                            sorter: (a, b) => a.boolq_nor - b.boolq_nor,
+                            // width:'7%'
+                        },{
+                            title: "UT Acc",
+                            dataIndex: "boolq_ut",
+                            key:"boolq_ut",
+                            sorter: (a, b) => a.boolq_ut - b.boolq_ut,
+                            id: 'ut',
+                            // width:'7%'
+                        },{
+                            title: "GCG Acc",
+                            dataIndex: "boolq_gcg",
+                            key:"boolq_gcg",
+                            sorter: (a, b) => a.boolq_gcg - b.boolq_gcg,
+                            id: 'gcg',
+                            // width:'7%'
+                            // width:'max-content'
+                        }
+                        ]
+                },{
+                    title: "MMLU",
+                    children:[
+                        {  
+                            title: "Nor Attack Acc",
+                            dataIndex: "mmlu_nor",
+                            key:"mmlu_nor",
+                            sorter: (a, b) => a.mmlu_nor - b.mmlu_nor,
+                            // width:'7%'
+                        },{
+                            title: "UT Acc",
+                            dataIndex: "mmlu_ut",
+                            key:"mmlu_ut",
+                            sorter: (a, b) => a.mmlu_ut - b.mmlu_ut,
+                            id: 'ut',
+                            // width:'7%'
+                            // width:'max-content'
+                        },{
+                            title: "GCG Acc",
+                            dataIndex: "mmlu_gcg",
+                            key:"mmlu_gcg",
+                            sorter: (a, b) => a.mmlu_gcg - b.mmlu_gcg,
+                            id: 'gcg',
+                            // width:'7%'
+                            // width:'max-content'
+                        }
+                        ]
+                },
+            ]
             this.sheet_data = content[0];
-            console.log('--------------');
-            console.log(this.rank_num);
-            console.log(this.sheet_data);
-            // console.log(content.type)
-            }
+            for(var i=0;i<this.rank_num;i++){
+                // console.log(i);
+                // console.log(this.sheet_data[i]);
+                this.sheet_data[i].key=i+1;
+            } 
+            },
+        getComValue(value) {
+            // console.log('组件传值成功：', value);
+            this.attack_type = value,
+            console.log('attack_type=',this.attack_type)
+        }
     }
 }
 </script>
@@ -135,6 +287,95 @@ export default {
 
 .llm_nav >>> .pro_des .product_text {
     display: none;
+}
+
+.nav_title {
+    position: absolute;
+    top: 8%;
+    width: 100%;
+    height: 20%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+// .llm_nav >>> .pro_des .product_text p {
+//     display: none;
+// }
+
+.title_block {
+    width: 50%;
+    // background-color: aqua;
+
+}
+.info_block {
+    width: 50%;
+    // background-color: black;
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 7%;
+}
+
+.info_unit {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.nav_title_text {
+    color: #FFF;
+    font-family: MiSans;
+    font-size: 30px;
+    font-style: normal;
+    font-weight: 600;
+    // width: 5%;
+    text-align: center;
+}
+
+.info_top {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: baseline;
+}
+
+.info_text1 {
+    color: var(--gray-8, #FFF);
+    font-family: MiSans;
+    font-size: 60px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 68px; /* 113.333% */
+    padding: 0 10px;
+}
+.info_text2 {
+    color: var(--gray-8, #FFF);
+    font-family: MiSans;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 380;
+    line-height: 52px; /* 216.667% */
+}
+
+.info_text3 {
+    color: var(--gray-8, #FFF);
+    font-family: MiSans;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 380;
+    line-height: 24px; /* 120% */
+    }
+
+
+.tableHiddle {
+    display: none !important;
+}
+.tableShow{
+    display: revert !important;
 }
 
 .ant-layout-footer {
