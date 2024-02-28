@@ -1,7 +1,7 @@
 <template>
     <div class="body">
         <!-- 表头：筛选 -->
-        <div class="table ">
+        <!-- <div class="table ">
             <div class="ratio_group">
                 <span class="ratio_title"> 攻击方法 </span>
                 <a-radio-group  v-for="(item, index) in options_atk" :key="index" v-model="value_atk" @change="onChangeAtk" button-style="solid">
@@ -14,7 +14,7 @@
                     <a-radio-button :value="item.value">{{ item.label }}</a-radio-button>
                 </a-radio-group>
             </div>
-        </div>
+        </div> -->
         <!-- <div class="table" >
             <a-form class="ratio_group" v-for="(item, label) in form_data" :key="label">
                 <a-form-item :label="item.label" :label-col="{span: 1}" :wrapper-col="{span: 10}" :colon="false" >
@@ -27,8 +27,11 @@
         <!-- 表体：数据列表 -->
         <div v-if="value_show=='List'" class="table table_title" >
             <p class="title_text">排行榜</p>
-            <p>*注：Acc为无/有对抗攻击下的任务准确率，其中Nor Attack指无对抗攻击下的任务准确率、UT Acc指Universal Triggers攻击下的任务准确率，GCG Acc指Greedy Coordinate Gradient攻击下任务准确率。</p>
-            <a-table :columns="colunm_data" :data-source="sheet_data"  :scroll="{x:'120%'}" :bordered="true" @change="handleChange" />
+            <!-- <p>*注：Acc为无/有对抗攻击下的任务准确率，其中Nor Attack指无对抗攻击下的任务准确率、UT Acc指Universal Triggers攻击下的任务准确率，GCG Acc指Greedy Coordinate Gradient攻击下任务准确率。</p> -->
+            <!-- <a-table :columns="colunm_data" :data-source="sheet_data"  :scroll="{x:'120%'}" :bordered="true" @change="handleChange" /> -->
+            <p style="text-align: left;">*注：从字符级别、单词级别、句子级别3个攻击维度，采用TextBugger、TextFooler等4种对抗攻击方法对17个主流开源大语言模型在初等数学、逻辑运算等57个主题任务上进行了全面的鲁棒性评估，模型规模超亿级。评估结果如上表所示，这些大模型的准确率平均下降了8.8%，反映出大模型在不同程度上存在鲁棒性不足和对微小输入变化的敏感性较强的问题。</p>
+            <a-table :columns="colunm_data" :data-source="sheet_data" :bordered="true" @change="handleChange" />
+            
         </div>
         <!-- 表体：柱状图 -->
         <div v-if="value_show=='Echart'" class="table" style="height: 74%;"> 暂未确认形式
