@@ -7,12 +7,12 @@
            <navmodule class="llm_nav" :current="current"/>
            <div class="nav_title">  
                 <div class="title_block"> 
-                    <p class="nav_title_text">VoAI大模型排行榜</p>
+                    <p class="nav_title_text">AIcert 大模型排行榜</p>
                 </div>
                 <div class="info_block"> 
                     <div class="info_unit"> 
                         <div class="info_top"> 
-                            <p class="info_text1">20</p>
+                            <p class="info_text1">17</p>
                             <p class="info_text2">个</p>
                         </div>
                         <p class="info_text3">覆盖模型</p>
@@ -22,7 +22,7 @@
                             <p class="info_text1">3</p>
                             <p class="info_text2">种</p>
                         </div>
-                        <p class="info_text3">多模态类型</p>
+                        <p class="info_text3">攻击维度</p>
                     </div>
                 </div>
            </div>
@@ -83,7 +83,7 @@ export default {
         document.title = '大模型排行榜';
         this.$nextTick(()=>{
             // console.log('Loaded Excel !');
-            this.resultPro("static/output/test.xlsx");
+            this.resultPro("static/output/test1.xlsx");
             })
         },
     methods: {
@@ -114,139 +114,174 @@ export default {
             this.colunm_data = [
                 {
                     title: "模型名称",
-                    dataIndex: "name",
-                    key:"name",
-                    width:'108px',
-                    fixed:'left'
-                }, 
-                {
-                    title: "组织机构",
-                    dataIndex: "institution",
-                    key:"institution",
-                    width:'108px',
-                    fixed:'left'
-                },
-                {
+                    dataIndex: "Name",
+                    key:"Name",
+                    width:'300px',
+                    // fixed:'left'
+                },{
                     title: "参数规模",
-                    dataIndex: "size",
+                    dataIndex: "Size",
                     key:"size",
                     defaultSortOrder: 'descend',
-                    sorter: (a, b) => a.size - b.size,
-                    width:'120px',
-                    fixed:'left'
+                    sorter: (a, b) => a.Size - b.Size,
+                    width:'200px',
+                    // fixed:'left'
                 },{
-                    title: "SST-2",
-                    children:[
-                        {  
-                            title: "Nor Attack Acc",
-                            dataIndex: "sst_nor",
-                            key:"sst_nor",
-                            sorter: (a, b) => a.sst_nor - b.sst_nor,
-                            // width:'7%'
-                        },
-                        {
-                            title: "UT Acc",
-                            dataIndex: "sst_ut",
-                            key:"sst_ut",
-                            sorter: (a, b) => a.sst_ut - b.sst_ut,
-                            id: 'ut',
-                            // className:'tableHidden',
-                            // colSpan: 0,
-                            // customRender: (value, row, index) => {
-                            //     console.log('hahaha:',value, row, index)
-                            // }
-                            
-                            // this.attack_type!='gcg'?'tableShow':
-                        },{
-                            title: "GCG Acc",
-                            dataIndex: "sst_gcg",
-                            key:"sst_gcg",
-                            sorter: (a, b) => a.sst_gcg - b.sst_gcg,
-                            id: 'gcg',
-
-                            // width:'7%'
-                        }
-                        ]
+                    title: "组织机构",
+                    dataIndex: "Institution",
+                    key:"Institution",
+                    width:'300px',
+                    // fixed:'left'
                 },{
-                    title: "SNLI",
-                    children:[
-                        {  
-                            title: "Nor Attack Acc",
-                            dataIndex: "snli_nor",
-                            key:"snli_nor",
-                            sorter: (a, b) => a.snli_nor - b.snli_nor,
-                            // width:'7%'
-                        },{
-                            title: "UT Acc",
-                            dataIndex: "snli_ut",
-                            key:"snli_ut",
-                            sorter: (a, b) => a.snli_ut - b.snli_ut,
-                            id: 'ut',
-                            // width:'7%'
-                        },{
-                            title: "GCG Acc",
-                            dataIndex: "snli_gcg",
-                            key:"snli_gcg",
-                            sorter: (a, b) => a.snli_gcg - b.snli_gcg,
-                            id: 'gcg',
-                            // width:'7%'
-                            // width:'max-content'
-                        }
-                        ]
-                },{
-                    title: "BoolQ",
-                    children:[
-                        {  
-                            title: "Nor Attack Acc",
-                            dataIndex: "boolq_nor",
-                            key:"boolq_nor",
-                            sorter: (a, b) => a.boolq_nor - b.boolq_nor,
-                            // width:'7%'
-                        },{
-                            title: "UT Acc",
-                            dataIndex: "boolq_ut",
-                            key:"boolq_ut",
-                            sorter: (a, b) => a.boolq_ut - b.boolq_ut,
-                            id: 'ut',
-                            // width:'7%'
-                        },{
-                            title: "GCG Acc",
-                            dataIndex: "boolq_gcg",
-                            key:"boolq_gcg",
-                            sorter: (a, b) => a.boolq_gcg - b.boolq_gcg,
-                            id: 'gcg',
-                            // width:'7%'
-                            // width:'max-content'
-                        }
-                        ]
-                },{
-                    title: "MMLU",
-                    children:[
-                        {  
-                            title: "Nor Attack Acc",
-                            dataIndex: "mmlu_nor",
-                            key:"mmlu_nor",
-                            sorter: (a, b) => a.mmlu_nor - b.mmlu_nor,
-                            // width:'7%'
-                        },{
-                            title: "UT Acc",
-                            dataIndex: "mmlu_ut",
-                            key:"mmlu_ut",
-                            sorter: (a, b) => a.mmlu_ut - b.mmlu_ut,
-                            id: 'ut',
-                            // width:'7%'
-                            // width:'max-content'
-                        },{
-                            title: "GCG Acc",
-                            dataIndex: "mmlu_gcg",
-                            key:"mmlu_gcg",
-                            sorter: (a, b) => a.mmlu_gcg - b.mmlu_gcg,
-                            id: 'gcg',
-                            // width:'7%'
-                            // width:'max-content'
-                        }
-                        ]
+                    title: "支持语言",
+                    dataIndex: "Language",
+                    key:"Language",
+                    width:'200px',
+                    // fixed:'left'
                 },
+                // 宣传稿版本大模型界面
+                {
+                    title: "BoolQ/扰动前",
+                    dataIndex: "BoolQ_nor",
+                    key:"BoolQ_nor",
+                    width:'200px',
+                    sorter: (a, b) => a.BoolQ_nor - b.BoolQ_nor,
+                },
+                {
+                    title: "BoolQ/扰动后",
+                    dataIndex: "BoolQ",
+                    key:"BoolQ",
+                    width:'200px',
+                    sorter: (a, b) => a.BoolQ - b.BoolQ,
+                },
+                {
+                    title: "MMLU/扰动前",
+                    dataIndex: "MMLU_nor",
+                    key:"MMLU_nor",
+                    width:'200px',
+                    sorter: (a, b) => a.MMLU_nor - b.MMLU_nor,
+                },
+                {
+                    title: "MMLU/扰动前",
+                    dataIndex: "MMLU",
+                    key:"MMLU",
+                    width:'200px',
+                    sorter: (a, b) => a.MMLU - b.MMLU,
+                },
+                // 原版大模型界面
+                // {
+                //     title: "SST-2",
+                //     children:[
+                //         {  
+                //             title: "Nor Attack Acc",
+                //             dataIndex: "sst_nor",
+                //             key:"sst_nor",
+                //             sorter: (a, b) => a.sst_nor - b.sst_nor,
+                //             // width:'7%'
+                //         },
+                //         {
+                //             title: "UT Acc",
+                //             dataIndex: "sst_ut",
+                //             key:"sst_ut",
+                //             sorter: (a, b) => a.sst_ut - b.sst_ut,
+                //             id: 'ut',
+                //             // className:'tableHidden',
+                //             // colSpan: 0,
+                //             // customRender: (value, row, index) => {
+                //             //     console.log('hahaha:',value, row, index)
+                //             // }
+                            
+                //             // this.attack_type!='gcg'?'tableShow':
+                //         },{
+                //             title: "GCG Acc",
+                //             dataIndex: "sst_gcg",
+                //             key:"sst_gcg",
+                //             sorter: (a, b) => a.sst_gcg - b.sst_gcg,
+                //             id: 'gcg',
+
+                //             // width:'7%'
+                //         }
+                //         ]
+                // },{
+                //     title: "SNLI",
+                //     children:[
+                //         {  
+                //             title: "Nor Attack Acc",
+                //             dataIndex: "snli_nor",
+                //             key:"snli_nor",
+                //             sorter: (a, b) => a.snli_nor - b.snli_nor,
+                //             // width:'7%'
+                //         },{
+                //             title: "UT Acc",
+                //             dataIndex: "snli_ut",
+                //             key:"snli_ut",
+                //             sorter: (a, b) => a.snli_ut - b.snli_ut,
+                //             id: 'ut',
+                //             // width:'7%'
+                //         },{
+                //             title: "GCG Acc",
+                //             dataIndex: "snli_gcg",
+                //             key:"snli_gcg",
+                //             sorter: (a, b) => a.snli_gcg - b.snli_gcg,
+                //             id: 'gcg',
+                //             // width:'7%'
+                //             // width:'max-content'
+                //         }
+                //         ]
+                // },{
+                //     title: "BoolQ",
+                //     children:[
+                //         {  
+                //             title: "Nor Attack Acc",
+                //             dataIndex: "boolq_nor",
+                //             key:"boolq_nor",
+                //             sorter: (a, b) => a.boolq_nor - b.boolq_nor,
+                //             // width:'7%'
+                //         },{
+                //             title: "UT Acc",
+                //             dataIndex: "boolq_ut",
+                //             key:"boolq_ut",
+                //             sorter: (a, b) => a.boolq_ut - b.boolq_ut,
+                //             id: 'ut',
+                //             // width:'7%'
+                //         },{
+                //             title: "GCG Acc",
+                //             dataIndex: "boolq_gcg",
+                //             key:"boolq_gcg",
+                //             sorter: (a, b) => a.boolq_gcg - b.boolq_gcg,
+                //             id: 'gcg',
+                //             // width:'7%'
+                //             // width:'max-content'
+                //         }
+                //         ]
+                // },{
+                //     title: "MMLU",
+                //     children:[
+                //         {  
+                //             title: "Nor Attack Acc",
+                //             dataIndex: "mmlu_nor",
+                //             key:"mmlu_nor",
+                //             sorter: (a, b) => a.mmlu_nor - b.mmlu_nor,
+                //             // width:'7%'
+                //         },{
+                //             title: "UT Acc",
+                //             dataIndex: "mmlu_ut",
+                //             key:"mmlu_ut",
+                //             sorter: (a, b) => a.mmlu_ut - b.mmlu_ut,
+                //             id: 'ut',
+                //             // width:'7%'
+                //             // width:'max-content'
+                //         },{
+                //             title: "GCG Acc",
+                //             dataIndex: "mmlu_gcg",
+                //             key:"mmlu_gcg",
+                //             sorter: (a, b) => a.mmlu_gcg - b.mmlu_gcg,
+                //             id: 'gcg',
+                //             // width:'7%'
+                //             // width:'max-content'
+                //         }
+                //         ]
+                // },
             ]
             this.sheet_data = content[0];
             for(var i=0;i<this.rank_num;i++){
