@@ -244,7 +244,7 @@ export default {
                 ],
             modelChoice: "ResNet18",
             advChoice: 'FGSM',
-            advTrainMethod:['FGSM','FFGSM',"RFGSM","MIFGSM","BIM","PGD","DIFGSM","C&W","TPGD", "UPGD", "DeepFool"],
+            advTrainMethod:['FGSM','FFGSM',"RFGSM","MIFGSM","BIM","PGD","DIFGSM","CW","TPGD", "UPGD", "DeepFool"],
             selectedMethod:[],
             // selectedAttributes:"",
             showmethodInfo:[[
@@ -260,7 +260,7 @@ export default {
                 {name:"DeepFool",description:"DeepFool算法：方法的出发点是想要精确的度量模型对于对抗样本的鲁棒性，为此提出了鲁棒性定义和计算方法。最终使用该计算方法生成对抗样本。"}    
             ],
                 [
-                {name:"C&W",description:"C&W算法：该方法的出发点是攻击比较有名的对抗样本防御方法-防御蒸馏(就防御蒸馏方法而言，它在基本的L-BFGS，FGSM攻击方法上表现本身就比较差)。对于寻找对抗样本过程中目标函数的设置将会极大的影响对抗样本的攻击效果，为此，通过目标函数的设定，在零范数，二范数和无穷范数的限制下分别设计了三种不同的寻找对抗样本的目标函数，这三种方法均可以绕过防御蒸馏的防御",},
+                {name:"CW",description:"C&W算法：该方法的出发点是攻击比较有名的对抗样本防御方法-防御蒸馏(就防御蒸馏方法而言，它在基本的L-BFGS，FGSM攻击方法上表现本身就比较差)。对于寻找对抗样本过程中目标函数的设置将会极大的影响对抗样本的攻击效果，为此，通过目标函数的设定，在零范数，二范数和无穷范数的限制下分别设计了三种不同的寻找对抗样本的目标函数，这三种方法均可以绕过防御蒸馏的防御",},
                 {name:"TPGD",description:"TPGD算法：基于KL-Divergence loss的pgd攻击"},
                 {name:"UPGD", description:"支持各种基于梯度的对抗性攻击选项的终极PGD。",},
             ]],

@@ -3,8 +3,42 @@
         <!-- 导航栏 -->
         <div class="nav">
             <div class="icon_title"> 
-                <img :src="require('../assets/img/index_icon.png')">
-                <p class="title_des"> AI安全理论及验证平台</p>
+                <!-- <img :src="require('../assets/img/index_icon.png')"> -->
+                <svg width="160" height="40" viewBox="0 0 451 106" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M123.199 98V8H143.199V98H123.199Z" fill="url(#paint0_linear_307_1611)"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M62.44 8L114.81 98H91.45L62.45 48.23L33.45 98H10L62.44 8Z" fill="url(#paint1_linear_307_1611)"/>
+                    <path d="M247.489 57.95H202.879L197.499 78H242.129L236.769 98H172.969L189.039 38H252.879L247.489 57.95Z" fill="url(#paint2_linear_307_1611)"/>
+                    <path d="M318.509 73.559H275.509L274.349 77.8789H317.349L312.009 97.8789H248.879L264.959 37.8789H328.069L318.509 73.559ZM281.299 51.8389L279.129 59.929H302.049L304.219 51.8389H281.299Z" fill="url(#paint3_linear_307_1611)"/>
+                    <path d="M400.789 25.9609H421.129L417.889 38.041H442.949L437.579 58.041H412.579L407.199 78.111H438.469L433.149 97.981H381.469L400.789 25.9609Z" fill="url(#paint4_linear_307_1611)"/>
+                    <path d="M379.05 57.8904L381.47 57.7305L385.47 37.7305L383.05 37.8904C374.625 38.5101 366.359 40.5066 358.58 43.8005L360.15 37.9604H340.15L324.07 97.9604H344.07L352.33 67.1205C360.315 61.838 369.507 58.6627 379.05 57.8904Z" fill="url(#paint5_linear_307_1611)"/>
+                    <defs>
+                    <linearGradient id="paint0_linear_307_1611" x1="130.459" y1="35.9" x2="142.279" y2="109.76" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#0042EB"/>
+                    <stop offset="1" stop-color="#17D5FB"/>
+                    </linearGradient>
+                    <linearGradient id="paint1_linear_307_1611" x1="50.14" y1="57.21" x2="76.14" y2="143.65" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#0042EB"/>
+                    <stop offset="1" stop-color="#17D5FB"/>
+                    </linearGradient>
+                    <linearGradient id="paint2_linear_307_1611" x1="218.41" y1="49.1" x2="218.878" y2="108.463" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#0042EB"/>
+                    <stop offset="1" stop-color="#17D5FB"/>
+                    </linearGradient>
+                    <linearGradient id="paint3_linear_307_1611" x1="293.97" y1="48.9889" x2="294.438" y2="108.352" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#0042EB"/>
+                    <stop offset="1" stop-color="#17D5FB"/>
+                    </linearGradient>
+                    <linearGradient id="paint4_linear_307_1611" x1="422.935" y1="39.2309" x2="423.967" y2="110.371" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#0042EB"/>
+                    <stop offset="1" stop-color="#17D5FB"/>
+                    </linearGradient>
+                    <linearGradient id="paint5_linear_307_1611" x1="360.736" y1="48.8605" x2="361.54" y2="108.353" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#0042EB"/>
+                    <stop offset="1" stop-color="#17D5FB"/>
+                    </linearGradient>
+                    </defs>
+                </svg>
+                <!-- <p class="title_des"> AI安全理论及验证平台</p> -->
             </div>
             <div class="top_nav">
                 <a-menu v-model="current" mode="horizontal">
