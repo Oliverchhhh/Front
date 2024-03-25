@@ -1013,6 +1013,7 @@ export default {
                     that.postData['attack_type'] = that.attackType
                     that.postData['data_type'] = that.dataType
                     that.postData['defend_algorithm'] = that.defendAlgorithm
+                    that.postData['task_type'] = "图像分类"
                 }else if(['rule','flow_rule'].indexOf(that.selectedDefense)>-1){
                     that.postData["DatasetParam"] = {"name":dataset}
                     that.postData["ModelParam"] = {"name":model,"ckpt":null}

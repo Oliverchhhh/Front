@@ -406,7 +406,7 @@ export default {
                 that.result.score_evaluate = "差";
                 that.result.score_con = "较不公平";
             }
-            that.result["Consistency"]=res.Consistency.toFixed(2)*100;
+            that.result["Consistency"]=parseFloat(res.Consistency).toFixed(2)*100;
             that.result["Proportion"]=res.Proportion;
             var color='#0B55F4';
             if (that.result["Consistency"]<=30){
@@ -444,8 +444,8 @@ export default {
                 labels.push(temp1)
 
                 for(let attrTemp of that.senAttrList){
-                    diflist[attrTemp].push(res["Favorable Rate Difference"][temp1][attrTemp].toFixed(2))
-                    ratiolist[attrTemp].push(res["Favorable Rate Ratio"][temp1][attrTemp].toFixed(2))
+                    diflist[attrTemp].push(parseFloat(res["Favorable Rate Difference"][temp1][attrTemp]).toFixed(2))
+                    ratiolist[attrTemp].push(parseFloat(res["Favorable Rate Ratio"][temp1][attrTemp]).toFixed(2))
                 }
             };
             that.result["diflist"]=diflist;
@@ -477,7 +477,7 @@ export default {
                     var third_children={
                     id:key+'_'+key1,
                     label:key1,
-                    population:that.result.Proportion[key][key1].toFixed(3),
+                    population:parseFloat(that.result.Proportion[key][key1]).toFixed(3),
                     isLeaf: true,
                     };
                     second_children["children"].push(third_children);
@@ -508,7 +508,7 @@ export default {
                         if(pearsonY.indexOf(temp["target"]) == -1){
                             pearsonY.push(temp["target"])
                         }
-                        personData.push([pearsonX.indexOf(temp["attr"]), pearsonY.indexOf(temp["target"]) ,temp.values.pearson.toFixed(3)])
+                        personData.push([pearsonX.indexOf(temp["attr"]), pearsonY.indexOf(temp["target"]) ,parseFloat(temp.values.pearson).toFixed(3)])
                     }
                     if(temp.values.spearman != null){
                         if(spearmanX.indexOf(temp["attr"]) == -1){
@@ -517,7 +517,7 @@ export default {
                         if(spearmanY.indexOf(temp["target"]) == -1){
                             spearmanY.push(temp["target"])
                         }
-                        spearmanData.push([spearmanX.indexOf(temp["attr"]) ,spearmanY.indexOf(temp["target"]) ,temp.values.spearman.toFixed(3)])
+                        spearmanData.push([spearmanX.indexOf(temp["attr"]) ,spearmanY.indexOf(temp["target"]) ,parseFloat(temp.values.spearman).toFixed(3)])
                     }
                     if(temp.values.kendalltau != null){
                         if(kendalltauX.indexOf(temp["attr"]) == -1){
@@ -526,7 +526,7 @@ export default {
                         if(kendalltauY.indexOf(temp["target"]) == -1){
                             kendalltauY.push(temp["target"])
                         }
-                        kendallData.push([kendalltauX.indexOf(temp["attr"]), kendalltauY.indexOf(temp["target"]) ,temp.values.kendalltau.toFixed(3)])
+                        kendallData.push([kendalltauX.indexOf(temp["attr"]), kendalltauY.indexOf(temp["target"]) ,parseFloat(temp.values.kendalltau).toFixed(3)])
                     }
                     if(temp.values.mutual_info != null){
                         if(mutualX.indexOf(temp["attr"]) == -1){
@@ -535,7 +535,7 @@ export default {
                         if(mutualY.indexOf(temp["target"]) == -1){
                             mutualY.push(temp["target"])
                         }
-                        NMIData.push([mutualX.indexOf(temp["attr"]), mutualY.indexOf(temp["target"]), temp.values.mutual_info.toFixed(3)])
+                        NMIData.push([mutualX.indexOf(temp["attr"]), mutualY.indexOf(temp["target"]), parseFloat(temp.values.mutual_info).toFixed(3)])
                     }
                 };
                 if (mutualY.length>5){
@@ -627,9 +627,9 @@ export default {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.percent=100
                     that.isShowPublish = true;
-                    res.data["score"] = res.data["Overall fairness"].toFixed(2)*100;
-                    res.data["consistency_score"] = res.data["Overall individual fairness"].toFixed(2)*100;
-                    res.data["group_score"] =  res.data["Overall group fairness"].toFixed(2)*100;
+                    res.data["score"] = parseFloat(res.data["Overall fairness"]).toFixed(2)*100;
+                    res.data["consistency_score"] = parseFloat(res.data["Overall individual fairness"]).toFixed(2)*100;
+                    res.data["group_score"] =  parseFloat(res.data["Overall group fairness"]).toFixed(2)*100;
                     that.result = res.data;
                     that.resultPro(res.data);
                     // that.logflag = false;

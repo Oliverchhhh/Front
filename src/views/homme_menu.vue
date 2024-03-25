@@ -4,7 +4,7 @@
            <!-- 顶部菜单栏 -->
        <a-layout-header>
            <!-- 导航栏 -->
-           <navmodule/>
+           <navmodule :current="current"/>
        </a-layout-header>
        <a-layout-content>
             <div class="pro_bottom">人工智能安全理论及验证平台功能</div>
@@ -24,7 +24,7 @@ import navmodule from "../components/nav_homme.vue";
 
 /* 引入组件，单项功能介绍 */
 import func_menu from "../components/menu.vue"
-
+import {delCookie} from '../assets/js/cookie.js'
 export default {
    name:"homme_menu",
    components:{
@@ -33,12 +33,21 @@ export default {
        func_menu:func_menu 
    },
    data(){
-    return {}
+    return {
+        current:['join']
+    }
    },
    created() {
        document.title = '功能在线体验';
        },
-   methods: {}
+   methods: {
+    loginout(){
+            delCookie("username")
+            setTimeout(function(){
+                this.$router.push("/")
+            }.bind(this),1000)
+        },
+   }
 }
 </script>
 

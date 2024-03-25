@@ -535,12 +535,12 @@ export default {
         resultPro(res1){
             var that = this;
             that.percent=100;
-            that.res["score"]["bef"] = that.result["Overall fairness"][0].toFixed(2)*100;
-            that.res["score"]["aft"] = that.result["Overall fairness"][1].toFixed(2)*100;
-            that.res["consistency_score"]['bef'] = that.result["Overall individual fairness"][0].toFixed(2)*100;
-            that.res["consistency_score"]['aft'] = that.result["Overall individual fairness"][1].toFixed(2)*100;
-            that.res["group_score"]['bef'] =  that.result["Overall group fairness"][0].toFixed(2)*100;
-            that.res["group_score"]['aft'] =  that.result["Overall group fairness"][1].toFixed(2)*100;
+            that.res["score"]["bef"] = parseFloat(that.result["Overall fairness"][0]).toFixed(2)*100;
+            that.res["score"]["aft"] = parseFloat(that.result["Overall fairness"][1]).toFixed(2)*100;
+            that.res["consistency_score"]['bef'] = parseFloat(that.result["Overall individual fairness"][0]).toFixed(2)*100;
+            that.res["consistency_score"]['aft'] = parseFloat(that.result["Overall individual fairness"][1]).toFixed(2)*100;
+            that.res["group_score"]['bef'] =  parseFloat(that.result["Overall group fairness"][0]).toFixed(2)*100;
+            that.res["group_score"]['aft'] =  parseFloat(that.result["Overall group fairness"][1]).toFixed(2)*100;
             // 总分判断
             if(that.res.score.bef > 80){
                 that.res.score_evaluate['bef'] = "优秀";
@@ -564,10 +564,10 @@ export default {
                 that.res.score_con['aft'] = "较不公平";
             }
 
-            that.res["Consistency"]['bef']=(that.result.Consistency[0]*100).toFixed(2);
-            that.res["Consistency"]['aft']=(that.result.Consistency[1]*100).toFixed(2);
+            that.res["Consistency"]['bef']=parseFloat(that.result.Consistency[0]*100).toFixed(2);
+            that.res["Consistency"]['aft']=parseFloat(that.result.Consistency[1]*100).toFixed(2);
             that.res["Proportion"]=that.result.Proportion;
-            let cons_sub = (that.res["Consistency"]['aft'] - that.res["Consistency"]['bef']).toFixed(2);
+            let cons_sub = parseFloat(that.res["Consistency"]['aft'] - that.res["Consistency"]['bef']).toFixed(2);
             //得分图
             drawconseva1("consevaBef",that.res["Consistency"]["bef"],"#0B55F4", "Original");
             drawconseva1("consevaAft",that.res["Consistency"]["aft"],"#0B55F4", "Improved");
@@ -588,10 +588,10 @@ export default {
                 that.res.labels.push(temp1)
 
                 for(let attrTemp of that.senAttrList){
-                    that.res.diflist.bef[attrTemp].push(that.result["Favorable Rate Difference"][temp1][0][attrTemp].toFixed(2))
-                    that.res.diflist.aft[attrTemp].push(that.result["Favorable Rate Difference"][temp1][1][attrTemp].toFixed(2))
-                    that.res.ratiolist.bef[attrTemp].push(that.result["Favorable Rate Ratio"][temp1][0][attrTemp].toFixed(2))
-                    that.res.ratiolist.aft[attrTemp].push(that.result["Favorable Rate Ratio"][temp1][1][attrTemp].toFixed(2))
+                    that.res.diflist.bef[attrTemp].push(parseFloat(that.result["Favorable Rate Difference"][temp1][0][attrTemp]).toFixed(2))
+                    that.res.diflist.aft[attrTemp].push(parseFloat(that.result["Favorable Rate Difference"][temp1][1][attrTemp]).toFixed(2))
+                    that.res.ratiolist.bef[attrTemp].push(parseFloat(that.result["Favorable Rate Ratio"][temp1][0][attrTemp]).toFixed(2))
+                    that.res.ratiolist.aft[attrTemp].push(parseFloat(that.result["Favorable Rate Ratio"][temp1][1][attrTemp]).toFixed(2))
                 }
             };
             // 画图
@@ -621,7 +621,7 @@ export default {
                     var third_children={
                     id:key+'_'+key1,
                     label:key1,
-                    population:that.result.Proportion[key][key1].toFixed(3),
+                    population:parseFloat(that.result.Proportion[key][key1]).toFixed(3),
                     isLeaf: true,
                     };
                     second_children["children"].push(third_children);
@@ -650,7 +650,7 @@ export default {
                         if(pearsonY.indexOf(temp["target"]) == -1){
                             pearsonY.push(temp["target"])
                         }
-                        personData.push([pearsonX.indexOf(temp["attr"]), pearsonY.indexOf(temp["target"]) ,temp.values.pearson.toFixed(3)])
+                        personData.push([pearsonX.indexOf(temp["attr"]), pearsonY.indexOf(temp["target"]) ,parseFloat(temp.values.pearson).toFixed(3)])
                     }
                     if(temp.values.spearman != null){
                         if(spearmanX.indexOf(temp["attr"]) == -1){
@@ -659,7 +659,7 @@ export default {
                         if(spearmanY.indexOf(temp["target"]) == -1){
                             spearmanY.push(temp["target"])
                         }
-                        spearmanData.push([spearmanX.indexOf(temp["attr"]) ,spearmanY.indexOf(temp["target"]) ,temp.values.spearman.toFixed(3)])
+                        spearmanData.push([spearmanX.indexOf(temp["attr"]) ,spearmanY.indexOf(temp["target"]) ,parseFloat(temp.values.spearman).toFixed(3)])
                     }
                     if(temp.values.kendalltau != null){
                         if(kendalltauX.indexOf(temp["attr"]) == -1){
@@ -668,7 +668,7 @@ export default {
                         if(kendalltauY.indexOf(temp["target"]) == -1){
                             kendalltauY.push(temp["target"])
                         }
-                        kendallData.push([kendalltauX.indexOf(temp["attr"]), kendalltauY.indexOf(temp["target"]) ,temp.values.kendalltau.toFixed(3)])
+                        kendallData.push([kendalltauX.indexOf(temp["attr"]), kendalltauY.indexOf(temp["target"]) ,parseFloat(temp.values.kendalltau).toFixed(3)])
                     }
                     if(temp.values.mutual_info != null){
                         if(mutualX.indexOf(temp["attr"]) == -1){
@@ -677,7 +677,7 @@ export default {
                         if(mutualY.indexOf(temp["target"]) == -1){
                             mutualY.push(temp["target"])
                         }
-                        NMIData.push([mutualX.indexOf(temp["attr"]), mutualY.indexOf(temp["target"]), temp.values.mutual_info.toFixed(3)])
+                        NMIData.push([mutualX.indexOf(temp["attr"]), mutualY.indexOf(temp["target"]), parseFloat(temp.values.mutual_info).toFixed(3)])
                     }
                 };
                 if (mutualY.length>5){

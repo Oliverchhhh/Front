@@ -142,7 +142,7 @@
                 <!-- 公平性 -->
                 <div class="fairness second">
                     <div class="second_bg">
-                        <div style="width: 316px;height: 220px;">
+                        <div style="width: 316px;height: 228px;">
                             <div class="leftup">
                                 <div class="circle1">
                                     <div class="fairness_score">
@@ -201,7 +201,7 @@
                 <!-- 鲁棒性 -->
                 <div class="robust second">
                     <div class="second_bg">
-                        <div id="robust_chart2" style="width: 316px;height: 220px;"></div>
+                        <div id="robust_chart2"></div>
                         <div id="robust_chart"></div>
                     </div>
                     <div class="second_title">
@@ -227,7 +227,9 @@ import ScatterChart from "../../components/charts/ScatterChart.vue";
 import HistogramChart from "../../components/charts/HistogramChart.vue"
 import IBPChart from "../../components/charts/IBPChart.vue"
 import resultTable from "../../components/resultsTable.vue"
-import {drawconseva1, drawbar, drawImportanceCoverage} from "../../assets/js/drawEcharts.js"
+import node from "../../../static/graph/node.json";
+import relation from "../../../static/graph/relation.json";
+import { drawbar, drawImportanceCoverage} from "../../assets/js/drawEcharts.js"
 import * as echarts from "echarts";
 export default {
     mixins: [ drawMixin ],
@@ -413,7 +415,7 @@ export default {
             this.useRes.model_url = 'static/output/'+this.useRes.out_path.split('output')[1]+"/model.png";       
         },
         reusltFairnessPro(res){
-            this.fairnessRes=this.deepClone(res.date_evaluate)
+            this.fairnessRes=this.deepClone(res.data_evaluate)
             this.fairnessRes.score = this.fairnessRes["Overall fairness"].toFixed(2)*100;
             this.fairnessRes.consistency_score = this.fairnessRes["Overall individual fairness"].toFixed(2)*100;
             this.fairnessRes.group_score =  this.fairnessRes["Overall group fairness"].toFixed(2)*100;
@@ -441,6 +443,47 @@ export default {
             }else{
                 color = '#0B55F4';
             }
+            var diflist={};
+            var ratiolist={};
+            var labels = [];
+            for(let attrTemp of ['age','sex']){
+                diflist[attrTemp]=[];
+                ratiolist[attrTemp]=[];
+            };
+            // 群体评估数据整合
+            for(let temp1 in this.fairnessRes["Favorable Rate Difference"]){
+                labels.push(temp1)
+
+                for(let attrTemp of ['age','sex']){
+                    diflist[attrTemp].push(parseFloat(this.fairnessRes["Favorable Rate Difference"][temp1][attrTemp]).toFixed(2))
+                    ratiolist[attrTemp].push(parseFloat(this.fairnessRes["Favorable Rate Ratio"][temp1][attrTemp]).toFixed(2))
+                }
+            };
+            this.fairnessRes["diflist"]=diflist;
+            this.fairnessRes["ratiolist"]=ratiolist;
+            // 画图
+           
+            drawbar("ageDifference",diflist['age'],labels,"Age Favorable Rate Difference",'', '', [0,1,0.2],{'titlecolor':'#FFFFFF','titleposition':'top','xcolor':'#6C7385','ycolor':'#FFFFFFB2','splitLine':false,'itemcolor':new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: 'rgba(0,176,112,1)' },
+                    { offset: 1, color: 'rgba(0,176,112,0)' }
+                ])});
+            drawbar("ageRatio",ratiolist['age'],labels,"Age Favorable Rate Ratio",'', '', [0,1,0.2],{'titlecolor':'#FFFFFF','titleposition':'top','xcolor':'#6C7385','ycolor':'#FFFFFFB2','splitLine':false,'itemcolor':new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: 'rgba(0,176,112,1)' },
+         
+                    { offset: 1, color: 'rgba(0,176,112,0)' }
+                ])});
+            drawbar("sexDifference",diflist['sex'],labels,"Sex Favorable Rate Difference",'', '', [0,1,0.2],{'titlecolor':'#FFFFFF','titleposition':'top','xcolor':'#6C7385','ycolor':'#FFFFFFB2','splitLine':false,'itemcolor':new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: 'rgba(0,176,112,1)' },
+                    
+                    { offset: 1, color: 'rgba(0,176,112,0)' }
+                ])});
+            drawbar("sexRatio",ratiolist['sex'],labels,"Sex Favorable Rate Ratio",'', '', [0,1,0.2],{'titlecolor':'#FFFFFF','titleposition':'top','xcolor':'#6C7385','ycolor':'#FFFFFFB2','splitLine':false,'itemcolor':new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: 'rgba(0,176,112,1)' },
+                    
+                    { offset: 1, color: 'rgba(0,176,112,0)' }
+                ])});
+            
+            
             // drawconseva1("consistency_div",this.fairnessRes["Consistency"],color=color);
         },
         getResult(){
@@ -449,10 +492,11 @@ export default {
             that.$axios.get('/output/Resultdata', {params:{ Taskid: this.res_group[this.dataname+'_'+this.modelname] }}).then((data)=>{
                 that.res=data.data.result;
                 console.log("dataget_result:",that.res);
-                this.resultUsePro(this.res)
-                this.reusltFairnessPro(this.res)
+                that.resultUsePro(that.res)
+                that.reusltFairnessPro(that.res)
                 let importanceData = data.data.result.CoverageImportance.ImportanceNeuronsCoverage.reldraw.reldraw;
                 drawImportanceCoverage("integrity_chart", importanceData, {'textcolor':'#fff','gridtop':60,'girdbottom':60,'type':'line'});
+                this.resultRobustPro(that.res)
             })
         },
         setExplainability(data){
@@ -505,7 +549,7 @@ export default {
                     }
                 ]
                 };
-            
+                
             setTimeout(function(){
                 let myChart1 = echarts.init(document.getElementById("piechart"));
                 window.addEventListener("resize", function () {
@@ -522,7 +566,195 @@ export default {
                     six_label.style.backgroundImage = `url(${noselectImg})`
                 })
             },500)
-        }
+        },
+        resultRobustPro(data){
+            var data1 = {};
+            this.initGraph2()
+            for(let temp in data.Auto_Attack['graph']){
+                if (temp != 'recom_algorithm' ){
+                    data1[temp] = data.Auto_Attack['graph'][temp]["after_acc"]
+                    data1['ori'] = data.Auto_Attack['graph'][temp]["before_acc"]
+                }
+                }
+                if( data1 != {}){
+                
+                this.initGraph3(data1)
+            }
+        },
+        initGraph2() {
+            const edges = relation.map(item => {
+                item.target = item.dest
+                return item
+            });
+            const data = node
+            const categories = Array.from(new Set(node.map(item => item.method_type))).map(item => {
+                return {
+                name: item
+                }
+            })
+            const cateData = data.map(item => {
+                item.category = categories.find(it => it.name === item.method_type)
+                
+                return item
+            })
+            const option = {
+                color: 'red',
+                tooltip: {
+                    formatter(item) {
+                        if (item.dataType === 'node') {
+                        return `
+                        <div >
+                            <p>
+                            攻击算法：${item.name}
+                            </p>
+                            <p>
+                            算法描述：${item.data.desc}
+                            </p>
+                            <p >
+                            来源论文：${item.data.paper}
+                            </p>
+                            <p>
+                            <p>
+                            方法类型：${item.data.method_type}
+                            </p>
+                        </div>
+                        `
+                        } else {
+                        return `
+                        <div >
+                            <p>${item.data.source} > ${item.data.target}</p>
+                            <p>关系描述：${item.data.desc}</p>
+                        </div>
+                        `
+                        }
+                    },
+                    textStyle:{
+                        fontSize:14,
+                        color:"#FFF"
+                    },
+                    backgroundColor:'rgba(0, 0, 0, 0.60)'
+                },
+                series: [
+                {
+                // categories,
+                type: 'graph',
+                layout: 'force',
+                animation: true,
+                data: cateData,
+                roam: true,
+                zoom: 1.5,
+                draggable: true,
+                edgeSymbol: ['circle', 'arrow'],
+                label: {
+                    show:true,
+                    position: 'right',
+                    formatter: '{b}'
+                },
+                emphasis: {
+                    focus: 'adjacency',
+                    itemStyle: {
+                    color: 'rgb(73,209,198)'
+                    }
+                },
+                force: {
+                    // initLayout: 'circular'
+                    // gravity: 0
+                    repulsion: 80,
+                    edgeLength: 5,
+                    gravity: 0.1
+                },
+                itemStyle:{
+                    normal:{
+                        color:'#FFFFFF'
+                    }
+                },
+                lineStyle:{color:"#00DEFF"},
+                edges: edges
+                }]
+            };
+            setTimeout(function(){let myChart = echarts.init(document.getElementById("robust_chart2"));
+                option && myChart.setOption(option);
+            },500)
+        },
+        initGraph3(data) {
+            const acc = data
+            const option = {
+            xAxis: {
+                type: 'category',
+                data: Object.keys(acc),
+                axisLabel: {
+                color: "#6C7385",
+                interval:2,
+                },
+                
+            },
+            tooltip: { trigger: 'axis', axisPointer: { lineStyle: { color: '#6C7385' } } },
+
+            yAxis: {
+                name: '准确率',
+                // nameLocation: 'top',
+                // nameGap: 10,
+                nameTextStyle: {
+                fontSize: 12,
+                color: '#6C7385'
+                },
+                axisLine: { lineStyle: { color: '#6C7385' } },
+                splitLine: { lineStyle: { color: '#57617B' } },
+                type: 'value',
+                axisLabel: {
+                formatter: '{value} %',
+                fontSize: 10,
+                color: "#6C7385",
+                }
+            },
+            series: [
+            {
+                data: Object.keys(acc).map(item => {
+                if (item === 'ori') {
+                    return {
+                    value: acc[item] ,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#188df0' },
+                            { offset: 0.5, color: '#188df0' },
+                            { offset: 1, color: '#FFFFFF' }
+                            ])
+                        // color: '#a90000'
+                    }
+                    }
+                } else {
+                    return {
+                    value: acc[item] ,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#00FFA3' },
+                            { offset: 0.5, color: '#00FFA3' },
+                            { offset: 1, color: '#FFFFFF' }
+                            ])
+                        // color: 'rgba(11, 85, 244, 0.8)'
+                    }
+                    }
+                }
+                }),
+                type: 'bar',
+                showBackground: true,
+                emphasis: {
+                    itemStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: '#2378f7' },
+                        { offset: 0.7, color: '#2378f7' },
+                        { offset: 1, color: '#83bff6' }
+                    ])
+                    }
+                },
+                // barWidth: 36
+            }
+            ]
+            };
+            setTimeout(function(){let myChart = echarts.init(document.getElementById("robust_chart"));
+            option && myChart.setOption(option);
+            },500)
+        },
     }
   }
 </script>
@@ -564,6 +796,8 @@ export default {
     height: 100%;
     object-fit: cover;
     z-index: 0;
+    background-color: rgba(0, 0, 0, 0.00);
+
 }
 .head_text{
     display: grid;
@@ -781,6 +1015,20 @@ gap: 12px;
     font-size: 26px;
     padding: 4px 4px;
 }
+#robust_chart2{
+    width: 444px;
+    height: 228px;
+    border-radius: 8px;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.16);
+}
+#robust_chart{
+    width: 444px;
+    height: 228px;
+    border-radius: 8px;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.16);
+}
 .assessment{
     width: 668px;
     height: 580px;
@@ -884,13 +1132,33 @@ gap: 12px;
 }
 .fairness_chart{
     display: flex;
+    flex-direction:column;
     gap:12px;
     height:120px;
 }
 .group_echart_content{
     display: flex;
     gap:12px;
-    height:120px;
+    height:108px;
+    width: 574px;
+}
+.group_left_echart{
+    height:108px;
     width: 281px;
 }
+.group_right_echart{
+    height:108px;
+    width: 281px;
+}
+.leftdown{
+    width: 316px;
+    height: 56px;
+    display: flex;
+    gap: 18px;
+}
+.cons{
+    width:142px;
+    height:56px
+}
+
 </style>

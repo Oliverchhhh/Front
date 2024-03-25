@@ -633,17 +633,20 @@ export default {
                 {
                     name: "Nash博弈",
                     id:"Nash",
-                    src: require('../assets/img/NashBalanceImg.png')
+                    src: require('../assets/img/NashBalanceImg.png'),
+                    des:"以不同攻击算法生成的对抗样本进行对抗训练作为防守方的可选策略集，最终经过博弈获得攻守收益矩阵，从而确定特定场景下的最佳攻/防策略"
                 },
                 {
                     name: "基于群智防御的攻防博弈",
                     id:"ENS",
-                    src: "require('../assets/img/InterDefenseImg.png')"
+                    src: "require('../assets/img/InterDefenseImg.png')",
+                    des:"基于不同攻击方法生成对抗样本，然后分别对AI模型进行鲁棒性训练，通过集成防御的方式对AI模型鲁棒性进行加固"
                 },
                 {
                     name: "自动攻击检测PACA",
                     id:"PACA",
-                    src: require('../assets/img/PACAImg.png')
+                    src: require('../assets/img/PACAImg.png'),
+                    des:"基于AI模型对于正常样本和对抗样本在预测置信度方面的分布差异来识别对抗攻击"
                 },
                 {
                     name: "集成博弈",

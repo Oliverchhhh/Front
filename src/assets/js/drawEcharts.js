@@ -56,7 +56,8 @@ function drawclass1pro(ID, mydata, classname, dataname){
     },500)
 }
 //敏感属性1直方图 difference id=class1Difference
-function drawbar(ID, data, label, name='',xname='', yname='', min_max=[0,1,0.2]){
+function drawbar(ID, data, label, name='',xname='', yname='', min_max=[0,1,0.2], 
+  chartstyle={'titlecolor':'#000000','titleposition':'bottom','xcolor':'#3E4453','ycolor':'#6C7385','splitLine':true,'itemcolor':'rgba(11, 85, 244, 0.8)'}){
     var option;
     option = {
       title:{
@@ -66,10 +67,10 @@ function drawbar(ID, data, label, name='',xname='', yname='', min_max=[0,1,0.2])
           fontStyle:'normal',
           fontWeight:700,
           fontSize:14,
-          color:"#000000"
+          color:chartstyle.titlecolor
         },
         x:'center',
-        y:'bottom'
+        y:chartstyle.titleposition
       },
       tooltip: {
         trigger: 'axis',
@@ -91,7 +92,7 @@ function drawbar(ID, data, label, name='',xname='', yname='', min_max=[0,1,0.2])
           show:true,
           // rotate: '45',
           textStyle:{
-            color: "#3E4453",
+            color: chartstyle.xcolor,
             fontSize:12,
             fontFamily : 'HONOR Sans CN',
           fontStyle:'normal',
@@ -114,7 +115,7 @@ function drawbar(ID, data, label, name='',xname='', yname='', min_max=[0,1,0.2])
         axisLabel:{
           show:true,
           textStyle:{
-            color: "#6C7385",
+            color: chartstyle.ycolor,
             fontSize:12,
             fontFamily : 'HONOR Sans CN',
           fontStyle:'normal',
@@ -129,7 +130,7 @@ function drawbar(ID, data, label, name='',xname='', yname='', min_max=[0,1,0.2])
           }
         },
         splitLine: {
-          show: true,
+          show: chartstyle.splitLine,
           lineStyle:{
             color:"#E0E3EB",
               type:'solid'
@@ -143,7 +144,7 @@ function drawbar(ID, data, label, name='',xname='', yname='', min_max=[0,1,0.2])
           showBackground: false,
           barMaxWidth: '100',
           itemStyle:{
-              color:'rgba(11, 85, 244, 0.8)',
+              color:chartstyle.itemcolor,
               label:{
               show:true,
               position:"top",

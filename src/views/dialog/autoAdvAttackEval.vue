@@ -227,14 +227,11 @@ export default {
       return method.join('、');
     },
     initGraph2() {
-      console.log(node);
-      console.log(relation);
       const edges = relation.map(item => {
         item.target = item.dest
         return item
       });
       const data = node
-      console.log(node, edges)
       const categories = Array.from(new Set(node.map(item => item.method_type))).map(item => {
         return {
           name: item

@@ -114,7 +114,7 @@
             </DateFairnessDebiasEval>
             <ModelReachEval v-if="'model_reach' in result" :is-show="resultshow" :result="result" :postData="postData" @on-close="() => { resultshow = !resultshow }">
             </ModelReachEval>
-            <DateFairnessEvaEval v-if="'date_evaluate' in result" :is-show="resultshow" :result1="result" :postData="postData" @on-close="() => { resultshow = !resultshow }">
+            <DateFairnessEvaEval v-if="'data_evaluate' in result" :is-show="resultshow" :result1="result" :postData="postData" @on-close="() => { resultshow = !resultshow }">
             </DateFairnessEvaEval>
             <ModelConsistencyEval v-if="'model_consistency' in result" :is-show="resultshow" :result="result" :postData="postData" @on-close="() => { resultshow = !resultshow }">
             </ModelConsistencyEval>
@@ -465,12 +465,12 @@ export default {
                         }
                     }
                 },
-                { title: '任务信息',  dataIndex: 'taskinfo',  key: '4', ellipsis:true,},
+                { title: '任务信息',  dataIndex: 'taskinfo',  key: '4', width: 265 ,ellipsis:true,},
                 {
                     title: '任务操作',
                     key: 'operation',
                     
-                    // width: 180,
+                    width: 265,
                     scopedSlots: { customRender: 'action' },
                 },
             ],
@@ -540,6 +540,7 @@ export default {
             DrawRobustBar("adv_robust_result", legend, xAxis, data_ori, data_seat);
         },
         loginout(){
+            console.log("taskcenter")
             delCookie("username")
             setTimeout(function(){
                 this.$router.push("/")
@@ -637,7 +638,7 @@ export default {
             }
             const funcinfo ={
                 model_evaluate:'模型公平性评估',
-                date_evaluate:'数据集公平性评估',
+                data_evaluate:'数据集公平性评估',
                 data_debias:'数据集公平性提升',
                 model_debias:'模型公平性提升',
                 adv_attack:'对抗攻击评估',
