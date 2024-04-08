@@ -293,8 +293,8 @@ export default {
     },
     resultPro(){
       this.result = this.result1.data_debias
-      this.res["score"]["bef"] = parseFloat(this.result["Overall fairness"][0]).toFixed(2)*100;
-      this.res["score"]["aft"] = parseFloat(this.result["Overall fairness"][1]).toFixed(2)*100;
+      this.res["score"]["bef"] = parseInt(this.result["Overall fairness"][0]*100);
+      this.res["score"]["aft"] = parseInt(this.result["Overall fairness"][1]*100);
       this.res["consistency_score"]['bef'] = parseFloat(this.result["Overall individual fairness"][0]).toFixed(2)*100;
       this.res["consistency_score"]['aft'] = parseFloat(this.result["Overall individual fairness"][1]).toFixed(2)*100;
       this.res["group_score"]['bef'] =  parseFloat(this.result["Overall group fairness"][0]).toFixed(2)*100;

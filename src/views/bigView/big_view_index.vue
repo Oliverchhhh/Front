@@ -12,7 +12,7 @@
             <div class="head">
                 <div class="head_text">
                     <div></div>
-                    <div class="title_VoAI">
+                    <div class="title_AIcert">
                         
                     </div>
                     <div>
@@ -416,7 +416,7 @@ export default {
         },
         reusltFairnessPro(res){
             this.fairnessRes=this.deepClone(res.data_evaluate)
-            this.fairnessRes.score = this.fairnessRes["Overall fairness"].toFixed(2)*100;
+            this.fairnessRes.score = parseInt(this.fairnessRes["Overall fairness"]*100);
             this.fairnessRes.consistency_score = this.fairnessRes["Overall individual fairness"].toFixed(2)*100;
             this.fairnessRes.group_score =  this.fairnessRes["Overall group fairness"].toFixed(2)*100;
             this.datavC.value = this.fairnessRes.consistency_score 
@@ -803,7 +803,7 @@ export default {
     display: grid;
     grid-template-columns: repeat(3, 33.33%);
 }
-.title_VoAI{
+.title_AIcert{
     text-align: center;
     text-shadow: 0px 14px 57px #1343C1, 0px 4px 12px rgba(0, 0, 0, 0.04);
     font-family: Alibaba PuHuiTi 2.0;

@@ -366,12 +366,12 @@ export default {
               this.result = this.result1.model_debias;
             }
             if ("Consistency" in this.result){
-                this.res["score"]["bef"] = parseFloat(this.result["Overall fairness"][0]).toFixed(2)*100;
-                this.res["score"]["aft"] = parseFloat(this.result["Overall fairness"][1]).toFixed(2)*100;
+                this.res["score"]["bef"] = parseInt(this.result["Overall fairness"][0]*100);
+                this.res["score"]["aft"] = parseInt(this.result["Overall fairness"][1]*100);
                 this.downloadURL = this.result["Overall model path"]
             }else{
-                this.res["score"]["bef"] = parseFloat(this.result["model_evaluate"]["Overall fairness"]).toFixed(2)*100
-                this.res["score"]["aft"] = parseFloat(this.result["model_debias"]["Overall fairness"]).toFixed(2)*100
+                this.res["score"]["bef"] = parseInt(this.result["model_evaluate"]["Overall fairness"]*100)
+                this.res["score"]["aft"] = parseInt(this.result["model_debias"]["Overall fairness"]*100)
                 this.downloadURL = this.result["model_debias"]["Overall model path"]
             }
             // 总分判断

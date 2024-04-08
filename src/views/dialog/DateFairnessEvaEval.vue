@@ -255,7 +255,7 @@ export default {
     },
     resultPro(){
       this.result = this.result1.data_evaluate
-      this.res.score = parseFloat(this.result["Overall fairness"]).toFixed(2)*100;
+      this.res.score = parseInt(this.result["Overall fairness"]*100);
       this.res.consistency_score = parseFloat(this.result["Overall individual fairness"]).toFixed(2)*100;
       this.res.group_score = parseFloat(this.result["Overall group fairness"]).toFixed(2)*100;
       // 总分判断

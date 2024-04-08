@@ -261,6 +261,7 @@ export default {
         attackType:"evasion_attack",
         defendAlgorithm:"Adversarial-Training",
         dataType:'image',
+        taskType:{'image':'图像分类','text':'文本分类','graph':'智能推荐'},
         matchedMethod:'graph',
         defenseList:[
             "Adversarial-Training","IBP-CROWN","Defense-GAN",
@@ -1013,7 +1014,7 @@ export default {
                     that.postData['attack_type'] = that.attackType
                     that.postData['data_type'] = that.dataType
                     that.postData['defend_algorithm'] = that.defendAlgorithm
-                    that.postData['task_type'] = "图像分类"
+                    that.postData['task_type'] = that.taskType[that.dataType]
                 }else if(['rule','flow_rule'].indexOf(that.selectedDefense)>-1){
                     that.postData["DatasetParam"] = {"name":dataset}
                     that.postData["ModelParam"] = {"name":model,"ckpt":null}

@@ -540,7 +540,7 @@ export default {
             let heatX = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
             let colorlist = ["rgba(253, 227, 206, 1)", "rgba(251, 199, 157, 1)", "rgba(247, 158, 84, 1)", "rgba(244, 116, 11, 1)", "rgba(146, 70, 7, 1)"];
             /* 原始的热力图 */ 
-            drawCorelationHeat("pristine", heatX, pristine_heatmap, colorlist, false, boundarylist);
+            drawCorelationHeat("pristine", heatX, heatX, pristine_heatmap, colorlist, false, boundarylist);
             log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：采集故障注入后特征图数据';
             this.logtext.push([log1]);
             xhr.open("GET","../../static/injection/"+clockObj["heatmap"].split(".txt")[0]+"_noise.txt",false);
@@ -556,7 +556,7 @@ export default {
                     noise_heatmap.push([i,temp,Math.abs(templist[temp])]);
                 }
             }
-            drawCorelationHeat("noiseData", heatX, noise_heatmap, colorlist, false, boundarylist);
+            drawCorelationHeat("noiseData", heatX,heatX, noise_heatmap, colorlist, false, boundarylist);
             this.percent=80;
             log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：计算故障注入前后特征图数据差值';
             this.logtext.push([log1]);
@@ -573,7 +573,7 @@ export default {
                     noiseData_heatmap.push([i,temp,Math.abs(templist[temp])]);
                 }
             }
-            drawCorelationHeat("noise", heatX, noiseData_heatmap, colorlist, false, boundarylist);
+            drawCorelationHeat("noise", heatX, heatX,noiseData_heatmap, colorlist, false, boundarylist);
             this.percent=90;
             log1 = this.formatDate('YY-MM-DD hh:mm:ss')+' [info] [执行故障注入]：故障注入评估结束';
             this.logtext.push([log1]);

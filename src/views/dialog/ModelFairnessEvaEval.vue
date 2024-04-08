@@ -302,7 +302,7 @@ export default {
     resultPro(){
             this.res.labels = []
             this.result = this.result1.model_evaluate
-            this.res["score"] =  this.result["Overall fairness"]*100
+            this.res["score"] =  parseInt(this.result["Overall fairness"]*100)
             // 总分判断
             if(this.res.score > 80){
                 this.res.score_evaluate = "优秀";

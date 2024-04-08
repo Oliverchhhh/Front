@@ -627,7 +627,7 @@ export default {
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
                     that.percent=100
                     that.isShowPublish = true;
-                    res.data["score"] = parseFloat(res.data["Overall fairness"]).toFixed(2)*100;
+                    res.data["score"] = parseInt(res.data["Overall fairness"]*100);
                     res.data["consistency_score"] = parseFloat(res.data["Overall individual fairness"]).toFixed(2)*100;
                     res.data["group_score"] =  parseFloat(res.data["Overall group fairness"]).toFixed(2)*100;
                     that.result = res.data;

@@ -535,8 +535,8 @@ export default {
         resultPro(res1){
             var that = this;
             that.percent=100;
-            that.res["score"]["bef"] = parseFloat(that.result["Overall fairness"][0]).toFixed(2)*100;
-            that.res["score"]["aft"] = parseFloat(that.result["Overall fairness"][1]).toFixed(2)*100;
+            that.res["score"]["bef"] = parseInt(that.result["Overall fairness"][0]*100);
+            that.res["score"]["aft"] = parseInt(that.result["Overall fairness"][1]*100);
             that.res["consistency_score"]['bef'] = parseFloat(that.result["Overall individual fairness"][0]).toFixed(2)*100;
             that.res["consistency_score"]['aft'] = parseFloat(that.result["Overall individual fairness"][1]).toFixed(2)*100;
             that.res["group_score"]['bef'] =  parseFloat(that.result["Overall group fairness"][0]).toFixed(2)*100;

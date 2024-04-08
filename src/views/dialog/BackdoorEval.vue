@@ -86,7 +86,7 @@
               ASR: 模型将投毒样本预测为目标类的准确率
             </div>
             <div class="describeMinor" style="width: 960px;height: 50px;line-height: 50px;margin-bottom: 40px;">
-              R-Acc: 模型在干净样本上的预测准确率
+              C-Acc: 模型在干净样本上的预测准确率
             </div>
 
             <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;margin-top:10px;
@@ -248,7 +248,7 @@ export default {
         [[`${pic_base_path}/${temp}/index4_poisoned.jpeg`], "pic"]])
       }
     }
-    this.res["score"] = 100-this.res.maxasr*100
+    this.res["score"] = parseInt(100-this.res.maxasr*100)
     if (this.res["score"] < 49){
       this.res["score"] += 10
     }
@@ -259,7 +259,7 @@ export default {
     }else{
       this.res["Eva"] = "差"
     }
-    this.res["score_des"] = `${this.postData.Model}模型鲁棒性得分为${this.res.score},是一个较${this.res.Eva}的模型，本次投毒攻击方法有${this.defenseShow(this.postData.Method)}，其中${this.res.maxmethod}的攻击效果最佳`
+    this.res["score_des"] = `${this.postData.Model}模型鲁棒性得分为${this.res.score}，是一个较${this.res.Eva}的模型，本次投毒攻击方法有${this.defenseShow(this.postData.Method)}，其中${this.res.maxmethod}的攻击效果最佳`
     let pplist = this.result.backdoor_attack[this.res.maxmethod].pp_poison
     // 相同投毒率
     console.log(this.postData)

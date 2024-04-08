@@ -859,12 +859,12 @@ export default {
             
             that.res.labels = []
             if ("Consistency" in that.result){
-                that.res["score"]["bef"] = that.result["Overall fairness"][0]*100;
-                that.res["score"]["aft"] = that.result["Overall fairness"][1]*100;
+                that.res["score"]["bef"] = parseInt(that.result["Overall fairness"][0]*100);
+                that.res["score"]["aft"] =parseInt(that.result["Overall fairness"][1]*100);
                 that.downloadURL = that.result["Overall model path"]
             }else{
-                that.res["score"]["bef"] = that.result["model_evaluate"]["Overall fairness"]*100
-                that.res["score"]["aft"] = that.result["model_debias"]["Overall fairness"]*100
+                that.res["score"]["bef"] = parseInt(that.result["model_evaluate"]["Overall fairness"]*100)
+                that.res["score"]["aft"] = parseInt(that.result["model_debias"]["Overall fairness"]*100)
                 that.downloadURL = that.result["model_debias"]["Overall model path"]
             }
             // 总分判断

@@ -61,13 +61,7 @@
       <p class="block_subtitle">评估</p>
       <!-- 模型类功能block -->
       <div class="funcs">
-        <ifreme @click.native="goFuncPage('/modelMeasure')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/modelMeasureIcon.png">
-          </div>
-          <div slot="header" class="func_name">AI模型安全度量</div>
-          <div slot="des_func" class="func_des">对模型进行安全性、鲁棒性、泛化性度量，评估模型对对抗攻击的防御效果、对自然噪声的健壮能力、相似任务的泛化性能</div>
-        </ifreme>
+        
         <ifreme @click.native="goFuncPage('/advAttack')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/advAttackEvalIcon.png">
@@ -96,13 +90,20 @@
           <div slot="header" class="func_name">模型公平性评估</div>
           <div slot="des_func" class="func_des">针对深度学习模型预测存在偏见的现象，通过30+种模型公平性评估算法，对模型进行评估，从个体公平性和群体公平性可视化展示评估结果</div>
         </ifreme>
-        <ifreme @click.native="goFuncPage('/FormalVerfy')">
+        <ifreme @click.native="goFuncPage('/modelMeasure')">
           <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/formalVerifyIcon.png">
+            <img class="icon_img" src="../assets/img/modelMeasureIcon.png">
           </div>
-          <div slot="header" class="func_name">形式化验证</div>
-          <div slot="des_func" class="func_des">基于扰动分析和特征解释可视化方法，对模型进行安全性、一致性、可达性三个维度的形式化验证，从严格统计角度验证模型安全性能</div>
-        </ifreme>    
+          <div slot="header" class="func_name">AI模型安全度量</div>
+          <div slot="des_func" class="func_des">对模型进行安全性、鲁棒性、泛化性度量，评估模型对对抗攻击的防御效果、对自然噪声的健壮能力、相似任务的泛化性能</div>
+        </ifreme>
+        <ifreme @click.native="goFuncPage('/coverage_neural')">
+          <div slot="func_icon">
+            <img class="icon_img" src="../assets/img/coverageneuralIcon.png">
+          </div>
+          <div slot="header" class="func_name">标准化单元测试</div>
+          <div slot="des_func" class="func_des">评估模型训练效果时容易出现模型行中的某些行为无法被测试到的情况，提出制定多测试准则的标准化AI模型单元测试方法，全面评估模型训练效果</div>
+        </ifreme>
       </div>
 
       <p class="block_subtitle">加固</p>
@@ -150,6 +151,13 @@
       <p class="block_title">算法</p>
       <!-- 算法类功能block -->
       <div class="funcs">
+        <ifreme @click.native="goFuncPage('/FormalVerfy')">
+          <div slot="func_icon">
+            <img class="icon_img" src="../assets/img/formalVerifyIcon.png">
+          </div>
+          <div slot="header" class="func_name">形式化验证</div>
+          <div slot="des_func" class="func_des">基于扰动分析和特征解释可视化方法，对模型进行安全性、一致性、可达性三个维度的形式化验证，从严格统计角度验证模型安全性能</div>
+        </ifreme>  
         <ifreme @click.native="goFuncPage('/modularDevelop')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/modularDevelopIcon.png">
@@ -158,13 +166,7 @@
           <div slot="header" class="func_name">AI模型模块化开发</div>
           <div slot="des_func" class="func_des">基于模块化的思想，为给定任务功能进行组件式构建、自动化训练并保存模型，并可视化显示模型的各项性能指标</div>
         </ifreme>
-        <ifreme @click.native="goFuncPage('/coverage_neural')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/coverageneuralIcon.png">
-          </div>
-          <div slot="header" class="func_name">标准化单元测试</div>
-          <div slot="des_func" class="func_des">评估模型训练效果时容易出现模型行中的某些行为无法被测试到的情况，提出制定多测试准则的标准化AI模型单元测试方法，全面评估模型训练效果</div>
-        </ifreme>
+        
         <ifreme @click.native="goFuncPage('/exMethod')">
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/exMethodIcon.png">

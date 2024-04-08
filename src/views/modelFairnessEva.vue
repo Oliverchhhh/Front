@@ -701,7 +701,7 @@ export default {
             var that = this;
             
             // 总分判断
-            that.result["score"] = parseFloat(res["Overall fairness"]).toFixed(2)*100;
+            that.result["score"] = parseInt(res["Overall fairness"]*100);
             
             if(that.result.score > 80){
                 that.result.score_evaluate = "优秀";

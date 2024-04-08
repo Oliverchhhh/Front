@@ -63,6 +63,7 @@ export default {
     line-height: 90px;
     letter-spacing: 0px;
     text-align: center;
+    color:#000;
 
     /* Rectangle 295 */
     position: absolute;
