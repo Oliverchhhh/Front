@@ -152,10 +152,10 @@ export default {
         return {
             echart_init: false,
             // output路径需修改
-            selectPicList:[["攻击方法", "加噪前", "噪声", "加噪后"],
-            ["BackdoorAttack",[["./static/output/backdoor/0/clean.jpeg"], "pic"], [["./static/output/backdoor/1/clean.jpeg"], "pic"], [["./static/output/backdoor/2/clean.jpeg"], "pic"]],
-            ["BackdoorAttack",["./static/output/backdoor/0/backdoor.jpeg", "pic"], ["./static/output/backdoor/1/backdoor.jpeg", "pic"], ["./static/output/backdoor/2/backdoor.jpeg", "pic"]],
-            ["BackdoorAttack",["./static/output/backdoor/0/poisoned.jpeg", "pic"], ["./static/output/backdoor/1/poisoned.jpeg", "pic"], ["./static/output/backdoor/2/poisoned.jpeg", "pic"]],
+            selectPicList:[["攻击方法", "BackdoorAttack", "BackdoorAttack", "BackdoorAttack"],
+            ["加噪前",[["./static/output/backdoor/0/clean.jpeg"], "pic"], [["./static/output/backdoor/1/clean.jpeg"], "pic"], [["./static/output/backdoor/2/clean.jpeg"], "pic"]],
+            ["噪声",["./static/output/backdoor/0/backdoor.jpeg", "pic"], ["./static/output/backdoor/1/backdoor.jpeg", "pic"], ["./static/output/backdoor/2/backdoor.jpeg", "pic"]],
+            ["加噪后",["./static/output/backdoor/0/poisoned.jpeg", "pic"], ["./static/output/backdoor/1/poisoned.jpeg", "pic"], ["./static/output/backdoor/2/poisoned.jpeg", "pic"]],
             ],
             setCellWidth: [0.17, 0.16, 0.16,0.16,0.16,0.16],
             htmlTitle: '后门防御评估报告',
