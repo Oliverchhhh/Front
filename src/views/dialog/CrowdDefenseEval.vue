@@ -251,7 +251,7 @@ export default {
         if (res.Defense_Ensemble.game){
           let game_data = res.Defense_Ensemble.game.nash
           let gameacc = game_data.normal_acc[0]
-          drawbar("acc_Chart", gameacc, game_data.def_methods,'','防御方法' ,'准确率')
+          drawbar("acc_Chart", gameacc, game_data.def_methods,'','防御方法' ,'准确率',[50,100,10])
           var NMIColorList=["rgba(206, 221, 253, 1)", "rgba(157, 187, 251, 1)", "rgba(60, 119, 246, 1)", "rgba(11, 85, 244, 1)", "rgba(7, 51, 146, 1)"];
           let game_robust_data = []
           for( let i =0 ; i <  game_data.atk_methods.length; i++){
@@ -442,8 +442,8 @@ export default {
         var serieslist = [];
         var robustmethod="";
         if (data.AdvAttack){
-          sourcelist[0].push("原模型准确率");
-          asr_sourcelist[0].push("原模型攻击成功率")
+          sourcelist[0].push("原模型");
+          asr_sourcelist[0].push("原模型")
           i = 1;
           for ( var key in data.AdvAttack.atk_acc){
             sourcelist[i]=[];
@@ -456,8 +456,8 @@ export default {
           }
         };
         if(data.AdvTrain){
-          sourcelist[0].push("对抗训练后的防御成功率");
-          asr_sourcelist[0].push("对抗训练后的攻击成功率");
+          sourcelist[0].push("对抗训练");
+          asr_sourcelist[0].push("对抗训练");
           robustmethod+="对抗训练 "
           i = 1;
           for ( var key in data.AdvTrain.def_acc){
@@ -473,8 +473,8 @@ export default {
           }
         };
         if(data.EnsembleDefense){
-          sourcelist[0].push("群智防御后的防御成功率");
-          asr_sourcelist[0].push("群智防御后的攻击成功率");
+          sourcelist[0].push("群智防御");
+          asr_sourcelist[0].push("群智防御");
           robustmethod+="群智化防御";
           i = 1;
           for ( var key in data.EnsembleDefense.ens_acc){
@@ -490,8 +490,8 @@ export default {
           }
         };
         if(data.CAFD){
-          sourcelist[0].push("异常过滤后的防御成功率");
-          asr_sourcelist[0].push("异常过滤后的攻击成功率");
+          sourcelist[0].push("异常过滤");
+          asr_sourcelist[0].push("异常过滤");
           robustmethod+="异常过滤防御";
           i = 1;
           for ( var key in data.CAFD.CAFD_acc){
@@ -507,8 +507,8 @@ export default {
           }
         };
         if(data.InteDefense){
-          sourcelist[0].push("集成防御后的防御成功率");
-          asr_sourcelist[0].push("集成防御后的攻击成功率");
+          sourcelist[0].push("集成防御");
+          asr_sourcelist[0].push("集成防御");
           robustmethod+="集成化防御";
           i = 1;
           for ( var key in data.InteDefense.Inte_acc){
@@ -525,7 +525,7 @@ export default {
         };
         if(data.PACA){
           sourcelist[0].push("PACA自动化攻击检测");
-          asr_sourcelist[0].push("PACA防御成功率");
+          asr_sourcelist[0].push("PACA自动化攻击检测");
           robustmethod += " PACA自动化攻击检测";
           i = 1;
           for (var key in data.PACA){
@@ -547,13 +547,13 @@ export default {
         
         var option = {
           title: {
-            text: '鲁棒性评估',
+            text: '鲁棒性评估-防御成功率',
             textStyle:{
               fontSize:18,
             },
             left:"center",
             textAlign: 'left',
-            y:'30',
+            y:'10',
               },
           legend: {
             right:20,
@@ -563,7 +563,7 @@ export default {
             left: '10%',
             right: '10%',
             bottom: '5%',
-            top:'15%',
+            top:'20%',
             containLabel: true
               },
           tooltip: {},
@@ -590,7 +590,7 @@ export default {
             },
             left:"center",
             textAlign: 'left',
-            y:'30',
+            y:'10',
               },
           legend: {
             right:20,
@@ -600,7 +600,7 @@ export default {
             left: '10%',
             right: '10%',
             bottom: '5%',
-            top:'15%',
+            top:'20%',
             containLabel: true
               },
           tooltip: {},

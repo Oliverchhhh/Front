@@ -53,7 +53,7 @@
                     <!-- 总评分 -->
                     <div class="result_div_notop">
                         <div class="g_score_content">
-                            <div class=" main_top_echarts_con_title ">数据集公平性提升效果</div>
+                            <div class=" main_top_echarts_con_title ">模型公平性提升效果</div>
                             <div class="debias_res">
                                 <div class="debias_res_score">
                                     <img src="../../assets/img/beforeDebias.png" style="width: 360px;margin-top: -40px;"/>
@@ -158,7 +158,7 @@
                     <!-- 图片数据集 -->
                     <div class="result_div" v-if="['Cifar10-S', 'CelebA'].indexOf(postData.dataname) >-1">
                         <div class="echart_title">
-                            <div class=" main_top_echarts_con_title ">图片数据集提升效果对比图</div>
+                            <div class=" main_top_echarts_con_title ">模型公平性提升效果对比图</div>
                         </div>
                         <div class="group_echarts_div">
                             <div  class="model_group_echart"  id="evaBar"></div>
@@ -364,6 +364,8 @@ export default {
             this.res.labels = []
             if (["German","Adult","Compas"].indexOf(this.postData.dataname) > -1){
               this.result = this.result1.model_debias;
+            }else{
+                this.result = this.result1
             }
             if ("Consistency" in this.result){
                 this.res["score"]["bef"] = parseInt(this.result["Overall fairness"][0]*100);

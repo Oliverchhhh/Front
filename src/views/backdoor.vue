@@ -142,7 +142,7 @@ export default {
                 /* 背景介绍 */
                 backinfo:"人工智能系统相较于传统的计算机系统来说，它最大的特点就是需要用海量的大数据来训练模型。\
                 攻击者会通过数据投毒的方式，在训练数据集中插入一些带毒样本对模型进行恶意攻击，\
-                当有毒数据被攻击者激活后，会使本身在良性样本上表现良好的模型的预测性能发生恶意转化。后门攻击评估可以有效评估攻击效果。",
+                当后门攻击者激活后，会使本身在良性样本上表现良好的模型的预测性能发生恶意转化。后门攻击评估可以有效评估攻击效果。",
                 /* 亮点介绍 */
                 highlight:[
                     "支持多种主流的后门攻击算法，如基础的Backdoor Attack、Clean-Label Backdoor Attack、Clean Label Feature Collision Attack、Adversarial Backdoor Embedding等",
@@ -296,9 +296,9 @@ export default {
                     description: "算法是在保持样本数据和标签正确对应下的数据投毒攻击，在训练阶段选择需要攻击的目标数据和基本类，经过投毒攻击以后，在推理阶段出现该目标数据时，会被分类到基本类中。方法中的目标类数据指的是攻击方法所针对的攻击实体",
                     attributes: [
                     [{ name: "样本投毒比例", key:"pp_poison", defaultNumber: 1, number: 0.0, type: "inputNumber" , min: 0, max: 1, step:0.01},
-                        { name: "投毒样本保存数量", key:"save_num", defaultNumber: 10, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
-                        { name: "训练样本数量", key:"train_sample_num", defaultNumber: 50000, number: 0, type: "inputNumber" , min: 0, max: 50000, step:1000},
-                        { name: "测试样本数量", key:"test_sample_num", defaultNumber: 10000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:100},
+                        { name: "投毒样本保存数量", key:"save_num", defaultNumber: 5, number: 0, type: "inputNumber" , min: 0, max: 10000, step:1},
+                        { name: "训练样本数量", key:"train_sample_num", defaultNumber: 5000, number: 0, type: "inputNumber" , min: 0, max: 50000, step:1000},
+                        { name: "测试样本数量", key:"test_sample_num", defaultNumber: 1000, number: 0, type: "inputNumber" , min: 0, max: 10000, step:100},
                         ],
                         [{ name: "目标类别", key:"target", defaultNumber: 0, number: 0, type: "selectgroup", valuelist:['数字0','数字1','数字2','数字3','数字4','数字5','数字6','数字7','数字8','数字9'] }],
                         [

@@ -109,7 +109,7 @@ export default {
       this.res.Risk =this.result.EnvTest.detection_result.Risk;
       // this.res.Risk=JSON.stringify(JSON.parse(this.res.Risk),null,4);
       if (this.result.EnvTest.detection_result['CVE Amount'] !=0){
-          var temp = '编号分别为'+this.result.EnvTest.detection_result['CVE list'].toString()+'，您可以在 https://cve.mitre.org/cve/search_cve_list.html 查询漏洞详细说明'
+          var temp = '编号分别为'+this.result.EnvTest.detection_result['CVE List'].join('、')+'，您可以在 https://cve.mitre.org/cve/search_cve_list.html 查询漏洞详细说明'
           this.res.cons1="1. 当前系统架构为"+this.result.EnvTest.detection_result['System Architecture']+"，共在当前系统环境中检测到"+this.result.EnvTest.detection_result['CVE Amount']+"个潜在的CVE漏洞问题,"+ temp;
       }else{
           var temp = "暂未检测到潜在的CVE漏洞问题";
@@ -263,6 +263,7 @@ flex-grow: 0;
     order: 1;
     align-self: stretch;
     flex-grow: 0;
+    overflow: auto;
 }
 .bugShowDiv pre{
  white-space: pre-wrap;
