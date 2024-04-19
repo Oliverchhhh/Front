@@ -138,10 +138,15 @@ const router = new Router({
       component: () => import('../views/modelMeasure.vue')
     },
     // 组装的攻击机理分析页面
+    // {
+    //   path: '/exMethod',
+    //   name: 'exMethod',
+    //   component: () => import('../views/exMethod.vue')
+    // },
     {
       path: '/exMethod',
       name: 'exMethod',
-      component: () => import('../views/exMethod.vue')
+      component: () => import('../views/exMethod1.vue')
     },
     // 组装的鲁棒性形式化验证页面
     {

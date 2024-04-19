@@ -165,7 +165,7 @@
                           <h3>互信息系数</h3>
                           <div id="NMI" class="heat_canvas" :style="{height:heat_height.nmi}"></div>
                           <div class="conclusion">
-                              <p class="result_text">互信息的值大于等于0，值越大表示两个变量之间的依赖关系越强。互信息为0时，表示两个变量相互独立。但是需要注意的是，互信息值的上限取决于两个变量的熵，因此互信息值本身并不具有直接的对比意义。可以使用归一化互信息（Normalized Mutual Information，NMI）进行归一化处理，将其值映射到0到1之间。</p>
+                              <p class="result_text">互信息的值大于等于0，值越大表示两个变量之间的依赖关系越强。互信息为0时，表示两个变量相互独立。</p>
                           </div>
                       </div>
                       <div class="heat_content" v-if="flag.pearson">
@@ -358,8 +358,8 @@ export default {
           drawbarimproved(attrTemp+"Ratio",this.res.ratiolist.bef[attrTemp], this.res.ratiolist.aft[attrTemp],this.res.labels,"Favorable Rate Ratio");
           this.res.groupText[attrTemp]="本次测试敏感属性为"+attrTemp+"，目标属性为"+this.res.labels.toString()+"\
           左上直方图为使用favorable rate ratio的统计结果，表示不同"+attrTemp+"对目标属性结果预测的影响，\
-          值越接近1则表示则敏感属性对目标属性的影响越小，\
-          右上图直方图为使用favorable rate difference的统计结果，值越小则敏感属性"+attrTemp+"对目标属性的影响越小。"
+          值越接近1表示敏感属性对目标属性的影响越小，\
+          右上图直方图为使用favorable rate difference的统计结果，值越小敏感属性"+attrTemp+"对目标属性的影响越小。"
       }
       // 占比图
       var data = {

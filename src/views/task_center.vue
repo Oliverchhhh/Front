@@ -140,8 +140,10 @@
             </FrameworkTestEval>
             <ModelMeasureEval v-if="'ModelMeasure' in result" :is-show="resultshow" :result="result" :postData="postData" @on-close="() => { resultshow = !resultshow }">
             </ModelMeasureEval>
-            <ExMethodEval v-if="'attack_dim_reduciton' in result || 'attack_attrbution_analysis' in result" :is-show="resultshow" :result="result" :postData="postData" @on-close="() => { resultshow = !resultshow }">
+            <ExMethodEval v-if="'attack_attrbution_analysis' in result || 'attack_dim_reduciton' in result" :is-show="resultshow" :result="result" :postData="postData" @on-close="() => { resultshow = !resultshow }">
             </ExMethodEval>
+            <ExMethodEval1 v-if="'adversarial_analysis' in result || 'attack_lime' in result" :is-show="resultshow" :result="result" :postData="postData" :mode=mode @on-close="() => { resultshow = !resultshow }">
+            </ExMethodEval1>
             <ModularDevelopEval v-if="'ModularDevelop' in result" :is-show="resultshow" :result="result" :postData="postData" @on-close="() => { resultshow = !resultshow }">
             </ModularDevelopEval>
             <SideEval v-if="'side' in result" :is-show="resultshow" :result="result" :postData="postData" @on-close="() => { resultshow = !resultshow }">
@@ -365,6 +367,7 @@ import AdvAttackDefenseEval from "./dialog/AdvAttackDefenseEval.vue"
 import autoAdvAttackEval from "./dialog/autoAdvAttackEval.vue"
 import BackdoorEval from "./dialog/BackdoorEval.vue"
 import ExMethodEval from "../views/dialog/ExMethodEval.vue"
+import ExMethodEval1 from "../views/dialog/ExMethodEval1.vue"
 import ModelFairnessEvaEval from "../views/dialog/ModelFairnessEvaEval.vue"
 import ModelFairnessDebiasEval from "../views/dialog/ModelFairnessDebiasEval.vue"
 import DateFairnessDebiasEval from "../views/dialog/DateFairnessDebiasEval.vue"
@@ -396,7 +399,7 @@ export default {
         loginDialog,
         AdvAttackEval,
         LLMAttackEval,CrowdDefenseEval,AdvAttackDefenseEval,autoAdvAttackEval,BackdoorEval,
-        ExMethodEval,ModelFairnessEvaEval,ModelFairnessDebiasEval,DateFairnessDebiasEval,DateFairnessEvaEval,
+        ExMethodEval,ExMethodEval1,ModelFairnessEvaEval,ModelFairnessDebiasEval,DateFairnessDebiasEval,DateFairnessEvaEval,
         ModelReachEval,ModelConsistencyEval,ModelAutoVerifyEval,ConcolicEval,DataCleanEval,
         CoverageNeuralEval,CoverageLayerEval,CoverageImportanceEval,DeepSstEval,ModelMeasureEval,
         DeepLogicEval,FrameworkTestEval,ModularDevelopEval, SideEval,modelRobustVerifyEval,EnvTestEval,
@@ -491,7 +494,8 @@ export default {
                 AutoMethod:'flow',
                 AdvMethods:[],
                 Taskid:''
-            }
+            },
+            mode:'attribution'
             }
         },
     watch:{
@@ -603,6 +607,13 @@ export default {
                 if('AdvTraining_GNN' in data.data.result){
                     that.resultProAdvTraining_GNN(data.data.result)
                 }
+                if ('attack_lime' in data.data.result|| 'adversarial_analysis' in data.data.result ){
+                    if ('attack_lime' in data.data.result){
+                        that.mode = 'multi-modal'
+                    }else{
+                        that.mode = 'attribution'
+                    }
+                }
                 that.setresultshow(stopflag==1)
             });
             
@@ -648,6 +659,7 @@ export default {
                 model_consistency:'模型一致性形式化验证',
                 auto_verify:'模型安全性形式化验证',
                 attack_attrbution_analysis:'对抗图像归因解释',
+                adversarial_analysis:'图像归因与特征降维解释',
                 attack_lime:'多模态黑盒解释',
                 attack_defense:'对抗攻击防御',
                 Concolic:'测试样本自动生成',

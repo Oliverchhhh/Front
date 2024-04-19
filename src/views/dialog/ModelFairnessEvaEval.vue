@@ -171,7 +171,7 @@
                           <h3>互信息系数</h3>
                           <div id="NMI" class="heat_canvas" :style="{height:heat_height.nmi}"></div>
                           <div class="conclusion">
-                              <p class="result_text">互信息的值大于等于0，值越大表示两个变量之间的依赖关系越强。互信息为0时，表示两个变量相互独立。但是需要注意的是，互信息值的上限取决于两个变量的熵，因此互信息值本身并不具有直接的对比意义。可以使用归一化互信息（Normalized Mutual Information，NMI）进行归一化处理，将其值映射到0到1之间。</p>
+                              <p class="result_text">互信息的值大于等于0，值越大表示两个变量之间的依赖关系越强。互信息为0时，表示两个变量相互独立。</p>
                           </div>
                       </div>
                       <div class="heat_content" v-if="flag.pearson">
