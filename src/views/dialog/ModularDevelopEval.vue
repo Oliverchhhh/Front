@@ -70,14 +70,30 @@
                 <div slot="header">
                     <p class="pop_text">模型推理</p>
                     <div class="pop_button_group_">
-                        <button class="pop_button"  @click="onlineInference"><a-icon type="upload" />上传图片</button>
-                        <button class="pop_button"  @click="onlineInference"><a-icon type="file-image" theme="twoTone" />添加图片到数据集</button>
+                        <button class="pop_button" > <a-icon type="upload" />上传图片</button>
+                        <button class="pop_button"  @click="onlineInference"><a-icon type="file-image" theme="twoTone" />在线推理</button>
                     </div>
                 </div>
                 <div slot="main">
                     <div class="pop_button_group_ inferclass">
-                    <button class="upload_buuton" @click="onlineInference">+</button>
-                    <button class="upload_buuton">预测结果{{  }}</button>
+                      <a-upload
+                          name="avatar"
+                          list-type="picture-card"
+                          class="avatar-uploader"
+                          :show-upload-list="false"
+                          action="/Task/UploadPic"
+                          :before-upload="beforeUpload"
+                          @change="handleChange"
+                      >
+                          <img v-if="imageUrl" :src="imageUrl" alt="avatar" class="uploadShowImage"/>
+                          <div v-else>
+                          <a-icon :type="loading ? 'loading' : 'plus'" style="font-size: 19px;" />
+                          <div class="ant-upload-text">
+                              上传图片
+                          </div>
+                          </div>
+                      </a-upload>
+                  <button class="upload_buuton">预测结果{{ imgPre }}</button>
                 </div>
                 </div>             
             </onlineProcess>
@@ -93,6 +109,11 @@ import * as echarts from "echarts";
 import popDialog from "../../components/popDialog.vue"
 import onlineProcess from "../../components/onlineProcess.vue"
 import {drawAcc_or_loss} from "../../assets/js/drawEcharts.js"
+function getBase64(img, callback) {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);
+}
 export default {
   name:"modularDevelopDialog",
   components: {
@@ -112,6 +133,9 @@ export default {
   data() {
     return {
       htmlTitle:"模型模块化开发",
+      loading:false,
+      imageUrl: '',
+      imgPre:'',
       res:{},
       /* 下载模型弹窗状态 */
       isShowPopDownload: false,
@@ -140,8 +164,35 @@ export default {
     },
     _stopPropagation(ev){
         var _this = this;
+        this.imgPre = '';
         ev.stopPropagation();
     },
+    handleChange(info) {
+            if (info.file.status === 'uploading') {
+                this.loading = true;
+                return;
+            }
+            if (info.file.status === 'done') {
+                // Get this url from response in real world.
+                getBase64(info.file.originFileObj, imageUrl => {
+                this.imageUrl = imageUrl;
+                this.loading = false;
+                });
+            }
+            this.imgPre = '';
+            // console.log(this.imageUrl);
+        },
+        beforeUpload(file) {
+            const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+            if (!isJpgOrPng) {
+                this.$message.error('You can only upload JPG/png file!');
+            }
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isLt2M) {
+                this.$message.error('Image must smaller than 2MB!');
+            }
+            return isJpgOrPng && isLt2M;
+        },
     //下载搜索模型    
     downloadGeneration(e){
       if (confirm("您确认下载模型？") ) {
@@ -201,7 +252,15 @@ export default {
     },
     //在线推理    
     onlineInference(){
-        alert("在线推理接口开发中！");
+      console.log("执行到这啦！");
+      // console.log(this.res);
+      // console.log(this.result);
+      var that = this;
+      that.$axios.post("/MDTest/ModelInference", {"model_path":that.res["PyTorch"]}).then((res) => {
+          that.imgPre = res.data["imageLabel"]
+          console.log(that.imgPre);
+          // 
+      });
     },
     /* result 处理*/
     resultPro(res){
@@ -315,6 +374,10 @@ border-radius: 8px;
   align-items: flex-start;
   margin-bottom: 20px;
 }
+.ant-upload-picture-card-wrapper {
+    width: 50%;
+}
+
 .result_div{
    display: flex;
     flex-direction: column;
@@ -486,8 +549,8 @@ border-radius: 8px;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    align-items: center;
-    gap: 20px;
+    align-items: flex-start;
+    gap: 45px;
 }
 .inferclass button:first-of-type {
     color: #0B55F4;
@@ -498,6 +561,8 @@ border-radius: 8px;
 .inferclass button:last-of-type {
     color: #3E4453;
     background: #F2F4F9;
-    border: dashed 1px #F2F4F9;
+    /* border: dashed 1px #F2F4F9; */
+    height: 165px;
+    width: 165px;
 }
 </style>
