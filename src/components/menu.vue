@@ -24,7 +24,7 @@
           <!-- 功能名 -->
           <div slot="header" class="func_name">测试样本自动生成</div>
           <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">基于动态符号执行，通过执行具体输入用例获取模型神经元状态，并通过模拟模型计算原理构造约束变量，生成特定未被激活过的新神经元的测试用例</div>
+          <div slot="des_func" class="func_des">基于动态符号执行，通过执行具体输入用例获取模型神经元状态，并通过模拟模型计算原理构造约束变量，生成激活特定未被激活过新神经元的测试用例</div>
         </ifreme>
         <!-- 数据公平性评估 -->
         <ifreme  @click.native="goFuncPage('/dataFairnessEva')">

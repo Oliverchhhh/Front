@@ -367,7 +367,7 @@ import AdvAttackDefenseEval from "./dialog/AdvAttackDefenseEval.vue"
 import autoAdvAttackEval from "./dialog/autoAdvAttackEval.vue"
 import BackdoorEval from "./dialog/BackdoorEval.vue"
 import ExMethodEval from "../views/dialog/ExMethodEval.vue"
-import ExMethodEval1 from "../views/dialog/ExMethodEval1.vue"
+import ExMethodEval1 from "../views/dialog/ExMethodEval2.vue"
 import ModelFairnessEvaEval from "../views/dialog/ModelFairnessEvaEval.vue"
 import ModelFairnessDebiasEval from "../views/dialog/ModelFairnessDebiasEval.vue"
 import DateFairnessDebiasEval from "../views/dialog/DateFairnessDebiasEval.vue"
@@ -815,7 +815,7 @@ export default {
 .nav{
     /* 导航栏 */
     position: absolute;
-    width: 1920px;
+    width: 100%;
     height: 68px;
     left: 0px;
     top: 0px;

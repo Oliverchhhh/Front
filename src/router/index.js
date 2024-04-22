@@ -138,13 +138,18 @@ const router = new Router({
       component: () => import('../views/modelMeasure.vue')
     },
     // 组装的攻击机理分析页面
-    // {
-    //   path: '/exMethod',
-    //   name: 'exMethod',
-    //   component: () => import('../views/exMethod.vue')
-    // },
     {
       path: '/exMethod',
+      name: 'exMethod',
+      component: () => import('../views/exMethod2.vue')
+    },
+    {
+      path: '/exMethod1',
+      name: 'exMethod',
+      component: () => import('../views/exMethod.vue')
+    },
+    {
+      path: '/exMethod1',
       name: 'exMethod',
       component: () => import('../views/exMethod1.vue')
     },

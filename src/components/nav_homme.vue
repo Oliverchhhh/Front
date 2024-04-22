@@ -41,7 +41,7 @@
                 <!-- <p class="title_des"> AI安全理论及验证平台</p> -->
             </div>
             <div class="top_nav">
-                <a-menu v-model="current" mode="horizontal">
+                <a-menu v-model="curr" mode="horizontal">
                     <a-menu-item key="index" class='menu-item'> <a href="/" >平台介绍</a> </a-menu-item>
                     <a-menu-item key="join" class='menu-item'> <router-link to="/homme_menu" target="_blank" rel="noopener noreferrer">在线体验 </router-link></a-menu-item>
                     <a-menu-item key="llm" class='menu-item'> <router-link  to="/llm" rel="noopener noreferrer">大模型排行榜 </router-link></a-menu-item>
@@ -61,7 +61,7 @@
                 <h1>人工智能<br/>安全理论及验证平台</h1>
                 <p>聚焦人工智能系统全链路安全威胁，提供一站式安全检测和多维度评估，助力人工智能系统安全防护。</p>
                 <!-- <a-button type="primary" class="join">立即体验</a-button> -->
-                <div class="pro_bottom"></div>
+                
             </div>
             
         </div>
@@ -84,12 +84,13 @@ export default{
         return {
         loginShow:true,
         username:'',
+        curr:this.current
         };
     },
     mounted(){
         this.username = getCookie("username")
         console.log("nav username",this.username)
-        console.log("current",this.current)
+        console.log("current",this.curr)
     },
     watch:{
         /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
@@ -132,7 +133,7 @@ export default{
 <style scoped>
 .banner{
     position: absolute;
-    width: 1920px;
+    width: 100%;
     height: 564px;
     left: 0px;
     top: 0px;
@@ -141,7 +142,7 @@ export default{
 .nav{
     /* 导航栏 */
     position: absolute;
-    width: 1920px;
+    width: 100%;
     height: 68px;
     left: 0px;
     top: 0px;
@@ -264,29 +265,14 @@ export default{
     background: none;
 }
 .pro_des{
-    width: 1920px;
+    width: 100%px;
     height: 496px;
     margin-top:68px;
     background-image: url("~@/assets/img/bg.png");
-    background-size: 1920px 496px;
+    background-size: 100% 100%;
     background-repeat:no-repeat;
 }
-.pro_bottom{
-    font-family: HONOR Sans CN;
-    font-size: 36px;
-    font-weight: 600;
-    line-height: 90px;
-    letter-spacing: 0px;
-    text-align: center;
 
-    /* Rectangle 295 */
-    position: absolute;
-    width: 1920px;
-    height: 88px;
-    left: 0px;
-    top: 480px;
-    /* background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #FFFFFF 83.29%); */
-}
 /* 平台介绍文字的样式 */
 .product_text{
     /* 人工智能安全理论及验证平台 */
