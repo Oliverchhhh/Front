@@ -530,7 +530,7 @@ export default {
        onlineInference(){
             console.log("执行到这啦！");
             var that = this;
-            that.$axios.post("/MDTest/ModelInference", {"model_path":that.result["PyTorch"]}).then((res) => {
+            that.$axios.post("/MDTest/ModelInference", {"model_path":that.result["TensorFlow"]}).then((res) => {
                 that.imgPre = res.data["imageLabel"]
                 console.log(that.imgPre);
                 // 

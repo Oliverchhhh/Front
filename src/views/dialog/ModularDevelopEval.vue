@@ -256,7 +256,7 @@ export default {
       // console.log(this.res);
       // console.log(this.result);
       var that = this;
-      that.$axios.post("/MDTest/ModelInference", {"model_path":that.res["PyTorch"]}).then((res) => {
+      that.$axios.post("/MDTest/ModelInference", {"model_path":that.res["TensorFlow"]}).then((res) => {
           that.imgPre = res.data["imageLabel"]
           console.log(that.imgPre);
           // 
