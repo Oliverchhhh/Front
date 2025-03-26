@@ -1,0 +1,950 @@
+/* 全局样式 */
+html, body, #app{
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+.tasktable .ant-table-pagination{
+    margin-right: 50px;
+}
+.a-layout{
+    background-color: #FFFFFF;
+}
+.ant-layout-header {
+    background-color: #FFFFFF;
+    color: #333;
+    text-align: left;
+    line-height: 80px;
+    height:564px;
+    padding: 0 0;
+  }
+  .ant-layout-content {
+    background-color: #FFFFFF;
+    text-align: center;
+    padding: 0 0 ;
+    margin-top: 0px;
+}
+.ant-layout-footer {
+background-color: #191A1E;
+color: #333;
+text-align: center;
+line-height: 113px;
+}
+
+/* 标题样式设置 */
+.subTitle{
+
+    position: absolute;
+    width: 264px;
+    height: 48px;
+    left: 856px;
+    letter-spacing: 16px;
+    left: calc(50% - 264px/2);
+
+    font-family: 'PingFang SC';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 40px;
+    line-height: 48px;
+}
+
+/* 同功能多输入标签选择 */
+.labelSelection{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 6px;
+
+    /* position: absolute; */
+    position: relative;
+    width: 992px;
+    height: 56px;
+    left: calc(50% - 996px/2);
+    /* top: 1671px; */
+
+    /* gray-6 */
+
+    background: #ECEEF3;
+    border-radius: 3px; 
+}
+/* 选中标签 */
+.labelselected {
+    display: flex;
+    padding: 6px 10px;
+    align-items: center;
+    border-radius: 3px;
+    border-color: transparent;
+    background: var(--radio-btn-bg, #FFF);
+    color: var(--blue-3, #0B55F4);
+    font-size: 20px;
+    font-family: HONOR Sans CN;
+    font-weight: 500;
+    line-height: 32px;
+}
+.dialog-cover{
+    z-index:1;
+}
+.labelunselected {
+    display: flex;
+    padding: 6px 10px;
+    align-items: center;
+    justify-content: space-evenly;
+    border-radius: 2px;
+    border-color: transparent;
+    color: var(--gray-2, #3E4453);
+    font-size: 20px;
+    font-family: HONOR Sans CN;
+    font-weight: 500;
+    line-height: 32px;
+    }
+
+/* 功能介绍中的背景文字样式 */
+.bgInfo{
+    /* height: 72px; */
+    font-family: PingFangSC-Regular;
+    font-size: 16px;
+    color: #555B66;
+    letter-spacing: 0;
+    line-height: 36px;
+    font-weight: 400;
+}
+.ant-radio-inner{
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+}
+
+
+ /*滚动条设置  */
+  ::-webkit-scrollbar
+  {
+    /* 隐藏滚动条 */
+    width: 0!important;
+    height: 1px;
+    /* margin-top: 23px; */
+  }
+  ::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 10px;
+    box-shadow   : inset 0 0 5px rgba(43, 43, 43, 0.1);
+    background   : #666;
+    transition: background 1s;
+  }
+  ::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    background   : #ededed;
+    margin-top: 23px;
+  }
+  .ant-transfer-list-header{
+    font-size: 16px;
+    font-family: PingFangSC-Regular;
+    color: #555B66;
+}
+/* 穿梭框文字样式 */
+.ant-transfer-list-content-item{
+    font-family: 'PingFang SC';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 22px;
+    color: #000000;
+    padding: 6px 16px;
+
+}
+/* 选中样式 */
+.ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #0B55F4;
+    border-color: #0B55F4;
+}
+
+/* 穿梭框中间按钮样式 */
+.ant-btn-icon-only.ant-btn-sm{
+    width: 30px;
+height: 30px;
+background: #0B55F4;
+border-radius: 2px;
+}
+.ant-btn-icon-only.ant-btn-sm[disabled]{
+    background:#C8DCFB !important;
+    opacity: 1;
+}
+/* 穿梭框头样式 */
+.ant-transfer-list-header{
+    padding: 9px 12px 9px 16px;
+    height: 40px;
+    background: #F2F4F9;
+    font-family: 'PingFang SC';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 22px;
+    color: #000000;
+  }
+/* 进度条样式 */
+.ant-progress-bg{
+    height: 6px;
+    background: #09CAD6;
+    border-radius: 0px 3px 3px 0px;
+}
+.ant-progress-show-info .ant-progress-outer{
+    height: 6px;
+    margin: 0px 0px;
+    padding: 0px 0px;
+    width: 100%;
+}
+.ant-progress-inner{
+    vertical-align:top;
+    height: 6px;
+}
+.ant-progress-text{
+    color: #FFFFFF;
+    display: none;
+}
+
+
+.ant-radio-checked .ant-radio-inner{
+    border-color: #0B55F4;
+}
+.radiobackground:hover .ant-radio-inner{
+    border-color: #0B55F4;
+}
+.ant-radio-inner::after{
+    background-color: #0B55F4;
+    width: 12px;
+    height: 12px;
+}
+
+.ant-checkbox-checked .ant-checkbox-inner{
+    border-color: #0B55F4;
+}
+.checkboxbackground:hover .ant-checkbox-inner{
+    border-color: #0B55F4;
+}
+.ant-checkbox-inner{
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+}
+
+/* 结果标题框样式 */
+.dialog_title{
+    height: 40px;
+    text-align: left;
+}
+/* 结果标题icon样式 */
+.dialog_title img{
+    height: 36px;
+    width: 36px;
+    margin-bottom: 8px;
+}
+/* 结果标题样式 */
+.dialog_title h1{
+    font-family: HONORSansCN-Bold;
+    font-size: 28px;
+    line-height: 40px;
+    color: #000000;
+    letter-spacing: 0;
+    font-weight: 700;
+    text-align: left;
+    display: inline;
+    margin-bottom: 0px;
+}
+.result_div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    margin-top: 48px;
+    width: 960px;
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    flex-grow: 0
+    }
+/* 维度标题样式 */
+.main_top_echarts_con_title{
+    height: 36px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 700;
+    flex-direction: column;
+    font-size: 28px;
+    line-height: 36px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    color: rgba(0, 0, 0, 0.9);
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+/* 评分背景图样式 */
+.scorebg{
+    width: 360px;
+    height: 366px;
+    background: url("../img/score.png") no-repeat center;
+    background-position: 0px 13px ;
+    background-size: cover;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+/* 总分样式 */
+.g_score{
+    /* width: 106px; */
+    height: 110px;
+
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 88px;
+    line-height: 110px;
+    /* identical to box height, or 125% */
+    margin-bottom: 0px;
+    text-align: center;
+    margin-top: 72px;
+    color: #FFFFFF;
+/* Inside auto layout */
+
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+.g_score_2{
+    color: #FFF;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 60px;
+    margin-top: 118px;
+}
+/* 总分评语样式 */
+.g_score_evaluate{
+    width: 48px;
+    height: 32px;
+
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 32px;
+    /* identical to box height, or 133% */
+
+    text-align: center;
+
+    color: #FFFFFF;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+}
+/* 结论框样式 */
+.conclusion{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    gap: 8px;
+    margin-bottom: 12px;
+    width: 960px;
+/* gray-7 */
+
+background: #F2F4F9;
+border-radius: 4px;
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+.result_text{
+    color: var(--gray-2, #3E4453);
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px; /* 150% */
+    align-self: stretch;
+}
+.result_annotation{
+margin-bottom: 0px;
+font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+
+/* identical to box height, or 150% */
+
+text-align: center;
+
+/* gray-3 */
+
+color: #6C7385;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+/* 两维评估 */
+.two_score{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px;
+    gap: 12px;
+    width: 844px;
+    height: 65px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+.left_score_label{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+
+    width: 200px;
+    height: 65px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+.right_score_label{
+    display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+width: 200px;
+height: 65px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 2;
+flex-grow: 0;
+}
+.center_score_label{
+    width: 420px;
+height: 24px;
+
+/* bule-6 */
+
+background: #C8DCFB;
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+/* 维度条底色 */
+.process_bg{
+    display: inline-block;
+    width: 209px;
+    height: 24px;
+    background-color: #C8DCFB
+}
+/* 左侧评分 */
+.left_pro{
+    height: 24px;
+    background-color:#0B55F4;
+    float:right
+}
+/* 右侧评分 */
+.right_pro{
+    height: 24px;
+    background-color:#06b449;
+    float:left
+}
+.score_text{
+    width: 44px;
+height: 41px;
+
+font-family: 'HONORSansCN-Bold';
+font-size: 32px;
+line-height: 38px;
+text-align: center;
+margin: auto auto;
+/* blue-3 */
+
+color: #0B55F4;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+
+}
+.score_lable{
+    width: 112px;
+height: 24px;
+margin: auto auto;
+font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+
+/* gray-1 */
+
+color: #000000;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+.score_description{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    gap: 8px;
+
+    width: 638px;
+    height: 32px;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+.con_score{
+    width: 38px;
+    display: inline;
+    height: 32px;
+
+    font-family: 'HONORSansCN-Bold';
+    /* font-family: 'MiSans'; */
+    /* font-family: "HONOR Sans CN"; */
+    font-style: normal;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 32px;
+    /* identical to box height, or 133% */
+
+    /* blue-3 */
+
+    color: #0B55F4;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+/* 标题下的说明文字 */
+.title_annotation{
+height: 22px;
+
+font-family: 'HONOR Sans CN';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 22px;
+margin-top: 4px;
+margin-bottom: 0px;
+/* identical to box height, or 157% */
+
+text-align: center;
+
+/* gray-2 */
+
+color: #3E4453;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+}
+/* 功能icon样式 */
+.paramIcom{
+    display: inline;
+    width: 36px;
+    height: 36px;
+    margin: auto 10px 10px auto;
+}
+.reportContentCon{
+    display: flex;
+    width: 1080px;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+    margin-top: 168px;
+}
+/* 模型单选样式 */
+.ant-radio-wrapper{
+    margin: 0px 0px 16px 0px;
+    font-size: 20px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    color: #000000;;
+    line-height: 28px;
+    background: #F2F4F9;
+    height: 60px;
+    border-radius: 4px;
+    padding: 16px 32px 16px 24px;
+}
+
+/* 选项标题样式 */
+.mainParamName{
+    height: 28px;
+
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 28px;
+    /* identical to box height, or 140% */
+    margin: 24px 0px;
+
+    color: #000000;
+}
+.mainParamName48{
+    color: #000;
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px; 
+    margin: 48px 0px 24px 0px ;
+}
+.mainParamNameNotop{
+    height: 28px;
+
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 28px;
+    /* identical to box height, or 140% */
+    margin-bottom: 24px;
+
+    color: #000000;
+}
+
+.methodDes .ant-checkbox{
+    display: none
+}
+.ant-checkbox + span {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+/* 参数选择与右侧上传样式 */
+.SelectWithUpload{
+    display: flex;
+    width: 1100px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 上传按钮样式 */
+.uploadDatasetBtn{
+    color: #0B55F4;
+    border: none;
+    font-weight: 500;
+    font-size: initial
+}
+
+/* 导出报告按钮样式 */
+.exportResultBtn{
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 45px;
+    gap: 4px;
+    flex-shrink: 0;
+    height: 50px;
+    background: #0B55F4;
+    border-radius: 6px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 22px;
+    color: #FFFFFF;
+    border-color: #FFF;
+    border-style: solid;
+}
+.downloadBtn{
+    padding: 40px 0px;
+}
+/* 下载生成测试样本按钮 */
+.downloadGenerationBtn{
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 45px;
+    gap: 4px;
+    margin: 5px;
+    /* position: absolute; */
+    height: 50px;
+    left: calc(50% - 248px/2);
+    bottom: 40px;
+    background: #FFFFFF;
+    border-radius: 6px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 22px;
+    color: #0B55F4;
+}
+/* 数据集示例样式 */
+.demoData{
+    display: flex;
+    margin-left: 20px;
+    gap: 10px;
+    /* justify-content: space-around; */
+    margin-bottom: 20px;
+}
+.demoData img{
+    /* position: absolute; */
+    width: 64px;
+    height: 64px;
+    left: 0px;
+    top: 0px;
+    /* background: url(../assets/img/mnist1.jpg); */
+}
+.matchedDes{
+    display: flex;
+    flex-direction: column;
+    /* align-items: flex-start; */
+    padding: 0px;
+    width: 1104px;
+    /* height: 106px; */
+    border-radius: 4px;
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+.matchedMethodText{
+    /* display: flex; */
+    display: block;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 24px;
+    width: 1104px;
+    /* height: 46px; */
+    height:auto;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 22px;
+    color: #3E4453;
+    margin-bottom: 0px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+.matchedMethodText span{
+    color:#0B55F4
+}
+.ant-select-selection--single{
+    height: 60px;
+    padding: 16px 16px 16px 24px;
+    background: #FFFFFF;
+    border: 1px solid #E0E3EB;
+    border-radius: 4px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 28px;
+}
+p{
+    margin-bottom: 0px;
+}
+/* 上传样本 */
+.ant-upload.ant-upload-select-picture-card{
+    width: 160px;
+    height: 160px;
+}
+.result_div_notop{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    /* width: 960px; */
+    /* height: 490px; */
+    gap: 24px;
+}
+.paramContent{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0px;
+    width: 240px;
+    height: 24px;
+}
+.paramName{
+    height: 24px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: left;
+    color: #6C7385;
+}
+.paramValue{
+    height: 24px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
+    color: #000000;
+}
+.paramShow{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+    gap: 12px;
+    position: absolute;
+    width: 1080px;
+    /* height: 108px; */
+    left: 0px;
+    background: #F2F4F9;
+    border-bottom: 1px solid #E0E3EB;
+}
+.paramShow1{
+    display: flex;
+    width: 1080px;
+    padding: 24px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    border-bottom: 1px solid #E0E3EB;
+    background: var(--gray-7, #F2F4F9);
+}
+.reportContent{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    gap: 60px;
+    /* position: absolute; */
+    width: 1080px;
+    /* left: 0px; */
+}
+.paramsInput{
+    height: 60px;
+    padding: 0px 0px 0px 16px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    /* color: #B4B9C5; */
+    background: #F2F4F9;
+    border-radius: 4px;
+    color: #000000;
+}
+
+/* 输入模块div样式 */
+.inputdiv {
+    padding: 48px;
+    overflow-y: auto;
+    /* height: 700px; */
+    overflow-x: hidden;
+}
+.funcParam {
+    /* 模型公平性评估 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 824px;
+    background: #FFFFFF;
+    border: 1px solid #E0E3EB;
+    box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
+    text-align: left;
+    border-radius: 8px;
+}
+.grid-content-name {
+    color: var(--gray-3, #6C7385);
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+  }
+.grid-content-value{
+    color: #000;
+    font-family: HONOR Sans CN;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+}
+.select_down .ant-select-selection--single{
+    width: 136px;
+    height: 34px;
+    padding: 4px 4px;
+    border: 1px solid rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0);
+    color: #FFF;
+    font-family: Alibaba PuHuiTi 2.0;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px; /* 140% */
+}
+.select_down .ant-select-arrow{
+    color: #fff;
+    top:20%;
+    right: -3px;
+    font-size: 20px;
+    line-height: 1;
+    margin-top: 0px;
+}
