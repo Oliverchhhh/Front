@@ -12,6 +12,7 @@
   "dependencies": {
     "@ant-design/icons": "^2.1.1",
     "@antv/g6": "^4.8.9",
+    "@fortawesome/fontawesome-free": "^6.7.2",
     "@jiaminghi/data-view": "^2.10.0",
     "@surely-vue/table": "^2.0.0",
     "ant-design-vue": "^1.7.8",
@@ -21,6 +22,7 @@
     "echarts": "^5.4.1",
     "echarts-stat": "^1.2.0",
     "element-ui": "^2.15.13",
+    "fairness": "file:",
     "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.1",
@@ -66,10 +68,10 @@
     "url-loader": "^0.5.8",
     "vue-loader": "^13.3.0",
     "vue-style-loader": "^3.0.1",
-    "vue-template-compiler": "^2.5.2",
+    "vue-template-compiler": "^2.7.16",
     "webpack": "^3.6.0",
     "webpack-bundle-analyzer": "^2.9.0",
-    "webpack-dev-server": "^2.9.1",
+    "webpack-dev-server": "^2.11.5",
     "webpack-merge": "^4.1.0"
   },
   "engines": {

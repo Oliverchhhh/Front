@@ -42,9 +42,55 @@
             </div>
             <div class="top_nav">
                 <a-menu v-model="curr" mode="horizontal">
-                    <a-menu-item key="index" class='menu-item'> <a href="/" >平台介绍</a> </a-menu-item>
-                    <a-menu-item key="join" class='menu-item'> <router-link to="/homme_menu" target="_blank" rel="noopener noreferrer">在线体验 </router-link></a-menu-item>
-                    <a-menu-item key="llm" class='menu-item'> <router-link  to="/llm" rel="noopener noreferrer">大模型排行榜 </router-link></a-menu-item>
+                    <a-menu-item key="index" class='menu-item'> 
+                        <a href="/" >平台介绍</a> 
+                    </a-menu-item>
+                    <a-menu-item key="join" class='menu-item'> 
+                        <router-link to="/homme_menu" target="_blank" rel="noopener noreferrer">在线体验</router-link>
+                    </a-menu-item>
+                    <a-sub-menu key="evaluation" class='menu-item'>
+                        <template slot="title">
+                            <router-link to="/evaluation">在线评估</router-link>
+                        </template>
+                        <a-menu-item key="advAttack">
+                            <router-link to="/advAttack">对抗攻击评估</router-link>
+                        </a-menu-item>
+                        <a-menu-item key="backdoor">
+                            <router-link to="/backdoor">后门攻击评估</router-link>
+                        </a-menu-item>
+                        <a-menu-item key="autoAttack">
+                            <router-link to="/autoAttack">模型对抗性测试</router-link>
+                        </a-menu-item>
+                        <a-menu-item key="modelFairnessEva">
+                            <router-link to="/modelFairnessEva">模型公平性评估</router-link>
+                        </a-menu-item>
+                    </a-sub-menu>
+                    <a-sub-menu key="application" class='menu-item'>
+                        <template slot="title">
+                            <router-link to="/application">应用</router-link>
+                        </template>
+                        <a-menu-item key="advDefense">
+                            <router-link to="/advAttackDefense">对抗攻击防御</router-link>
+                        </a-menu-item>
+                        <a-menu-item key="backdoorDefense">
+                            <router-link to="/backdoorDefense">后门攻击防御</router-link>
+                        </a-menu-item>
+                    </a-sub-menu>
+                    <a-sub-menu key="workflow" class='menu-item'>
+                        <template slot="title">工作流程</template>
+                        <a-menu-item key="train">
+                            <router-link to="/train">准备阶段</router-link>
+                        </a-menu-item>
+                        <a-menu-item key="xunlian">
+                            <router-link to="/xunlian">训练阶段</router-link>
+                        </a-menu-item>
+                        <a-menu-item key="bushu">
+                            <router-link to="/bushu">部署阶段</router-link>
+                        </a-menu-item>
+                    </a-sub-menu>
+                    <a-menu-item key="llm" class='menu-item'> 
+                        <router-link to="/llm" rel="noopener noreferrer">大模型排行榜</router-link>
+                    </a-menu-item>
                     <a-menu-item v-show="username==''" class='menu-item' key="login" @click="clicklogin()">登录/注册</a-menu-item>
                     <a-sub-menu  class='menu-item' v-show="username != ''" >
                         <span slot="title" class='menu-item sub-title' ><span>{{username}}</span></span>
@@ -61,7 +107,6 @@
                 <h1>人工智能<br/>安全理论及验证平台</h1>
                 <p>聚焦人工智能系统全链路安全威胁，提供一站式安全检测和多维度评估，助力人工智能系统安全防护。</p>
                 <!-- <a-button type="primary" class="join">立即体验</a-button> -->
-                
             </div>
             
         </div>
@@ -84,7 +129,7 @@ export default{
         return {
         loginShow:true,
         username:'',
-        curr:this.current
+        curr:this.current,
         };
     },
     mounted(){

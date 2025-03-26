@@ -7,14 +7,14 @@
            <navmodule :current="current"/>
        </a-layout-header>
        <a-layout-content>
-            <div class="pro_bottom">人工智能安全理论及验证平台功能</div>
+            <!-- <div class="pro_bottom">人工智能安全理论及验证平台功能</div> -->
             <!-- 功能介绍 -->
            <func_menu></func_menu>
            
        </a-layout-content>
-       <a-layout-footer>
+       <!-- <a-layout-footer>
 
-       </a-layout-footer>
+       </a-layout-footer> -->
        </a-layout>
     </div>
 </template>

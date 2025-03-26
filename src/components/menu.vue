@@ -1,256 +1,146 @@
 <template>
   <div class="hold"  >
-    <!-- 跳转到指定模块 -->
-    <div class="btn-box" ref="div_box">
-      <button @click="goAssignBlock('block'+ 0,50)">数据</button>
-      <button @click="goAssignBlock('block'+ 1,50)">模型</button>
-      <button @click="goAssignBlock('block'+ 2,50)">算法</button>
-      <button @click="goAssignBlock('block'+ 3,50)">开发框架</button>
-      <button @click="goAssignBlock('block'+ 4,50)">操作系统</button>
-      <button @click="goAssignBlock('block'+ 5,50)">硬件</button>
-      <a-button type="primary" shape="circle" class="onceConf" @click="goFuncPage('')" >一键<br/>配置</a-button>     
-    </div>
     <!-- 功能划分：数据 -->
-    <div class="block" ref="block0">
-      <p class="block_title">数据</p>
-      <!-- 数据类功能block -->
-      <div class="funcs">
-        <!-- 测试样本自动生成 -->
-        <ifreme @click.native="goFuncPage('/concolic')">
-          <div slot="func_icon">
-            <!-- 图片 -->
-            <img class="icon_img" src="../assets/img/concolicIcon.png">
-          </div>
-          <!-- 功能名 -->
-          <div slot="header" class="func_name">测试样本自动生成</div>
-          <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">基于动态符号执行，通过执行具体输入用例获取模型神经元状态，并通过模拟模型计算原理构造约束变量，生成激活特定未被激活过新神经元的测试用例</div>
-        </ifreme>
-        <!-- 数据公平性评估 -->
-        <ifreme  @click.native="goFuncPage('/dataFairnessEva')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/dataFairEvalIcon.png">
-          </div>
-          <div slot="header" class="func_name">数据公平性评估</div>
-          <div slot="des_func" class="func_des">针对数据集存在偏见的现象，通过数据公平性评估算法，对数据集整体进行评估，可视化展示数据群体、个体、属性占比、属性相关性的评估结果</div>
-        </ifreme>
-        <!-- 数据公平性提升 -->
-        <ifreme @click.native="goFuncPage('/dataFairnessDebias')"> 
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/dataFairDebiasIcon.png">
-          </div>
-          <div slot="header" class="func_name">数据公平性提升</div>
-          <div slot="des_func" class="func_des">基于公平表征学习和数据重赋权等方法对数据集进行纠偏，从群体和个体公平性两个维度对提升前后的数据集进行评估对比</div>
-        </ifreme>
-        <!-- 异常数据检测 -->
-        <ifreme @click.native="goFuncPage('/dataClean')">
-          <div slot="func_icon">
-            <!-- 图片 -->
-            <img class="icon_img" src="../assets/img/dataCleanIcon.png">
-          </div>
-          <!-- 功能名 -->
-          <div slot="header" class="func_name">异常数据检测</div>
-          <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">分析AI系统常见异常数据来源及类型，基于置信学习等多种技术修复异常数据，实现自动化的数据集清洗及量化评估</div>
-        </ifreme>
-      </div>
-      
+    <div class="video-container">
+      <video class="video" loop autoplay muted>
+        <source :src="videoSrc" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
     </div>
-    <div class="block" ref="block1">
-      <p class="block_title">模型</p>
-      <p class="block_subtitle">评估</p>
-      <!-- 模型类功能block -->
-      <div class="funcs">
-        
-        <ifreme @click.native="goFuncPage('/advAttack')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/advAttackEvalIcon.png">
-          </div>
-          <div slot="header" class="func_name">对抗攻击评估</div>
-          <div slot="des_func" class="func_des">汇集多种主流对抗攻击方法，包括黑盒对抗攻击、白盒对抗攻击，探索深度学习模型在对抗攻击方面的鲁棒性下限，可视化展示攻击对模型的影响</div>
-        </ifreme>
-        <ifreme @click.native="goFuncPage('/backdoor')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/bkAttackEvalIcon.png">
-          </div>
-          <div slot="header" class="func_name">后门攻击评估</div>
-          <div slot="des_func" class="func_des">集成多种主流投毒攻击方法，对深度学习数据和模型进行攻击，评估模型在后门攻击层面上的应变能力，可视化评估投毒攻击影响</div>
-        </ifreme>
-        <ifreme @click.native="goFuncPage('/autoAttack')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/advTestIcon.png">
-          </div>
-          <div slot="header" class="func_name">模型对抗性测试</div>
-          <div slot="des_func" class="func_des">基于攻防战技知识图谱和规则集自动化生成特定场景下的AI模型对抗测试方案，从而对AI模型的鲁棒性进行评估</div>
-        </ifreme>
-        <ifreme @click.native="goFuncPage('/modelFairnessEva')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/modelFairEvalIcon.png">
-          </div>
-          <div slot="header" class="func_name">模型公平性评估</div>
-          <div slot="des_func" class="func_des">针对深度学习模型预测存在偏见的现象，通过30+种模型公平性评估算法，对模型进行评估，从个体公平性和群体公平性可视化展示评估结果</div>
-        </ifreme>
-        <ifreme @click.native="goFuncPage('/modelMeasure')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/modelMeasureIcon.png">
-          </div>
-          <div slot="header" class="func_name">AI模型安全度量</div>
-          <div slot="des_func" class="func_des">对模型进行安全性、鲁棒性、泛化性度量，评估模型对对抗攻击的防御效果、对自然噪声的健壮能力、相似任务的泛化性能</div>
-        </ifreme>
-        <ifreme @click.native="goFuncPage('/coverage_neural')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/coverageneuralIcon.png">
-          </div>
-          <div slot="header" class="func_name">标准化单元测试</div>
-          <div slot="des_func" class="func_des">评估模型训练效果时容易出现模型行中的某些行为无法被测试到的情况，提出制定多测试准则的标准化AI模型单元测试方法，全面评估模型训练效果</div>
-        </ifreme>
-      </div>
 
-      <p class="block_subtitle">加固</p>
-      <div class="funcs">
-        <ifreme @click.native="goFuncPage('/advAttackDefense')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/advDefenseIcon.png">
+    <!-- 添加流水灯轮播组件 -->
+    <div class="carousel-container">
+      <a-carousel arrows ref="carousel">
+        <template #prevArrow>
+          <div class="custom-slick-arrow" style="left: 10px; z-index: 1" @click="prevSlide">
+            <span class="arrow-text">‹</span>
           </div>
-          <div slot="header" class="func_name">对抗攻击防御</div>
-          <div slot="des_func" class="func_des">从对抗样本检测、对抗噪声擦除和模型防御力增强等三个角度阻截对抗样本的攻击，并使神经网络模型在面对对抗样本时仍能发挥正常功能</div>
-        </ifreme>
-        <ifreme @click.native="goFuncPage('/backdoorDefense')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/bkDefenseIcon.png">
+        </template>
+        <template #nextArrow>
+          <div class="custom-slick-arrow" style="right: 10px" @click="nextSlide">
+            <span class="arrow-text">›</span>
           </div>
-          <div slot="header" class="func_name">后门攻击防御</div>
-          <div slot="des_func" class="func_des">后门攻击防御包括后门检测和后门逆向，力求做到发现后门并还原后门的效果，使后门攻击的威胁大大降低</div>
-        </ifreme>
-        <ifreme  @click.native="goFuncPage('robust_advTraining')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/robustTrainingIcon.png">
+        </template>
+        <div v-for="(card, index) in carouselCards" :key="index">
+          <div class="carousel-card" @click="goFuncPage(card.path)">
+            <div class="func-icon">
+              <img class="icon_img" :src="card.iconSrc">
+            </div>
+            <div class="func_name">{{ card.title }}</div>
+            <div class="func_des">{{ card.description }}</div>
           </div>
-          <div slot="header" class="func_name">模型鲁棒性训练</div>
-          <div slot="des_func" class="func_des">通过可认证鲁棒训练、对抗训练等方式来对AI模型进行安全加固，提升模型在对抗样本攻击下的鲁棒性</div>
-        </ifreme>
-        <ifreme  @click.native="goFuncPage('/modelFairnessDebias')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/modelFairDebiasIcon.png">
-          </div>
-          <div slot="header" class="func_name">模型公平性提升</div>
-          <div slot="des_func" class="func_des">模型决策会存在偏见，通过公平性提升算法，提升模型的公平性，减少偏见，可视化展示提升前后对比</div>
-        </ifreme>
-        <ifreme  @click.native="goFuncPage('/crowdDefense')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/crowdDefenseIcon.png">
-          </div>
-          <div slot="header" class="func_name">模型群智化防御</div>
-          <div slot="des_func" class="func_des">基于集成防御、攻防博弈等技术，可视化展示模型在不同攻击与防御方法上的表现，从而获取最佳防御策略</div>
-        </ifreme>
+        </div>
+      </a-carousel>
+    </div>
+
+    <a-divider style="border-color: #7cb305" dashed />
+    <!-- 小矩形块区域 -->
+    <div class="stage-container">
+      <div class="stage-box">
+        <span class="stage-title">准备阶段</span>
+      </div>
+      <div class="stage-box">
+        <span class="stage-title">训练阶段</span>
+      </div>
+      <div class="stage-box">
+        <span class="stage-title">部署阶段</span>
       </div>
     </div>
 
-
-    <div class="block" ref="block2">
-      <p class="block_title">算法</p>
-      <!-- 算法类功能block -->
-      <div class="funcs">
-        <ifreme @click.native="goFuncPage('/FormalVerfy')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/formalVerifyIcon.png">
-          </div>
-          <div slot="header" class="func_name">形式化验证</div>
-          <div slot="des_func" class="func_des">基于扰动分析和特征解释可视化方法，对模型进行安全性、一致性、可达性三个维度的形式化验证，从严格统计角度验证模型安全性能</div>
-        </ifreme>  
-        <ifreme @click.native="goFuncPage('/modularDevelop')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/modularDevelopIcon.png">
-          </div>
-
-          <div slot="header" class="func_name">AI模型模块化开发</div>
-          <div slot="des_func" class="func_des">基于模块化的思想，为给定任务功能进行组件式构建、自动化训练并保存模型，并可视化显示模型的各项性能指标</div>
-        </ifreme>
-        
-        <ifreme @click.native="goFuncPage('/exMethod')">
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/exMethodIcon.png">
-          </div>
-          <div slot="header" class="func_name">攻击机理分析</div>
-          <div slot="des_func" class="func_des">研究各类对抗性攻击的生成与作用机理，即误导模型的内在原因，建立易于人类理解的解释方法，为安全性验证与防御策略构建等工作提供理论指导</div>
-        </ifreme>
+    <!-- 功能卡片容器 -->
+    <div class="box-container">
+      <!-- 第一个矩形方框 -->
+      <div class="box">
+        <div class="funcs">
+          <ifreme @click.native="goFuncPage('/dataFairnessDebias')"> 
+            <div slot="func_icon">
+              <img class="icon_img" src="../assets/img/dataFairDebiasIcon.png">
+            </div>
+            <div slot="header" class="func_name">数据公平性提升</div>
+            <div slot="des_func" class="func_des">基于公平表征学习和数据重赋权等方法对数据集进行纠偏，从群体和个体公平性两个维度对提升前后的数据集进行评估对比</div>
+          </ifreme>
+          <ifreme @click.native="goFuncPage('/advAttack')">
+            <div slot="func_icon">
+              <img class="icon_img" src="../assets/img/advAttackEvalIcon.png">
+            </div>
+            <div slot="header" class="func_name">对抗攻击评估</div>
+            <div slot="des_func" class="func_des">汇集多种主流对抗攻击方法，包括黑盒对抗攻击、白盒对抗攻击，探索深度学习模型在对抗攻击方面的鲁棒性下限，可视化展示攻击对模型的影响</div>
+          </ifreme>
+        </div>
+      </div>
+      <!-- 第二个矩形方框 -->
+      <div class="box">
+        <div class="funcs">
+          <ifreme  @click.native="goFuncPage('/modelFairnessDebias')">
+            <div slot="func_icon">
+              <img class="icon_img" src="../assets/img/modelFairDebiasIcon.png">
+            </div>
+            <div slot="header" class="func_name">模型公平性提升</div>
+            <div slot="des_func" class="func_des">模型决策会存在偏见，通过公平性提升算法，提升模型的公平性，减少偏见，可视化展示提升前后对比</div>
+          </ifreme>
+          <ifreme  @click.native="goFuncPage('robust_advTraining')">
+            <div slot="func_icon">
+              <img class="icon_img" src="../assets/img/robustTrainingIcon.png">
+            </div>
+            <div slot="header" class="func_name">模型鲁棒性训练</div>
+            <div slot="des_func" class="func_des">通过可认证鲁棒训练、对抗训练等方式来对AI模型进行安全加固，提升模型在对抗样本攻击下的鲁棒性</div>
+          </ifreme>
+        </div>
+      </div>
+      <!-- 第三个矩形方框 -->
+      <div class="box">
+        <div class="funcs">
+          <ifreme  @click.native="goFuncPage('/modelFairnessDebias')">
+            <div slot="func_icon">
+              <img class="icon_img" src="../assets/img/modelFairDebiasIcon.png">
+            </div>
+            <div slot="header" class="func_name">模型公平性提升</div>
+            <div slot="des_func" class="func_des">模型决策会存在偏见，通过公平性提升算法，提升模型的公平性，减少偏见，可视化展示提升前后对比</div>
+          </ifreme>
+          <ifreme @click.native="goFuncPage('/advAttackDefense')">
+            <div slot="func_icon">
+              <img class="icon_img" src="../assets/img/advDefenseIcon.png">
+            </div>
+            <div slot="header" class="func_name">对抗攻击防御</div>
+            <div slot="des_func" class="func_des">从对抗样本检测、对抗噪声擦除和模型防御力增强等三个角度阻截对抗样本的攻击，并使神经网络模型在面对对抗样本时仍能发挥正常功能</div>
+          </ifreme>
+          <ifreme @click.native="goFuncPage('/backdoorDefense')">
+            <div slot="func_icon">
+              <img class="icon_img" src="../assets/img/bkDefenseIcon.png">
+            </div>
+            <div slot="header" class="func_name">后门攻击防御</div>
+            <div slot="des_func" class="func_des">后门攻击防御包括后门检测和后门逆向，力求做到发现后门并还原后门的效果，使后门攻击的威胁大大降低</div>
+          </ifreme>
+        </div>
       </div>
     </div>
 
-
-    <div class="block" ref="block3">
-      <p class="block_title">开发框架</p>
-      <!-- 开发框架类功能block -->
-      <div class="funcs">
-        <!-- AI开发框架安全结构度量 -->
-        <ifreme @click.native="goFuncPage('/frameworkTest')">
-          <div slot="func_icon">
-            <!-- 图片 -->
-            <img class="icon_img" src="../assets/img/frameworkTestIcon.png">
+    <!-- 将分割线和第二个走马灯移到 box-container 外面 -->
+    <a-divider style="border-color: #7cb305" dashed />
+    
+    <!-- 第二个走马灯 -->
+    <div class="carousel-container">
+      <a-carousel arrows ref="carousel2">
+        <template #prevArrow>
+          <div class="custom-slick-arrow" style="left: 10px; z-index: 1" @click="prevSlide2">
+            <span class="arrow-text">‹</span>
           </div>
-          <!-- 功能名 -->
-          <div slot="header" class="func_name">AI开发框架安全结构度量</div>
-          <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">通过交叉验证等手段检测存在安全漏洞的的开发框架，进一步检测分析，定位开发框架漏洞在模型中的具体层</div>
-        </ifreme>
-      </div>
-    </div>
-    <div class="block" ref="block4">
-      <p class="block_title">操作系统</p>
-      <!-- 开发框架类功能block -->
-      <div class="funcs">
-        <!-- AI开发框架安全结构度量 -->
-        <ifreme @click.native="goFuncPage('/envTest')">
-          <div slot="func_icon">
-            <!-- 图片 -->
-            <img class="icon_img" src="../assets/img/envTestIcon.png">
+        </template>
+        <template #nextArrow>
+          <div class="custom-slick-arrow" style="right: 10px" @click="nextSlide2">
+            <span class="arrow-text">›</span>
           </div>
-          <!-- 功能名 -->
-          <div slot="header" class="func_name">开发环境分析与框架适配</div>
-          <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">对当前开发环境操作系统下的系统架构信息、依赖库版本、AI开发框架依赖与版本等关键信息进行分析与记录，检测其中的潜在漏洞问题</div>
-        </ifreme>
-      </div>
-    </div>
-
-    <div class="block" ref="block5">
-      <p class="block_title">硬件</p>
-      <!-- 硬件类功能block -->
-      <div class="funcs">
-        <!-- 侧信道分析 -->
-        <ifreme  @click.native="goFuncPage('/side')">
-          <div slot="func_icon">
-            <!-- 图片：待替换 -->
-            <img class="icon_img" src="../assets/img/sideAnalysisIcon.png"> 
+        </template>
+        <div v-for="(card, index) in carouselCards2" :key="index">
+          <div class="carousel-card" @click="goFuncPage(card.path)">
+            <div class="func-icon">
+              <img class="icon_img" :src="card.iconSrc">
+            </div>
+            <div class="func_name">{{ card.title }}</div>
+            <div class="func_des">{{ card.description }}</div>
           </div>
-          <!-- 功能名 -->
-          <div slot="header" class="func_name">侧信道分析</div>
-          <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">采集目标模型在目标平台上运行产生的功耗/电磁信息，形成曲线数据。输入功耗或电磁曲线数据文件，分别进行不同的侧信道攻击分析</div>
-        </ifreme>
-        <!-- 故障注入 -->
-        <ifreme @click.native="goFuncPage('/inject')">
-          <div slot="func_icon">
-            <!-- 图片：待替换 -->
-            <img class="icon_img" src="../assets/img/faultInjectIcon.png">
-          </div>
-          <!-- 功能名 -->
-          <div slot="header" class="func_name">故障注入</div>
-          <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">利用时钟毛刺故障对多种深度学习模型进行攻击，高精度故障注入评估过程使用可视化方式，展示故障攻击对深度学习模型输出的影响</div>
-        </ifreme>
-        <!-- 硬件优化 -->
-        <ifreme @click.native="goFuncPage('/hardOpt')">
-          <div slot="func_icon">
-            <!-- 图片：待替换 -->
-            <img class="icon_img" src="../assets/img/faultInjectIcon.png">
-          </div>
-          <!-- 功能名 -->
-          <div slot="header" class="func_name">基于硬件优化的软硬件一体化验证</div>
-          <!-- 功能描述 -->
-          <div slot="des_func" class="func_des">从AI系统硬件运算效率的角度，实现AI系统软硬件的高效安全运行与智能驱动</div>
-        </ifreme>
-      </div>
+        </div>
+      </a-carousel>
     </div>
   </div>
 </template>
@@ -260,8 +150,53 @@ import ifreme_chart from './ifreme.vue';
 export default {
   name: "func_menu",
   components: {
-    ifreme:ifreme_chart
+    ifreme: ifreme_chart
   },
+  data() {
+        return {
+          videoSrc: require('D:/Front/AIcert-web/static/img/architecture.mp4'),
+          carouselCards: [
+            {
+              iconSrc: require('@/assets/img/advAttackEvalIcon.png'),
+              title: '对抗攻击评估',
+              description: '汇集多种主流对抗攻击方法，包括黑盒对抗攻击、白盒对抗攻击，探索深度学习模型在对抗攻击方面的鲁棒性下限，可视化展示攻击对模型的影响',
+              path: '/advAttack'
+            },
+            {
+              iconSrc: require('@/assets/img/bkAttackEvalIcon.png'),
+              title: '后门攻击评估',
+              description: '集成多种主流投毒攻击方法，对深度学习数据和模型进行攻击，评估模型在后门攻击层面上的应变能力，可视化评估投毒攻击影响',
+              path: '/backdoor'
+            },
+            {
+              iconSrc: require('@/assets/img/advTestIcon.png'),
+              title: '模型对抗性测试',
+              description: '基于攻防战技知识图谱和规则集自动化生成特定场景下的AI模型对抗测试方案，从而对AI模型的鲁棒性进行评估',
+              path: '/autoAttack'
+            },
+            {
+              iconSrc: require('@/assets/img/modelFairEvalIcon.png'),
+              title: '模型公平性评估',
+              description: '针对深度学习模型预测存在偏见的现象，通过30+种模型公平性评估算法，对模型进行评估，从个体公平性和群体公平性可视化展示评估结果',
+              path: '/modelFairnessEva'
+            }
+          ],
+          carouselCards2: [
+            {
+              iconSrc: require('@/assets/img/advDefenseIcon.png'),
+              title: '对抗攻击防御',
+              description: '从对抗样本检测、对抗噪声擦除和模型防御力增强等三个角度阻截对抗样本的攻击，并使神经网络模型在面对对抗样本时仍能发挥正常功能',
+              path: '/advAttackDefense'
+            },
+            {
+              iconSrc: require('@/assets/img/bkDefenseIcon.png'),
+              title: '后门攻击防御',
+              description: '后门攻击防御包括后门检测和后门逆向，力求做到发现后门并还原后门的效果，使后门攻击的威胁大大降低',
+              path: '/backdoorDefense'
+            }
+          ]
+        };
+    },
   methods: {
     //el 标签  speed 滚动速率 此处是50px 值越大滚动的越快
     goAssignBlock(el, speed) {
@@ -330,6 +265,18 @@ export default {
       
       // alert(path);
       // console.log(path);
+    },
+    prevSlide() {
+      this.$refs.carousel.prev();
+    },
+    nextSlide() {
+      this.$refs.carousel.next();
+    },
+    prevSlide2() {
+      this.$refs.carousel2.prev();
+    },
+    nextSlide2() {
+      this.$refs.carousel2.next();
     }
   }, 
   mounted() {
@@ -434,16 +381,34 @@ export default {
     margin: 1% 0;
 }
 
+/* 调整功能卡片的居中 */
 .funcs {
   display: flex;
   flex-wrap: wrap;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
+  flex-direction: column; /* 改为垂直排列 */
+  justify-content: center; /* 居中对齐 */
+  align-items: center; /* 居中对齐 */
   align-content: flex-start;
   gap: 10px;
-  margin: 10px;
+  margin: 10px 0; /* 添加上下间距 */
+  background-color: transparent; /* 移除白色背景 */
 }
+
+/* 修改每个矩形框的样式 */
+.box {
+  width: calc(33.33% - 40px);
+  background-color: #E0F2FF;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0;
+}
+
+/* 修改 ifreme 组件的样式 */
+.funcs >>> .ifreme-container {
+  background-color: transparent !important; /* 移除 ifreme 组件的背景色 */
+}
+
 .func_name {
   font-family: HONOR Sans CN;
   font-size: 24px;
@@ -470,5 +435,167 @@ export default {
     height: 68px;
 }
 
+/* 修改 box-container 的样式 */
+.box-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: nowrap; /* 防止换行 */
+  margin: 20px auto;
+  padding: 0 20px;
+  gap: 20px;
+  width: 80%;
+}
 
+/* 修改 stage-container 的样式 */
+.stage-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px auto;
+  width: 80%;
+  gap: 20px;
+}
+
+.stage-box {
+  width: calc(33.33% - 40px);
+  background-color: #E0F2FF;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stage-title {
+  font-family: HONOR Sans CN;
+  font-size: 40px;
+  font-weight: 600;
+  color: #0B55F4;
+}
+.video-container {
+  display: flex; /* 可以选择用 flexbox 来布局 */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  height: 100vh; /* 万一需要全屏，可以设置高度 */
+}
+.image_4 {
+  width: 100%; /* 根据需求设置视频宽度 */
+  height: auto; /* 自动调整高度 */
+}
+
+/* 轮播图容器样式 */
+.carousel-container {
+  width: 80%;
+  margin: 20px auto; /* 将上下边距从 40px 减小到 20px */
+  height: 400px;
+}
+
+/* 轮播卡片样式 */
+.carousel-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #E0F2FF;
+  border-radius: 8px;
+  padding: 30px;
+  margin: 0 30px;
+  height: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.carousel-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-card .func_name {
+  font-family: HONOR Sans CN;
+  font-size: 28px; /* 从 24px 增加到 28px */
+  font-weight: 600;
+  line-height: 36px; /* 相应调整行高 */
+  letter-spacing: 0px;
+  text-align: center;
+  margin: 15px 0;
+}
+
+.carousel-card .func_des {
+  font-family: HONOR Sans CN;
+  font-size: 16px; /* 从 14px 增加到 16px */
+  font-weight: 400;
+  line-height: 24px; /* 相应调整行高 */
+  letter-spacing: 0px;
+  text-align: center;
+  margin: 10px 20px;
+}
+
+.carousel-card .icon_img {
+  width: 80px; /* 从 68px 增加到 80px */
+  height: 80px;
+}
+
+.ant-carousel :deep(.slick-arrow.custom-slick-arrow) {
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
+  color: #0B55F4;
+  background-color: rgba(31, 45, 61, 0.11);
+  opacity: 0.7;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.ant-carousel :deep(.slick-arrow.custom-slick-arrow:hover) {
+  opacity: 1;
+  background-color: rgba(31, 45, 61, 0.2);
+}
+
+.ant-carousel :deep(.slick-slide) {
+  text-align: center;
+  height: 400px;
+  line-height: normal;
+  overflow: hidden;
+  background: transparent;
+}
+
+.func-icon {
+  margin-bottom: 15px;
+}
+
+.arrow-icon {
+  font-size: 24px;
+  font-weight: bold;
+  color: #0B55F4;
+  line-height: 40px;
+}
+
+.custom-slick-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.custom-slick-arrow:hover {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.custom-slick-arrow i {
+  font-size: 24px;
+  color: #0B55F4;
+}
+
+.arrow-text {
+  font-size: 36px;
+  font-weight: bold;
+  color: #0B55F4;
+  line-height: 36px;
+}
 </style>

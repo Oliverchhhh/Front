@@ -2,7 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import Antd from 'ant-design-vue';
-import dataV from '@jiaminghi/data-view';
+// import dataV from '@jiaminghi/data-view';
 import 'ant-design-vue/dist/antd.css';
 import App from './App'
 import router from './router'
@@ -16,7 +16,6 @@ Vue.use(FormModel);
 // save html to pdf
 import htmlToPdf from './util/htmlToPdf'
 Vue.use(htmlToPdf)
-Vue.use(dataV)
 
 Vue.prototype.$axios = axios;
 axios.defaults.baseURL = "/"

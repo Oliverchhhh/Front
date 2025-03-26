@@ -17,6 +17,31 @@ const router = new Router({
       name: 'login',
       component: () => import('../views/login.vue')
     },
+    {
+      path: '/evaluation',
+      name: 'Evaluation',
+      component: () => import('../views/evaluation.vue')
+    },
+    {
+      path: '/application',
+      name: 'application',
+      component: () => import('../views/application.vue')
+    },
+    {
+      path: '/train',
+      name: 'train',
+      component: () => import('../views/work_train.vue')
+    },
+    {
+      path: '/bushu',
+      name: 'bushu',
+      component: () => import('../views/work_bushu.vue')
+    },
+    {
+      path: '/xunlian',
+      name: 'xunlian',
+      component: () => import('../views/work_xunlian.vue')
+    },
     // 组装的homme_menu页面
     {
       path: '/homme_menu',
@@ -241,6 +266,12 @@ const router = new Router({
     path:"/llm",
     name: 'llm',
     component: () => import('../views/llm.vue')
+  },
+  // 添加应用页面的路由
+  {
+    path: '/application',
+    name: 'application',
+    component: () => import('../components/app_menu.vue')
   },
   ]
   

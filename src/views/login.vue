@@ -124,21 +124,26 @@ export default{
                 params.append('username', this.userinfo.username);
                 params.append('password', this.userinfo.password);
                 console.log(params)
-                this.$axios.post("/login",params).then((res)=>{
-                    console.log(res.data)
-                    console.log(typeof res.data)
-                    if(res.data.code == -1){
-                        this.$message.error("用户名密码错误")
-                    }else if(res.data.code == 1){
+                // this.$axios.post("/login",params).then((res)=>{
+                //     console.log(res.data)
+                //     console.log(typeof res.data)
+                //     if(res.data.code == -1){
+                //         this.$message.error("用户名密码错误")
+                //     }else if(res.data.code == 1){
+                //         this.$message.success( "登录成功")
+                //         setCookie("username",this.userinfo.username,1000*60)
+                //         setTimeout(function(){
+                //             this.$router.push("/homme_menu")
+                //         }.bind(this),1000)
+                //     }else{
+                //         this.$message.error("未知错误")
+                //     }
+                // })登录
                         this.$message.success( "登录成功")
                         setCookie("username",this.userinfo.username,1000*60)
                         setTimeout(function(){
                             this.$router.push("/homme_menu")
                         }.bind(this),1000)
-                    }else{
-                        this.$message.error("未知错误")
-                    }
-                })
             }
         },
         ToRegister(){
