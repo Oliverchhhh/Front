@@ -103,6 +103,20 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- 进度条组件 -->
+            <div class="progress-container">
+                <h2 class="subTitle" style="margin-top: -96px;">工作流程进度</h2>
+                <div class="progress-wrapper">
+                    <vertical-steps
+                        :currentMainStep="currentMainStep"
+                        :currentSubStep="currentSubStep"
+                        @update:currentMainStep="handleMainStepChange"
+                        @update:currentSubStep="handleSubStepChange"
+                    />
+                </div>
+            </div>
+            
             <!-- 日志展示 -->
             <div v-if="logflag">
                 <showLog :percent="percent" :logtext="logtext"></showLog>
@@ -173,6 +187,7 @@ import {DrawRobustBar} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
 import funcicon from "../assets/img/robustTrainingIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
+import VerticalSteps from "../components/VerticalSteps.vue"
 
 const selectSvg = {
         template:`
@@ -198,7 +213,8 @@ export default {
     func_introduce: func_introduce,
     showLog: showLog,
     resultDialog: resultDialog,
-    selectIcon, DrawRobustBar
+    selectIcon, DrawRobustBar,
+    VerticalSteps,
     },
     data(){
         return{
@@ -210,6 +226,9 @@ export default {
                 display: 'block',
                 lineHeight: '30px',
             },
+            /* 进度条步骤状态 */
+            currentMainStep: 1, // 训练阶段
+            currentSubStep: 1,  // 模型鲁棒性训练
             datasetChoice: "CIFAR10",
             MNIST_imgs:[
                 {imgUrl:require('../assets/img/mnist0.jpg'),name:'mnist0'},
@@ -315,11 +334,33 @@ export default {
                     this.canScroll();
                 }
             }
+        },
+        /* 监听路由变化，更新进度条状态 */
+        '$route': {
+            immediate: true,
+            handler(to) {
+                this.setProgressStepsByRoute();
+            }
         }
     },
     created() {
         document.title = '模型鲁棒性训练';
-        },
+        this.setProgressStepsByRoute();
+    },
+    beforeDestroy() {
+        if(this.clk) { //如果定时器还在运行,关闭定时器
+            window.clearInterval(this.clk); //关闭
+        }
+        if(this.logclk){
+            window.clearInterval(this.logclk);
+        }
+    },
+    mounted() {
+        // 确保在组件挂载后设置正确的进度条状态
+        this.$nextTick(() => {
+            this.setProgressStepsByRoute();
+        });
+    },
     methods: { 
         /* 关闭结果窗口 */
         closeDialog(){
@@ -493,6 +534,102 @@ export default {
             }).catch((err) => {
                 console.log(err)
             });    
+        },
+        /* 处理主步骤变化 */
+        handleMainStepChange(step) {
+            this.currentMainStep = step;
+            // 根据主步骤更新子步骤
+            if (step === 0) {
+                // 准备阶段
+                this.currentSubStep = 0;
+            } else if (step === 1) {
+                // 训练阶段
+                this.currentSubStep = 0;
+            } else if (step === 2) {
+                // 部署阶段
+                this.currentSubStep = 0;
+            }
+        },
+        
+        /* 处理子步骤变化 */
+        handleSubStepChange(step) {
+            this.currentSubStep = step;
+            // 根据子步骤执行相应的导航
+            if (this.currentMainStep === 0) {
+                // 准备阶段的子步骤
+                if (step === 0) {
+                    // 数据公平性提升
+                    this.$router.push('/dataFairnessDebias');
+                } else if (step === 1) {
+                    // 对抗攻击评估
+                    this.$router.push('/advAttack');
+                } else if (step === 2) {
+                    // 测试样本自动生成
+                    this.$router.push('/concolic');
+                }
+            } else if (this.currentMainStep === 1) {
+                // 训练阶段的子步骤
+                if (step === 0) {
+                    // 模型公平性提升
+                    this.$router.push('/modelFairnessDebias');
+                } else if (step === 1) {
+                    // 模型鲁棒性训练
+                    this.$router.push('/robust_advTraining');
+                } else if (step === 2) {
+                    // 异常数据检测
+                    this.$router.push('/dataClean');
+                }
+            } else if (this.currentMainStep === 2) {
+                // 部署阶段的子步骤
+                if (step === 0) {
+                    // 数据公平性评估
+                    this.$router.push('/dataFairnessEva');
+                } else if (step === 1) {
+                    // 对抗攻击防御
+                    this.$router.push('/advAttackDefense');
+                } else if (step === 2) {
+                    // 后门攻击防御
+                    this.$router.push('/backdoorDefense');
+                }
+            }
+        },
+        
+        /* 根据当前路由设置进度条状态 */
+        setProgressStepsByRoute() {
+            const route = this.$route.path;
+            // 准备阶段
+            if (route.includes('/dataFairnessDebias')) {
+                this.currentMainStep = 0;
+                this.currentSubStep = 0;
+            } else if (route.includes('/advAttack')) {
+                this.currentMainStep = 0;
+                this.currentSubStep = 1;
+            } else if (route.includes('/concolic')) {
+                this.currentMainStep = 0;
+                this.currentSubStep = 2;
+            }
+            // 训练阶段
+            else if (route.includes('/modelFairnessDebias')) {
+                this.currentMainStep = 1;
+                this.currentSubStep = 0;
+            } else if (route.includes('/robust_advTraining')) {
+                this.currentMainStep = 1;
+                this.currentSubStep = 1;
+            } else if (route.includes('/dataClean')) {
+                this.currentMainStep = 1;
+                this.currentSubStep = 2;
+            }
+            // 部署阶段
+            else if (route.includes('/dataFairnessEva')) {
+                this.currentMainStep = 2;
+                this.currentSubStep = 0;
+            } else if (route.includes('/advAttackDefense')) {
+                this.currentMainStep = 2;
+                this.currentSubStep = 1;
+            } else if (route.includes('/backdoorDefense')) {
+                this.currentMainStep = 2;
+                this.currentSubStep = 2;
+            }
         }
     }
 }
@@ -808,5 +945,23 @@ height: fit-content;
 #conseva{
     width: 300px;
     height:300px;
+}
+
+/* 进度条容器样式 */
+.progress-container {
+    width: 300px;
+    background-color: #F5F8FF;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: fit-content;
+}
+
+.progress-wrapper {
+    margin-top: 20px;
 }
 </style>

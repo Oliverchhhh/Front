@@ -110,6 +110,19 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- 进度条组件 -->
+            <div class="progress-container">
+                <h2 class="subTitle" style="margin-top: -96px;">工作流程进度</h2>
+                <div class="progress-wrapper">
+                    <vertical-steps
+                        :currentMainStep="currentMainStep"
+                        :currentSubStep="currentSubStep"
+                        @update:currentMainStep="handleMainStepChange"
+                        @update:currentSubStep="handleSubStepChange"
+                    />
+                </div>
+            </div>
             <!-- 日志展示 -->
             <div v-show="logflag">
                 <showLog :percent="percent" :logtext="logtext"></showLog>
@@ -357,6 +370,7 @@ import funcicon from "../assets/img/modelEvaIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
 import centerPng from "../assets/img/center.png"
 import secondPng from "../assets/img/second.png"
+import VerticalSteps from "../components/VerticalSteps.vue"
 const selectSvg = {
         template:`
         <svg t="1680138013828" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4354" width="128" height="128"><path d="M534.869333 490.496a1403.306667 1403.306667 0 0 0 50.858667-25.813333c16.042667-8.618667 29.013333-15.061333 38.570667-19.029334 9.557333-3.925333 17.066667-6.058667 22.869333-6.058666 9.557333 0 17.749333 3.2 24.917333 10.026666 6.826667 6.826667 10.581333 15.061333 10.581334 25.088 0 5.76-1.706667 11.818667-5.12 17.92-3.413333 6.101333-7.168 10.069333-10.922667 11.861334-35.157333 14.677333-74.410667 25.429333-116.736 31.872 7.850667 7.168 17.066667 17.237333 28.330667 29.781333 11.264 12.544 17.066667 18.986667 17.749333 20.053333 4.096 6.101333 9.898667 13.653333 17.408 22.613334 7.509333 8.96 12.629333 15.786667 15.36 20.778666 2.730667 5.034667 4.437333 11.093333 4.437333 18.304a33.706667 33.706667 0 0 1-9.898666 24.021334 33.834667 33.834667 0 0 1-25.6 10.410666c-10.24 0-22.186667-8.618667-35.157334-25.472-12.970667-16.512-30.037333-46.933333-50.517333-91.050666-20.821333 39.424-34.816 65.962667-41.642667 78.506666-7.168 12.544-13.994667 22.186667-20.48 28.672a30.976 30.976 0 0 1-22.528 9.685334 32.256 32.256 0 0 1-25.258666-11.093334 35.413333 35.413333 0 0 1-9.898667-23.68c0-7.893333 1.365333-13.653333 4.096-17.578666 25.258667-35.84 51.541333-67.413333 78.848-93.568a756.650667 756.650667 0 0 1-61.44-12.544 383.061333 383.061333 0 0 1-57.685333-20.48c-3.413333-1.749333-6.485333-5.717333-9.557334-11.818667a30.208 30.208 0 0 1-5.12-16.853333 32.426667 32.426667 0 0 1 10.581334-25.088 33.152 33.152 0 0 1 24.234666-10.026667c6.485333 0 14.677333 2.133333 24.576 6.101333 9.898667 4.266667 22.186667 10.026667 37.546667 18.261334 15.36 7.893333 32.426667 16.853333 51.882667 26.538666-3.413333-18.261333-6.485333-39.082667-8.874667-62.378666-2.389333-23.296-3.413333-39.424-3.413333-48.042667 0-10.752 3.072-19.712 9.557333-27.264A30.677333 30.677333 0 0 1 512.341333 341.333333c9.898667 0 18.090667 3.925333 24.576 11.477334 6.485333 7.893333 9.557333 17.92 9.557334 30.464 0 3.584-0.682667 10.410667-1.365334 20.48-0.682667 10.368-2.389333 22.570667-4.096 36.906666-2.048 14.677333-4.096 31.146667-6.144 49.834667z" fill="#FF3838" p-id="4355"></path></svg>
@@ -382,6 +396,7 @@ export default {
         resultDialog:resultDialog,
         fairnessDataset:fairnessDataset,
         selectIcon,
+        VerticalSteps,
     },
     data(){
         return{
@@ -393,8 +408,11 @@ export default {
             /* 选中的提升算法值 */ 
             debiasMethodValue:"",
             methodDesShow:[false,false,false,false,false,false,false,false],
+            /* 进度条步骤状态 */
+            currentMainStep: 1, // 训练阶段
+            currentSubStep: 2,  // 模型公平性提升
             evamethod:{
-                "DI":{"name":"Dsiaprate Impact(DI)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>', "des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "DI":{"name":"Dsiaprate Impact(DI)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mfrac></math>', "des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
                 "DP":{"name":"Demographic Parity(DP)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mo stretchy="false">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">|</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
                 "FPd":{"name":"False Positive Difference(FPd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
                 "FPr":{"name":"False Positive Ratio(FPr)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
@@ -439,7 +457,7 @@ export default {
                 "Calibrated EOD-fnr":{'name':'Calibrat Edequalized Odds-fnr','des':'一种后处理技术，以使不同种群的预测结果具有相同的fnr（假阴性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
                 "Calibrated EOD-fpr":{'name':'Calibrat Edequalized Odds-fpr','des':'一种后处理技术，以使不同种群的预测结果具有相同的fpr（假阳性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
                 "Calibrated EOD-weighted":{'name':'Calibrat Edequalized Odds-weighted','des':'一种后处理技术，以使不同种群的预测结果具有相同的fnr（假阴性率）和fpr（假阳性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
-                "domain_independent":{'name':'Domain Independent Training','des':'领域独立训练方法受到一种名为“解耦分类器”的技术的启发，通过让模型在训练过程中忽视数据中的偏见信息，从而减少模型对偏见的依赖。优点是可以有效地减少模型的性别偏见','class':['pic','table']},
+                "domain_independent":{'name':'Domain Independent Training','des':'领域独立训练方法受到一种名为"解耦分类器"的技术的启发，通过让模型在训练过程中忽视数据中的偏见信息，从而减少模型对偏见的依赖。优点是可以有效地减少模型的性别偏见','class':['pic','table']},
                 "domain_discriminative":{'name':'Domain Adversarial Training',"des":"领域对抗性训练方法试图通过引入一个对抗性的学习过程来减少模型对偏见的依赖。具体来说，模型在训练过程中不仅要尽可能地准确预测目标标签，还要尽可能地忽视数据中的偏见信息。","class":['pic']},
                 "uniconf_adv":{'name':'Domain Conditional Training',"des":"领域条件训练类似于InclusiveFaceNet的训练方式，通过在训练过程中显式地考虑数据中的偏见信息，使模型能够在不同的子群体中都有良好的性能。优点是可以有效地减少模型对偏见的依赖。","class":['pic']},
                 
@@ -578,11 +596,19 @@ export default {
                     this.canScroll();
                 }
             }
+        },
+        /* 监听路由变化，更新进度条状态 */
+        '$route': {
+            immediate: true,
+            handler(to) {
+                this.setProgressStepsByRoute();
+            }
         }
     },
     created() {
         document.title = '模型公平性提升';
-        },
+        this.setProgressStepsByRoute();
+    },
     //在离开页面时执行
     beforeDestroy() {
         if(this.clk) { //如果定时器还在运行,关闭定时器
@@ -592,9 +618,12 @@ export default {
             window.clearInterval(this.logclk);
         }
     },
-    mounted(){
+    mounted() {
         let that=this;
-        
+        // 确保在组件挂载后设置正确的进度条状态
+        this.$nextTick(() => {
+            this.setProgressStepsByRoute();
+        });
     },
     methods: {
         // 防御方法参数显示
@@ -1199,6 +1228,103 @@ export default {
             }).catch((err) => {
                 console.log(err)
             });    
+        },
+        
+        /* 处理主步骤变化 */
+        handleMainStepChange(step) {
+            this.currentMainStep = step;
+            // 根据主步骤更新子步骤
+            if (step === 0) {
+                // 准备阶段
+                this.currentSubStep = 0;
+            } else if (step === 1) {
+                // 训练阶段
+                this.currentSubStep = 0;
+            } else if (step === 2) {
+                // 部署阶段
+                this.currentSubStep = 0;
+            }
+        },
+        
+        /* 处理子步骤变化 */
+        handleSubStepChange(step) {
+            this.currentSubStep = step;
+            // 根据子步骤执行相应的导航
+            if (this.currentMainStep === 0) {
+                // 准备阶段的子步骤
+                if (step === 0) {
+                    // 数据公平性提升
+                    this.$router.push('/dataFairnessDebias');
+                } else if (step === 1) {
+                    // 对抗攻击评估
+                    this.$router.push('/advAttack');
+                } else if (step === 2) {
+                    // 测试样本自动生成
+                    this.$router.push('/concolic');
+                }
+            } else if (this.currentMainStep === 1) {
+                // 训练阶段的子步骤
+                if (step === 0) {
+                    // 模型公平性提升
+                    this.$router.push('/modelFairnessDebias');
+                } else if (step === 1) {
+                    // 模型鲁棒性训练
+                    this.$router.push('/robust_advTraining');
+                } else if (step === 2) {
+                    // 异常数据检测
+                    this.$router.push('/dataClean');
+                }
+            } else if (this.currentMainStep === 2) {
+                // 部署阶段的子步骤
+                if (step === 0) {
+                    // 数据公平性评估
+                    this.$router.push('/dataFairnessEva');
+                } else if (step === 1) {
+                    // 对抗攻击防御
+                    this.$router.push('/advAttackDefense');
+                } else if (step === 2) {
+                    // 后门攻击防御
+                    this.$router.push('/backdoorDefense');
+                }
+            }
+        },
+        
+        /* 根据当前路由设置进度条状态 */
+        setProgressStepsByRoute() {
+            const route = this.$route.path;
+            // 准备阶段
+            if (route.includes('/dataFairnessDebias')) {
+                this.currentMainStep = 0;
+                this.currentSubStep = 0;
+            } else if (route.includes('/advAttack')) {
+                this.currentMainStep = 0;
+                this.currentSubStep = 1;
+            } else if (route.includes('/concolic')) {
+                this.currentMainStep = 0;
+                this.currentSubStep = 2;
+            }
+            // 训练阶段
+            else if (route.includes('/modelFairnessDebias')) {
+                this.currentMainStep = 1;
+                this.currentSubStep = 0;
+            } else if (route.includes('/robust_advTraining')) {
+                this.currentMainStep = 1;
+                this.currentSubStep = 1;
+            } else if (route.includes('/dataClean')) {
+                this.currentMainStep = 1;
+                this.currentSubStep = 2;
+            }
+            // 部署阶段
+            else if (route.includes('/dataFairnessEva')) {
+                this.currentMainStep = 2;
+                this.currentSubStep = 0;
+            } else if (route.includes('/advAttackDefense')) {
+                this.currentMainStep = 2;
+                this.currentSubStep = 1;
+            } else if (route.includes('/backdoorDefense')) {
+                this.currentMainStep = 2;
+                this.currentSubStep = 2;
+            }
         }
     }
 }
@@ -1717,5 +1843,23 @@ flex-grow: 1;
     height: 600px;
     /* min-height: 200px;
     max-height: 600px; */
+}
+
+/* 进度条容器样式 */
+.progress-container {
+    width: 300px;
+    background-color: #F5F8FF;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: fit-content;
+}
+
+.progress-wrapper {
+    margin-top: 20px;
 }
 </style>

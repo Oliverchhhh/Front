@@ -9,103 +9,119 @@
         <a-layout-content>
             <!-- 功能介绍 -->
             <func_introduce :funcDesText="funcDesText"></func_introduce>
-            <!-- 参数配置 -->
-            <div class="paramCon">
-                <!-- 参数配置容器 -->
-                <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
-                
-                <div class="funcParam">
-                    <div class="paramTitle" >
-                        <!-- 功能标题和执行按钮 -->
-                        <!-- icon展示 -->
-                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <!-- 功能名称 -->
-                        <h3>{{ funcDesText.name }}</h3>
-                        <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
-                            <a-icon type="security-scan" />
-                            评估
-                        </a-button>
+            <!-- 主容器 -->
+            <div class="main-container">
+                <!-- 参数配置 -->
+                <div class="paramCon">
+                    <!-- 参数配置容器 -->
+                    <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
+                    
+                    <div class="funcParam">
+                        <div class="paramTitle" >
+                            <!-- 功能标题和执行按钮 -->
+                            <!-- icon展示 -->
+                            <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                            <!-- 功能名称 -->
+                            <h3>{{ funcDesText.name }}</h3>
+                            <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                                <a-icon type="security-scan" />
+                                评估
+                            </a-button>
+                        </div>
+                        <a-divider />
+                        <div class="inputdiv">
+                            <!-- 输入主体 -->
+                            <div class="datasetSelected">
+                                <p class="mainParamName">请选择数据集</p>
+                                <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
+                                    <div class="matchedDes">
+                                        <a-radio :style="radioStyle" value="CIFAR10" >
+                                            CIFAR10
+                                        </a-radio>
+                                        <p class="matchedMethodText"><span>CIFAR10数据集：</span>是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。</p>
+                                        <p class="matchedMethodText">图例：</p>
+                                        <div class="demoData" >
+                                            <div v-for="(item, index) in CIFAR10_imgs" :key="index">
+                                                <img :src="item.imgUrl">
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="matchedDes">
+                                        <a-radio :style="radioStyle" value="MNIST">
+                                            MNIST
+                                        </a-radio>
+                                        <p class="matchedMethodText"><span>MNIST数据集：</span>是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。</p>
+                                        <p class="matchedMethodText">图例：</p>
+                                        <div class="demoData" >
+                                            <div v-for="(item, index) in MNIST_imgs" :key="index">
+                                                <img :src="item.imgUrl">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a-radio-group>
+                            </div>
+                            <div class="modelSelected">
+                                <p class="mainParamName">请选择模型</p>
+                                <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
+                                    <div class="matchedDes">
+                                        <a-radio :style="radioStyle" value="VGG16" >
+                                            VGG16
+                                        </a-radio>
+                                    </div>
+                                    <div class="matchedDes">
+                                        <a-radio :style="radioStyle" value="LeNet5">
+                                            LeNet5
+                                        </a-radio>
+                                    </div>
+                                </a-radio-group>
+                            </div>
+                            <div class="constraintSelected">
+                                <p class="mainParamName">请选择约束范式</p>
+                                <a-radio-group v-model="constraintChoice" @change="onConstraintChoiceChange">
+                                    <div class="matchedDes">
+                                        <a-radio :style="radioStyle" value="L0" >
+                                            L0
+                                        </a-radio>
+                                        <p class="matchedMethodText">旨在修改尽可能少的像素点,但对单个像素点的修改量不设上限。如图所示，对一张"马"的图片施加左下角单个像素的明显扰动，生成新用例。</p>
+                                        <div class="demoData" >
+                                            <div v-for="(item, index) in L0_imgs" :key="index">
+                                                <img :src="item.imgUrl">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="matchedDes">
+                                        <a-radio :style="radioStyle" value="Linf">
+                                            Linf
+                                        </a-radio>
+                                        <p class="matchedMethodText">旨在修改像素值的最大修改量尽可能小，但对修改像素点的数量不设限。如图所示，对一张飞机图片的多个像素点生成了肉眼几乎不可见（像素值修改量很小）的新用例。</p>
+                                        <div class="demoData" >
+                                            <div v-for="(item, index) in Linf_imgs" :key="index">
+                                                <img :src="item.imgUrl">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a-radio-group>
+                            </div>
+                            <div class="runtimesSelected">
+                                <p class="mainParamName">请输入动态执行次数</p>
+                                <a-input id="param_runtimes" class="paramsInput" placeholder="请输入执行次数，建议<10" @change="onRunTimesChange"/>
+                                <p class="matchedMethodText"> 该参数标准调用执行算法的次数。每一次执行从数据集中随机抽取少量种子组合迭代执行动态符合执行测试并生成测试样本。由于算法存在随机性，每次执行可能生成约10-30不等数量的新测试样本。执行次数越大花费时间越长，生成的测试样本数量越多。</p>
+                            </div>
+                        </div>
                     </div>
-                    <a-divider />
-                    <div class="inputdiv">
-                        <!-- 输入主体 -->
-                        <div class="datasetSelected">
-                            <p class="mainParamName">请选择数据集</p>
-                            <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
-                                <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="CIFAR10" >
-                                        CIFAR10
-                                    </a-radio>
-                                    <p class="matchedMethodText"><span>CIFAR10数据集：</span>是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。</p>
-                                    <p class="matchedMethodText">图例：</p>
-                                    <div class="demoData" >
-                                        <div v-for="(item, index) in CIFAR10_imgs" :key="index">
-                                            <img :src="item.imgUrl">
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-                                <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="MNIST">
-                                        MNIST
-                                    </a-radio>
-                                    <p class="matchedMethodText"><span>MNIST数据集：</span>是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。</p>
-                                    <p class="matchedMethodText">图例：</p>
-                                    <div class="demoData" >
-                                        <div v-for="(item, index) in MNIST_imgs" :key="index">
-                                            <img :src="item.imgUrl">
-                                        </div>
-                                    </div>
-                                </div>
-                            </a-radio-group>
-                        </div>
-                        <div class="modelSelected">
-                            <p class="mainParamName">请选择模型</p>
-                            <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
-                                <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="VGG16" >
-                                        VGG16
-                                    </a-radio>
-                                </div>
-                                <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="LeNet5">
-                                        LeNet5
-                                    </a-radio>
-                                </div>
-                            </a-radio-group>
-                        </div>
-                        <div class="constraintSelected">
-                            <p class="mainParamName">请选择约束范式</p>
-                            <a-radio-group v-model="constraintChoice" @change="onConstraintChoiceChange">
-                                <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="L0" >
-                                        L0
-                                    </a-radio>
-                                    <p class="matchedMethodText">旨在修改尽可能少的像素点,但对单个像素点的修改量不设上限。如图所示，对一张”马“的图片施加左下角单个像素的明显扰动，生成新用例。</p>
-                                    <div class="demoData" >
-                                        <div v-for="(item, index) in L0_imgs" :key="index">
-                                            <img :src="item.imgUrl">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="matchedDes">
-                                    <a-radio :style="radioStyle" value="Linf">
-                                        Linf
-                                    </a-radio>
-                                    <p class="matchedMethodText">旨在修改像素值的最大修改量尽可能小，但对修改像素点的数量不设限。如图所示，对一张飞机图片的多个像素点生成了肉眼几乎不可见（像素值修改量很小）的新用例。</p>
-                                    <div class="demoData" >
-                                        <div v-for="(item, index) in Linf_imgs" :key="index">
-                                            <img :src="item.imgUrl">
-                                        </div>
-                                    </div>
-                                </div>
-                            </a-radio-group>
-                        </div>
-                        <div class="runtimesSelected">
-                            <p class="mainParamName">请输入动态执行次数</p>
-                            <a-input id="param_runtimes" class="paramsInput" placeholder="请输入执行次数，建议<10" @change="onRunTimesChange"/>
-                            <p class="matchedMethodText"> 该参数标准调用执行算法的次数。每一次执行从数据集中随机抽取少量种子组合迭代执行动态符合执行测试并生成测试样本。由于算法存在随机性，每次执行可能生成约10-30不等数量的新测试样本。执行次数越大花费时间越长，生成的测试样本数量越多。</p>
-                        </div>
+                </div>
+                
+                <!-- 进度条组件 -->
+                <div class="progress-container">
+                    <h2 class="subTitle" style="margin-top: -96px;">工作流程进度</h2>
+                    <div class="progress-wrapper">
+                        <vertical-steps
+                            :currentMainStep="currentMainStep"
+                            :currentSubStep="currentSubStep"
+                            @update:currentMainStep="handleMainStepChange"
+                            @update:currentSubStep="handleSubStepChange"
+                        />
                     </div>
                 </div>
             </div>
@@ -178,6 +194,8 @@ import showLog from "../components/showLog.vue"
 import resultDialog from "../components/resultDialog.vue"
 /* 引入自定义js，结果显示 */
 import resultTable from "../components/resultsTable.vue"
+/* 引入进度条组件 */
+import VerticalSteps from "../components/VerticalSteps.vue"
 /* 引入图片 */
 import funcicon from "../assets/img/concolicIcon.png"
 import bgimg from "../assets/img/modelEvaBackground.png"
@@ -207,7 +225,8 @@ export default {
         showLog:showLog,
         resultDialog:resultDialog,
         selectIcon,
-        resultTable: resultTable
+        resultTable: resultTable,
+        'vertical-steps': VerticalSteps
     },
     data(){
         return{
@@ -305,6 +324,9 @@ export default {
             clk:null,
             /* 日志查询clock*/
             logclk:null, 
+            /* 进度条状态 */
+            currentMainStep: 0,
+            currentSubStep: 2,
             }
         },
     watch:{
@@ -322,8 +344,25 @@ export default {
     },
     created() {
         document.title = '测试样本自动生成';
-        },
+        this.setProgressStepsByRoute();
+    },
     methods: { 
+        /* 设置进度条状态 */
+        setProgressStepsByRoute() {
+            const route = this.$route.path;
+            if (route === '/concolic') {
+                this.currentMainStep = 0;
+                this.currentSubStep = 2;
+            }
+        },
+        /* 处理主步骤变化 */
+        handleMainStepChange(step) {
+            this.currentMainStep = step;
+        },
+        /* 处理子步骤变化 */
+        handleSubStepChange(step) {
+            this.currentSubStep = step;
+        },
         /* 关闭结果窗口 */
         closeDialog(){
             this.isShowPublish=false;
@@ -523,31 +562,54 @@ export default {
     }
 }
 </script>
-<!-- <style  scoped> -->
 <style scoped>
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 40px;
+    position: relative;
+}
 
-.paramCon{
+.paramCon {
     width: 1200px;
     margin-left: 360px;
 }
-.funcParam{
-/* 测试样本自动生成 */
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-width: 1200px;
-height: 824px;
-background: #FFFFFF;
-border: 1px solid #E0E3EB;
-margin: 0px 0px 40px 0px;
-box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
-border-radius: 8px;
-flex: none;
-order: 0;
-flex-grow: 0;
-text-align: left;
+
+.progress-container {
+    width: 300px;
+    background-color: #F5F8FF;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: fit-content;
+}
+
+.progress-wrapper {
+    margin-top: 20px;
+}
+
+.funcParam {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    width: 1200px;
+    height: 824px;
+    background: #FFFFFF;
+    border: 1px solid #E0E3EB;
+    margin: 0px 0px 40px 0px;
+    box-shadow: 0px 8px 20px rgba(44, 51, 67, 0.06);
+    border-radius: 8px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    text-align: left;
 }
 .paramTitle{
     height:80px;

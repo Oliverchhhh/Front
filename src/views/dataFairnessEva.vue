@@ -9,27 +9,43 @@
         <a-layout-content>
             <!-- 功能介绍 -->
             <func_introduce :funcDesText="funcDesText"></func_introduce>
-            <!-- 参数配置 -->
-            <div class="paramCon">
-                <!-- 参数配置容器 -->
-                <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
-                
-                <div class="funcParam">
-                    <div class="paramTitle" >
-                        <!-- 功能标题和执行按钮 -->
-                        <!-- icon展示 -->
-                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <!-- 功能名称 -->
-                        <h3>{{ funcDesText.name }}</h3>
-                        <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
-                            <a-icon type="security-scan" />
-                            评估
-                        </a-button>
+            <!-- 参数配置和进度条容器 -->
+            <div class="main-container">
+                <!-- 参数配置 -->
+                <div class="paramCon">
+                    <!-- 参数配置容器 -->
+                    <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
+                    
+                    <div class="funcParam">
+                        <div class="paramTitle" >
+                            <!-- 功能标题和执行按钮 -->
+                            <!-- icon展示 -->
+                            <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                            <!-- 功能名称 -->
+                            <h3>{{ funcDesText.name }}</h3>
+                            <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                                <a-icon type="security-scan" />
+                                评估
+                            </a-button>
+                        </div>
+                        <a-divider />
+                        <div class="inputdiv">
+                            <!-- 输入主体 -->
+                            <fairnessDataset :dataname="dataname" @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
+                        </div>
                     </div>
-                    <a-divider />
-                    <div class="inputdiv">
-                        <!-- 输入主体 -->
-                        <fairnessDataset :dataname="dataname" @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
+                </div>
+                
+                <!-- 进度条组件 -->
+                <div class="progress-container">
+                    <h2 class="subTitle" style="margin-top: -96px;">工作流程进度</h2>
+                    <div class="progress-wrapper">
+                        <vertical-steps
+                            :currentMainStep="currentMainStep"
+                            :currentSubStep="currentSubStep"
+                            @update:currentMainStep="handleMainStepChange"
+                            @update:currentSubStep="handleSubStepChange"
+                        />
                     </div>
                 </div>
             </div>
@@ -223,6 +239,8 @@ import fairnessDataset from "../components/fairnessDatasetSelect.vue"
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
+/* 引入组件，进度条 */
+import VerticalSteps from "../components/VerticalSteps.vue"
 /* 引入自定义js，结果显示 */
 import {drawclass1pro, drawconseva1, drawbar, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
 
@@ -240,6 +258,7 @@ export default {
         showLog:showLog,
         resultDialog:resultDialog,
         fairnessDataset:fairnessDataset,
+        VerticalSteps,
     },
     data(){
         return{
@@ -314,10 +333,12 @@ export default {
             result:{
                 "score":72,
                 "consistency_score":60,
-                "group_score":70,}
-            }
-            
-        },
+                "group_score":70,},
+            /* 进度条当前步骤 */
+            currentMainStep: 0,
+            currentSubStep: 0,
+        }
+    },
     watch:{
         /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
         isShowPublish:{
@@ -329,16 +350,30 @@ export default {
                     this.canScroll();
                 }
             }
+        },
+        /* 监听路由变化，更新进度条状态 */
+        '$route': {
+            immediate: true,
+            handler(to) {
+                this.setProgressStepsByRoute();
+            }
         }
     },
     created() {
         document.title = '数据集公平性评估';
+        this.setProgressStepsByRoute();
         },
         //在离开页面时执行
     beforeDestroy() {
         if(this.logclk){
             window.clearInterval(this.logclk);
         }
+    },
+    mounted() {
+        // 确保在组件挂载后设置正确的进度条状态
+        this.$nextTick(() => {
+            this.setProgressStepsByRoute();
+        });
     },
     methods: { 
         /* 获取日志 */ 
@@ -640,6 +675,100 @@ export default {
             }).catch((err) => {
                 console.log(err)
             });    
+        },
+        /* 处理主步骤变化 */
+        handleMainStepChange(step) {
+            this.currentMainStep = step;
+            // 根据主步骤更新子步骤
+            if (step === 0) {
+                // 准备阶段
+                this.currentSubStep = 0;
+            } else if (step === 1) {
+                // 训练阶段
+                this.currentSubStep = 0;
+            } else if (step === 2) {
+                // 部署阶段
+                this.currentSubStep = 0;
+            }
+        },
+        /* 处理子步骤变化 */
+        handleSubStepChange(step) {
+            this.currentSubStep = step;
+            // 根据子步骤执行相应的导航
+            if (this.currentMainStep === 0) {
+                // 准备阶段的子步骤
+                if (step === 0) {
+                    // 数据公平性提升
+                    this.$router.push('/dataFairnessDebias');
+                } else if (step === 1) {
+                    // 对抗攻击评估
+                    this.$router.push('/advAttack');
+                } else if (step === 2) {
+                    // 测试样本自动生成
+                    this.$router.push('/concolic');
+                }
+            } else if (this.currentMainStep === 1) {
+                // 训练阶段的子步骤
+                if (step === 0) {
+                    // 模型公平性提升
+                    this.$router.push('/modelFairnessDebias');
+                } else if (step === 1) {
+                    // 模型鲁棒性训练
+                    this.$router.push('/robust_advTraining');
+                } else if (step === 2) {
+                    // 异常数据检测
+                    this.$router.push('/dataClean');
+                }
+            } else if (this.currentMainStep === 2) {
+                // 部署阶段的子步骤
+                if (step === 0) {
+                    // 数据公平性评估
+                    this.$router.push('/dataFairnessEva');
+                } else if (step === 1) {
+                    // 对抗攻击防御
+                    this.$router.push('/advAttackDefense');
+                } else if (step === 2) {
+                    // 后门攻击防御
+                    this.$router.push('/backdoorDefense');
+                }
+            }
+        },
+        /* 根据当前路由设置进度条状态 */
+        setProgressStepsByRoute() {
+            const route = this.$route.path;
+            // 准备阶段
+            if (route.includes('/dataFairnessDebias')) {
+                this.currentMainStep = 0;
+                this.currentSubStep = 0;
+            } else if (route.includes('/advAttack')) {
+                this.currentMainStep = 0;
+                this.currentSubStep = 1;
+            } else if (route.includes('/concolic')) {
+                this.currentMainStep = 0;
+                this.currentSubStep = 2;
+            } 
+            // 训练阶段
+            else if (route.includes('/modelFairnessDebias')) {
+                this.currentMainStep = 1;
+                this.currentSubStep = 0;
+            } else if (route.includes('/robust_advTraining')) {
+                this.currentMainStep = 1;
+                this.currentSubStep = 1;
+            } else if (route.includes('/dataClean')) {
+                this.currentMainStep = 1;
+                this.currentSubStep = 2;
+            }
+            // 部署阶段
+            else if (route.includes('/dataFairnessEva')) {
+                this.currentMainStep = 2;
+                this.currentSubStep = 0;
+            } else if (route.includes('/advAttackDefense')) {
+                this.currentMainStep = 2;
+                this.currentSubStep = 1;
+            } else if (route.includes('/backdoorDefense')) {
+                this.currentMainStep = 2;
+                this.currentSubStep = 2;
+            }
         }
     }
 }
@@ -944,5 +1073,32 @@ flex-grow: 1;
     height: 600px;
     /* min-height: 200px;
     max-height: 600px; */
+}
+
+/* 主容器样式 */
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+/* 进度条容器样式 */
+.progress-container {
+    width: 300px;
+    background-color: #F5F8FF;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: fit-content;
+}
+
+.progress-wrapper {
+    margin-top: 20px;
 }
 </style>

@@ -48,6 +48,12 @@ const router = new Router({
       name: 'homme_menu',
       component: () => import('../views/homme_menu.vue')
     },
+    // 进度条组件测试页面
+    {
+      path: '/test',
+      name: 'test',
+      component: () => import('../views/test.vue')
+    },
     // 组装的数据公平性评估页面
     {
       path: '/dataFairnessEva',

@@ -9,45 +9,61 @@
         <a-layout-content>
             <!-- 功能介绍 -->
             <func_introduce :funcDesText="funcDesText"></func_introduce>
-            <!-- 参数配置 -->
-            <div class="paramCon">
-                <!-- 参数配置容器 -->
-                <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
-                
-                <div class="funcParam">
-                    <div class="paramTitle" >
-                        <!-- 功能标题和执行按钮 -->
-                        <!-- icon展示 -->
-                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                        <!-- 功能名称 -->
-                        <h3>{{ funcDesText.name }}</h3>
-                        <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
-                            <a-icon type="security-scan" />
-                            评估
-                        </a-button>
-                    </div>
-                    <a-divider />
-                    <div class="inputdiv">
-                        <!-- 输入主体 -->
-                        <!-- 选数据 -->
-                        <fairnessDataset :dataname="dataname" @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
-                        
-                        <!-- 选优化算法 -->
-                        <div class="selectDebiasMethod">
-                            <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择公平性提升算法</p>
-                            <a-radio-group v-model="debiasMethodValue"  @change="onChangeDebiasMethod($event)">
-                                <div class="debiasModule" v-for="(temp,index) in debiasMethod" :key="index">
-                                    <a-radio :style="radioStyle" :value="index" :disabled="debiasDisabled[index]" >
-                                        {{ temp.name }}
-                                    </a-radio>
-                                    <div class="formulaDes" v-if="debiasMethodValue===index">
-                                        {{temp.name}}：{{ temp.des }}
-
-                                    </div>
-                                </div>
-                            </a-radio-group>
+            <!-- 参数配置和进度条容器 -->
+            <div class="main-container">
+                <!-- 参数配置 -->
+                <div class="paramCon">
+                    <!-- 参数配置容器 -->
+                    <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
+                    
+                    <div class="funcParam">
+                        <div class="paramTitle" >
+                            <!-- 功能标题和执行按钮 -->
+                            <!-- icon展示 -->
+                            <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                            <!-- 功能名称 -->
+                            <h3>{{ funcDesText.name }}</h3>
+                            <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                                <a-icon type="security-scan" />
+                                评估
+                            </a-button>
                         </div>
-                        
+                        <a-divider />
+                        <div class="inputdiv">
+                            <!-- 输入主体 -->
+                            <!-- 选数据 -->
+                            <fairnessDataset :dataname="dataname" @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
+                            
+                            <!-- 选优化算法 -->
+                            <div class="selectDebiasMethod">
+                                <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择公平性提升算法</p>
+                                <a-radio-group v-model="debiasMethodValue"  @change="onChangeDebiasMethod($event)">
+                                    <div class="debiasModule" v-for="(temp,index) in debiasMethod" :key="index">
+                                        <a-radio :style="radioStyle" :value="index" :disabled="debiasDisabled[index]" >
+                                            {{ temp.name }}
+                                        </a-radio>
+                                        <div class="formulaDes" v-if="debiasMethodValue===index">
+                                            {{temp.name}}：{{ temp.des }}
+
+                                        </div>
+                                    </div>
+                                </a-radio-group>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 进度条组件 -->
+                <div class="progress-container">
+                    <h2 class="subTitle" style="margin-top: -96px;">工作流程进度</h2>
+                    <div class="progress-wrapper">
+                        <vertical-steps
+                            v-model:currentMainStep="currentMainStep"
+                            v-model:currentSubStep="currentSubStep"
+                            @update:currentMainStep="handleMainStepChange"
+                            @update:currentSubStep="handleSubStepChange"
+                        />
                     </div>
                 </div>
             </div>
@@ -262,6 +278,8 @@ import fairnessDataset from "../components/fairnessDatasetSelect.vue"
 import showLog from "../components/showLog.vue"
 /* 引入组件，结果显示 */
 import resultDialog from "../components/resultDialog.vue"
+/* 引入组件，进度条 */
+import VerticalSteps from "../components/VerticalSteps.vue"
 /* 引入自定义js，结果显示 */
 import {drawconseva1, drawbarimproved, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
 /* 引入图片 */
@@ -294,6 +312,7 @@ export default {
         resultDialog:resultDialog,
         fairnessDataset:fairnessDataset,
         selectIcon,
+        VerticalSteps,
     },
     data(){
         return{
@@ -416,7 +435,10 @@ export default {
                 "LFR":false,
                 "Reweighing":false,
             },
-            postData:{}
+            postData:{},
+            /* 进度条当前步骤 */
+            currentMainStep: 0,
+            currentSubStep: 0,
         }
     },
     watch:{
@@ -489,6 +511,9 @@ export default {
                 // 处理结果
                 this.result = this.result.data.result.data_debias;
                 this.resultPro(this.result);
+                // 更新进度条到完成状态
+                this.currentMainStep = 2;
+                this.currentSubStep = 2;
             }
         },
         /* 更新结果*/ 
@@ -530,6 +555,63 @@ export default {
             }
             console.log("this.dataname:",value);
             console.log("this.debiasDisabled:",this.debiasDisabled);
+        },
+        /* 处理主步骤变化 */
+        handleMainStepChange(step) {
+            this.currentMainStep = step;
+            // 根据主步骤更新子步骤
+            if (step === 0) {
+                // 准备阶段
+                this.currentSubStep = 0;
+            } else if (step === 1) {
+                // 训练阶段
+                this.currentSubStep = 0;
+            } else if (step === 2) {
+                // 部署阶段
+                this.currentSubStep = 0;
+            }
+        },
+        /* 处理子步骤变化 */
+        handleSubStepChange(step) {
+            this.currentSubStep = step;
+            // 根据子步骤执行相应的导航
+            if (this.currentMainStep === 0) {
+                // 准备阶段的子步骤
+                if (step === 0) {
+                    // 数据准备
+                    this.$router.push('/dataClean');
+                } else if (step === 1) {
+                    // 数据公平性评估
+                    this.$router.push('/dataFairnessEva');
+                } else if (step === 2) {
+                    // 数据公平性提升
+                    this.$router.push('/dataFairnessDebias');
+                }
+            } else if (this.currentMainStep === 1) {
+                // 训练阶段的子步骤
+                if (step === 0) {
+                    // 模型训练
+                    this.$router.push('/train');
+                } else if (step === 1) {
+                    // 模型公平性评估
+                    this.$router.push('/modelFairnessEva');
+                } else if (step === 2) {
+                    // 模型公平性提升
+                    this.$router.push('/modelFairnessDebias');
+                }
+            } else if (this.currentMainStep === 2) {
+                // 部署阶段的子步骤
+                if (step === 0) {
+                    // 模型部署
+                    this.$router.push('/bushu');
+                } else if (step === 1) {
+                    // 模型测试
+                    this.$router.push('/xunlian');
+                } else if (step === 2) {
+                    // 模型监控
+                    this.$router.push('/application');
+                }
+            }
         },
         /* result 处理*/
         resultPro(res1){
@@ -730,6 +812,9 @@ export default {
                 window.clearInterval(this.logclk)
                 this.logclk = ''
             }
+            // 重置进度条
+            this.currentMainStep = 0;
+            this.currentSubStep = 0;
         },
         /* 点击评估触发事件 */
         dataEvaClick(){
@@ -754,19 +839,10 @@ export default {
             this.logflag = true;
             var that=this;
             that.percent = 20;
-            // that.tid = "20230821_1423_c77c72f"
-            // that.postData={
-            //     dataname:that.dataname[that.dataNameValue],
-            //     senAttrList:JSON.stringify(that.senAttrList),
-            //     tarAttrList:JSON.stringify(that.tarAttrList),
-            //     staAttrList:JSON.stringify(that.staAttrList),
-            //     datamethod:that.debiasMethodValue,
-            //     tid:that.tid};
-            // that.stidlist =  {"DataFairnessDebias":"S20230821_1423_3c57e77"};
-            // that.clk = window.setInterval(() => {
-            //     that.update();
-            // },60)
-            // return
+            // 更新进度条到准备阶段
+            this.currentMainStep = 0;
+            this.currentSubStep = 2;
+            
             /* 调用创建主任务接口 */
             this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
                 console.log(result);
@@ -779,6 +855,10 @@ export default {
                 datamethod:that.debiasMethodValue,
                 tid:that.tid};
                 that.percent = 40;
+                // 更新进度条到训练阶段
+                this.currentMainStep = 1;
+                this.currentSubStep = 0;
+                
                 that.$axios.post("/DataFairnessDebias",that.postData).then((res) => {
                     that.logflag = true;
                     /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
@@ -806,9 +886,36 @@ export default {
 <!-- <style  scoped> -->
 <style  scoped>
 
+/* 主容器样式 */
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 40px;
+    position: relative;
+}
+
 .paramCon{
     width: 1200px;
     margin-left: 360px;
+}
+
+/* 进度条容器样式 */
+.progress-container {
+    width: 300px;
+    background-color: #F5F8FF;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: fit-content;
+}
+
+.progress-wrapper {
+    margin-top: 20px;
 }
 
 .paramTitle{

@@ -8,59 +8,74 @@
             <a-layout-content>
                 <!-- 功能介绍 -->
                 <func_introduce :funcDesText="funcDesText"></func_introduce>
-                <!-- 参数配置容器 -->
-                <div class="paramCon">
-                    <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
-                    <div class="funcParam">
-                        <div class="paramTitle">
-                            <!-- 功能标题和执行按钮 -->
-                            <!-- icon展示 -->
-                            <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                            <!-- 功能名称 -->
-                            <h3>{{ funcDesText.name }}</h3>
-                            <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
-                                <a-icon type="security-scan" />
-                                评估
-                            </a-button>
-                        </div>
-                        <a-divider />
-                        <div class="inputdiv">
-                            <!-- 输入主体 -->
-                            <div class="mainParamNameNotop">请选择数据集</div>
-                            <DataSetCard style="width: 1104px; margin-bottom: 16px;" v-for="(info, index) in dataSetInfo"
-                                :key="'Dataset' + index" v-bind="info" :indexInParent="index" @selectDataset="changeDataset"
-                                :checked="index == selectedDataset">
-                            </DataSetCard>
-                            <div class="mainParamName48">请选择模型</div>
-                            <ModelCard style="width: 1104px; margin-bottom: 16px;" v-for="(info, index) in modelInfo" :key="'Model' + index"
-                                v-bind="info" :indexInParent="index" @selectModel="changeModel"
-                                :checked="index == selectedModel" >
-                            </ModelCard>
-                            <div class="mainParamName48">请选择攻击方法</div>
-                            <MethodCard style="width: 1104px; " v-for="(info, index) in methodInfo" :key="'Method' + index"
-                                v-bind="info" :indexInParent="index" @selectMethod="changeAdvMethod" :checked="index == advMethod">
-                            </MethodCard>
-                            <div class="mainParamName48">请输入攻击样本数</div>
-                            <a-input class="samplenumBox" v-model="sampleNum" style="height: 60px;padding:16px 24px;" placeholder="请在此输入攻击样本数，（输入范围1-10000，建议值50）" />
-
-                            <div class="mainParamName48">请选择防御方法（可多选）</div>
-
-                            <div v-for="(methods, i) in showdefensemethodInfo" :key="i" style="margin-bottom: 16px;">
-                                <a-row :gutter="16" style="height:60px" type="flex">
-                                    <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod" >
-                                        <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
-                                            @mouseover="methodButtonOver(i, j)"
-                                            @mouseleave="methodnButtonLeave(i, j)"
-                                            >{{ method.name }}</a-button>
-                                    </a-col>
-                                </a-row>
-                                <div v-if="methodHoverIndex==i" style="padding:14px 24px;margin-bottom: 16px;"> {{ methodDescription }} </div>
+                <!-- 参数配置和进度条容器 -->
+                <div class="main-container">
+                    <!-- 参数配置容器 -->
+                    <div class="paramCon">
+                        <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
+                        <div class="funcParam">
+                            <div class="paramTitle">
+                                <!-- 功能标题和执行按钮 -->
+                                <!-- icon展示 -->
+                                <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                                <!-- 功能名称 -->
+                                <h3>{{ funcDesText.name }}</h3>
+                                <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                                    <a-icon type="security-scan" />
+                                    评估
+                                </a-button>
                             </div>
+                            <a-divider />
+                            <div class="inputdiv">
+                                <!-- 输入主体 -->
+                                <div class="mainParamNameNotop">请选择数据集</div>
+                                <DataSetCard style="width: 1104px; margin-bottom: 16px;" v-for="(info, index) in dataSetInfo"
+                                    :key="'Dataset' + index" v-bind="info" :indexInParent="index" @selectDataset="changeDataset"
+                                    :checked="index == selectedDataset">
+                                </DataSetCard>
+                                <div class="mainParamName48">请选择模型</div>
+                                <ModelCard style="width: 1104px; margin-bottom: 16px;" v-for="(info, index) in modelInfo" :key="'Model' + index"
+                                    v-bind="info" :indexInParent="index" @selectModel="changeModel"
+                                    :checked="index == selectedModel" >
+                                </ModelCard>
+                                <div class="mainParamName48">请选择攻击方法</div>
+                                <MethodCard style="width: 1104px; " v-for="(info, index) in methodInfo" :key="'Method' + index"
+                                    v-bind="info" :indexInParent="index" @selectMethod="changeAdvMethod" :checked="index == advMethod">
+                                </MethodCard>
+                                <div class="mainParamName48">请输入攻击样本数</div>
+                                <a-input class="samplenumBox" v-model="sampleNum" style="height: 60px;padding:16px 24px;" placeholder="请在此输入攻击样本数，（输入范围1-10000，建议值50）" />
 
-                            <!-- <div style="margin-bottom: 20px;"></div> -->
+                                <div class="mainParamName48">请选择防御方法（可多选）</div>
 
-                            <AdvAttackDefenseEval :is-show="resultVisible" :result="result" :postData="postData" @on-close="() => { resultVisible = !resultVisible }">
-                            </AdvAttackDefenseEval>
+                                <div v-for="(methods, i) in showdefensemethodInfo" :key="i" style="margin-bottom: 16px;">
+                                    <a-row :gutter="16" style="height:60px" type="flex">
+                                        <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod" >
+                                            <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
+                                                @mouseover="methodButtonOver(i, j)"
+                                                @mouseleave="methodnButtonLeave(i, j)"
+                                                >{{ method.name }}</a-button>
+                                        </a-col>
+                                    </a-row>
+                                    <div v-if="methodHoverIndex==i" style="padding:14px 24px;margin-bottom: 16px;"> {{ methodDescription }} </div>
+                                </div>
+
+                                <!-- <div style="margin-bottom: 20px;"></div> -->
+
+                                <AdvAttackDefenseEval :is-show="resultVisible" :result="result" :postData="postData" @on-close="() => { resultVisible = !resultVisible }">
+                                </AdvAttackDefenseEval>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 进度条组件 -->
+                    <div class="progress-container">
+                        <h2 class="subTitle" style="margin-top: -96px;">工作流程进度</h2>
+                        <div class="progress-wrapper">
+                            <vertical-steps
+                                :currentMainStep="currentMainStep"
+                                :currentSubStep="currentSubStep"
+                                @update:currentMainStep="handleMainStepChange"
+                                @update:currentSubStep="handleSubStepChange"
+                            />
                         </div>
                     </div>
                 </div>
@@ -95,6 +110,7 @@ import DataSetCard from "../components/card/DataSetCard.vue"
 import ModelCard from "../components/card/ModelCard.vue"
 import MethodCard from "../components/card/MethodCard.vue";
 import AdvAttackDefenseEval from "./dialog/AdvAttackDefenseEval.vue";
+import VerticalSteps from "../components/VerticalSteps.vue";
 
 const selectSvg = {
     template: `
@@ -124,6 +140,7 @@ export default {
         ModelCard,
         MethodCard,
         AdvAttackDefenseEval,
+        VerticalSteps,
     },
     data() {
         return {
@@ -355,6 +372,9 @@ export default {
             postData:{},
             maxRate:0,
             maxMethod:"",
+            /* 进度条当前步骤 */
+            currentMainStep: 0,
+            currentSubStep: 0,
         }
     },
     watch: {
@@ -368,11 +388,19 @@ export default {
                     this.canScroll();
                 }
             }
+        },
+        /* 监听路由变化，更新进度条状态 */
+        '$route': {
+            immediate: true,
+            handler(to) {
+                this.setProgressStepsByRoute();
+            }
         }
     },
     created() {
        document.title = '对抗攻击防御';
        this.showdefensemethodInfo = this.defensemethodInfo
+       this.setProgressStepsByRoute();
        },
     //在离开页面时执行
     beforeDestroy() {
@@ -466,46 +494,6 @@ export default {
                     window.clearInterval(that.logclk);
                     that.stid['advAttackDefense'] =  res.data.stid
                     that.getLog();
-                    // let label=[];
-                    // let rateList=[];
-                    // let noDefenseACC=[];
-                    // let maxRate = 0;
-                    // let maxMethod="";
-                    // let ATDefenseACC=[];
-                    // let ATlabels=[];
-                    // let ATMaxRate=0;
-                    // let ATMaxMethod='';
-                    // const ATMethod = ["Madry","TRADES","FreeAT","FastAT","CARTL","MART"];
-                    // for (let temp in that.result.detect_rates){
-                    //     if (ATMethod.indexOf(temp) == -1){
-                    //         if (maxRate < that.result.detect_rates[temp]){
-                    //             maxMethod = temp
-                    //             maxRate = that.result.detect_rates[temp]
-                    //         }
-                    //         label.push(temp);
-                    //         rateList.push(that.result.detect_rates[temp])
-                            
-                    //     }else{
-                    //         if (ATMaxRate < that.result.detect_rates[temp]){
-                    //             ATMaxMethod = temp
-                    //             ATMaxRate = that.result.detect_rates[temp]
-                    //         }
-                    //         ATlabels.push(temp);
-                    //         noDefenseACC.push(that.result.no_defense_accuracy)
-                    //         ATDefenseACC.push(that.result.detect_rates[temp])
-                    //     }
-                        
-                    // }
-                    // that.result.maxRate = maxRate;
-                    // that.result.maxMethod = maxMethod;
-                    // that.result.ATMaxRate = ATMaxRate;
-                    // that.result.ATMaxMethod = ATMaxMethod;
-                    // that.result.detect_labels = label;
-                    // that.result.detect_ratelist = rateList;
-                    // that.result.ATlabels = ATlabels;
-                    // that.result.ATDefenseACClist = ATDefenseACC;
-                    // that.result.noDefenseACClist = noDefenseACC;
-                    
                     that.resultVisible = !that.resultVisible;
                     that.logflag = false;
                 }).catch((err) => {
@@ -584,7 +572,87 @@ export default {
                 this.selectedDefenseMethod.splice(this.selectedDefenseMethod.indexOf(this.showdefensemethodInfo[i][j].id), 1 )
             }
         },
-    }
+        /* 处理主步骤变化 */
+        handleMainStepChange(step) {
+            this.currentMainStep = step;
+            // 根据主步骤更新子步骤
+            if (step === 0) {
+                // 准备阶段
+                this.currentSubStep = 0;
+            } else if (step === 1) {
+                // 训练阶段
+                this.currentSubStep = 0;
+            } else if (step === 2) {
+                // 部署阶段
+                this.currentSubStep = 0;
+            }
+        },
+        /* 处理子步骤变化 */
+        handleSubStepChange(step) {
+            this.currentSubStep = step;
+            // 根据子步骤执行相应的导航
+             const mainStep = this.mainSteps[this.currentMainStep];
+             if (mainStep && mainStep.subSteps[step] && mainStep.subSteps[step].path) {
+                 this.$router.push(mainStep.subSteps[step].path);
+             }
+        },
+         /* 根据当前路由设置进度条状态 */
+        setProgressStepsByRoute() {
+            const route = this.$route.path;
+            for (let mainIndex = 0; mainIndex < this.mainSteps.length; mainIndex++) {
+                const mainStep = this.mainSteps[mainIndex];
+                for (let subIndex = 0; subIndex < mainStep.subSteps.length; subIndex++) {
+                    if (mainStep.subSteps[subIndex].path === route) {
+                        this.currentMainStep = mainIndex;
+                        this.currentSubStep = subIndex;
+                        return;
+                    }
+                }
+            }
+             // Fallback or default state if route not found in steps
+            if (route.includes('/advAttackDefense')) {
+                 this.currentMainStep = 2; // 部署阶段
+                 this.currentSubStep = 1; // 对抗攻击防御
+            }
+        },
+    },
+    computed: {
+        mainSteps() {
+            // You can define the steps structure here or import it if it's shared
+            return [
+                {
+                  title: '准备阶段',
+                  subSteps: [
+                    { title: '数据公平性提升', path: '/dataFairnessDebias' },
+                    { title: '对抗攻击评估', path: '/advAttack' },
+                    { title: '测试样本自动生成', path: '/concolic' }
+                  ]
+                },
+                {
+                  title: '训练阶段',
+                  subSteps: [
+                    { title: '模型公平性提升', path: '/modelFairnessDebias' },
+                    { title: '模型鲁棒性训练', path: '/robust_advTraining' },
+                    { title: '异常数据检测', path: '/dataClean' }
+                  ]
+                },
+                {
+                  title: '部署阶段',
+                  subSteps: [
+                    { title: '数据公平性评估', path: '/dataFairnessEva' },
+                    { title: '对抗攻击防御', path: '/advAttackDefense' },
+                    { title: '后门攻击防御', path: '/backdoorDefense' }
+                  ]
+                }
+            ];
+        }
+    },
+    mounted() {
+        // 确保在组件挂载后设置正确的进度条状态
+        this.$nextTick(() => {
+            this.setProgressStepsByRoute();
+        });
+    },
 }
 </script>
 <!-- <style  scoped> -->
@@ -598,6 +666,7 @@ export default {
     padding: 20px 24px 20px 26px;
     text-align: left;
     width: 1200px;
+    font-size: 18px;
 }
 
 .layoutFooter{
@@ -661,4 +730,31 @@ export default {
     background-color: #F2F4F9;
     font-size: 18px;
 }
+
+/* Added styles for layout */
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.progress-container {
+    width: 300px;
+    background-color: #F5F8FF;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: fit-content;
+}
+
+.progress-wrapper {
+    margin-top: 20px;
+}
+/* End of added styles */
 </style>
