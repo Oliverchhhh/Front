@@ -68,12 +68,13 @@
                     </div>
                     <!-- 进度条组件 -->
                     <div class="progress-container">
-                        <h2 class="subTitle" style="margin-top: -96px;">工作流程进度</h2>
+                        <h2 class="subTitle" style="margin-top: -96px;">对抗性</h2>
                         <div class="progress-wrapper">
                             <vertical-steps
+                                :key="currentSubStep"
+                                :mainSteps="adversarialSteps"
                                 :currentMainStep="currentMainStep"
                                 :currentSubStep="currentSubStep"
-                                @update:currentMainStep="handleMainStepChange"
                                 @update:currentSubStep="handleSubStepChange"
                             />
                         </div>
@@ -372,14 +373,14 @@ export default {
             postData:{},
             maxRate:0,
             maxMethod:"",
-            /* 进度条当前步骤 */
+            /* Initialize steps correctly for this page */
             currentMainStep: 0,
-            currentSubStep: 0,
+            currentSubStep: 1, // This is the second step
         }
     },
     watch: {
         /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
-        isShowPublish: {
+        resultVisible: {
             immediate: true,
             handler(v) {
                 if (v) {
@@ -414,7 +415,7 @@ export default {
     methods: {
         /* 关闭结果窗口 */
         closeDialog() {
-            this.isShowPublish = false;
+            this.resultVisible = false;
             //把绑定的弹窗数组 设为false即可关闭弹窗
         },
         noExistImg(e){
@@ -572,79 +573,57 @@ export default {
                 this.selectedDefenseMethod.splice(this.selectedDefenseMethod.indexOf(this.showdefensemethodInfo[i][j].id), 1 )
             }
         },
-        /* 处理主步骤变化 */
-        handleMainStepChange(step) {
-            this.currentMainStep = step;
-            // 根据主步骤更新子步骤
-            if (step === 0) {
-                // 准备阶段
-                this.currentSubStep = 0;
-            } else if (step === 1) {
-                // 训练阶段
-                this.currentSubStep = 0;
-            } else if (step === 2) {
-                // 部署阶段
-                this.currentSubStep = 0;
-            }
-        },
-        /* 处理子步骤变化 */
+        /* 处理子步骤变化 - Copied from advAttack.vue */
         handleSubStepChange(step) {
             this.currentSubStep = step;
-            // 根据子步骤执行相应的导航
-             const mainStep = this.mainSteps[this.currentMainStep];
-             if (mainStep && mainStep.subSteps[step] && mainStep.subSteps[step].path) {
-                 this.$router.push(mainStep.subSteps[step].path);
-             }
+            // Find the correct path based on the new structure
+            const mainStep = this.adversarialSteps && this.adversarialSteps[0];
+            const subStep = mainStep && mainStep.subSteps && mainStep.subSteps[step];
+            const path = subStep && subStep.path;
+
+            if (path && this.$route.path !== path) { // Avoid navigating to the same path
+                this.$router.push(path);
+            } else if (path && this.$route.path === path) {
+                // Force update if clicking the step for the current page
+                this.$forceUpdate();
+            }
         },
-         /* 根据当前路由设置进度条状态 */
+        /* 根据当前路由设置进度条状态 - Copied from advAttack.vue */
         setProgressStepsByRoute() {
             const route = this.$route.path;
-            for (let mainIndex = 0; mainIndex < this.mainSteps.length; mainIndex++) {
-                const mainStep = this.mainSteps[mainIndex];
-                for (let subIndex = 0; subIndex < mainStep.subSteps.length; subIndex++) {
-                    if (mainStep.subSteps[subIndex].path === route) {
-                        this.currentMainStep = mainIndex;
-                        this.currentSubStep = subIndex;
-                        return;
-                    }
-                }
-            }
-             // Fallback or default state if route not found in steps
-            if (route.includes('/advAttackDefense')) {
-                 this.currentMainStep = 2; // 部署阶段
-                 this.currentSubStep = 1; // 对抗攻击防御
+             // Logic for the Adversarial 3 steps order - SWAPPED 2nd and 3rd
+            if (route.includes('/advAttack')) { // Step 0
+                this.currentMainStep = 0;
+                this.currentSubStep = 0;
+            } else if (route.includes('/advAttackDefense')) { // This page is Step 1
+                this.currentMainStep = 0;
+                this.currentSubStep = 1;
+                // Force update right after setting the state for this specific page
+                this.$nextTick(() => {
+                    this.$forceUpdate();
+                });
+            } else if (route.includes('/robust_advTraining')) { // Step 2
+                this.currentMainStep = 0;
+                this.currentSubStep = 2;
+            } else {
+                 // Default state if route doesn't match known steps
+                 this.currentMainStep = 0;
+                 this.currentSubStep = 1; // Default to this page's step
             }
         },
     },
     computed: {
-        mainSteps() {
-            // You can define the steps structure here or import it if it's shared
-            return [
-                {
-                  title: '准备阶段',
-                  subSteps: [
-                    { title: '数据公平性提升', path: '/dataFairnessDebias' },
-                    { title: '对抗攻击评估', path: '/advAttack' },
-                    { title: '测试样本自动生成', path: '/concolic' }
-                  ]
-                },
-                {
-                  title: '训练阶段',
-                  subSteps: [
-                    { title: '模型公平性提升', path: '/modelFairnessDebias' },
-                    { title: '模型鲁棒性训练', path: '/robust_advTraining' },
-                    { title: '异常数据检测', path: '/dataClean' }
-                  ]
-                },
-                {
-                  title: '部署阶段',
-                  subSteps: [
-                    { title: '数据公平性评估', path: '/dataFairnessEva' },
-                    { title: '对抗攻击防御', path: '/advAttackDefense' },
-                    { title: '后门攻击防御', path: '/backdoorDefense' }
-                  ]
-                }
-            ];
+        adversarialSteps() {
+          return [
+            {
+              title: '对抗性流程', // Main step title
+              subSteps: [
+                { title: '对抗性数据生成', path: '/advAttack' },
+                { title: '对抗攻击防御', path: '/advAttackDefense' },
+                { title: '对抗性训练算法', path: '/robust_advTraining' }
+              ]
+            }
+          ];
         }
     },
     mounted() {
@@ -734,7 +713,7 @@ export default {
 /* Added styles for layout */
 .main-container {
     display: flex;
-    justify-content: space-between;
+    /* justify-content: space-between; */
     width: 100%;
     margin-bottom: 40px;
     position: relative;

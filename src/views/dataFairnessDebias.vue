@@ -56,12 +56,12 @@
                 
                 <!-- 进度条组件 -->
                 <div class="progress-container">
-                    <h2 class="subTitle" style="margin-top: -96px;">工作流程进度</h2>
+                    <h2 class="subTitle" style="margin-top: -96px;">公平性</h2>
                     <div class="progress-wrapper">
                         <vertical-steps
-                            v-model:currentMainStep="currentMainStep"
-                            v-model:currentSubStep="currentSubStep"
-                            @update:currentMainStep="handleMainStepChange"
+                            :mainSteps="fairnessSteps"
+                            :currentMainStep="currentMainStep"
+                            :currentSubStep="currentSubStep"
                             @update:currentSubStep="handleSubStepChange"
                         />
                     </div>
@@ -436,9 +436,9 @@ export default {
                 "Reweighing":false,
             },
             postData:{},
-            /* 进度条当前步骤 */
+            /* Initialize steps correctly for this page */
             currentMainStep: 0,
-            currentSubStep: 0,
+            currentSubStep: 2, // This is the third step
         }
     },
     watch:{
@@ -451,6 +451,13 @@ export default {
                 }else{
                     this.canScroll();
                 }
+            }
+        },
+        /* 监听路由变化，更新进度条状态 */
+        '$route': {
+            immediate: true, // Run immediately on component load
+            handler(to, from) {
+                this.setProgressStepsByRoute();
             }
         }
     },
@@ -556,61 +563,35 @@ export default {
             console.log("this.dataname:",value);
             console.log("this.debiasDisabled:",this.debiasDisabled);
         },
-        /* 处理主步骤变化 */
-        handleMainStepChange(step) {
-            this.currentMainStep = step;
-            // 根据主步骤更新子步骤
-            if (step === 0) {
-                // 准备阶段
-                this.currentSubStep = 0;
-            } else if (step === 1) {
-                // 训练阶段
-                this.currentSubStep = 0;
-            } else if (step === 2) {
-                // 部署阶段
-                this.currentSubStep = 0;
-            }
-        },
-        /* 处理子步骤变化 */
+        /* 处理子步骤变化 - Updated */
         handleSubStepChange(step) {
             this.currentSubStep = step;
-            // 根据子步骤执行相应的导航
-            if (this.currentMainStep === 0) {
-                // 准备阶段的子步骤
-                if (step === 0) {
-                    // 数据准备
-                    this.$router.push('/dataClean');
-                } else if (step === 1) {
-                    // 数据公平性评估
-                    this.$router.push('/dataFairnessEva');
-                } else if (step === 2) {
-                    // 数据公平性提升
-                    this.$router.push('/dataFairnessDebias');
-                }
-            } else if (this.currentMainStep === 1) {
-                // 训练阶段的子步骤
-                if (step === 0) {
-                    // 模型训练
-                    this.$router.push('/train');
-                } else if (step === 1) {
-                    // 模型公平性评估
-                    this.$router.push('/modelFairnessEva');
-                } else if (step === 2) {
-                    // 模型公平性提升
-                    this.$router.push('/modelFairnessDebias');
-                }
-            } else if (this.currentMainStep === 2) {
-                // 部署阶段的子步骤
-                if (step === 0) {
-                    // 模型部署
-                    this.$router.push('/bushu');
-                } else if (step === 1) {
-                    // 模型测试
-                    this.$router.push('/xunlian');
-                } else if (step === 2) {
-                    // 模型监控
-                    this.$router.push('/application');
-                }
+            // Find the correct path based on the new structure
+            const mainStep = this.fairnessSteps && this.fairnessSteps[0];
+            const subStep = mainStep && mainStep.subSteps && mainStep.subSteps[step];
+            const path = subStep && subStep.path;
+
+            if (path && this.$route.path !== path) { // Avoid navigating to the same path
+                this.$router.push(path);
+            }
+        },
+        /* 根据当前路由设置进度条状态 - Updated */
+        setProgressStepsByRoute() {
+            const route = this.$route.path;
+             // Updated logic for the new 3 steps order
+            if (route.includes('/dataFairnessEva')) {
+                this.currentMainStep = 0;
+                this.currentSubStep = 0;
+            } else if (route.includes('/modelFairnessDebias')) { // Step 1
+                this.currentMainStep = 0;
+                this.currentSubStep = 1;
+            } else if (route.includes('/dataFairnessDebias')) { // This page is step 2
+                this.currentMainStep = 0;
+                this.currentSubStep = 2;
+            } else {
+                 // Default state if route doesn't match known steps
+                 this.currentMainStep = 0;
+                 this.currentSubStep = 2; // Default to this page's step
             }
         },
         /* result 处理*/
@@ -880,7 +861,21 @@ export default {
                 window.clearInterval(this.logclk); 
             });    
         }
-    }
+    },
+    computed: {
+        fairnessSteps() {
+          return [
+            {
+              title: '公平性流程', // Main step title
+              subSteps: [
+                { title: '数据公平性评估', path: '/dataFairnessEva' },
+                { title: '模型公平性提升', path: '/modelFairnessDebias' },
+                { title: '数据公平性提升', path: '/dataFairnessDebias' }
+              ]
+            }
+          ];
+        }
+    },
 }
 </script>
 <!-- <style  scoped> -->

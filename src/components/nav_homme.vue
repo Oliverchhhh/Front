@@ -4,7 +4,34 @@
         <div class="nav">
             <div class="icon_title"> 
                 <!-- <img :src="require('../assets/img/index_icon.png')"> -->
-                <svg width="160" height="40" viewBox="0 0 451 106" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="200" height="40" viewBox="0 0 200 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="h_grad1" x1="0%" y1="50%" x2="100%" y2="50%">
+                        <stop offset="0%" style="stop-color:#0042EB;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#17D5FB;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="h_grad2" x1="0%" y1="50%" x2="100%" y2="50%">
+                        <stop offset="0%" style="stop-color:#0B55F4;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#2AF598;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- "AI" 文字 -->
+                    <text x="10" y="28" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="url(#h_grad1)">AI</text>
+
+                    <!-- 盾牌/安全 符号 (简化) -->
+                    <path d="M 50 8 L 50 26 C 50 31, 60 33, 60 33 C 60 33, 70 31, 70 26 L 70 8 L 50 8 Z M 55 12 H 65" fill="url(#h_grad1)" stroke="white" stroke-width="1"/>
+
+                    <!-- 水平线条 - 代表周期/监控 -->
+                    <line x1="85" y1="15" x2="180" y2="15" stroke="url(#h_grad2)" stroke-width="3" />
+                    <line x1="85" y1="25" x2="160" y2="25" stroke="url(#h_grad2)" stroke-width="3" stroke-dasharray="5 3"/>
+
+                    <!-- 小装饰点 -->
+                    <circle cx="185" cy="15" r="3" fill="url(#h_grad1)" />
+                    <circle cx="165" cy="25" r="3" fill="url(#h_grad1)" />
+
+                    </svg>
+                <!-- <svg width="160" height="40" viewBox="0 0 451 106" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M123.199 98V8H143.199V98H123.199Z" fill="url(#paint0_linear_307_1611)"/>
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M62.44 8L114.81 98H91.45L62.45 48.23L33.45 98H10L62.44 8Z" fill="url(#paint1_linear_307_1611)"/>
                     <path d="M247.489 57.95H202.879L197.499 78H242.129L236.769 98H172.969L189.039 38H252.879L247.489 57.95Z" fill="url(#paint2_linear_307_1611)"/>
@@ -37,7 +64,7 @@
                     <stop offset="1" stop-color="#17D5FB"/>
                     </linearGradient>
                     </defs>
-                </svg>
+                </svg> -->
                 <!-- <p class="title_des"> AI安全理论及验证平台</p> -->
             </div>
             <div class="top_nav">
@@ -104,7 +131,7 @@
         <div class="pro_des">
             <!-- 产品介绍 -->
             <div class="product_text">
-                <h1>人工智能<br/>安全理论及验证平台</h1>
+                <h1>人工智能<br/>全周期安全风险监测与主动防控平台</h1>
                 <p>聚焦人工智能系统全链路安全威胁，提供一站式安全检测和多维度评估，助力人工智能系统安全防护。</p>
                 <!-- <a-button type="primary" class="join">立即体验</a-button> -->
             </div>
@@ -341,7 +368,8 @@ export default{
     align-self: stretch;
     flex-grow: 0;
     padding: 76px 0 0 0;
-    margin-bottom: 18px
+    margin-bottom: 18px;
+    white-space: nowrap;
 }
 .product_text p{
     /* 适用于大规模人工智能系统的评估与验证 */

@@ -113,12 +113,12 @@
             
             <!-- 进度条组件 -->
             <div class="progress-container">
-                <h2 class="subTitle" style="margin-top: -96px;">工作流程进度</h2>
+                <h2 class="subTitle" style="margin-top: -96px;">公平性</h2>
                 <div class="progress-wrapper">
                     <vertical-steps
+                        :mainSteps="fairnessSteps"
                         :currentMainStep="currentMainStep"
                         :currentSubStep="currentSubStep"
-                        @update:currentMainStep="handleMainStepChange"
                         @update:currentSubStep="handleSubStepChange"
                     />
                 </div>
@@ -409,8 +409,8 @@ export default {
             debiasMethodValue:"",
             methodDesShow:[false,false,false,false,false,false,false,false],
             /* 进度条步骤状态 */
-            currentMainStep: 1, // 训练阶段
-            currentSubStep: 2,  // 模型公平性提升
+            currentMainStep: 0, // Changed from modelSteps
+            currentSubStep: 1,  // This is the second step
             evamethod:{
                 "DI":{"name":"Dsiaprate Impact(DI)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mfrac></math>', "des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
                 "DP":{"name":"Demographic Parity(DP)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mo stretchy="false">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">|</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
@@ -1230,103 +1230,53 @@ export default {
             });    
         },
         
-        /* 处理主步骤变化 */
-        handleMainStepChange(step) {
-            this.currentMainStep = step;
-            // 根据主步骤更新子步骤
-            if (step === 0) {
-                // 准备阶段
-                this.currentSubStep = 0;
-            } else if (step === 1) {
-                // 训练阶段
-                this.currentSubStep = 0;
-            } else if (step === 2) {
-                // 部署阶段
-                this.currentSubStep = 0;
-            }
-        },
-        
-        /* 处理子步骤变化 */
+        /* 处理子步骤变化 - Updated */
         handleSubStepChange(step) {
             this.currentSubStep = step;
-            // 根据子步骤执行相应的导航
-            if (this.currentMainStep === 0) {
-                // 准备阶段的子步骤
-                if (step === 0) {
-                    // 数据公平性提升
-                    this.$router.push('/dataFairnessDebias');
-                } else if (step === 1) {
-                    // 对抗攻击评估
-                    this.$router.push('/advAttack');
-                } else if (step === 2) {
-                    // 测试样本自动生成
-                    this.$router.push('/concolic');
-                }
-            } else if (this.currentMainStep === 1) {
-                // 训练阶段的子步骤
-                if (step === 0) {
-                    // 模型公平性提升
-                    this.$router.push('/modelFairnessDebias');
-                } else if (step === 1) {
-                    // 模型鲁棒性训练
-                    this.$router.push('/robust_advTraining');
-                } else if (step === 2) {
-                    // 异常数据检测
-                    this.$router.push('/dataClean');
-                }
-            } else if (this.currentMainStep === 2) {
-                // 部署阶段的子步骤
-                if (step === 0) {
-                    // 数据公平性评估
-                    this.$router.push('/dataFairnessEva');
-                } else if (step === 1) {
-                    // 对抗攻击防御
-                    this.$router.push('/advAttackDefense');
-                } else if (step === 2) {
-                    // 后门攻击防御
-                    this.$router.push('/backdoorDefense');
-                }
+            // Find the correct path based on the new structure
+            const mainStep = this.fairnessSteps && this.fairnessSteps[0];
+            const subStep = mainStep && mainStep.subSteps && mainStep.subSteps[step];
+            const path = subStep && subStep.path;
+
+            if (path && this.$route.path !== path) { // Avoid navigating to the same path
+                this.$router.push(path);
             }
         },
         
-        /* 根据当前路由设置进度条状态 */
+        /* 根据当前路由设置进度条状态 - Updated */
         setProgressStepsByRoute() {
             const route = this.$route.path;
-            // 准备阶段
-            if (route.includes('/dataFairnessDebias')) {
+             // Updated logic for the new 3 steps order
+            if (route.includes('/dataFairnessEva')) {
                 this.currentMainStep = 0;
                 this.currentSubStep = 0;
-            } else if (route.includes('/advAttack')) {
+            } else if (route.includes('/modelFairnessDebias')) { // This page is step 1 (0-indexed)
                 this.currentMainStep = 0;
                 this.currentSubStep = 1;
-            } else if (route.includes('/concolic')) {
+            } else if (route.includes('/dataFairnessDebias')) { // Step 2
                 this.currentMainStep = 0;
                 this.currentSubStep = 2;
-            }
-            // 训练阶段
-            else if (route.includes('/modelFairnessDebias')) {
-                this.currentMainStep = 1;
-                this.currentSubStep = 0;
-            } else if (route.includes('/robust_advTraining')) {
-                this.currentMainStep = 1;
-                this.currentSubStep = 1;
-            } else if (route.includes('/dataClean')) {
-                this.currentMainStep = 1;
-                this.currentSubStep = 2;
-            }
-            // 部署阶段
-            else if (route.includes('/dataFairnessEva')) {
-                this.currentMainStep = 2;
-                this.currentSubStep = 0;
-            } else if (route.includes('/advAttackDefense')) {
-                this.currentMainStep = 2;
-                this.currentSubStep = 1;
-            } else if (route.includes('/backdoorDefense')) {
-                this.currentMainStep = 2;
-                this.currentSubStep = 2;
+            } else {
+                 // Default state if route doesn't match known steps
+                 this.currentMainStep = 0;
+                 this.currentSubStep = 1; // Default to this page's step
             }
         }
-    }
+    },
+    computed: { // Replaced modelSteps with fairnessSteps
+        fairnessSteps() {
+          return [
+            {
+              title: '公平性流程', // Main step title
+              subSteps: [
+                { title: '数据公平性评估', path: '/dataFairnessEva' },
+                { title: '模型公平性提升', path: '/modelFairnessDebias' },
+                { title: '数据公平性提升', path: '/dataFairnessDebias' }
+              ]
+            }
+          ];
+        }
+    },
 }
 </script>
 <!-- <style  scoped> -->
