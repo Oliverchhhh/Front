@@ -56,7 +56,7 @@
                 
                 <!-- 进度条组件 -->
                 <div class="progress-container">
-                    <h2 class="subTitle" style="margin-top: -96px;">公平性</h2>
+                    <!-- <h2 class="subTitle" style="margin-top: -96px;">公平性</h2> -->
                     <div class="progress-wrapper">
                         <vertical-steps
                             :mainSteps="fairnessSteps"
@@ -303,7 +303,7 @@ const selectSvg = {
         },
     }
 export default {
-    name:"modelfairnesseva",
+    name:"dataFairnessDebias",
     components:{
         /* 注册组件 */
         navmodule:navmodule,
@@ -436,9 +436,29 @@ export default {
                 "Reweighing":false,
             },
             postData:{},
-            /* Initialize steps correctly for this page */
-            currentMainStep: 0,
-            currentSubStep: 2, // This is the third step
+            /* Add Steps Data */
+            fairnessSteps: [
+                {
+                    title: '数据',
+                    subSteps: [
+                        { title: '数据公平性评估', path: '/dataFairnessEva' }
+                    ]
+                },
+                {
+                    title: '模型',
+                    subSteps: [
+                        { title: '模型公平性提升', path: '/modelFairnessDebias' }
+                    ]
+                },
+                {
+                    title: '算法',
+                    subSteps: [
+                        { title: '数据公平性提升', path: '/dataFairnessDebias' }
+                    ]
+                },
+            ],
+            currentMainStep: 2, // Default for this page (Algorith/算法)
+            currentSubStep: 0,  // Default for this page (Data Fairness Improvement)
         }
     },
     watch:{
@@ -455,27 +475,50 @@ export default {
         },
         /* 监听路由变化，更新进度条状态 */
         '$route': {
-            immediate: true, // Run immediately on component load
-            handler(to, from) {
-                this.setProgressStepsByRoute();
+            immediate: true,
+            handler() {
+                if (this.fairnessSteps && this.fairnessSteps.length > 0) {
+                    this.setProgressStepsByRoute();
+                }
             }
-        }
+        },
+        dataNameValue(value){
+            // 按钮解禁
+            this.disStatus = false
+            this.buttonBGColor.background="#0B55F4"
+        },
+        clientDatasetName(value){
+            // 按钮解禁
+            this.disStatus = false
+            this.buttonBGColor.background="#0B55F4"
+        },
     },
     created() {
         document.title = '数据集公平性提升';
-        },
-    //在离开页面时执行
+        // Call setProgressStepsByRoute if steps data is ready
+        if (this.fairnessSteps && this.fairnessSteps.length > 0) { 
+             this.setProgressStepsByRoute();
+        } else {
+            // If fairnessSteps might be loaded later, watch it or call in mounted
+            // For now, assuming it's available at created
+             console.warn('fairnessSteps not ready in created()');
+        } 
+    },
+    mounted() {
+        this.$nextTick(() => {
+             // Ensure steps data is available before calling
+            if (this.fairnessSteps && this.fairnessSteps.length > 0) { 
+                this.setProgressStepsByRoute();
+            } else {
+                // Fallback or alternative loading logic might be needed
+                 console.warn('fairnessSteps not ready in mounted()');
+            }
+        });
+    },
     beforeDestroy() {
-        if(this.clk) { //如果定时器还在运行,关闭定时器
-            window.clearInterval(this.clk); //关闭
-        }
         if(this.logclk){
             window.clearInterval(this.logclk);
         }
-    },
-    mounted(){
-        let that=this;
-        
     },
     methods: {
         /* 获取日志 */ 
@@ -564,35 +607,43 @@ export default {
             console.log("this.debiasDisabled:",this.debiasDisabled);
         },
         /* 处理子步骤变化 - Updated */
-        handleSubStepChange(step) {
-            this.currentSubStep = step;
-            // Find the correct path based on the new structure
-            const mainStep = this.fairnessSteps && this.fairnessSteps[0];
-            const subStep = mainStep && mainStep.subSteps && mainStep.subSteps[step];
-            const path = subStep && subStep.path;
-
-            if (path && this.$route.path !== path) { // Avoid navigating to the same path
-                this.$router.push(path);
+        handleSubStepChange(subStepIndex) {
+            const mainStep = this.fairnessSteps[this.currentMainStep];
+            if (mainStep && mainStep.subSteps && mainStep.subSteps[subStepIndex]) {
+                const path = mainStep.subSteps[subStepIndex].path;
+                this.currentSubStep = subStepIndex; 
+                if (path && this.$route.path !== path) {
+                    this.$router.push(path);
+                }
+            } else {
+                 console.error("Sub-step path not found for", this.currentMainStep, subStepIndex);
             }
         },
         /* 根据当前路由设置进度条状态 - Updated */
         setProgressStepsByRoute() {
-            const route = this.$route.path;
-             // Updated logic for the new 3 steps order
-            if (route.includes('/dataFairnessEva')) {
-                this.currentMainStep = 0;
-                this.currentSubStep = 0;
-            } else if (route.includes('/modelFairnessDebias')) { // Step 1
-                this.currentMainStep = 0;
-                this.currentSubStep = 1;
-            } else if (route.includes('/dataFairnessDebias')) { // This page is step 2
-                this.currentMainStep = 0;
-                this.currentSubStep = 2;
-            } else {
-                 // Default state if route doesn't match known steps
-                 this.currentMainStep = 0;
-                 this.currentSubStep = 2; // Default to this page's step
+            const routePath = this.$route.path;
+            if (!this.fairnessSteps || this.fairnessSteps.length === 0) return;
+            for (let mainIndex = 0; mainIndex < this.fairnessSteps.length; mainIndex++) {
+                const mainStep = this.fairnessSteps[mainIndex];
+                if (mainStep.subSteps) {
+                    for (let subIndex = 0; subIndex < mainStep.subSteps.length; subIndex++) {
+                        const subStep = mainStep.subSteps[subIndex];
+                        if (subStep.path === routePath) {
+                            this.currentMainStep = mainIndex;
+                            this.currentSubStep = subIndex;
+                            return;
+                        }
+                    }
+                }
             }
+            // Default for this page if no specific sub-step matches
+             if (routePath.includes('/dataFairnessDebias')) {
+                 this.currentMainStep = 2; 
+                 this.currentSubStep = 0;
+             } else {
+                 this.currentMainStep = 0; // Fallback
+                 this.currentSubStep = 0;
+             }
         },
         /* result 处理*/
         resultPro(res1){

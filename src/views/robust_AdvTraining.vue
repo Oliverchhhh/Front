@@ -2,177 +2,177 @@
      <div>
         <a-layout>
             <!-- 顶部菜单栏 -->
-            <a-layout-header>
-                <!-- 导航栏 -->
-                <navmodule/>
-            </a-layout-header>
-            <a-layout-content>
-                <!-- 功能介绍 -->
-                <func_introduce :funcDesText="funcDesText"></func_introduce>
+        <a-layout-header>
+            <!-- 导航栏 -->
+            <navmodule/>
+        </a-layout-header>
+        <a-layout-content>
+            <!-- 功能介绍 -->
+            <func_introduce :funcDesText="funcDesText"></func_introduce>
                 <!-- 参数配置和进度条容器 -->
                 <div class="main-container">
-                    <!-- 参数配置容器 -->
+                <!-- 参数配置容器 -->
                     <div class="paramCon">
-                        <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
-                         <div class="labelSelection">
-                            <router-link to="/robust_advTraining"><button class="labelselected">对抗鲁棒训练</button></router-link>
-                            <router-link to="/gcn_robustTraining"><button class="labelunselected">可认证鲁棒性训练</button></router-link>
-                            <router-link to="/featurescatter_robustTraining"><button class="labelunselected">特征散射鲁棒性训练</button></router-link>
-                            <router-link to="/seat_robustTraining"><button class="labelunselected">自我整合鲁棒性训练</button></router-link>
-                            <router-link to="/smoothing_robustTraining"><button class="labelunselected">关键参数微调鲁棒性训练</button></router-link>
-                        </div>
-                        <div class="funcParam">
-                            <div class="paramTitle" >
-                                <!-- 功能标题和执行按钮 -->
-                                <!-- icon展示 -->
-                                <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                                <!-- 功能名称 -->
-                                <h3>{{ funcDesText.name }}</h3>
-                                <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
-                                    <a-icon type="security-scan" />
-                                    评估
-                                </a-button>
-                            </div>
-                            <a-divider />
-                            <div class="inputdiv">
-                                <!-- 输入主体 -->
-                                <div class="datasetSelected">
-                                    <p class="mainParamNameNotop">请选择数据集</p>
-                                    <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
-                                        <div class="matchedDes">
-                                            <a-radio :style="radioStyle" value="CIFAR10" >
-                                                CIFAR10
-                                            </a-radio>
-                                            <p class="matchedMethodText"><span>CIFAR10数据集：</span>是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。</p>
-                                            <p class="matchedMethodText">图例：</p>
-                                            <div class="demoData" >
-                                                <div v-for="(item, index) in CIFAR10_imgs" :key="index">
-                                                    <img :src="item.imgUrl">
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                        <div class="matchedDes">
-                                            <a-radio :style="radioStyle" value="MNIST">
-                                                MNIST
-                                            </a-radio>
-                                            <p class="matchedMethodText"><span>MNIST数据集：</span>是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。</p>
-                                            <p class="matchedMethodText">图例：</p>
-                                            <div class="demoData" >
-                                                <div v-for="(item, index) in MNIST_imgs" :key="index">
-                                                    <img :src="item.imgUrl">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a-radio-group>
-                                </div>
-                                <div class="modelSelected">
-                                    <p class="mainParamName">请选择模型</p>
-                                    <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
-                                        <div class="matchedDes">
-                                            <a-radio :style="radioStyle" value="ResNet18" >ResNet18</a-radio>
-                                            <a-radio :style="radioStyle" value="ResNet34" >ResNet34</a-radio>
-                                            <a-radio :style="radioStyle" value="ResNet50" >ResNet50</a-radio>
-                                        </div>
-                                    </a-radio-group>
-                                </div>
-                                <div class="modelSelected">
-                                    <p class="mainParamName">请选择对抗训练方法</p>
-                                    <a-select
-                                        style="width: 1104px;"
-                                        v-model="advChoice"
-                                        @focus="handleFocus"
-                                        @blur="handleBlur"
-                                        @change="onAdvChoiceChange" >
-                                        <a-select-option v-for="temp in advTrainMethod" :value="temp">
-                                        {{ temp }}
-                                        </a-select-option>
-                                    </a-select>
-                                </div>
-                                <div class="thresholdSet">
-                                    <p class="mainParamName">请输入选择攻击方法（可多选）</p>
-                                    <div v-for="(methods, i) in showmethodInfo" :key="i" style="margin-bottom: 16px;">
-                                        <a-row :gutter="16" style="height:50px;" type="flex">
-                                            <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod">
-                                                <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
-                                                    >{{ method.name }}</a-button>
-                                            </a-col>
-                                        </a-row>
-                                        <div v-if="methodHoverIndex==i && methodDescription !== ''" style="padding:14px 24px;margin: 16px auto; "> {{ methodDescription }} </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 进度条组件 -->
-                    <div class="progress-container">
-                        <h2 class="subTitle" style="margin-top: -96px;">对抗性</h2>
-                        <div class="progress-wrapper">
-                            <vertical-steps
-                                :key="currentSubStep"
-                                :mainSteps="adversarialSteps"
-                                :currentMainStep="currentMainStep"
-                                :currentSubStep="currentSubStep"
-                                @update:currentSubStep="handleSubStepChange"
-                            />
-                        </div>
-                    </div>
+                <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
+                <div class="labelSelection">
+                    <router-link to="/robust_advTraining"><button class="labelselected">对抗鲁棒训练</button></router-link>
+                    <router-link to="/gcn_robustTraining"><button class="labelunselected">可认证鲁棒性训练</button></router-link>
+                    <router-link to="/featurescatter_robustTraining"><button class="labelunselected">特征散射鲁棒性训练</button></router-link>
+                    <router-link to="/seat_robustTraining"><button class="labelunselected">自我整合鲁棒性训练</button></router-link>
+                    <router-link to="/smoothing_robustTraining"><button class="labelunselected">关键参数微调鲁棒性训练</button></router-link>
                 </div>
-
-                <!-- 日志展示 -->
-                <div v-if="logflag">
-                    <showLog :percent="percent" :logtext="logtext"></showLog>
-                </div>
-                <!-- 结果展示 -->
-                <resultDialog  @on-close="closeDialog"
-                   :isShow="isShowPublish"
-                   v-show="isShowPublish"
-                   ref="report_pdf"
-                   >
-                    <div slot="header">
-                        <div class="dialog_title">
-                            <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                            <h1>CNN对抗训练</h1>
-                        </div>
-                    </div>
-                    <div class="dialog_publish_main" slot="main" id="pdfDom">
-                        <!-- 图表 -->
-                        <div class="result_div">
-                            <div class="conclusion_info">
-                                <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
-                                <p class="result_annotation">数据集：{{ datasetChoice }}</p>
-                                <p class="result_annotation">模型：{{ modelChoice }}</p>
-                                <p class="result_annotation">对抗训练方法：{{ advChoice }}</p>
-                                <p class="result_annotation">攻击方法：</p>
-                                <div class="result_annotation" style="word-wrap: break-word; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start;align-items: center;gap: 10px;">
-                                    <p  v-for="(item, index) in selectedMethod" :key="index">{{ item }}</p>
-                                </div>
-
-                            </div>
-                            <div class=" main_top_echarts_con_title ">模型对抗训练效果</div>
-                            <p class=" echart_title ">训练前后模型受攻击分类准确率</p>
-                            <div id="rdeva">
-                                <div style="width: 1000px;height: 500px;" id="adv_robust_result1"></div>
-                            </div>
-                            <p class=" echart_title ">训练前后模型攻击成功率</p>
-                            <div id="rdeva">
-                                <div style="width: 1000px;height: 500px;" id="adv_robust_result2"></div>
-                                <div class="conclusion">
-                                    <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用{{ advChoice }}对抗训练方法对模型鲁棒性进行提升。</p>
-                                </div>
-                            </div>
-                        </div>
-                        <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
-                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
-                          导出报告内容
+                <div class="funcParam">
+                    <div class="paramTitle" >
+                        <!-- 功能标题和执行按钮 -->
+                        <!-- icon展示 -->
+                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                        <!-- 功能名称 -->
+                        <h3>{{ funcDesText.name }}</h3>
+                        <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                            <a-icon type="security-scan" />
+                            评估
                         </a-button>
                     </div>
-                </resultDialog>
-            </a-layout-content>
-            <a-layout-footer>
+                    <a-divider />
+                    <div class="inputdiv">
+                        <!-- 输入主体 -->
+                        <div class="datasetSelected">
+                            <p class="mainParamNameNotop">请选择数据集</p>
+                            <a-radio-group v-model="datasetChoice" @change="onDatasetChoiceChange">
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="CIFAR10" >
+                                        CIFAR10
+                                    </a-radio>
+                                    <p class="matchedMethodText"><span>CIFAR10数据集：</span>是由 Hinton 的学生 Alex Krizhevsky 和 Ilya Sutskever 整理的一个用于识别普适物体的小型数据集。一共包含 10 个类别的 RGB 彩色图 片：飞机（ airplane ）、汽车（ automobile ）、鸟类（ bird ）、猫（ cat ）、鹿（ deer ）、狗（ dog ）、蛙类（ frog ）、马（ horse ）、船（ ship ）和卡车（ truck ）。图片的尺寸为 32×32 ，数据集中一共有 50000 张训练圄片和 10000 张测试图片。</p>
+                                    <p class="matchedMethodText">图例：</p>
+                                    <div class="demoData" >
+                                        <div v-for="(item, index) in CIFAR10_imgs" :key="index">
+                                            <img :src="item.imgUrl">
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="MNIST">
+                                        MNIST
+                                    </a-radio>
+                                    <p class="matchedMethodText"><span>MNIST数据集：</span>是一个手写体数字的图片数据集，该数据集来由美国国家标准与技术研究所（National Institute of Standards and Technology (NIST)）发起整理，一共统计了来自250个不同的人手写数字图片，其中50%是高中生，50%来自人口普查局的工作人员。该数据集的收集目的是希望通过算法，实现对手写数字的识别。</p>
+                                    <p class="matchedMethodText">图例：</p>
+                                    <div class="demoData" >
+                                        <div v-for="(item, index) in MNIST_imgs" :key="index">
+                                            <img :src="item.imgUrl">
+                                        </div>
+                                    </div>
+                                </div>
+                            </a-radio-group>
+                        </div>
+                        <div class="modelSelected">
+                            <p class="mainParamName">请选择模型</p>
+                            <a-radio-group v-model="modelChoice" @change="onModelChoiceChange">
+                                <div class="matchedDes">
+                                    <a-radio :style="radioStyle" value="ResNet18" >ResNet18</a-radio>
+                                    <a-radio :style="radioStyle" value="ResNet34" >ResNet34</a-radio>
+                                    <a-radio :style="radioStyle" value="ResNet50" >ResNet50</a-radio>
+                                </div>
+                            </a-radio-group>
+                        </div>
+                        <div class="modelSelected">
+                            <p class="mainParamName">请选择对抗训练方法</p>
+                            <a-select
+                                style="width: 1104px;"
+                                v-model="advChoice"
+                                @focus="handleFocus"
+                                @blur="handleBlur"
+                                @change="onAdvChoiceChange" >
+                                <a-select-option v-for="temp in advTrainMethod" :value="temp">
+                                {{ temp }}
+                                </a-select-option>
+                            </a-select>
+                        </div>
+                        <div class="thresholdSet">
+                            <p class="mainParamName">请输入选择攻击方法（可多选）</p>
+                            <div v-for="(methods, i) in showmethodInfo" :key="i" style="margin-bottom: 16px;">
+                                <a-row :gutter="16" style="height:50px;" type="flex">
+                                    <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod">
+                                        <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
+                                            >{{ method.name }}</a-button>
+                                    </a-col>
+                                </a-row>
+                                <div v-if="methodHoverIndex==i && methodDescription !== ''" style="padding:14px 24px;margin: 16px auto; "> {{ methodDescription }} </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 进度条组件 -->
+            <div class="progress-container">
+                        <!-- <h2 class="subTitle" style="margin-top: -96px;">对抗性</h2> -->
+                <div class="progress-wrapper">
+                    <vertical-steps
+                                :key="currentSubStep"
+                                :mainSteps="trainingSteps"
+                        :currentMainStep="currentMainStep"
+                        :currentSubStep="currentSubStep"
+                        @update:currentSubStep="handleSubStepChange"
+                    />
+                        </div>
+                </div>
+            </div>
+            
+            <!-- 日志展示 -->
+            <div v-if="logflag">
+                <showLog :percent="percent" :logtext="logtext"></showLog>
+            </div>
+            <!-- 结果展示 -->
+            <resultDialog  @on-close="closeDialog" 
+               :isShow="isShowPublish" 
+               v-show="isShowPublish"
+               ref="report_pdf"
+               >
+                <div slot="header">
+                    <div class="dialog_title">
+                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                        <h1>CNN对抗训练</h1>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
+                    <!-- 图表 -->
+                    <div class="result_div">
+                        <div class="conclusion_info">
+                            <!-- 显示输入信息：检测类型、数据集/清洗类型 -->
+                            <p class="result_annotation">数据集：{{ datasetChoice }}</p>
+                            <p class="result_annotation">模型：{{ modelChoice }}</p>
+                            <p class="result_annotation">对抗训练方法：{{ advChoice }}</p>
+                            <p class="result_annotation">攻击方法：</p>
+                            <div class="result_annotation" style="word-wrap: break-word; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start;align-items: center;gap: 10px;"> 
+                                <p  v-for="(item, index) in selectedMethod" :key="index">{{ item }}</p>
+                            </div>
+                            
+                        </div>
+                        <div class=" main_top_echarts_con_title ">模型对抗训练效果</div>
+                        <p class=" echart_title ">训练前后模型受攻击分类准确率</p>
+                        <div id="rdeva">
+                            <div style="width: 1000px;height: 500px;" id="adv_robust_result1"></div>
+                        </div>
+                        <p class=" echart_title ">训练前后模型攻击成功率</p>
+                        <div id="rdeva">
+                            <div style="width: 1000px;height: 500px;" id="adv_robust_result2"></div>
+                            <div class="conclusion">
+                                <p class="result_text">{{ modelChoice }}模型、{{ datasetChoice }}数据集，用{{ advChoice }}对抗训练方法对模型鲁棒性进行提升。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a-button @click="getPdf()" style="width:160px;height:50px;margin-bottom:30px;margin-top:10px;
+                    font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                      导出报告内容
+                    </a-button>
+                </div>
+            </resultDialog>
+        </a-layout-content>
+        <a-layout-footer>
 
-            </a-layout-footer>
+        </a-layout-footer>
         </a-layout>
      </div>
 </template>
@@ -230,8 +230,28 @@ export default {
                 lineHeight: '30px',
             },
             /* 进度条步骤状态 */
-            currentMainStep: 0,
-            currentSubStep: 2, // Set default step for this page
+            trainingSteps: [
+                {
+                    title: '数据',
+                    subSteps: [
+                        { title: '对抗性数据生成', path: '/advAttack' }
+                    ]
+                },
+                {
+                    title: '模型',
+                    subSteps: [
+                        { title: '对抗攻击防御', path: '/advAttackDefense' }
+                    ]
+                },
+                {
+                    title: '算法',
+                    subSteps: [
+                        { title: '对抗性训练算法', path: '/robust_advTraining' }
+                    ]
+                },
+            ],
+            currentMainStep: 2, // Algorithm
+            currentSubStep: 0,  // 对抗性训练算法
             datasetChoice: "CIFAR10",
             MNIST_imgs:[
                 {imgUrl:require('../assets/img/mnist0.jpg'),name:'mnist0'},
@@ -272,7 +292,7 @@ export default {
                 {name:"BIM",description:"BIM算法：Basic Iterative MethodBIM迭代式FGSM是对FGSM的改进方法，主要的改进有两点，其一是FGSM方法是一步完成的，而BIM方法通过多次迭代来寻找对抗样本；其次，为了避免迭代过程中出现超出有效值的情况出现，使用了一个修建方法严格限制像素值的范围",},
                 {name:"PGDL1",description:"PGD算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
                 {name:"PGDL2",description:"PGDL2算法：Projected Gradient DescentPGD投影梯度下降法是FGSM的迭代版本，该方法思路和BIM基本相同，不同之处在于该方法在迭代过程中使用范数投影的方法来约束非法数据，并且相对于BIM有一个随机的开始噪声",},
-
+                
                 ],
                 [
                 {name:"DIFGSM",description:"DIFGSM算法：Diverse Inputs Iterative Fast Gradient Sign Method,通过创建多样的输入模式提高对抗样本的迁移性。做法是对输入的原图像以p的概率加上随机且可导的变换(transformation)，使用梯度的方法最大化模型对变换后的原图像的损失函数值从而得到对抗图像",},
@@ -316,14 +336,14 @@ export default {
             /* 评估结果 */
             result:{},
             res_tmp:{},
-            /* 主任务id */
+            /* 主任务id */ 
             tid:"",
-            /* 子任务id */
+            /* 子任务id */ 
             stidlist:"",
             /* 异步任务结果查循环clock */
             clk:"",
             /* 日志查询clock*/
-            logclk:"",
+            logclk:"", 
             }
         },
     watch:{
@@ -369,7 +389,7 @@ export default {
              this.$forceUpdate(); // Force update on mount as well
         });
     },
-    methods: {
+    methods: { 
         /* 关闭结果窗口 */
         closeDialog(){
             this.isShowPublish=false;
@@ -397,7 +417,7 @@ export default {
 
         // 防御方法点击选中
         changeMethods(i, j) {
-            // debugger;
+            debugger;
             let button = document.getElementById("button" + i + j)
             if (button.style.color == "") {
                 this.methodHoverIndex = i
@@ -406,7 +426,6 @@ export default {
                 button.style.borderColor = "#C8DCFB"
                 button.style.background = "#E7F0FD"
                 this.selectedMethod.push(this.showmethodInfo[i][j].name)
-                // this.selectedAttributes[this.showmethodInfo[i][j].name] = {}
             } else {
                 this.methodHoverIndex = -1
                 this.methodDescription = ""
@@ -414,8 +433,7 @@ export default {
                 button.style.borderColor = "#C8DCFB"
                 button.style.background = "#F2F4F9"
                 button.blur()
-                this.selectedMethod.splice(this.selectedMethod.indexOf(this.showmethodInfo[i][j].name), 1 )
-                // delete this.selectedAttributes[this.showmethodInfo[i][j].name]
+                this.selectedMethod.splice(this.selectedMethod.indexOf(this.showmethodInfo[i][j].name),1)
             }
         },
         exportResult(){
@@ -445,7 +463,7 @@ export default {
             DrawRobustBar("adv_robust_result1", legend, xAxis, data_acc_ori, data_acc_enh);
             DrawRobustBar("adv_robust_result2", legend, xAxis, data_asr_ori, data_asr_enh);
         },
-        /* 获取结果 */
+        /* 获取结果 */ 
         getData(){
             // debugger
             var that = this;
@@ -455,7 +473,7 @@ export default {
                 that.res_tmp = data;
             });
         },
-        /* 获取日志 */
+        /* 获取日志 */ 
         getLog(){
             // debugger;
             var that = this;
@@ -473,7 +491,7 @@ export default {
                 }
             });
         },
-        /* 停止结果获取循环 */
+        /* 停止结果获取循环 */ 
         stopTimer() {
             // debugger;
             // var that = this;
@@ -492,7 +510,7 @@ export default {
                 this.resultPro(this.res_tmp.data.result);
             }
         },
-        /* 更新结果*/
+        /* 更新结果*/ 
         update(){
             // debugger;
             this.getData();
@@ -500,100 +518,63 @@ export default {
                 this.stopTimer();
             }catch(err){}
         },
-        // 切换页面 (Not currently used for progress bar)
-        // changeSelectPage(){
-        // },
-        /* 点击评估触发事件 */
-        dataEvaClick(){
-            // debugger
-            /* 备份 */
-            var that = this;
-            if(that.selectedMethod.length==0){
-                that.$message.warning('请至少选择一项对抗攻击方法！',3);
-                return
-            }
-            // that.tid = "20231115_1101_dc28b4d"
-            // that.stidlist =  {"CNN_AT": "S20231115_1101_33daea0"};
-            // that.clk = window.setInterval(() => {
-            //                 that.update();
-            //             }, 300)
-            // return
-            // that.isShowPublish = true;
-            /* 调用创建主任务接口，需开启后端程序 */
-            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-                that.tid = result.data.Taskid;
-                /* 请求体 postdata*/
-                const postdata={
-                    dataset:that.datasetChoice,
-                    modelname:that.modelChoice,
-                    attackmethod: that.advChoice,
-                    evaluate_methods: that.selectedMethod,
-                    tid:that.tid};
-                that.$axios.post("/Defense/AdvTraining_CNNAT", postdata).then((res) => {
-                    that.logflag = true;
-                    // 异步任务
-                    that.stidlist =  {"CNN_AT":res.data.stid}
-                    that.logclk = self.setInterval(that.getLog, 3000);
-                    that.clk = self.setInterval(that.update, 3000);
-                }).catch((err) => {
-                        console.log(err)
-                });
-            }).catch((err) => {
-                console.log(err)
-            });
-        },
         /* 处理子步骤变化 */
-        handleSubStepChange(step) {
-            this.currentSubStep = step;
-            // Find the correct path based on the new structure
-            const mainStep = this.adversarialSteps && this.adversarialSteps[0];
-            const subStep = mainStep && mainStep.subSteps && mainStep.subSteps[step];
-            const path = subStep && subStep.path;
-
-            if (path && this.$route.path !== path) { // Avoid navigating to the same path
-                this.$router.push(path);
-            } else if (path && this.$route.path === path) {
-                 // Force update if clicking the step for the current page
-                 // Use nextTick to ensure state updates before forcing re-render
-                 this.$nextTick(() => {
-                    this.$forceUpdate();
-                 });
+        handleSubStepChange(subStepIndex) {
+            const mainStep = this.trainingSteps[this.currentMainStep];
+            if (mainStep && mainStep.subSteps && mainStep.subSteps[subStepIndex]) {
+                const path = mainStep.subSteps[subStepIndex].path;
+                this.currentSubStep = subStepIndex;
+                if (path && this.$route.path !== path) {
+                    this.$router.push(path);
+                }
+            } else {
+                console.error("Sub-step path not found for", this.currentMainStep, subStepIndex);
             }
         },
-
         /* 根据当前路由设置进度条状态 */
         setProgressStepsByRoute() {
-            const route = this.$route.path;
-             // Logic for the Adversarial 3 steps order
-            if (route.includes('/advAttack')) { // Step 0
-                this.currentMainStep = 0;
-                this.currentSubStep = 0;
-            } else if (route.includes('/advAttackDefense')) { // Step 1
-                this.currentMainStep = 0;
-                this.currentSubStep = 1;
-            } else if (route.includes('/robust_advTraining')) { // Step 2 (This page)
-                this.currentMainStep = 0;
-                this.currentSubStep = 2;
+            const routePath = this.$route.path;
+            if (!this.trainingSteps || this.trainingSteps.length === 0) {
+                console.warn("trainingSteps is not defined or empty in setProgressStepsByRoute");
+                return;
+            }
+            for (let mainIndex = 0; mainIndex < this.trainingSteps.length; mainIndex++) {
+                const mainStep = this.trainingSteps[mainIndex];
+                if (mainStep.subSteps) {
+                    for (let subIndex = 0; subIndex < mainStep.subSteps.length; subIndex++) {
+                        const subStep = mainStep.subSteps[subIndex];
+                        if (subStep.path === routePath) {
+                            this.currentMainStep = mainIndex;
+                            this.currentSubStep = subIndex;
+                            return;
+                        }
+                    }
+                }
+            }
+            // Default for this page if no specific sub-step matches
+            if (routePath.includes('/robust_advTraining')) {
+                 this.currentMainStep = 2; 
+                 this.currentSubStep = 0;
             } else {
-                 // Default state if route doesn't match known steps
-                 this.currentMainStep = 0;
-                 this.currentSubStep = 2; // Default to this page's step
+                 this.currentMainStep = 0; // Fallback to first step
+                 this.currentSubStep = 0;
+                 console.warn(`Route ${routePath} not found in trainingSteps, defaulting to 0,0`);
             }
-        }
+        },
     },
-    computed: { // Use adversarialSteps from advAttackDefense.vue
-        adversarialSteps() {
-          return [
-            {
-              title: '对抗性流程', // Main step title
-              subSteps: [
-                { title: '对抗性数据生成', path: '/advAttack' },
-                { title: '对抗攻击防御', path: '/advAttackDefense' },
-                { title: '对抗性训练算法', path: '/robust_advTraining' } // This page
-              ]
-            }
-          ];
-        }
+    computed: {
+        // adversarialSteps() { // This will be removed
+        //   return [
+        //     {
+        //       title: '对抗性流程',
+        //       subSteps: [
+        //         { title: '对抗性数据生成', path: '/advAttack' },
+        //         { title: '对抗攻击防御', path: '/advAttackDefense' }, 
+        //         { title: '对抗性训练算法', path: '/robust_advTraining' }
+        //       ]
+        //     }
+        //   ];
+        // }
     },
 }
 </script>
@@ -766,7 +747,7 @@ text-align: left;
     font-size: 20px;
     font-style: normal;
     font-weight: 700;
-    line-height: 28px;
+    line-height: 28px; 
 }
 
 /* 按钮样式 */
@@ -1017,5 +998,35 @@ height: fit-content;
     opacity: 0.8;
 }
 
+/* Add progress bar styles if not present, ensure they match other pages */
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.paramCon{
+    width: 1200px;
+    margin-left: 360px;
+}
+
+.progress-container {
+    width: 300px;
+    background-color: #F5F8FF;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: fit-content;
+}
+
+.progress-wrapper {
+    margin-top: 20px;
+}
 
 </style>

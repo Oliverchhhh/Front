@@ -40,10 +40,10 @@
         <span class="stage-title">训练数据生成</span>
       </div>
       <div class="stage-box">
-        <span class="stage-title">模型性能稳定性优化</span>
+        <span class="stage-title">训练算法设计</span>
       </div>
       <div class="stage-box">
-        <span class="stage-title">训练算法设计</span>
+        <span class="stage-title">模型性能稳定性优化</span>
       </div>
     </div>
 
@@ -69,7 +69,30 @@
           </ifreme>
         </div>
       </div>
-      <!-- 第二个矩形方框 (训练阶段) -->
+      <!-- 第二个矩形方框 (当前标题: 模型性能稳定性优化) -->
+      <!-- 将显示原"训练算法设计"的卡片 -->
+      <div class="box">
+        <div class="funcs">
+        <!-- 模型鲁棒性训练 -->
+        <ifreme  @click.native="goFuncPage('robust_advTraining')">
+            <div slot="func_icon">
+              <img class="icon_img" src="../assets/img/robustTrainingIcon.png">
+            </div>
+            <div slot="header" class="func_name">对抗性训练算法</div>
+            <div slot="des_func" class="func_des">通过可认证鲁棒训练、对抗训练等方式来对AI模型进行安全加固，提升模型在对抗样本攻击下的鲁棒性</div>
+          </ifreme>
+        <!-- 数据公平性提升 -->
+        <ifreme @click.native="goFuncPage('/dataFairnessDebias')"> 
+          <div slot="func_icon">
+            <img class="icon_img" src="../assets/img/dataFairDebiasIcon.png">
+          </div>
+          <div slot="header" class="func_name">数据公平性提升</div>
+          <div slot="des_func" class="func_des">基于公平表征学习和数据重赋权等方法对数据集进行纠偏，从群体和个体公平性两个维度对提升前后的数据集进行评估对比</div>
+        </ifreme>
+        </div>
+      </div>
+      <!-- 第三个矩形方框 (当前标题: 训练算法设计) -->
+      <!-- 将显示原"模型性能稳定性优化"的卡片 -->
       <div class="box">
         <div class="funcs">
           <ifreme  @click.native="goFuncPage('/modelFairnessDebias')">
@@ -86,27 +109,6 @@
             <div slot="header" class="func_name">对抗攻击防御</div>
             <div slot="des_func" class="func_des">从对抗样本检测、对抗噪声擦除和模型防御力增强等三个角度阻截对抗样本的攻击，并使神经网络模型在面对对抗样本时仍能发挥正常功能</div>
           </ifreme>
-        </div>
-      </div>
-      <!-- 第三个矩形方框 (部署阶段) -->
-      <div class="box">
-        <div class="funcs">
-          <!-- 模型鲁棒性训练 -->
-          <ifreme  @click.native="goFuncPage('robust_advTraining')">
-            <div slot="func_icon">
-              <img class="icon_img" src="../assets/img/robustTrainingIcon.png">
-            </div>
-            <div slot="header" class="func_name">对抗性训练算法</div>
-            <div slot="des_func" class="func_des">通过可认证鲁棒训练、对抗训练等方式来对AI模型进行安全加固，提升模型在对抗样本攻击下的鲁棒性</div>
-          </ifreme>
-        <!-- 数据公平性提升 -->
-        <ifreme @click.native="goFuncPage('/dataFairnessDebias')"> 
-          <div slot="func_icon">
-            <img class="icon_img" src="../assets/img/dataFairDebiasIcon.png">
-          </div>
-          <div slot="header" class="func_name">数据公平性提升</div>
-          <div slot="des_func" class="func_des">基于公平表征学习和数据重赋权等方法对数据集进行纠偏，从群体和个体公平性两个维度对提升前后的数据集进行评估对比</div>
-        </ifreme>
         </div>
       </div>
     </div>

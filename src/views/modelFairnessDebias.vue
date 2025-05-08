@@ -113,7 +113,7 @@
             
             <!-- 进度条组件 -->
             <div class="progress-container">
-                <h2 class="subTitle" style="margin-top: -96px;">公平性</h2>
+                <!-- <h2 class="subTitle" style="margin-top: -96px;">公平性</h2> -->
                 <div class="progress-wrapper">
                     <vertical-steps
                         :mainSteps="fairnessSteps"
@@ -409,8 +409,28 @@ export default {
             debiasMethodValue:"",
             methodDesShow:[false,false,false,false,false,false,false,false],
             /* 进度条步骤状态 */
-            currentMainStep: 0, // Changed from modelSteps
-            currentSubStep: 1,  // This is the second step
+            fairnessSteps: [
+                {
+                    title: '数据',
+                    subSteps: [
+                        { title: '数据公平性评估', path: '/dataFairnessEva' }
+                    ]
+                },
+                {
+                    title: '模型',
+                    subSteps: [
+                        { title: '模型公平性提升', path: '/modelFairnessDebias' }
+                    ]
+                },
+                {
+                    title: '算法',
+                    subSteps: [
+                        { title: '数据公平性提升', path: '/dataFairnessDebias' }
+                    ]
+                },
+            ],
+            currentMainStep: 1, // Default for this page
+            currentSubStep: 0,  // Default for this page
             evamethod:{
                 "DI":{"name":"Dsiaprate Impact(DI)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mfrac></math>', "des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
                 "DP":{"name":"Demographic Parity(DP)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mo stretchy="false">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">|</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
@@ -430,7 +450,7 @@ export default {
                 "F1d":{"name":"F1 Score Difference(F1d)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mfrac><mrow><mn>2</mn><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo>+</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac><mo>−</mo><mfrac><mrow><mn>2</mn><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>+</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow></mfrac><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
                 "PE":{"name":"Predictive Equality" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
                 "EOD":{"name":"Equal Odds" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mstyle displaystyle="false" scriptlevel="0"><munder><mo data-mjx-texclass="OP">∑</mo><mrow><mi>y</mi><mo>∈</mo><mo stretchy="false">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false">)</mo></mrow></munder></mstyle></mrow><mrow><mo stretchy="false">|</mo></mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mi>y</mi><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mi>y</mi><mo stretchy="false">)</mo><mo stretchy="false">|</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
-                "PP":{"name":"Predictive Parity" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
+                "PP":{"name":"Predictive Parity" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>P</mi><mo stretchy="false">(</mi>Y<mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mi>Y<mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
                 "EOP":{"name":"Equal Opportunity" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
                 "OMd":{"name":"Overall Misclassification Difference(OMd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
                 "OMr":{"name":"Overall Misclassification Ratio(OMr)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'}
@@ -582,7 +602,7 @@ export default {
             disablestyle:{
                 'color': 'rgba(0,0,0,.25)',
                 'background-color': '#f5f5f5'
-            }
+            },
         }
     },
     watch:{
@@ -600,683 +620,87 @@ export default {
         /* 监听路由变化，更新进度条状态 */
         '$route': {
             immediate: true,
-            handler(to) {
-                this.setProgressStepsByRoute();
+            handler() {
+                if (this.fairnessSteps && this.fairnessSteps.length > 0) { // Ensure steps are defined
+                    this.setProgressStepsByRoute();
+                }
             }
+        },
+        dataNameValue(value){
+            this.buttonBGColor.background="#0B55F4"
+            this.disStatus=false;
+            this.modelName = this.dataname[value]+"默认模型";
+            if(this.dataname[value] != "Cifar10-S" && this.dataname[value] != "CelebA" ){
+                this.debiasDisabled = [false, false, false, false, false]
+            }else{
+                this.debiasDisabled = [false, false, true, true, true]
+            }
+            this.onChangeSwitch(true);
+        },
+        clientDatasetName(value){
+             // 按钮解禁
+             this.disStatus = false
+            this.buttonBGColor.background="#0B55F4"
+            // 根据选择的数据集，显示对应的保护属性
+            this.protectAttr = value
         }
     },
     created() {
         document.title = '模型公平性提升';
-        this.setProgressStepsByRoute();
-    },
-    //在离开页面时执行
-    beforeDestroy() {
-        if(this.clk) { //如果定时器还在运行,关闭定时器
-            window.clearInterval(this.clk); //关闭
-        }
-        if(this.logclk){
-            window.clearInterval(this.logclk);
+        if (this.fairnessSteps && this.fairnessSteps.length > 0) { // Ensure steps are defined
+             this.setProgressStepsByRoute();
         }
     },
     mounted() {
-        let that=this;
         // 确保在组件挂载后设置正确的进度条状态
         this.$nextTick(() => {
-            this.setProgressStepsByRoute();
+            if (this.fairnessSteps && this.fairnessSteps.length > 0) { // Ensure steps are defined
+                this.setProgressStepsByRoute();
+            }
         });
     },
-    methods: {
-        // 防御方法参数显示
-        defenseShow(method="[]"){
-            let param = JSON.parse(method);
-            return param.join('、');
-        },
-        onChangeSwitch(checked){
-            this.test_mode = checked
-        },
-        // 下载模型
-        downloadmodel(){
-            if (confirm("您确认下载模型？") ) {
-                let param = new FormData();       // 创建form对象    
-                let file = this.downloadURL
-                param.append('file', file);       // 通过append向form对象添加数据
-                param.append("type", 'dictionary'); // 添加form表单中其他数据
-                let post_file = param;
-                let config = {
-                    headers: {'Content-Type': 'multipart/form-data'},
-                    responseType: "blob"
-                };
-                this.$axios.post("/Task/DownloadData", post_file, config).then((res)=>{
-                    console.log(res);
-                    var zipName = "download.pth"; // 下载的文件名
-                    // let blob = new Blob([res.data], { type: "application/zip" }); // 下载格式为zip
-                    let blob = new Blob([res.data], { type: "application/octet-stream" });
-                    if ("download" in document.createElement("a")) {
-                        let elink = document.createElement("a"); // 创建一个<a>标签
-                        elink.style.display = "none"; // 隐藏标签
-                        elink.href = window.URL.createObjectURL(blob); // 配置href
-                        elink.download = zipName;
-                        elink.click();
-                        URL.revokeObjectURL(elink.href); // 释放URL 对象
-                        document.body.removeChild(elink); // 移除<a>标签
-                    } else {
-                    //IE10+
-                    navigator.msSaveBlob(blob, zipName);
-                    }
-                }).catch((err)=>{
-                    console.log(err)
-                })
-            }
-        },
-        // 上传模型
-        uploadModel(info){
-            let fileList = [...info.fileList];
-            fileList = fileList.slice(-1);
-            fileList = fileList.map(file => {
-                if (file.response) {
-                // Component will show file.url as link
-                    file.url = "static/"+file.response.filepath
-                    file.filepath = file.response.filepath;
+    methods: { 
+        /* 处理子步骤变化 */
+        handleSubStepChange(subStepIndex) {
+            const mainStep = this.fairnessSteps[this.currentMainStep];
+            if (mainStep && mainStep.subSteps && mainStep.subSteps[subStepIndex]) {
+                const path = mainStep.subSteps[subStepIndex].path;
+                this.currentSubStep = subStepIndex; 
+                if (path && this.$route.path !== path) {
+                    this.$router.push(path);
                 }
-                return file;
-            });
-            this.fileList = fileList;
-            if (info.file.status !== 'uploading') {
-                console.log(info.fileList)
-            }
-            if (info.file.status === 'done') {
-                if(info.file.response.code === 10000){
-                    this.$message.success(`${info.file.name} file uploaded successfully`);
-                    this.test_mode = true
-                    this.retrain_disabled = true
-                    this.modelpath = info.file.response.filepath
-                }
-            } else if (info.file.status === 'error') {
-                this.$message.error(`${info.file.name} file upload failed.`);
-            }
-            if (info.file.status === 'removed'){
-                this.modelpath = ''
-                this.retrain_disabled = false
-                // this.test_mode = false
-            }
-        },
-        changeMethods(i, j) {
-            // debugger;
-            let button = document.getElementById("button" + i + j)
-            if (button.style.color == "") {
-                this.methodHoverIndex = i
-                this.methodDescription = this.imgEvaMethod[i][j].description
-                button.style.color = "#0B55F4"
-                button.style.background = "#E7F0FD"
-                this.evaImgCheckedValues.push(this.imgEvaMethod[i][j].name)
-                
             } else {
-                this.methodHoverIndex = -1
-                this.methodDescription = ""
-                button.style.color = ""
-                button.style.borderColor = "#C8DCFB"
-                button.style.background = "#F2F4F9"
-                button.blur()
-                this.evaImgCheckedValues.splice(this.evaImgCheckedValues.indexOf(this.imgEvaMethod[i][j].name), 1 )
+                 console.error("Sub-step path not found for", this.currentMainStep, subStepIndex);
             }
         },
-        disableImgMehod(){
-            for (let i in this.imgEvaMethod){
-                for(let j in this.imgEvaMethod[i]){
-                    let button = document.getElementById("button" + i + j)
-                    this.methodHoverIndex = -1
-                    this.methodDescription = ""
-                    button.style.color = "rgba(0,0,0,.25)"
-                    button.style.borderColor = "#C8DCFB"
-                    button.style.background = "#f5f5f5"
-                    button.blur()
+        /* 根据当前路由设置进度条状态 */
+        setProgressStepsByRoute() {
+            const routePath = this.$route.path;
+            if (!this.fairnessSteps || this.fairnessSteps.length === 0) return; // Guard clause
+            for (let mainIndex = 0; mainIndex < this.fairnessSteps.length; mainIndex++) {
+                const mainStep = this.fairnessSteps[mainIndex];
+                if (mainStep.subSteps) {
+                    for (let subIndex = 0; subIndex < mainStep.subSteps.length; subIndex++) {
+                        const subStep = mainStep.subSteps[subIndex];
+                        if (subStep.path === routePath) {
+                            this.currentMainStep = mainIndex;
+                            this.currentSubStep = subIndex;
+                            return;
+                        }
+                    }
                 }
             }
-            this.evaImgCheckedValues = []
-        },
-        ableImgMehod(){
-            for (let i in this.imgEvaMethod){
-                for(let j in this.imgEvaMethod[i]){
-                    let button = document.getElementById("button" + i + j)
-                    this.methodHoverIndex = -1
-                    this.methodDescription = ""
-                    button.style.color = ""
-                    button.style.borderColor = "#C8DCFB"
-                    button.style.background = "#F2F4F9"
-                    button.blur()
-                }
-            }
-            
+             if (routePath.includes('/modelFairnessDebias')) {
+                 this.currentMainStep = 1; 
+                 this.currentSubStep = 0;
+             } else {
+                 this.currentMainStep = 0; 
+                 this.currentSubStep = 0;
+             }
         },
         /* 获取日志 */ 
-        getLog(){
-            // debugger
-            var that = this;
-            if(that.percent < 99){
-               that.percent += 1;
-            }
-            that.$axios.get('/Task/QueryLog', { params: { Taskid: that.tid } }).then((data) => {
-                // console.log("log:", data)
-                if (JSON.stringify(that.stidlist)=='{}'){
-                    that.logtext = [Object.values(data.data.Log).slice(-1)[0]];
-                }else{
-                    that.logtext=[]
-                    for(let temp in that.stidlist){
-                        that.logtext.push(data.data.Log[that.stidlist[temp]]);
-                    }
-                }
-            });
-        },
-        getData(){
-            var that = this;
-            that.$axios.get('/output/Resultdata', {params:{ Taskid: that.tid }}).then((data)=>{
-                console.log("dataget:",data);
-                that.result=data;
-            });
-        },
-        /* 停止结果获取循环 */ 
-        stopTimer() {
-            if (this.result.data.stop == 1 && this.tid == this.result.data.result.tid) {
-                // 关闭日志显示
-                this.percent=100
-                this.logflag = false;
-                // 关闭结果数据获取data
-                window.clearInterval(this.clk);
-                // 关闭日志获取结果获取
-                window.clearInterval(this.logclk);
-                // 显示结果窗口
-                this.isShowPublish = true;
-                // 处理结果
-                if (["German","Adult","Compas"].indexOf(this.dataname[this.dataNameValue]) > -1){
-                    this.result = this.result.data.result.model_debias;
-                }
-                else{
-                    this.result = this.result.data.result
-                }
-                
-                this.resultPro(this.result);
-            }else if(this.result.data.stop == 2 && this.tid == this.result.data.result.tid){
-                this.percent=100
-                // 关闭结果数据获取data
-                window.clearInterval(this.clk);
-                // 关闭日志获取结果获取
-                window.clearInterval(this.logclk);
-            }
-        },
-        /* 更新结果*/ 
-        update(){
-            this.getData();
-            try{
-                this.stopTimer();
-            }catch(err){}
-        },
-        /* 关闭结果窗口 */
-        closeDialog(){
-        this.isShowPublish=false;
-        //把绑定的弹窗数组 设为false即可关闭弹窗
-        },
-        onChangeEvaMethod(checkedValues){
-            console.log('checked = ', checkedValues);
-            this.evaCheckedValues = checkedValues
-        },
-        onChangeDebiasMethod(event){
-            console.log("debiasMethodValue:", this.debiasMethodValue);
-        },
-        /* 监听数据集选择 */
-        clientDatasetSelect(value, senAttrList, tarAttrList, staAttrList){
-            this.dataNameValue = value;
-            this.senAttrList = senAttrList;
-            this.tarAttrList = tarAttrList;
-            this.staAttrList = staAttrList;
-            if(senAttrList.length==0 || tarAttrList.length==0 || staAttrList.length==0){
-                this.buttonBGColor.background = "#C8DCFB";
-            }else{
-                this.buttonBGColor.background = "#0B55F4";
-            };
-            this.debiasDisabled={
-                "domain_discriminative":false,
-                "uniconf_adv":false,
-                "domain_independent":false,
-                "Adersarial Debiasing":false,
-                "Reject Option-SPd":false,
-                "Reject Option-AOd":false,
-                "Reject Option-EOd":false,
-                "Calibrated EOD-fnr":false,
-                "Calibrated EOD-fpr":false,
-                "Calibrated EOD-weighted":false,
-            };
-            if( ["Cifar10-S","CelebA"].indexOf(this.dataname[value]) == -1){
-                this.debiasDisabled["domain_discriminative"] = true;
-                this.debiasDisabled["uniconf_adv"] = true;
-                this.disableImgMehod()
-                if(['domain_discriminative', 'uniconf_adv'].indexOf(this.debiasMethodValue) > -1)(
-                    this.debiasMethodValue = 'domain_independent'
-                ) 
-            }else{
-                this.buttonBGColor.background = "#0B55F4";
-                this.ableImgMehod()
-                this.debiasDisabled={
-                "domain_discriminative":false,
-                "uniconf_adv":false,
-                "domain_independent":false,
-                "Adersarial Debiasing":true,
-                "Reject Option-SPd":true,
-                "Reject Option-AOd":true,
-                "Reject Option-EOd":true,
-                "Calibrated EOD-fnr":true,
-                "Calibrated EOD-fpr":true,
-                "Calibrated EOD-weighted":true,
-                };
-                if(['domain_discriminative', 'uniconf_adv'].indexOf(this.debiasMethodValue) == -1)(
-                    this.debiasMethodValue = 'domain_independent'
-                ) 
-            }
-            console.log("this.dataname:",value);
-            console.log("this.debiasDisabled:",this.debiasDisabled);
-        },
-        /* 鼠标移入评估算法解释框显示*/
-        checkboxMouseEnter(index, num){
-            this.rowkey = index - 1;
-            this.colkey = num - 1;
-            this.methodDesShow=[false,false,false,false,false,false,false,false];
-            this.methodDesShow[this.rowkey]=true;
-        },
-        /* result 处理*/
-        resultPro(res1){
-            var that = this;
-            that.percent=100;
-            
-            that.res.labels = []
-            if ("Consistency" in that.result){
-                that.res["score"]["bef"] = parseInt(that.result["Overall fairness"][0]*100);
-                that.res["score"]["aft"] =parseInt(that.result["Overall fairness"][1]*100);
-                that.downloadURL = that.result["Overall model path"]
-            }else{
-                that.res["score"]["bef"] = parseInt(that.result["model_evaluate"]["Overall fairness"]*100)
-                that.res["score"]["aft"] = parseInt(that.result["model_debias"]["Overall fairness"]*100)
-                that.downloadURL = that.result["model_debias"]["Overall model path"]
-            }
-            // 总分判断
-            if(that.res.score.bef > 80){
-                that.res.score_evaluate['bef'] = "优秀";
-                that.res.score_con['bef'] = "公平";
-            }else if(that.res.score.bef > 60 && that.res.score.bef <=80){
-                that.res.score_evaluate['bef'] = "良好";
-                that.res.score_con['bef'] = "较公平";
-            }else{
-                that.res.score_evaluate['bef'] = "差";
-                that.res.score_con['bef'] = "较不公平";
-            }
-            // 提升后总分判断
-            if(that.res.score.aft > 80){
-                that.res.score_evaluate['aft'] = "优秀";
-                that.res.score_con['aft'] = "公平";
-            }else if(that.res.score.aft > 60 && that.res.score.aft <=80){
-                that.res.score_evaluate['aft'] = "良好";
-                that.res.score_con['aft'] = "较公平";
-            }else{
-                that.res.score_evaluate['aft'] = "差";
-                that.res.score_con['aft'] = "较不公平";
-            }
-            if ("Consistency" in that.result){
-                that.res["consistency_score"]['bef'] = parseFloat(that.result["Overall individual fairness"][0]).toFixed(2)*100;
-                that.res["consistency_score"]['aft'] = parseFloat(that.result["Overall individual fairness"][1]).toFixed(2)*100;
-                that.res["group_score"]['bef'] =  parseFloat(that.result["Overall group fairness"][0]).toFixed(2)*100;
-                that.res["group_score"]['aft'] =  parseFloat(that.result["Overall group fairness"][1]).toFixed(2)*100;
-                that.res["Consistency"]['bef']=parseFloat(that.result.Consistency[0]*100).toFixed(2);
-                that.res["Consistency"]['aft']=parseFloat(that.result.Consistency[1]*100).toFixed(2);
-                that.res["Proportion"]=that.result.Proportion;
-                let cons_sub = (that.res["Consistency"]['aft'] - parseFloat(that.res["Consistency"]['bef'])).toFixed(2);
-                //得分图
-                drawconseva1("consevaBef",that.res["Consistency"]["bef"], '#0B55F4', "Original");
-                drawconseva1("consevaAft",that.res["Consistency"]["aft"], '#0B55F4', "Improved");
-                
-                that.res.consText = "模型个体公平性提升前得分为" + that.res.Consistency.bef + ",提升后的得分为" + that.res.Consistency.aft + "共提升了" + cons_sub + "分。";
-            
-                //直方图
-                // 初始化群体公平性
-                for(let attrTemp of that.senAttrList){
-                    that.res.attrEvaValue['bef'][attrTemp] = [];
-                    that.res.attrEvaValue['aft'][attrTemp] = [];
-                };
-                // 群体评估数据整合
-                for(var key in that.result){
-                    if (key == "Consistency"|| key == "Proportion" || key == "Corelation coefficients"|| key == "stop" || key.indexOf("Overall") != -1 || key.indexOf("score") != -1){
-                        continue;
-                    }
-                    else{
-                        that.res.labels.push(key);
-                        for (let attrTemp in that.result[key][0]){
-                            that.res.attrEvaValue['bef'][attrTemp].push(parseFloat(that.result[key][0][attrTemp]).toFixed(2));
-                        };
-                        for (let attrTemp in that.result[key][1]){
-                            that.res.attrEvaValue['aft'][attrTemp].push(parseFloat(that.result[key][1][attrTemp]).toFixed(2));
-                        }
-                    }
-                }
-                // 画图
-                for(let attrTemp of that.senAttrList){
-                    drawbarimproved(attrTemp, that.res.attrEvaValue['bef'][attrTemp], that.res.attrEvaValue['aft'][attrTemp], that.res.labels, "群体公平性评估指标");
-                    that.res.groupText[attrTemp]="本次测试敏感属性为"+attrTemp+"，目标属性为"+that.tarAttrList.toString()+"\
-                    ，直方图根据"+ that.res.labels.toString()+"算法评估结果绘制。"
-                }
-                // 占比图
-                var data = {
-                    id: "center_"+that.dataname[that.dataNameValue],
-                    label: that.dataname[that.dataNameValue],
-                    population: 1,
-                    children: []};
-                
-                for (let key in that.result.Proportion){
-                    var second_children={
-                        id:"second_"+key,
-                        label:key,
-                        population:1,
-                        children:[]
-                    };
-                    for( let key1 in that.result.Proportion[key]){
-                        var third_children={
-                        id:key+'_'+key1,
-                        label:key1,
-                        population:parseFloat(that.result.Proportion[key][key1]).toFixed(3),
-                        isLeaf: true,
-                        };
-                        second_children["children"].push(third_children);
-                    }
-                    data["children"].push(second_children);
-                }
-                drawPopGraph("pro_tree", data, centerPng, secondPng)
-                // 热力图
-                var personData=[];
-                var spearmanData=[];
-                var kendallData=[];
-                var NMIData=[];
-                var pearsonX=[];
-                var pearsonY=[];
-                var spearmanX=[];
-                var spearmanY=[];
-                var kendalltauX=[];
-                var kendalltauY=[];
-                var mutualX=[];
-                var mutualY=[];
-                for(let temp of this.result["Corelation coefficients"] ){
-                    if(temp.values.pearson != null){
-                        if(pearsonX.indexOf(temp["attr"]) == -1){
-                            pearsonX.push(temp["attr"])
-                        }
-                        if(pearsonY.indexOf(temp["target"]) == -1){
-                            pearsonY.push(temp["target"])
-                        }
-                        personData.push([pearsonX.indexOf(temp["attr"]), pearsonY.indexOf(temp["target"]) ,temp.values.pearson.toFixed(3)])
-                    }
-                    if(temp.values.spearman != null){
-                        if(spearmanX.indexOf(temp["attr"]) == -1){
-                            spearmanX.push(temp["attr"])
-                        }
-                        if(spearmanY.indexOf(temp["target"]) == -1){
-                            spearmanY.push(temp["target"])
-                        }
-                        spearmanData.push([spearmanX.indexOf(temp["attr"]) ,spearmanY.indexOf(temp["target"]) ,parseFloat(temp.values.spearman).toFixed(3)])
-                    }
-                    if(temp.values.kendalltau != null){
-                        if(kendalltauX.indexOf(temp["attr"]) == -1){
-                            kendalltauX.push(temp["attr"])
-                        }
-                        if(kendalltauY.indexOf(temp["target"]) == -1){
-                            kendalltauY.push(temp["target"])
-                        }
-                        kendallData.push([kendalltauX.indexOf(temp["attr"]), kendalltauY.indexOf(temp["target"]) ,parseFloat(temp.values.kendalltau).toFixed(3)])
-                    }
-                    if(temp.values.mutual_info != null){
-                        if(mutualX.indexOf(temp["attr"]) == -1){
-                            mutualX.push(temp["attr"])
-                        }
-                        if(mutualY.indexOf(temp["target"]) == -1){
-                            mutualY.push(temp["target"])
-                        }
-                        NMIData.push([mutualX.indexOf(temp["attr"]), mutualY.indexOf(temp["target"]), parseFloat(temp.values.mutual_info).toFixed(3)])
-                    }
-                };
-                if (mutualY.length>5){
-                    this.heat_height.nmi = 48 * mutualY.length + "px";
-                }
-                if (kendalltauY.length>5){
-                    this.heat_height.kendalltau = 48 * kendalltauY.length + "px";
-                }
-                if (spearmanY.length>5){
-                    this.heat_height.spearman = 48 * spearmanY.length + "px";
-                }
-                if (pearsonY.length>5){
-                    this.heat_height.pearson = 48 * pearsonY.length + "px";
-                }
-                var NMIColorList=["rgba(206, 221, 253, 1)", "rgba(157, 187, 251, 1)", "rgba(60, 119, 246, 1)", "rgba(11, 85, 244, 1)", "rgba(7, 51, 146, 1)"];
-                var spearmanColorList=["rgba(223, 206, 253, 1)", "rgba(191, 157, 251, 1)", "rgba(142, 84, 247, 1)" ,"rgba(94, 11, 244, 1)", "rgba(56, 7, 146, 1)"];
-                var kendallColorList=["rgba(253, 227, 206, 1)", "rgba(251, 199, 157, 1)", "rgba(247, 158, 84, 1)", "rgba(244, 116, 11, 1)", "rgba(146, 70, 7, 1)"];
-                var personColorList=["rgba(253, 206, 236, 1)", "rgba(251, 157, 218, 1)", "rgba(247, 84, 190, 1)", "rgba(244, 11, 162, 1)", "rgba(195, 9, 130, 1)"];
-                // person热力图
-                if( NMIData.length > 0 ){
-                    this.flag.nmi = true
-                    drawCorelationHeat("NMI", mutualX, mutualY, NMIData, NMIColorList);
-                }
-                if(personData.length > 0){
-                    this.flag.pearson = true
-                    drawCorelationHeat("person", pearsonX, pearsonY, personData, personColorList);
-                }
-                if(spearmanData.length > 0){
-                    this.flag.spearman = true
-                    drawCorelationHeat("spearman", spearmanX, spearmanY, spearmanData, spearmanColorList);
-                }
-                if(kendallData.length > 0){
-                    this.flag.kendalltau = true
-                    drawCorelationHeat("Kendall", kendalltauX, kendalltauY, kendallData, kendallColorList);
-                }
-            }
-            else{
-                that.res.attrEvaValue['bef'] = [];
-                that.res.attrEvaValue['aft'] = [];
-                // 群体评估数据整合
-                for(var key in that.result["model_debias"]){
-                    if (key == "Consistency"|| key == "Proportion" || key == "Corelation coefficients"|| key == "stop" || key.indexOf("Overall") != -1 || key.indexOf("score") != -1){
-                        continue;
-                    }
-                    else{
-                        that.res.labels.push(key);
-                        that.res.attrEvaValue['bef'].push(parseFloat(that.result["model_evaluate"][key]).toFixed(2));
-                        that.res.attrEvaValue['aft'].push(parseFloat(that.result["model_debias"][key]).toFixed(2));
-                    }
-                }
-                // 画图
-                drawbarimproved("evaBar", that.res.attrEvaValue['bef'], that.res.attrEvaValue['aft'], that.res.labels, "群体公平性评估指标");
-                that.res.groupText["evaBar"]="本次测试结果如上，直方图根据"+ that.res.labels.toString()+"算法评估结果绘制。"
-            }
-        },
-        initParam(){
-            this.logtext=[]
-            this.percent=0
-            this.postData={}
-            this.result = {}
-            this.resultbef ={}
-            this.tid=''
-            this.stidlist = {}
-            if(this.clk != ''){
-                window.clearInterval(this.clk)
-                this.clk = ''
-            }
-            if(this.logclk != ''){
-                window.clearInterval(this.logclk)
-                this.logclk = ''
-            }
-        },
-        /* 点击评估触发事件 */
-        dataEvaClick(){
-            this.initParam()
-            let evaMethod = []
-            if (["German","Adult","Compas"].indexOf(this.dataname[this.dataNameValue]) > -1){
-                evaMethod = this.evaCheckedValues
-                if (this.debiasMethodValue == 'domain_independent') {
-                    this.debiasMethodValue = "Domain Independent"
-                }
-                if (this.senAttrList.length ==0 ){
-                    this.$message.warning('请在数据集里面至少选择一项敏感属性！',3);
-                    return 0;
-                };
-                if (this.tarAttrList.length ==0 ){
-                    this.$message.warning('请在数据集里面选择一项目标属性！',3);
-                    return 0;
-                };
-                if (this.tarAttrList.length >1 ){
-                    this.$message.warning('模型公平性提升只能选择一项目标属性！',3);
-                    return 0;
-                };
-                if (this.staAttrList.length ==0 ){
-                    this.$message.warning('请在数据集里面至少选择一项统计属性！',3);
-                    return 0;
-                };
-            }else{
-                evaMethod = this.evaImgCheckedValues
-            }
-            /*判断选择*/
-
-            
-            if (evaMethod.length == 0){
-                this.$message.warning('请在评估算法中至少选择一项评估算法！',3);
-                return 0;
-            };
-            if (this.debiasMethodValue == ""){
-                this.$message.warning('请在提升算法中至少选择一项提升算法！',3);
-                return 0;
-            }
-            this.logflag = true;
-            var that=this;
-            that.percent = 20;
-            // that.tid = "20230830_1628_d8a6bfe"
-            // that.stidlist =  {"ModelFairnessEvaluate":"S20230830_1628_af12995","ModelFairnessDebias":"S20230830_1628_c8de9ed"};
-            // that.tid = "20230824_1354_e2decbd"
-            // that.stidlist =  {"DataFairnessDebias":"S20230825_1421_8f3bf6f"};
-            // that.postData={
-            //     dataname:that.dataname[that.dataNameValue],
-            //     senAttrList:JSON.stringify(that.senAttrList),
-            //     tarAttrList:that.tarAttrList[0],
-            //     staAttrList:JSON.stringify(that.staAttrList),
-            //     metrics:JSON.stringify(evaMethod),
-            //     modelname:"3 Hidden-layer FCN",
-            //     algorithmname:that.debiasMethodValue,
-            //     tid:that.tid};
-            // that.clk = window.setInterval(() => {
-            //     that.update();
-            // },6000)
-            // return
-            /* 调用创建主任务接口 */
-            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
-                console.log(result);
-                that.tid = result.data.Taskid;
-                that.postData={
-                dataname:that.dataname[that.dataNameValue],
-                senAttrList:JSON.stringify(that.senAttrList),
-                tarAttrList:that.tarAttrList[0],
-                staAttrList:JSON.stringify(that.staAttrList),
-                metrics:JSON.stringify(evaMethod),
-                modelname:"3 Hidden-layer FCN",
-                modelpath:that.modelpath,
-                algorithmname:that.debiasMethodValue,
-                test_mode:that.test_mode,
-                tid:that.tid};
-                console.log(that.postData)
-                that.percent = 40;
-                that.logflag = true;
-                that.logclk = window.setInterval(() => {
-                                    that.getLog();
-                                },2000)
-                if(['Cifar10-S', 'CelebA'].indexOf(that.postData.dataname) >-1){
-                    that.postData.modelname = "Resnet50"
-                    that.$axios.post("/ModelFairnessEvaluate",that.postData).then((res) => {
-                        /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
-                        console.log('eva res:', res)
-                        that.postData.test_mode = false
-                        that.stidlist["ModelFairnessEvaluate"] = res.data.stid
-                        that.$axios.post("ModelFairnessDebias",that.postData).then((res) => {
-                            /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
-                            that.stidlist["ModelFairnessDebias"] = res.data.stid
-                            that.clk = window.setInterval(() => {
-                                    that.update();
-                                },6000)
-                        }).catch((err) => {
-                                console.log(err)
-                                window.clearInterval(that.clk)
-                                window.clearInterval(that.logclk)
-                        });
-                    }).catch((err) => {
-                        console.log(err)
-                        window.clearInterval(that.clk)
-                        window.clearInterval(that.logclk)
-                    });
-                }
-                else{
-                    that.$axios.post("ModelFairnessDebias",that.postData).then((res) => {
-                    /* 同步任务，接口直接返回结果，日志关闭，结果弹窗显示 */
-                    that.stidlist["ModelFairnessDebias"] = res.data.stid
-                    that.clk = window.setInterval(() => {
-                            that.update();
-                        },6000)
-                    }).catch((err) => {
-                            console.log(err)
-                            window.clearInterval(that.clk)
-                            window.clearInterval(that.logclk)
-                    });
-                }
-                
-            }).catch((err) => {
-                console.log(err)
-            });    
-        },
-        
-        /* 处理子步骤变化 - Updated */
-        handleSubStepChange(step) {
-            this.currentSubStep = step;
-            // Find the correct path based on the new structure
-            const mainStep = this.fairnessSteps && this.fairnessSteps[0];
-            const subStep = mainStep && mainStep.subSteps && mainStep.subSteps[step];
-            const path = subStep && subStep.path;
-
-            if (path && this.$route.path !== path) { // Avoid navigating to the same path
-                this.$router.push(path);
-            }
-        },
-        
-        /* 根据当前路由设置进度条状态 - Updated */
-        setProgressStepsByRoute() {
-            const route = this.$route.path;
-             // Updated logic for the new 3 steps order
-            if (route.includes('/dataFairnessEva')) {
-                this.currentMainStep = 0;
-                this.currentSubStep = 0;
-            } else if (route.includes('/modelFairnessDebias')) { // This page is step 1 (0-indexed)
-                this.currentMainStep = 0;
-                this.currentSubStep = 1;
-            } else if (route.includes('/dataFairnessDebias')) { // Step 2
-                this.currentMainStep = 0;
-                this.currentSubStep = 2;
-            } else {
-                 // Default state if route doesn't match known steps
-                 this.currentMainStep = 0;
-                 this.currentSubStep = 1; // Default to this page's step
-            }
-        }
-    },
-    computed: { // Replaced modelSteps with fairnessSteps
-        fairnessSteps() {
-          return [
-            {
-              title: '公平性流程', // Main step title
-              subSteps: [
-                { title: '数据公平性评估', path: '/dataFairnessEva' },
-                { title: '模型公平性提升', path: '/modelFairnessDebias' },
-                { title: '数据公平性提升', path: '/dataFairnessDebias' }
-              ]
-            }
-          ];
-        }
-    },
+        // ... existing code ...
+    }
 }
 </script>
 <!-- <style  scoped> -->

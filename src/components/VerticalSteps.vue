@@ -181,6 +181,7 @@ export default {
   font-size: 16px;
   color: #666;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .sub-step.active .sub-step-dot,

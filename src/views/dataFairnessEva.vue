@@ -38,7 +38,7 @@
                 
                 <!-- 进度条组件 -->
                 <div class="progress-container">
-                    <h2 class="subTitle" style="margin-top: -96px;">公平性</h2>
+                    <!-- <h2 class="subTitle" style="margin-top: -96px;">公平性流程</h2> -->
                     <div class="progress-wrapper">
                         <vertical-steps
                             :mainSteps="fairnessSteps" 
@@ -290,7 +290,7 @@ export default {
             /* 日志框是否显示，false不显示，true显示，默认不显示 */
             logflag:false,
             /* 进度 */
-            percent:10,
+            percent:0,
             /* 日志内容 */
             logtext:[],
             dataname:["German","Adult","Compas"],
@@ -337,6 +337,26 @@ export default {
             /* 进度条当前步骤 */
             currentMainStep: 0,
             currentSubStep: 0,
+            fairnessSteps: [
+                {
+                    title: '数据',
+                    subSteps: [
+                        { title: '数据公平性评估', path: '/dataFairnessEva' }
+                    ]
+                },
+                {
+                    title: '模型',
+                    subSteps: [
+                        { title: '模型公平性提升', path: '/modelFairnessDebias' }
+                    ]
+                },
+                {
+                    title: '算法',
+                    subSteps: [
+                        { title: '数据公平性提升', path: '/dataFairnessDebias' }
+                    ]
+                },
+            ],
         }
     },
     watch:{
@@ -357,6 +377,21 @@ export default {
             handler(to) {
                 this.setProgressStepsByRoute();
             }
+        },
+        dataNameValue(value){
+            // 按钮解禁
+            this.disStatus = false
+            this.buttonBGColor = "background-color: #4569D4;color:aliceblue"
+            // 根据选择的数据集，显示对应的保护属性
+            this.protectAttr = this.dataname[value]
+            // console.log(this.protectAttr)
+        },
+        clientDatasetName(value){
+            // 按钮解禁
+            this.disStatus = false
+            this.buttonBGColor = "background-color: #4569D4;color:aliceblue"
+            // 根据选择的数据集，显示对应的保护属性
+            this.protectAttr = value
         }
     },
     created() {
@@ -708,19 +743,14 @@ export default {
             }
         }
     },
-    computed: { // Swapped second and third steps
-        fairnessSteps() {
-          return [
-            {
-              title: '公平性流程', // Main step title
-              subSteps: [
-                { title: '数据公平性评估', path: '/dataFairnessEva' },
-                { title: '模型公平性提升', path: '/modelFairnessDebias' }, // Swapped with dataFairnessDebias
-                { title: '数据公平性提升', path: '/dataFairnessDebias' }  // Swapped with modelFairnessDebias
-              ]
-            }
-          ];
-        }
+    computed: {
+        // breadcrumbItems() {
+        //   return [
+        //     { text: '功能在线体验', link: '/homme_menu' },
+        //     { text: '数据公平性评估', link: '/dataFairnessEva' },
+        //     // { text: this.funcDesText.name, link: this.$route.path } // 当前页面
+        //   ];
+        // },
     },
 }
 </script>

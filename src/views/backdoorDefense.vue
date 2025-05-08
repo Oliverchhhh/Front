@@ -10,56 +10,56 @@
                 <func_introduce :funcDesText="funcDesText"></func_introduce>
                 <!-- 参数配置和进度条容器 -->
                 <div class="main-container">
+                <!-- 参数配置容器 -->
+                <div class="paramCon">
                     <!-- 参数配置容器 -->
-                    <div class="paramCon">
-                        <!-- 参数配置容器 -->
-                        <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
-                        
-                        <div class="funcParam">
-                            <div class="paramTitle">
-                                <!-- 功能标题和执行按钮 -->
-                                <!-- icon展示 -->
-                                <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
-                                <!-- 功能名称 -->
-                                <h3>{{ funcDesText.name }}</h3>
-                                <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
-                                    <a-icon type="security-scan" />
-                                    评估
-                                </a-button>
+                    <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
+                    
+                    <div class="funcParam">
+                        <div class="paramTitle">
+                            <!-- 功能标题和执行按钮 -->
+                            <!-- icon展示 -->
+                            <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                            <!-- 功能名称 -->
+                            <h3>{{ funcDesText.name }}</h3>
+                            <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                                <a-icon type="security-scan" />
+                                评估
+                            </a-button>
+                        </div>
+                        <a-divider />
+                        <div class="inputdiv">
+                            <!-- 输入主体 -->
+                            <div class="mainParamNameNotop">请选择数据集</div>
+                            <DataSetCard style="width: 1104px;  margin-bottom: 16px;" v-for="(info, index) in dataSetInfo"
+                                :key="'Dataset' + index" v-bind="info" :indexInParent="index" @selectDataset="changeDataset"
+                                :checked="index == selectedDataset">
+                            </DataSetCard>
+                            <div class="mainParamName48">请选择模型</div>
+                            <ModelCard style="width: 1104px; margin-bottom: 16px;" v-for="(info, index) in modelInfo" :key="'Model' + index"
+                                v-bind="info" :indexInParent="index" @selectModel="changeModel"
+                                :checked="index == selectedModel">
+                            </ModelCard>
+                            <div class="mainParamName48">请输入攻击样本数</div>
+                            <a-input class="samplenumBox" v-model="sampleNum" style="height: 60px;padding:16px 24px;" placeholder="请在此输入攻击样本数，（输入范围1-1000，建议值50）" />
+                            <div class="mainParamName48">攻击方法</div>
+                            <a-radio :style="radioStyle" defaultChecked disabled>
+                                BackdoorAttack
+                            </a-radio>
+                            <div class="mainParamName48">请选择防御方法（可多选）</div>
+                            <div v-for="(methods, i) in defensemethodInfo" :key="i" style="margin-bottom: 16px;">
+                                <a-row :gutter="16" style="height:60px;" type="flex">
+                                    <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod">
+                                        <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
+                                            @mouseover="methodButtonOver(i, j)"
+                                            @mouseleave="methodnButtonLeave(i, j)"
+                                            >{{ method.name }}</a-button>
+                                    </a-col>
+                                </a-row>
+                                <div v-if="methodHoverIndex==i" style="padding:24px"> {{ methodDescription }} </div>
                             </div>
-                            <a-divider />
-                            <div class="inputdiv">
-                                <!-- 输入主体 -->
-                                <div class="mainParamNameNotop">请选择数据集</div>
-                                <DataSetCard style="width: 1104px;  margin-bottom: 16px;" v-for="(info, index) in dataSetInfo"
-                                    :key="'Dataset' + index" v-bind="info" :indexInParent="index" @selectDataset="changeDataset"
-                                    :checked="index == selectedDataset">
-                                </DataSetCard>
-                                <div class="mainParamName48">请选择模型</div>
-                                <ModelCard style="width: 1104px; margin-bottom: 16px;" v-for="(info, index) in modelInfo" :key="'Model' + index"
-                                    v-bind="info" :indexInParent="index" @selectModel="changeModel"
-                                    :checked="index == selectedModel">
-                                </ModelCard>
-                                <div class="mainParamName48">请输入攻击样本数</div>
-                                <a-input class="samplenumBox" v-model="sampleNum" style="height: 60px;padding:16px 24px;" placeholder="请在此输入攻击样本数，（输入范围1-1000，建议值50）" />
-                                <div class="mainParamName48">攻击方法</div>
-                                <a-radio :style="radioStyle" defaultChecked disabled>
-                                    BackdoorAttack
-                                </a-radio>
-                                <div class="mainParamName48">请选择防御方法（可多选）</div>
-                                <div v-for="(methods, i) in defensemethodInfo" :key="i" style="margin-bottom: 16px;">
-                                    <a-row :gutter="16" style="height:60px;" type="flex">
-                                        <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod">
-                                            <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
-                                                @mouseover="methodButtonOver(i, j)"
-                                                @mouseleave="methodnButtonLeave(i, j)"
-                                                >{{ method.name }}</a-button>
-                                        </a-col>
-                                    </a-row>
-                                    <div v-if="methodHoverIndex==i" style="padding:24px"> {{ methodDescription }} </div>
-                                </div>
 
-                                <!-- <div style="margin-bottom: 20px;"></div> -->
+                            <!-- <div style="margin-bottom: 20px;"></div> -->
                             </div>
                         </div>
                     </div>

@@ -80,7 +80,7 @@
                     
                     <!-- 进度条组件 -->
                     <div class="progress-container">
-                        <h2 class="subTitle" style="margin-top: -96px;">对抗性</h2>
+                        <!-- <h2 class="subTitle" style="margin-top: -96px;">对抗性</h2> -->
                         <div class="progress-wrapper">
                             <vertical-steps
                                 :mainSteps="adversarialSteps"
@@ -659,11 +659,32 @@ export default {
             /* Initialize steps correctly for this page */
             currentMainStep: 0,
             currentSubStep: 0, // This is the first step of Adversarial flow
+            /* Add Steps Data */
+            adversarialSteps: [
+                {
+                    title: '数据',
+                    subSteps: [
+                        { title: '对抗性数据生成', path: '/advAttack' }
+                    ]
+                },
+                {
+                    title: '模型',
+                    subSteps: [
+                        { title: '对抗攻击防御', path: '/advAttackDefense' }
+                    ]
+                },
+                {
+                    title: '算法',
+                    subSteps: [
+                        { title: '对抗性训练算法', path: '/robust_advTraining' }
+                    ]
+                },
+            ],
         }
     },
-    watch: {
-        /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
-        isShowPublish:{
+    watch:{
+        /* 判断弹框是否显示 */
+        resultVisible:{
             immediate:true,
             handler(v){
                 if(v){
@@ -676,29 +697,73 @@ export default {
         /* 监听路由变化，更新进度条状态 */
         '$route': {
             immediate: true,
-            handler(to) {
-                this.setProgressStepsByRoute();
+            handler() {
+                // Ensure steps data is available before calling
+                if (this.adversarialSteps && this.adversarialSteps.length > 0) { 
+                    this.setProgressStepsByRoute();
+                }
+            }
+        },
+        selectedDataset:{
+            handler(value){
+                if(value==0){
+                    this.modelInfo = [
+                        {
+                            name: "ResNet18",
+                            layer:18
+                        },
+                        {
+                            name: "ResNet34",
+                            layer:34
+                        },
+                        {
+                            name: "ResNet50",
+                            layer:50
+                        },
+                        {
+                            name: "ResNet101",
+                            layer:101
+                        },
+                        {
+                            name: "ResNet152",
+                            layer:152
+                        },
+                        {
+                            name: "Vicuna-7B-v1.1",
+                            layer:152
+                        },
+                    ]
+                }else{
+                    this.modelInfo = [
+                        {
+                            name: "LeNet-5",
+                            layer:5
+                        },
+                    ]
+                }
+                this.changeModel(0)
             }
         }
     },
     created() {
         document.title = '对抗攻击评估';
-        this.showmethodInfo = this.methodInfoNoParam;
-        this.setProgressStepsByRoute();
-    },
-    //在离开页面时执行
-    beforeDestroy() {
-        if(this.clk) { //如果定时器还在运行,关闭定时器
-            window.clearInterval(this.clk); //关闭
-        }
-        if(this.logclk){
-            window.clearInterval(this.logclk);
+        // Ensure steps data is available before calling
+        if (this.adversarialSteps && this.adversarialSteps.length > 0) { 
+             this.setProgressStepsByRoute();
+        } else {
+             console.warn('adversarialSteps not ready in created()');
         }
     },
-    mounted() {
-        // 确保在组件挂载后设置正确的进度条状态
+    mounted(){
+        this.changeDataset(0);
+        this.changeModel(0);
+        // Ensure steps data is available after mount and DOM update
         this.$nextTick(() => {
-            this.setProgressStepsByRoute();
+            if (this.adversarialSteps && this.adversarialSteps.length > 0) { 
+                this.setProgressStepsByRoute();
+            } else {
+                 console.warn('adversarialSteps not ready in mounted()');
+            }
         });
     },
     methods: { 
@@ -967,35 +1032,43 @@ export default {
             }
         },
         /* 处理子步骤变化 - Updated for Adversarial steps */
-        handleSubStepChange(step) {
-            this.currentSubStep = step;
-            // Find the correct path based on the new structure
-            const mainStep = this.adversarialSteps && this.adversarialSteps[0]; // Changed back
-            const subStep = mainStep && mainStep.subSteps && mainStep.subSteps[step];
-            const path = subStep && subStep.path;
-
-            if (path && this.$route.path !== path) { // Avoid navigating to the same path
-                this.$router.push(path);
+        handleSubStepChange(subStepIndex) {
+            const mainStep = this.adversarialSteps[this.currentMainStep];
+            if (mainStep && mainStep.subSteps && mainStep.subSteps[subStepIndex]) {
+                const path = mainStep.subSteps[subStepIndex].path;
+                this.currentSubStep = subStepIndex; 
+                if (path && this.$route.path !== path) {
+                    this.$router.push(path);
+                }
+            } else {
+                 console.error("Sub-step path not found for", this.currentMainStep, subStepIndex);
             }
         },
         /* 根据当前路由设置进度条状态 - Updated for Adversarial steps */
         setProgressStepsByRoute() {
-            const route = this.$route.path;
-             // Logic for the Adversarial 3 steps order - SWAPPED 2nd and 3rd
-            if (route.includes('/advAttack')) { // This page is step 0
-                this.currentMainStep = 0;
-                this.currentSubStep = 0;
-            } else if (route.includes('/advAttackDefense')) { // Swapped with robust_advTraining - Step 1
-                this.currentMainStep = 0;
-                this.currentSubStep = 1;
-            } else if (route.includes('/robust_advTraining')) { // Swapped with advAttackDefense - Step 2
-                this.currentMainStep = 0;
-                this.currentSubStep = 2;
-            } else {
-                 // Default state if route doesn't match known steps
-                 this.currentMainStep = 0;
-                 this.currentSubStep = 0; // Default to this page's step
+            const routePath = this.$route.path;
+            if (!this.adversarialSteps || this.adversarialSteps.length === 0) return;
+            for (let mainIndex = 0; mainIndex < this.adversarialSteps.length; mainIndex++) {
+                const mainStep = this.adversarialSteps[mainIndex];
+                if (mainStep.subSteps) {
+                    for (let subIndex = 0; subIndex < mainStep.subSteps.length; subIndex++) {
+                        const subStep = mainStep.subSteps[subIndex];
+                        if (subStep.path === routePath) {
+                            this.currentMainStep = mainIndex;
+                            this.currentSubStep = subIndex;
+                            return;
+                        }
+                    }
+                }
             }
+            // Default for this page if no specific sub-step matches
+             if (routePath.includes('/advAttack')) {
+                 this.currentMainStep = 0; 
+                 this.currentSubStep = 0;
+             } else {
+                 this.currentMainStep = 0; // Fallback to first step
+                 this.currentSubStep = 0;
+             }
         },
     },
     computed: { // Swapped second and third steps
@@ -1010,8 +1083,8 @@ export default {
               ]
             }
           ];
-        }
-    },
+            }
+        },
 }
 </script>
 <!-- <style  scoped> -->

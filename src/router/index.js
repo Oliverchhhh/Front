@@ -18,6 +18,26 @@ const router = new Router({
       component: () => import('../views/login.vue')
     },
     {
+      path: '/newwork',
+      name: 'newwork',
+      component: () => import('../views/newwork.vue')
+    },
+    {
+      path: '/newwork_func1',
+      name: 'newwork_func1',
+      component: () => import('../views/newwork_func1.vue')
+    },
+    {
+      path: '/newwork_func2',
+      name: 'newwork_func2',
+      component: () => import('../views/newwork_func2.vue')
+    },
+    {
+      path: '/newwork_func3',
+      name: 'newwork_func3',
+      component: () => import('../views/newwork_func3.vue')
+    },
+    {
       path: '/evaluation',
       name: 'Evaluation',
       component: () => import('../views/evaluation.vue')
