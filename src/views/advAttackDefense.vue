@@ -46,8 +46,9 @@
                                 <div v-for="(methods, i) in showmethodInfo" :key="i" style="margin-bottom: 16px;">
                                     <a-row :gutter="16" style="height:50px;" type="flex">
                                         <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod">
-                                            <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
-                                                >{{ method.name }}</a-button>
+                                            <a-button :id="'button' + i + j" @click="changeMethods(i, j, true)"
+                                                @mouseover="methodButtonOver(i, j)"
+                                                @mouseleave="methodnButtonLeave(i, j)">{{ method.name }}</a-button>
                                         </a-col>
                                     </a-row>
                                     <div v-if="methodHoverIndex==i && methodDescription !== ''" style="padding:14px 24px;margin-bottom: 16px;"> {{ methodDescription }} </div>
@@ -64,7 +65,7 @@
                             <div v-for="(methods, i) in showdefensemethodInfo" :key="i" style="margin-bottom: 16px;">
                                 <a-row :gutter="16" style="height:60px" type="flex">
                                     <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod" >
-                                        <a-button :id="'button' + i + j"  @click="changeMethods(i,j)"
+                                        <a-button :id="'button' + i + j" @click="changeMethods(i, j, false)"
                                             @mouseover="methodButtonOver(i, j)"
                                             @mouseleave="methodnButtonLeave(i, j)"
                                             >{{ method.name }}</a-button>
@@ -898,6 +899,10 @@ export default {
                 this.$message.warning('请至少选择一项防御方法！',3);
                 return 0;
             }
+            if (this.selectedMethod.length == 0){
+                this.$message.warning('请至少选择一项攻击方法！',3);
+                return 0;
+            }
             
             this.logflag = true;
             var that = this;
@@ -907,15 +912,17 @@ export default {
                 console.log(result);
                 that.tid = result.data.Taskid;
                 that.logclk = window.setInterval(that.getLog, 6000);
+                
                 /* 请求体 postdata*/
                 that.postData = {
                     adv_dataset: dataset,
                     adv_model: model,
-                    adv_method: that.methodInfo[that.selectedMethod[0]].name,
+                    adv_method: that.selectedMethod, // Send all selected attack methods as an array
                     adv_nums: that.sampleNum,
                     defense_methods: that.selectedDefenseMethod,
                     tid: that.tid
                 };
+                
                 console.log(this.postData)
                 that.$axios.post("/detect", that.postData).then((res) => {
                     that.result = res.data;
@@ -980,24 +987,51 @@ export default {
         updataMethodAttributes(index, attributes_dict) {
             this.selectedAttributes[this.methodInfo[index].id] = attributes_dict;
         },
-        changeMethods(i, j) {
-            let button = document.getElementById("button" + i + j)
+        changeMethods(i, j, isAttack = false) {
+            let button = document.getElementById("button" + i + j);
             if (button.style.color == "") {
-                this.methodHoverIndex = i
-                this.methodDescription = this.showdefensemethodInfo[i][j].description
-                button.style.color = "#0B55F4"
-                button.style.borderColor = "#C8DCFB"
-                button.style.background = "#E7F0FD"
-                this.selectedDefenseMethod.push(this.showdefensemethodInfo[i][j].id)
+                this.methodHoverIndex = i;
+                
+                if (isAttack) {
+                    // For attack methods
+                    const method = this.showmethodInfo[i][j];
+                    this.methodDescription = method.description;
+                    button.style.color = "#0B55F4";
+                    button.style.borderColor = "#C8DCFB";
+                    button.style.background = "#E7F0FD";
+                    
+                    // Add method to selectedMethod array if not already there
+                    if (this.selectedMethod.indexOf(method.name) === -1) {
+                        this.selectedMethod.push(method.name);
+                    }
+                } else {
+                    // For defense methods
+                    this.methodDescription = this.showdefensemethodInfo[i][j].description;
+                    button.style.color = "#0B55F4";
+                    button.style.borderColor = "#C8DCFB";
+                    button.style.background = "#E7F0FD";
+                    this.selectedDefenseMethod.push(this.showdefensemethodInfo[i][j].id);
+                }
             } else {
-                this.methodHoverIndex = -1
-                this.methodDescription = ""
-                button.style.color = ""
-                button.style.borderColor = "#C8DCFB"
-                button.style.background = "#F2F4F9"
-                button.blur()
-                this.selectedDefenseMethod.splice(this.selectedDefenseMethod.indexOf(this.showdefensemethodInfo[i][j].id), 1 )
-                delete this.postData[this.showdefensemethodInfo[i][j].id]
+                this.methodHoverIndex = -1;
+                this.methodDescription = "";
+                button.style.color = "";
+                button.style.borderColor = "#C8DCFB";
+                button.style.background = "#F2F4F9";
+                button.blur();
+                
+                if (isAttack) {
+                    // For attack methods
+                    const method = this.showmethodInfo[i][j];
+                    const index = this.selectedMethod.indexOf(method.name);
+                    if (index > -1) {
+                        this.selectedMethod.splice(index, 1);
+                    }
+                } else {
+                    // For defense methods
+                    this.selectedDefenseMethod.splice(this.selectedDefenseMethod.indexOf(this.showdefensemethodInfo[i][j].id), 1);
+                    delete this.postData[this.showdefensemethodInfo[i][j].id];
+                }
             }
         },
         /* 处理子步骤变化 */
@@ -1040,6 +1074,25 @@ export default {
                 this.currentMainStep = 0; 
                 this.currentSubStep = 0;
                 console.warn(`Route ${routePath} not found in defenseSteps, defaulting to 0,0`);
+            }
+        },
+        // Add these methods to handle mouse hover on attack and defense methods
+        methodButtonOver(i, j) {
+            this.methodHoverIndex = i;
+            let isAttack = document.getElementById("button" + i + j).parentElement.classList.contains("denfenseMethod");
+            if (isAttack) {
+                this.methodDescription = this.showmethodInfo[i][j].description;
+            } else {
+                this.methodDescription = this.showdefensemethodInfo[i][j].description;
+            }
+        },
+
+        methodnButtonLeave(i, j) {
+            // Keep showing description if button is active
+            let button = document.getElementById("button" + i + j);
+            if (button.style.color !== "rgb(11, 85, 244)" && button.style.color !== "#0B55F4") {
+                this.methodHoverIndex = -1;
+                this.methodDescription = "";
             }
         },
     },
