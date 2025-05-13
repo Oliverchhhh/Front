@@ -238,19 +238,19 @@ export default {
                     ]
                 },
                 {
-                    title: '模型',
-                    subSteps: [
-                        { title: '对抗攻击防御', path: '/advAttackDefense' }
-                    ]
-                },
-                {
                     title: '算法',
                     subSteps: [
                         { title: '对抗性训练算法', path: '/robust_advTraining' }
                     ]
                 },
+                {
+                    title: '模型',
+                    subSteps: [
+                        { title: '对抗攻击防御', path: '/advAttackDefense' }
+                    ]
+                }
             ],
-            currentMainStep: 2, // Algorithm
+            currentMainStep: 1, // Algorithm - now at index 1
             currentSubStep: 0,  // 对抗性训练算法
             datasetChoice: "CIFAR10",
             MNIST_imgs:[
@@ -553,7 +553,7 @@ export default {
             }
             // Default for this page if no specific sub-step matches
             if (routePath.includes('/robust_advTraining')) {
-                 this.currentMainStep = 2; 
+                 this.currentMainStep = 1; // 算法 step is now at index 1 
                  this.currentSubStep = 0;
             } else {
                  this.currentMainStep = 0; // Fallback to first step

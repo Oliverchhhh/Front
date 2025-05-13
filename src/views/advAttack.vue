@@ -55,7 +55,7 @@
                                     
 
                                 </div>
-                                <div class="mainParamName48">请选择攻击方法（可多选）</div>
+                                <div class="mainParamName48">请选择攻击方法（单选）</div>
                                 <MethodCard v-if="modelInfo[selectedModel].name != 'Vicuna-7B-v1.1'" style="width: 1104px; " v-for="(info, index) in methodInfo" :key="'Method' + index"
                                     v-bind="info" :indexInParent="index" :attack_type="'advAttack'" :dataset="selectedDataset" @updateAttributes="updataMethodAttributes" 
                                     @selectMethod="updateMethod" :checked="selectedMethod.indexOf(methodInfo[index].id) > -1">
@@ -467,17 +467,6 @@ export default {
                     ]
                 },
                 {
-                    name: "SquareAttackL1",
-                    id:"SquareAttackL1",
-                    description: "该方法的主体思路是使用优化理论中的随机搜索方法来寻找对抗噪声，这种随机搜索的方法很多黑盒攻击方法都采用过。随机搜索的总体框架大体相同，如下图所示。基本思路是在在一个采用空间中随机选择一个噪声，如果该噪声能够降低目标函数的损失则将其添加到原图片上，否则进入下一轮的随机搜索。支持L1 norm范数。",
-                    attributes: [
-                        [
-                        { name: "初始化百分比", key:"p_init", defaultNumber: 0.05, number: 0.0, type: "inputNumber" , min: 0, step:0.01},
-                        { name: "重启次数", key:"n_restarts", defaultNumber: 1, number: 0, type: "inputNumber" , min: 1, step:1},
-                        { name: "loss类型", key:"loss_type", defaultNumber: 0, number: 0, type: "selectgroup" ,valuelist:["margin","ce"]},    
-                    ],
-                    ]
-                },{
                     name: "SquareAttackL2",
                     id:"SquareAttackL2",
                     description: "该方法的主体思路是使用优化理论中的随机搜索方法来寻找对抗噪声，这种随机搜索的方法很多黑盒攻击方法都采用过。随机搜索的总体框架大体相同，如下图所示。基本思路是在在一个采用空间中随机选择一个噪声，如果该噪声能够降低目标函数的损失则将其添加到原图片上，否则进入下一轮的随机搜索。支持L2 norm范数。",
@@ -668,15 +657,15 @@ export default {
                     ]
                 },
                 {
-                    title: '模型',
-                    subSteps: [
-                        { title: '对抗攻击防御', path: '/advAttackDefense' }
-                    ]
-                },
-                {
                     title: '算法',
                     subSteps: [
                         { title: '对抗性训练算法', path: '/robust_advTraining' }
+                    ]
+                },
+                {
+                    title: '模型',
+                    subSteps: [
+                        { title: '对抗攻击防御', path: '/advAttackDefense' }
                     ]
                 },
             ],
@@ -1071,20 +1060,20 @@ export default {
              }
         },
     },
-    computed: { // Swapped second and third steps
+    computed: { // Proper order: 数据-算法-模型
         adversarialSteps() {
           return [
             {
               title: '对抗性流程', // Main step title
               subSteps: [
                 { title: '对抗性数据生成', path: '/advAttack' },
-                { title: '对抗攻击防御', path: '/advAttackDefense' },    // Swapped
-                { title: '对抗性训练算法', path: '/robust_advTraining' } // Swapped
+                { title: '对抗性训练算法', path: '/robust_advTraining' },
+                { title: '对抗攻击防御', path: '/advAttackDefense' }
               ]
             }
           ];
-            }
-        },
+        }
+    },
 }
 </script>
 <!-- <style  scoped> -->

@@ -445,19 +445,19 @@ export default {
                     ]
                 },
                 {
-                    title: '模型',
-                    subSteps: [
-                        { title: '模型公平性提升', path: '/modelFairnessDebias' }
-                    ]
-                },
-                {
                     title: '算法',
                     subSteps: [
                         { title: '数据公平性提升', path: '/dataFairnessDebias' }
                     ]
                 },
+                {
+                    title: '模型',
+                    subSteps: [
+                        { title: '模型公平性提升', path: '/modelFairnessDebias' }
+                    ]
+                }
             ],
-            currentMainStep: 2, // Default for this page (Algorith/算法)
+            currentMainStep: 1, // Default for this page (Algorithm/算法)
             currentSubStep: 0,  // Default for this page (Data Fairness Improvement)
         }
     },
@@ -562,8 +562,8 @@ export default {
                 this.result = this.result.data.result.data_debias;
                 this.resultPro(this.result);
                 // 更新进度条到完成状态
-                this.currentMainStep = 2;
-                this.currentSubStep = 2;
+                this.currentMainStep = 1;
+                this.currentSubStep = 0;
             }
         },
         /* 更新结果*/ 
@@ -638,10 +638,10 @@ export default {
             }
             // Default for this page if no specific sub-step matches
              if (routePath.includes('/dataFairnessDebias')) {
-                 this.currentMainStep = 2; 
+                 this.currentMainStep = 1; // 算法 step is now at index 1 
                  this.currentSubStep = 0;
              } else {
-                 this.currentMainStep = 0; // Fallback
+                 this.currentMainStep = 0; // Fallback to first step
                  this.currentSubStep = 0;
              }
         },
@@ -917,11 +917,21 @@ export default {
         fairnessSteps() {
           return [
             {
-              title: '公平性流程', // Main step title
+              title: '数据',
               subSteps: [
-                { title: '数据公平性评估', path: '/dataFairnessEva' },
-                { title: '模型公平性提升', path: '/modelFairnessDebias' },
+                { title: '数据公平性评估', path: '/dataFairnessEva' }
+              ]
+            },
+            {
+              title: '算法',
+              subSteps: [
                 { title: '数据公平性提升', path: '/dataFairnessDebias' }
+              ]
+            },
+            {
+              title: '模型',
+              subSteps: [
+                { title: '模型公平性提升', path: '/modelFairnessDebias' }
               ]
             }
           ];

@@ -52,7 +52,7 @@
                                     </a-row>
                                 </div>
                                 <!-- 攻击方法描述区域 - 统一显示 -->
-                                <div v-if="attackMethodDescription !== ''" class="methodDescription"> {{ attackMethodDescription }} </div>
+                                <div v-if="methodDescription !== '' && isDescriptionForAttack" class="methodDescription"> {{ methodDescription }} </div>
 
                                 <AdvAttackEval v-if="modelInfo[selectedModel].name != 'Vicuna-7B-v1.1'" :is-show="resultVisible" :result="result" :postData="postData" @on-close="() => { resultVisible = !resultVisible }">
                                 </AdvAttackEval>
@@ -73,7 +73,7 @@
                                 </a-row>
                             </div>
                             <!-- 防御方法描述区域 - 统一显示 -->
-                            <div v-if="defenseMethodDescription !== ''" class="methodDescription"> {{ defenseMethodDescription }} </div>
+                            <div v-if="methodDescription !== '' && !isDescriptionForAttack" class="methodDescription"> {{ methodDescription }} </div>
 
                             <AdvAttackDefenseEval :is-show="resultVisible" :result="result" :postData="postData" @on-close="() => { resultVisible = !resultVisible }">
                             </AdvAttackDefenseEval>
@@ -164,9 +164,9 @@ export default {
     },
     data() {
         return {
-            // Track separate descriptions for attack and defense methods
-            attackMethodDescription: "",
-            defenseMethodDescription: "",
+            // Remove unused variable
+            methodDescription:"",
+            isDescriptionForAttack: true, // Flag to track if the description is for attack or defense method
             /* 单选按钮样式 */
             radioStyle: {
                 display: 'block',
@@ -1044,8 +1044,7 @@ export default {
             
             // 清除所有选中状态
             this.selectedMethod = [];
-            this.attackMethodDescription = "";
-            this.defenseMethodDescription = "";
+            this.methodDescription = "";
             this.selectedAttributes = {};
             
             // 更新导航步骤为"模型"-"选择模型"
@@ -1060,10 +1059,11 @@ export default {
             if (checked){
                 this.selectedMethod.push(this.methodInfo[index].id);
                 // Update the description
-                this.attackMethodDescription = this.methodInfo[index].description;
+                this.methodDescription = this.methodInfo[index].description;
+                this.isDescriptionForAttack = true;
             } else {
                 // Clear description if no selection
-                this.attackMethodDescription = "";
+                this.methodDescription = "";
             }
             
             // Clear all other method cards
@@ -1105,13 +1105,12 @@ export default {
                     button.style.color = "#0B55F4";
                     button.style.borderColor = "#C8DCFB";
                     button.style.background = "#E7F0FD";
-                    
                     // 单选模式，替换数组内容
                     this.selectedMethod = [method.name];
                     this.selectedAttributes[method.name] = {};
-                    
-                    // 更新攻击方法描述
-                    this.attackMethodDescription = method.description;
+                    // 更新方法描述
+                    this.methodDescription = method.description;
+                    this.isDescriptionForAttack = true;
                     
                     // 更新导航步骤为"模型"-"对抗攻击防御"
                     this.updateCurrentStep(2, 0);
@@ -1123,9 +1122,10 @@ export default {
                     button.blur();
                     this.selectedMethod = [];
                     delete this.selectedAttributes[method.name];
-                    
-                    // 清除攻击方法描述
-                    this.attackMethodDescription = "";
+                    // 清除方法描述
+                    if (this.isDescriptionForAttack) {
+                        this.methodDescription = "";
+                    }
                 }
             } else {
                 // 防御方法 - 多选模式
@@ -1134,14 +1134,15 @@ export default {
                     button.style.color = "#0B55F4";
                     button.style.borderColor = "#C8DCFB";
                     button.style.background = "#E7F0FD";
-                    
                     // 多选模式，添加到数组
                     if (this.selectedDefenseMethod.indexOf(method.id) === -1) {
                         this.selectedDefenseMethod.push(method.id);
                     }
-                    
-                    // 更新防御方法描述
-                    this.defenseMethodDescription = method.description;
+                    // 更新防御方法描述，但不影响攻击方法描述
+                    if (!this.isDescriptionForAttack || this.methodDescription === "") {
+                        this.methodDescription = method.description;
+                        this.isDescriptionForAttack = false;
+                    }
                     
                     // 更新导航步骤为"模型"-"对抗攻击防御"
                     this.updateCurrentStep(2, 0);
@@ -1151,16 +1152,14 @@ export default {
                     button.style.borderColor = "#C8DCFB";
                     button.style.background = "#F2F4F9";
                     button.blur();
-                    
                     // 从数组中移除
                     const index = this.selectedDefenseMethod.indexOf(method.id);
                     if (index > -1) {
                         this.selectedDefenseMethod.splice(index, 1);
                     }
-                    
                     // 如果没有选中的防御方法，清除防御方法描述
-                    if (this.selectedDefenseMethod.length === 0) {
-                        this.defenseMethodDescription = "";
+                    if (!this.isDescriptionForAttack && this.selectedDefenseMethod.length === 0) {
+                        this.methodDescription = "";
                     }
                 }
             }
@@ -1190,8 +1189,10 @@ export default {
                 }
             }
             
-            // 清除攻击方法描述
-            this.attackMethodDescription = "";
+            // Only clear description if it's currently showing an attack method description
+            if (this.isDescriptionForAttack) {
+                this.methodDescription = "";
+            }
         },
         
         /* 处理子步骤变化 */
@@ -1294,7 +1295,7 @@ export default {
             
             const methodId = this.methodInfo[index].id;
             const isCurrentlySelected = currentButton.style.color === "rgb(11, 85, 244)" || 
-                                      currentButton.style.color === "#0B55F4";
+                                       currentButton.style.color === "#0B55F4";
             
             // 无论是选择还是取消选择，都先清除所有选择
             this.resetAllMethodButtons();
@@ -1304,7 +1305,7 @@ export default {
                 currentButton.style.color = "#0B55F4";
                 currentButton.style.borderColor = "#C8DCFB";
                 currentButton.style.background = "#E7F0FD";
-                this.attackMethodDescription = this.methodInfo[index].description;
+                this.methodDescription = this.methodInfo[index].description;
                 // 添加到选择数组 - 单选模式只保存一个方法ID
                 this.selectedMethod = [methodId];
             }
@@ -1342,45 +1343,14 @@ export default {
         // 处理详细攻击方法卡片的鼠标悬停
         methodDetailOver(index) {
             if (index < this.methodInfo.length) {
-                this.attackMethodDescription = this.methodInfo[index].description;
+                this.methodDescription = this.methodInfo[index].description;
+                this.isDescriptionForAttack = true;
             }
         },
         
         // 处理详细攻击方法卡片的鼠标离开
         methodDetailLeave() {
-            if (this.selectedMethod.length === 0) {
-                this.attackMethodDescription = "";
-            } else {
-                const currentSelectedAttackIdOrName = this.selectedMethod[0]; // This can be an ID or a Name
-                let description = "";
-                
-                // Try to find in methodInfo (parameterized attack methods, selected by ID)
-                const selectedParameterizedMethod = this.methodInfo.find(m => m.id === currentSelectedAttackIdOrName);
-                if (selectedParameterizedMethod) {
-                    description = selectedParameterizedMethod.description;
-                } else {
-                    // Try to find in showmethodInfo (non-parameterized attack methods, selected by Name)
-                    // Note: showmethodInfo is initialized based on model type, potentially from methodInfoNoParam
-                    let baseAttackMethods = this.methodInfoNoParam; // Default to methodInfoNoParam
-                    if (this.modelInfo[this.selectedModel] && this.modelInfo[this.selectedModel].name == "Vicuna-7B-v1.1") {
-                         // If it's Vicuna, showmethodInfo is custom. We need to handle this.
-                         // For simplicity, if LLM-Attacks is selected, its description should be used.
-                         if (currentSelectedAttackIdOrName === "LLM-Attacks" && this.showmethodInfo.length > 0 && this.showmethodInfo[0].length > 0) {
-                            description = this.showmethodInfo[0][0].description;
-                         }
-                    } else {
-                        // Iterate through methodInfoNoParam which populates showmethodInfo for non-LLM models
-                        for (const methodGroup of baseAttackMethods) {
-                            const selectedNonParameterizedMethod = methodGroup.find(m => m.name === currentSelectedAttackIdOrName);
-                            if (selectedNonParameterizedMethod) {
-                                description = selectedNonParameterizedMethod.description;
-                                break;
-                            }
-                        }
-                    }
-                }
-                this.attackMethodDescription = description;
-            }
+            this.methodDescription = "";
         },
     },
     computed: {

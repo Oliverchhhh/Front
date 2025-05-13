@@ -417,19 +417,19 @@ export default {
                     ]
                 },
                 {
-                    title: '模型',
-                    subSteps: [
-                        { title: '模型公平性提升', path: '/modelFairnessDebias' }
-                    ]
-                },
-                {
                     title: '算法',
                     subSteps: [
                         { title: '数据公平性提升', path: '/dataFairnessDebias' }
                     ]
                 },
+                {
+                    title: '模型',
+                    subSteps: [
+                        { title: '模型公平性提升', path: '/modelFairnessDebias' }
+                    ]
+                },
             ],
-            currentMainStep: 1, // Default for this page
+            currentMainStep: 2, // Now "模型" is at index 2
             currentSubStep: 0,  // Default for this page
             evamethod:{
                 "DI":{"name":"Dsiaprate Impact(DI)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mfrac></math>', "des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
@@ -691,7 +691,7 @@ export default {
                 }
             }
              if (routePath.includes('/modelFairnessDebias')) {
-                 this.currentMainStep = 1; 
+                 this.currentMainStep = 2; // 模型 step is now at index 2 
                  this.currentSubStep = 0;
              } else {
                  this.currentMainStep = 0; 
