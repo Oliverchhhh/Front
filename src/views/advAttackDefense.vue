@@ -985,6 +985,11 @@ export default {
                     that.postData[attackMethod] = attackParams;
                 }
                 
+                // 添加调试日志，显示发送到后端的请求数据
+                console.log('发送到后端的请求数据:', JSON.stringify(that.postData, null, 2));
+                console.log('%c完整请求数据对象 👇', 'background: #3498db; color: white; font-size: 14px; padding: 5px;');
+                console.table(that.postData);
+                
                 console.log(this.postData)
                 that.$axios.post("/detect", that.postData).then((res) => {
                     that.result = res.data;

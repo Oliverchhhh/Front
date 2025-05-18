@@ -18,7 +18,8 @@ import htmlToPdf from './util/htmlToPdf'
 Vue.use(htmlToPdf)
 
 Vue.prototype.$axios = axios;
-axios.defaults.baseURL = "http://10.98.36.108:4580"
+axios.defaults.baseURL = "http://10.98.36.108:5555"
+// axios.defaults.baseURL = "http://10.98.36.108:4580"
 Vue.config.productionTip = false
 Vue.use(Antd);
 Vue.use(ElementUI);
