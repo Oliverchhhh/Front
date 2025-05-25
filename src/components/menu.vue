@@ -73,14 +73,6 @@
       <!-- 将显示原"训练算法设计"的卡片 -->
       <div class="box">
         <div class="funcs">
-        <!-- 模型鲁棒性训练 -->
-        <ifreme  @click.native="goFuncPage('robust_advTraining')">
-            <div slot="func_icon">
-              <img class="icon_img" src="../assets/img/robustTrainingIcon.png">
-            </div>
-            <div slot="header" class="func_name">对抗性训练算法</div>
-            <div slot="des_func" class="func_des">通过可认证鲁棒训练、对抗训练等方式来对AI模型进行安全加固，提升模型在对抗样本攻击下的鲁棒性</div>
-          </ifreme>
         <!-- 数据公平性提升 -->
         <ifreme @click.native="goFuncPage('/dataFairnessDebias')"> 
           <div slot="func_icon">
@@ -89,6 +81,14 @@
           <div slot="header" class="func_name">数据公平性提升</div>
           <div slot="des_func" class="func_des">基于公平表征学习和数据重赋权等方法对数据集进行纠偏，从群体和个体公平性两个维度对提升前后的数据集进行评估对比</div>
         </ifreme>
+        <!-- 模型鲁棒性训练 -->
+        <ifreme  @click.native="goFuncPage('robust_advTraining')">
+            <div slot="func_icon">
+              <img class="icon_img" src="../assets/img/robustTrainingIcon.png">
+            </div>
+            <div slot="header" class="func_name">对抗性训练算法</div>
+            <div slot="des_func" class="func_des">通过可认证鲁棒训练、对抗训练等方式来对AI模型进行安全加固，提升模型在对抗样本攻击下的鲁棒性</div>
+          </ifreme>
         </div>
       </div>
       <!-- 第三个矩形方框 (当前标题: 训练算法设计) -->

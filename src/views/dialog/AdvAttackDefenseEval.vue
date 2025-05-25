@@ -43,11 +43,27 @@
                                     </div>
                                 </a-col>
                                 <a-col :span="2">
-                                    <div class="grid-content" style="color:#6C7385">防御方法:</div>
-                                    <div class="grid-content"></div>
+                                    <div class="grid-content grid-content-top" style="color:#6C7385">防御方法:</div>
+                                    <div class="grid-content" style="color:#6C7385">原始精度:</div>
                                 </a-col>
                                 <a-col :span="8">
-                                    <div class="grid-content"  v-text="defenseShow(postData.defense_methods)">
+                                    <div class="grid-content grid-content-top" v-text="defenseShow(postData.defense_methods)"></div>
+                                    <div class="grid-content">{{ res.no_defense_accuracy ? (res.no_defense_accuracy * 100).toFixed(2) + '%' : '未知' }}</div>
+                                </a-col>
+                            </a-row>
+                            <a-row style="width: 100%; margin-top: 12px;" v-if="res.currentAttack && res.allResults && res.allResults[res.currentAttack]">
+                                <a-col :span="24">
+                                    <div class="grid-content" style="color:#6C7385">
+                                        防御后精度: 
+                                        <template v-if="res.allResults[res.currentAttack].ATDefenseACClist && res.allResults[res.currentAttack].ATDefenseACClist.length > 0">
+                                            <span v-for="(acc, index) in res.allResults[res.currentAttack].ATDefenseACClist" :key="index">
+                                                {{ res.allResults[res.currentAttack].ATlabels[index] }}: {{ (acc * 100).toFixed(2) }}%
+                                                {{ index < res.allResults[res.currentAttack].ATDefenseACClist.length - 1 ? '、' : '' }}
+                                            </span>
+                                        </template>
+                                        <template v-else>
+                                            暂无对抗训练防御精度数据
+                                        </template>
                                     </div>
                                 </a-col>
                             </a-row>
@@ -195,153 +211,196 @@ export default {
             ev.stopPropagation();
         },
         updated() {
-            if ("attack_defense" in this.result){
-                this.res = this.result.attack_defense
+            if ("attack_defense" in this.result) {
+                this.res = this.result.attack_defense;
             } else {
                 this.res = this.result;
             }
-            
-            // Check if there are multiple attack methods
-            if (this.res.attack_results) {
-                // Handle multi-attack mode
-                let attackMethods = Object.keys(this.res.attack_results);
-                let currentAttack = attackMethods[0]; // Default to first attack
-                
-                // For each attack method, process its results
-                let allResults = {};
-                let maxRateOverall = 0;
-                let maxMethodOverall = "";
-                
-                attackMethods.forEach(attackMethod => {
-                    let defenseResults = this.res.attack_results[attackMethod];
-                    let label = [];
-                    let rateList = [];
-                    let maxRate = 0;
-                    let maxMethod = "";
-                    
-                    const ATMethod = ["Madry", "TRADES", "FreeAT", "FastAT", "CARTL", "MART"];
-                    let ATlabels = [];
-                    let noDefenseACC = [];
-                    let ATDefenseACC = [];
-                    let ATMaxRate = 0;
-                    let ATMaxMethod = '';
-                    
-                    // Process each defense method for this attack
-                    for (let defenseName in defenseResults) {
-                        let rate = defenseResults[defenseName];
-                        
-                        if (ATMethod.indexOf(defenseName) === -1) {
-                            if (maxRate < rate) {
-                                maxMethod = defenseName;
-                                maxRate = rate;
-                            }
-                            
-                            if (maxRateOverall < rate) {
-                                maxMethodOverall = defenseName;
-                                maxRateOverall = rate;
-                            }
-                            
-                            label.push(defenseName);
-                            rateList.push(rate);
-                        } else {
-                            if (ATMaxRate < rate) {
-                                ATMaxMethod = defenseName;
-                                ATMaxRate = rate;
-                            }
-                            
-                            ATlabels.push(defenseName);
-                            noDefenseACC.push(this.res.no_defense_accuracy);
-                            ATDefenseACC.push(rate);
-                        }
+
+            if (!this.res || !this.res.detect_rates) {
+                // Clear data and charts if detect_rates is missing
+                this.res.detect_labels = [];
+                this.res.detect_rates = []; // This is rateList for the chart
+                this.res.maxRate = "0.0000";
+                this.res.maxMethod = "";
+                this.res.ATlabels = [];
+                this.res.noDefenseACC = []; // This is noDefenseACClist for the chart
+                this.res.ATDefenseACC = []; // This is ATDefenseACClist for the chart
+                this.res.ATMaxRate = "0.0000";
+                this.res.ATMaxMethod = "";
+                this.res.attackMethods = [];
+                this.res.currentAttack = null;
+                this.res.allResults = {};
+                this.$nextTick(() => {
+                    const chart1Instance = document.getElementById("advAttackDefenseEvalChart");
+                    if (chart1Instance && chart1Instance.__echartsInstance__) {
+                        echarts.getInstanceByDom(chart1Instance).clear();
+                    } else if (chart1Instance) {
+                        chart1Instance.innerHTML = '';
                     }
-                    
-                    // Store processed results for this attack method
-                    allResults[attackMethod] = {
-                        detect_labels: label,
-                        detect_ratelist: rateList,
-                        maxRate: maxRate,
-                        maxMethod: maxMethod,
-                        ATlabels: ATlabels,
-                        ATDefenseACClist: ATDefenseACC,
-                        noDefenseACClist: noDefenseACC,
-                        ATMaxRate: ATMaxRate,
-                        ATMaxMethod: ATMaxMethod
-                    };
+                    const chart2Instance = document.getElementById("defenseATEchart");
+                    if (chart2Instance && chart2Instance.__echartsInstance__) {
+                        echarts.getInstanceByDom(chart2Instance).clear();
+                    } else if (chart2Instance) {
+                        chart2Instance.innerHTML = '';
+                    }
                 });
+                return;
+            }
+
+            const ATMethod = ["Madry", "TRADES", "FreeAT", "FastAT", "CARTL", "MART"];
+            const allResults = {};
+            const attackMethods = Object.keys(this.res.detect_rates);
+
+            this.res.attackMethods = attackMethods;
+
+            if (attackMethods.length === 0) {
+                // Handle case with no attack methods in detect_rates
+                this.res.detect_labels = [];
+                this.res.detect_rates = [];
+                this.res.ATlabels = [];
+                this.res.noDefenseACC = [];
+                this.res.ATDefenseACC = [];
+                this.res.currentAttack = null;
+                this.$nextTick(() => {
+                    const chart1Instance = document.getElementById("advAttackDefenseEvalChart");
+                    if (chart1Instance && chart1Instance.__echartsInstance__) {
+                        echarts.getInstanceByDom(chart1Instance).clear();
+                    } else if (chart1Instance) {
+                        chart1Instance.innerHTML = '';
+                    }
+                    const chart2Instance = document.getElementById("defenseATEchart");
+                    if (chart2Instance && chart2Instance.__echartsInstance__) {
+                        echarts.getInstanceByDom(chart2Instance).clear();
+                    } else if (chart2Instance) {
+                        chart2Instance.innerHTML = '';
+                    }
+                });
+                return;
+            }
+            
+            let firstAttackMethodProcessed = false;
+
+            for (const attackMethod of attackMethods) {
+                const defenseRatesForAttack = this.res.detect_rates[attackMethod];
                 
-                // Update overall results
-                this.res.maxRate = maxRateOverall;
-                this.res.maxMethod = maxMethodOverall;
-                this.res.attackMethods = attackMethods;
-                this.res.allResults = allResults;
-                this.res.currentAttack = currentAttack;
+                let currentAttackLabels = [];
+                let currentAttackRateList = [];
+                let currentAttackMaxRate = 0;
+                let currentAttackMaxMethod = "";
                 
-                // Show results for first attack method
-                let currentResults = allResults[currentAttack];
-                this.res.detect_labels = currentResults.detect_labels;
-                this.res.detect_ratelist = currentResults.detect_ratelist;
-                
-                if (currentResults.detect_labels.length > 0) {
-                    drawbar("advAttackDefenseEvalChart", currentResults.detect_ratelist, currentResults.detect_labels, "", "算法名称", "检出率");
-                }
-                
-                if (currentResults.ATlabels.length > 0) {
-                    this.res.ATlabels = currentResults.ATlabels;
-                    this.res.ATDefenseACClist = currentResults.ATDefenseACClist;
-                    this.res.noDefenseACClist = currentResults.noDefenseACClist;
-                    this.res.ATMaxRate = currentResults.ATMaxRate;
-                    this.res.ATMaxMethod = currentResults.ATMaxMethod;
-                    drawLineBar("defenseATEchart", currentResults.ATDefenseACClist, currentResults.ATlabels, currentResults.noDefenseACClist);
-                }
-            } else {
-                // Legacy code for single attack mode
-                let label = [];
-                let rateList = [];
-                let noDefenseACC = [];
-                let maxRate = 0;
-                let maxMethod = "";
-                let ATDefenseACC = [];
-                let ATlabels = [];
-                let ATMaxRate = 0;
-                let ATMaxMethod = '';
-                const ATMethod = ["Madry", "TRADES", "FreeAT", "FastAT", "CARTL", "MART"];
-                
-                for (let temp in this.res.detect_rates) {
-                    if (ATMethod.indexOf(temp) == -1) {
-                        if (maxRate < this.res.detect_rates[temp]) {
-                            maxMethod = temp;
-                            maxRate = this.res.detect_rates[temp];
+                let currentAttackATlabels = [];
+                let currentAttackNoDefenseACC = [];
+                let currentAttackATDefenseACC = [];
+                let currentAttackATMaxRate = 0;
+                let currentAttackATMaxMethod = '';
+
+                // 检查当前攻击方法是否是对抗训练方法
+                const isATMethod = ATMethod.indexOf(attackMethod) !== -1;
+
+                for (const defenseMethod in defenseRatesForAttack) {
+                    const rate = defenseRatesForAttack[defenseMethod];
+
+                    if (isATMethod) {
+                        // 如果攻击方法是对抗训练方法，所有结果都归类到AT
+                        if (currentAttackATMaxRate < rate) {
+                            currentAttackATMaxMethod = attackMethod;
+                            currentAttackATMaxRate = rate;
                         }
-                        label.push(temp);
-                        rateList.push(this.res.detect_rates[temp]);
+                        if (currentAttackATlabels.indexOf(attackMethod) === -1) {
+                            currentAttackATlabels.push(attackMethod);
+                            currentAttackATDefenseACC.push(rate);
+                            if (this.res.no_defense_accuracy !== undefined) {
+                                currentAttackNoDefenseACC.push(this.res.no_defense_accuracy);
+                            }
+                        }
                     } else {
-                        if (ATMaxRate < this.res.detect_rates[temp]) {
-                            ATMaxMethod = temp;
-                            ATMaxRate = this.res.detect_rates[temp];
+                        // 如果攻击方法不是对抗训练方法，检查防御方法
+                        if (ATMethod.indexOf(defenseMethod) === -1) {
+                            if (currentAttackMaxRate < rate) {
+                                currentAttackMaxMethod = defenseMethod;
+                                currentAttackMaxRate = rate;
+                            }
+                            currentAttackLabels.push(defenseMethod);
+                            currentAttackRateList.push(rate);
+                        } else {
+                            if (currentAttackATMaxRate < rate) {
+                                currentAttackATMaxMethod = defenseMethod;
+                                currentAttackATMaxRate = rate;
+                            }
+                            if (currentAttackATlabels.indexOf(defenseMethod) === -1) {
+                                currentAttackATlabels.push(defenseMethod);
+                                currentAttackATDefenseACC.push(rate);
+                                if (this.res.no_defense_accuracy !== undefined) {
+                                    currentAttackNoDefenseACC.push(this.res.no_defense_accuracy);
+                                }
+                            }
                         }
-                        ATlabels.push(temp);
-                        noDefenseACC.push(this.res.no_defense_accuracy);
-                        ATDefenseACC.push(this.res.detect_rates[temp]);
                     }
                 }
                 
-                if (label.length != 0) {
-                    this.res.maxRate = maxRate;
-                    this.res.maxMethod = maxMethod;
-                    this.res.detect_labels = label;
-                    this.res.detect_ratelist = rateList;
-                    drawbar("advAttackDefenseEvalChart", this.res.detect_ratelist, this.res.detect_labels, "", "算法名称", "检出率");
-                }
-                
-                if (ATlabels.length != 0) {
-                    this.res.ATMaxRate = ATMaxRate;
-                    this.res.ATMaxMethod = ATMaxMethod;
-                    this.res.ATlabels = ATlabels;
-                    this.res.ATDefenseACClist = ATDefenseACC;
-                    this.res.noDefenseACClist = noDefenseACC;
-                    drawLineBar("defenseATEchart", this.res.ATDefenseACClist, this.res.ATlabels, this.res.noDefenseACClist);
+                allResults[attackMethod] = {
+                    detect_labels: currentAttackLabels,
+                    detect_ratelist: currentAttackRateList,
+                    maxRate: currentAttackMaxRate.toFixed(4),
+                    maxMethod: currentAttackMaxMethod,
+                    
+                    ATlabels: currentAttackATlabels,
+                    noDefenseACClist: currentAttackNoDefenseACC,
+                    ATDefenseACClist: currentAttackATDefenseACC,
+                    ATMaxRate: currentAttackATMaxRate.toFixed(4),
+                    ATMaxMethod: currentAttackATMaxMethod,
+                };
+
+                if (!firstAttackMethodProcessed) {
+                    this.res.detect_labels = currentAttackLabels;
+                    this.res.detect_rates = currentAttackRateList;
+                    this.res.maxRate = currentAttackMaxRate.toFixed(4);
+                    this.res.maxMethod = currentAttackMaxMethod;
+
+                    if (currentAttackATlabels.length > 0) {
+                        this.res.ATlabels = currentAttackATlabels;
+                        this.res.noDefenseACC = currentAttackNoDefenseACC;
+                        this.res.ATDefenseACC = currentAttackATDefenseACC;
+                        this.res.ATMaxRate = currentAttackATMaxRate.toFixed(4);
+                        this.res.ATMaxMethod = currentAttackATMaxMethod;
+                    } else {
+                        this.res.ATlabels = [];
+                        this.res.noDefenseACC = [];
+                        this.res.ATDefenseACC = [];
+                        this.res.ATMaxRate = "0.0000";
+                        this.res.ATMaxMethod = "";
+                    }
+                    firstAttackMethodProcessed = true;
+                    this.res.currentAttack = attackMethod;
                 }
             }
+
+            this.res.allResults = allResults;
+            
+            this.$nextTick(() => {
+                if (this.res.detect_labels && this.res.detect_labels.length > 0) {
+                    drawbar("advAttackDefenseEvalChart", this.res.detect_rates, this.res.detect_labels, "", "算法名称", "检出率");
+                } else {
+                    const chart1Instance = document.getElementById("advAttackDefenseEvalChart");
+                    if (chart1Instance && chart1Instance.__echartsInstance__) {
+                        echarts.getInstanceByDom(chart1Instance).clear();
+                    } else if (chart1Instance) {
+                        chart1Instance.innerHTML = '暂无数据';
+                    }
+                }
+
+                if (this.res.ATlabels && this.res.ATlabels.length > 0) {
+                    drawLineBar("defenseATEchart", this.res.ATDefenseACC, this.res.ATlabels, this.res.noDefenseACC);
+                } else {
+                    const chart2Instance = document.getElementById("defenseATEchart");
+                    if (chart2Instance && chart2Instance.__echartsInstance__) {
+                        echarts.getInstanceByDom(chart2Instance).clear();
+                    } else if (chart2Instance) {
+                        chart2Instance.innerHTML = '暂无数据';
+                    }
+                }
+            });
         },
         switchAttackMethod(attackMethod) {
             // Update charts based on selected attack method

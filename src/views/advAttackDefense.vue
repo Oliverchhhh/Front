@@ -993,6 +993,7 @@ export default {
                 console.log(this.postData)
                 that.$axios.post("/detect", that.postData).then((res) => {
                     that.result = res.data;
+                    console.log('后端返回数据:', res.data);
                     window.clearInterval(that.logclk);
                     that.stid['advAttackDefense'] =  res.data.stid
                     that.getLog();
