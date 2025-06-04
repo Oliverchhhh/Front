@@ -97,13 +97,13 @@
                         </div>
 
                         <div style="font-size:18px;text-align:center;margin-top: 10px;font-weight :bold">对抗攻击防御算法检出效果</div>
-                        <div style="font-size:10px;color:#7f7f81;text-align: center">柱形图展示各个防御算法在所选攻击算法下的检出成功率</div>
+                        <div style="font-size:10px;color:#7f7f81;text-align: center">柱形图展示各个防御算法在所选攻击算法下的模型对对抗样本分类精度，折线图展示防御前模型分类精度</div>
                         <div v-if="'detect_labels' in res">
                             <div id="advAttackDefenseEvalChart" class="echart" style="width: 1000px; height: 400px;"></div>
                         </div>
                         <div v-if="'detect_labels' in res" class="describeMinor"
                             style="width: 1000px;height: 70px;line-height: 70px;margin-bottom: 20px;">
-                            如上图所示为对抗攻击防御效果图，其中{{ res.maxMethod }}对抗样本检测效果最佳，检出率为{{ res.maxRate }}。
+                            如上图所示为对抗攻击防御效果图，其中{{ res.maxMethod }}对抗攻击防御效果最佳，防御后的模型对对抗样本分类精度为{{ res.maxRate }}。原始模型对对抗样本分类精度为{{ res.no_defense_accuracy ? (res.no_defense_accuracy * 100).toFixed(2) + '%' : '未知' }}。
                         </div>
                         <div v-if="'ATlabels' in res" style="font-size:18px;text-align:center;margin-top: 40px;font-weight :bold">对抗训练防御效果</div>
 
@@ -221,6 +221,7 @@ export default {
                 // Clear data and charts if detect_rates is missing
                 this.res.detect_labels = [];
                 this.res.detect_rates = []; // This is rateList for the chart
+                this.res.noDefenseACCForDetect = []; // 添加非AT防御方法的原始精度
                 this.res.maxRate = "0.0000";
                 this.res.maxMethod = "";
                 this.res.ATlabels = [];
@@ -288,6 +289,7 @@ export default {
                 let currentAttackATDefenseACC = [];
                 let currentAttackATMaxRate = 0;
                 let currentAttackATMaxMethod = '';
+                let currentAttackNoDefenseACCForDetect = [];
 
                 // 检查当前攻击方法是否是对抗训练方法
                 const isATMethod = ATMethod.indexOf(attackMethod) !== -1;
@@ -317,6 +319,10 @@ export default {
                             }
                             currentAttackLabels.push(defenseMethod);
                             currentAttackRateList.push(rate);
+                            // 添加非AT防御方法的原始精度数据
+                            if (this.res.no_defense_accuracy !== undefined) {
+                                currentAttackNoDefenseACCForDetect.push(this.res.no_defense_accuracy);
+                            }
                         } else {
                             if (currentAttackATMaxRate < rate) {
                                 currentAttackATMaxMethod = defenseMethod;
@@ -336,6 +342,7 @@ export default {
                 allResults[attackMethod] = {
                     detect_labels: currentAttackLabels,
                     detect_ratelist: currentAttackRateList,
+                    noDefenseACCForDetect: currentAttackNoDefenseACCForDetect,
                     maxRate: currentAttackMaxRate.toFixed(4),
                     maxMethod: currentAttackMaxMethod,
                     
@@ -349,6 +356,7 @@ export default {
                 if (!firstAttackMethodProcessed) {
                     this.res.detect_labels = currentAttackLabels;
                     this.res.detect_rates = currentAttackRateList;
+                    this.res.noDefenseACCForDetect = currentAttackNoDefenseACCForDetect;
                     this.res.maxRate = currentAttackMaxRate.toFixed(4);
                     this.res.maxMethod = currentAttackMaxMethod;
 
@@ -374,7 +382,7 @@ export default {
             
             this.$nextTick(() => {
                 if (this.res.detect_labels && this.res.detect_labels.length > 0) {
-                    drawbar("advAttackDefenseEvalChart", this.res.detect_rates, this.res.detect_labels, "", "算法名称", "检出率");
+                    drawLineBar("advAttackDefenseEvalChart", this.res.detect_rates, this.res.detect_labels, this.res.noDefenseACCForDetect, ['防御前的模型分类精度', '防御后的模型分类精度']);
                 } else {
                     const chart1Instance = document.getElementById("advAttackDefenseEvalChart");
                     if (chart1Instance && chart1Instance.__echartsInstance__) {
@@ -385,7 +393,7 @@ export default {
                 }
 
                 if (this.res.ATlabels && this.res.ATlabels.length > 0) {
-                    drawLineBar("defenseATEchart", this.res.ATDefenseACC, this.res.ATlabels, this.res.noDefenseACC);
+                    drawLineBar("defenseATEchart", this.res.ATDefenseACC, this.res.ATlabels, this.res.noDefenseACC, ['防御前的模型分类精度', '防御后的模型分类精度']);
                 } else {
                     const chart2Instance = document.getElementById("defenseATEchart");
                     if (chart2Instance && chart2Instance.__echartsInstance__) {
@@ -405,9 +413,10 @@ export default {
                 if (results.detect_labels.length > 0) {
                     this.res.detect_labels = results.detect_labels;
                     this.res.detect_ratelist = results.detect_ratelist;
+                    this.res.noDefenseACCForDetect = results.noDefenseACCForDetect;
                     this.res.maxRate = results.maxRate;
                     this.res.maxMethod = results.maxMethod;
-                    drawbar("advAttackDefenseEvalChart", results.detect_ratelist, results.detect_labels, "", "算法名称", "检出率");
+                    drawLineBar("advAttackDefenseEvalChart", results.detect_ratelist, results.detect_labels, results.noDefenseACCForDetect, ['防御前的模型分类精度', '防御后的模型分类精度']);
                 }
                 
                 if (results.ATlabels.length > 0) {
@@ -416,7 +425,7 @@ export default {
                     this.res.noDefenseACClist = results.noDefenseACClist;
                     this.res.ATMaxRate = results.ATMaxRate;
                     this.res.ATMaxMethod = results.ATMaxMethod;
-                    drawLineBar("defenseATEchart", results.ATDefenseACClist, results.ATlabels, results.noDefenseACClist);
+                    drawLineBar("defenseATEchart", results.ATDefenseACClist, results.ATlabels, results.noDefenseACClist, ['防御前的模型分类精度', '防御后的模型分类精度']);
                 }
             }
         },
