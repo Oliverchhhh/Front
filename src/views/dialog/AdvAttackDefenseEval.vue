@@ -248,36 +248,30 @@ export default {
                 return;
             }
 
+            // 检测数据结构
+            const firstKey = Object.keys(this.res.detect_rates)[0];
+            const isReversedStructure = firstKey && typeof this.res.detect_rates[firstKey] === 'object';
+            
+            let processedRates = {};
+            if (isReversedStructure) {
+                // 转换数据结构：从"防御方法->攻击方法"到"攻击方法->防御方法"
+                for (const defenseMethod in this.res.detect_rates) {
+                    for (const attackMethod in this.res.detect_rates[defenseMethod]) {
+                        if (!processedRates[attackMethod]) {
+                            processedRates[attackMethod] = {};
+                        }
+                        processedRates[attackMethod][defenseMethod] = this.res.detect_rates[defenseMethod][attackMethod];
+                    }
+                }
+                this.res.detect_rates = processedRates;
+            }
+            
             const ATMethod = ["Madry", "TRADES", "FreeAT", "FastAT", "CARTL", "MART"];
             const allResults = {};
             const attackMethods = Object.keys(this.res.detect_rates);
-
+            
+            // 确保攻击方法下拉菜单总是显示
             this.res.attackMethods = attackMethods;
-
-            if (attackMethods.length === 0) {
-                // Handle case with no attack methods in detect_rates
-                this.res.detect_labels = [];
-                this.res.detect_rates = [];
-                this.res.ATlabels = [];
-                this.res.noDefenseACC = [];
-                this.res.ATDefenseACC = [];
-                this.res.currentAttack = null;
-                this.$nextTick(() => {
-                    const chart1Instance = document.getElementById("advAttackDefenseEvalChart");
-                    if (chart1Instance && chart1Instance.__echartsInstance__) {
-                        echarts.getInstanceByDom(chart1Instance).clear();
-                    } else if (chart1Instance) {
-                        chart1Instance.innerHTML = '';
-                    }
-                    const chart2Instance = document.getElementById("defenseATEchart");
-                    if (chart2Instance && chart2Instance.__echartsInstance__) {
-                        echarts.getInstanceByDom(chart2Instance).clear();
-                    } else if (chart2Instance) {
-                        chart2Instance.innerHTML = '';
-                    }
-                });
-                return;
-            }
             
             let firstAttackMethodProcessed = false;
 
