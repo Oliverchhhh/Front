@@ -34,8 +34,8 @@
     </div>
 
     <a-divider style="border-color: #7cb305" dashed />
-    <!-- 小矩形块区域 -->
-    <div class="stage-container">
+    <!-- 小矩形块区域 - 暂时隐藏用于软著申请 -->
+    <div class="stage-container" v-show="false">
       <div class="stage-box">
         <span class="stage-title">训练数据生成</span>
       </div>
@@ -47,8 +47,8 @@
       </div>
     </div>
 
-    <!-- 功能卡片容器 -->
-    <div class="box-container">
+    <!-- 功能卡片容器 - 暂时隐藏用于软著申请 -->
+    <div class="box-container" v-show="false">
       <!-- 第一个矩形方框 (准备阶段) -->
       <div class="box">
         <div class="funcs">
@@ -57,10 +57,10 @@
             <div slot="func_icon">
               <img class="icon_img" src="../assets/img/dataFairEvalIcon.png">
             </div>
-            <div slot="header" class="func_name">数据公平性评估</div>
+            <div slot="header" class="func_name">数据公平性风险检测</div>
             <div slot="des_func" class="func_des">针对数据集存在偏见的现象，通过数据公平性评估算法，对数据集整体进行评估，可视化展示数据群体、个体、属性占比、属性相关性的评估结果</div>
           </ifreme>
-          <ifreme @click.native="goFuncPage('/advAttack')">
+          <ifreme v-show="false" @click.native="goFuncPage('/advAttack')">
             <div slot="func_icon">
               <img class="icon_img" src="../assets/img/advAttackEvalIcon.png">
             </div>
@@ -74,7 +74,7 @@
       <div class="box">
         <div class="funcs">
         <!-- 数据公平性提升 -->
-        <ifreme @click.native="goFuncPage('/dataFairnessDebias')"> 
+        <ifreme v-show="false" @click.native="goFuncPage('/dataFairnessDebias')"> 
           <div slot="func_icon">
             <img class="icon_img" src="../assets/img/dataFairDebiasIcon.png">
           </div>
@@ -82,7 +82,7 @@
           <div slot="des_func" class="func_des">基于公平表征学习和数据重赋权等方法对数据集进行纠偏，从群体和个体公平性两个维度对提升前后的数据集进行评估对比</div>
         </ifreme>
         <!-- 模型鲁棒性训练 -->
-        <ifreme  @click.native="goFuncPage('robust_advTraining')">
+        <ifreme v-show="false" @click.native="goFuncPage('robust_advTraining')">
             <div slot="func_icon">
               <img class="icon_img" src="../assets/img/robustTrainingIcon.png">
             </div>
@@ -95,7 +95,7 @@
       <!-- 将显示原"模型性能稳定性优化"的卡片 -->
       <div class="box">
         <div class="funcs">
-          <ifreme  @click.native="goFuncPage('/modelFairnessDebias')">
+          <ifreme v-show="false" @click.native="goFuncPage('/modelFairnessDebias')">
             <div slot="func_icon">
               <img class="icon_img" src="../assets/img/modelFairDebiasIcon.png">
             </div>
@@ -106,9 +106,42 @@
             <div slot="func_icon">
               <img class="icon_img" src="../assets/img/advDefenseIcon.png">
             </div>
-            <div slot="header" class="func_name">对抗攻击防御</div>
+            <div slot="header" class="func_name">对抗样本检测</div>
             <div slot="des_func" class="func_des">从对抗样本检测、对抗噪声擦除和模型防御力增强等三个角度阻截对抗样本的攻击，并使神经网络模型在面对对抗样本时仍能发挥正常功能</div>
           </ifreme>
+        </div>
+      </div>
+    </div>
+
+    <!-- 软著申请专用 - 简洁功能展示模块 -->
+    <div class="software-copyright-module">
+      <div class="module-header">
+        <h2 class="module-title">人工智能安全风险主动防御加固系统平台</h2>
+        <p class="module-subtitle">基于深度学习的系统全周期安全风险检测</p>
+      </div>
+      <div class="feature-cards-container">
+        <!-- 数据公平性风险检测 -->
+        <div class="feature-card" @click="goFuncPage('/dataFairnessEva')">
+          <div class="feature-icon">
+            <img class="feature-icon-img" src="../assets/img/dataFairEvalIcon.png">
+          </div>
+          <div class="feature-info">
+            <h3 class="feature-name">数据公平性风险检测</h3>
+            <p class="feature-description">针对数据集存在偏见的现象，通过数据公平性评估算法，对数据集整体进行评估，可视化展示数据群体、个体、属性占比、属性相关性的评估结果</p>
+          </div>
+          <div class="feature-arrow">→</div>
+        </div>
+        
+        <!-- 对抗样本检测 -->
+        <div class="feature-card" @click="goFuncPage('/advAttackDefense')">
+          <div class="feature-icon">
+            <img class="feature-icon-img" src="../assets/img/advDefenseIcon.png">
+          </div>
+          <div class="feature-info">
+            <h3 class="feature-name">对抗样本检测</h3>
+            <p class="feature-description">从对抗样本检测、对抗噪声擦除和模型防御力增强等三个角度阻截对抗样本的攻击，并使神经网络模型在面对对抗样本时仍能发挥正常功能</p>
+          </div>
+          <div class="feature-arrow">→</div>
         </div>
       </div>
     </div>
@@ -1079,6 +1112,270 @@ export default {
   }
 }
 
+/* ========== 软著申请专用模块样式 ========== */
+.software-copyright-module {
+  width: 90%;
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 50%, #e8f4fd 100%);
+  border-radius: 32px;
+  box-shadow: 
+    0 20px 60px rgba(11, 85, 244, 0.08),
+    0 8px 30px rgba(11, 85, 244, 0.04),
+    0 2px 10px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(11, 85, 244, 0.08);
+}
+
+.module-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.module-title {
+  font-family: HONOR Sans CN;
+  font-size: 42px;
+  font-weight: 700;
+  color: #0B55F4;
+  margin: 0 0 15px 0;
+  letter-spacing: 1px;
+}
+
+.module-subtitle {
+  font-family: HONOR Sans CN;
+  font-size: 18px;
+  font-weight: 400;
+  color: #666;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.feature-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+}
+
+.feature-card {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+  border-radius: 24px;
+  padding: 35px 40px;
+  box-shadow: 
+    0 12px 40px rgba(11, 85, 244, 0.06),
+    0 6px 20px rgba(11, 85, 244, 0.04),
+    0 2px 8px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(11, 85, 244, 0.08);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0B55F4, #4A90E2, #7CB9E8);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 
+    0 25px 70px rgba(11, 85, 244, 0.12),
+    0 12px 35px rgba(11, 85, 244, 0.08),
+    0 6px 15px rgba(11, 85, 244, 0.06);
+  border-color: rgba(11, 85, 244, 0.15);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+.feature-icon {
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e8f4fd 0%, #ffffff 100%);
+  border-radius: 20px;
+  margin-right: 30px;
+  box-shadow: 0 8px 25px rgba(11, 85, 244, 0.06);
+}
+
+.feature-icon-img {
+  width: 68px;
+  height: 68px;
+}
+
+.feature-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.feature-name {
+  font-family: HONOR Sans CN;
+  font-size: 28px;
+  font-weight: 600;
+  color: #0B55F4;
+  margin: 0 0 12px 0;
+  letter-spacing: 0.5px;
+}
+
+.feature-description {
+  font-family: HONOR Sans CN;
+  font-size: 16px;
+  font-weight: 400;
+  color: #555;
+  margin: 0;
+  line-height: 1.8;
+  text-align: justify;
+}
+
+.feature-arrow {
+  flex-shrink: 0;
+  font-size: 32px;
+  color: #0B55F4;
+  margin-left: 20px;
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-arrow {
+  transform: translateX(8px);
+}
+
+/* 软著模块响应式设计 */
+@media (max-width: 1023px) {
+  .software-copyright-module {
+    width: 95%;
+    padding: 50px 30px;
+    margin: 40px auto;
+  }
+  
+  .module-title {
+    font-size: 36px;
+  }
+  
+  .module-subtitle {
+    font-size: 16px;
+  }
+  
+  .feature-card {
+    padding: 30px 25px;
+  }
+  
+  .feature-name {
+    font-size: 24px;
+  }
+  
+  .feature-description {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 767px) {
+  .software-copyright-module {
+    width: 95%;
+    padding: 40px 20px;
+    margin: 30px auto;
+    border-radius: 24px;
+  }
+  
+  .module-header {
+    margin-bottom: 40px;
+  }
+  
+  .module-title {
+    font-size: 30px;
+  }
+  
+  .module-subtitle {
+    font-size: 15px;
+  }
+  
+  .feature-cards-container {
+    gap: 25px;
+  }
+  
+  .feature-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 20px;
+  }
+  
+  .feature-icon {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+  
+  .feature-name {
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+  
+  .feature-description {
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .feature-arrow {
+    margin-left: 0;
+    margin-top: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .software-copyright-module {
+    width: 98%;
+    padding: 30px 15px;
+    margin: 20px auto;
+  }
+  
+  .module-title {
+    font-size: 26px;
+  }
+  
+  .module-subtitle {
+    font-size: 14px;
+  }
+  
+  .feature-card {
+    padding: 25px 15px;
+  }
+  
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+  }
+  
+  .feature-icon-img {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .feature-name {
+    font-size: 20px;
+  }
+  
+  .feature-description {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+
 /* 超极小屏幕优化 (240px以下) - 处理极端缩放情况 */
 @media (max-width: 240px) {
   .box {
@@ -1143,6 +1440,57 @@ export default {
     width: 98%; /* 超极小屏幕宽度 */
     max-width: 300px;
     border-radius: 6px;
+  }
+}
+
+/* 软著模块极小屏幕优化 */
+@media (max-width: 320px) {
+  .software-copyright-module {
+    width: 100%;
+    padding: 25px 10px;
+    margin: 15px auto;
+    border-radius: 20px;
+  }
+  
+  .module-title {
+    font-size: 22px;
+  }
+  
+  .module-subtitle {
+    font-size: 13px;
+  }
+  
+  .feature-cards-container {
+    gap: 20px;
+  }
+  
+  .feature-card {
+    padding: 20px 12px;
+    border-radius: 20px;
+  }
+  
+  .feature-icon {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 12px;
+  }
+  
+  .feature-icon-img {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .feature-name {
+    font-size: 18px;
+  }
+  
+  .feature-description {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  
+  .feature-arrow {
+    font-size: 28px;
   }
 }
 </style>
