@@ -1,0 +1,1408 @@
+<template>
+     <div>
+        <a-layout>
+            <!-- 顶部菜单栏 -->
+        <a-layout-header>
+            <!-- 导航栏 -->
+            <navmodule/>
+        </a-layout-header>
+        <a-layout-content>
+            <!-- 功能介绍 -->
+            <func_introduce :funcDesText="funcDesText"></func_introduce>
+            <!-- 参数配置 -->
+            <div class="paramCon">
+                <!-- 参数配置容器 -->
+                <h2 class="subTitle" style="margin-top: -96px;">参数配置</h2>
+                
+                <div class="funcParam">
+                    <div class="paramTitle" >
+                        <!-- 功能标题和执行按钮 -->
+                        <!-- icon展示 -->
+                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                        <!-- 功能名称 -->
+                        <h3>{{ funcDesText.name }}</h3>
+                        <a-button class="DataEva" @click="dataEvaClick" :style="buttonBGColor" :disabled="disStatus">
+                            <a-icon type="security-scan" />
+                            评估
+                        </a-button>
+                    </div>
+                    <a-divider />
+                    <div class="inputdiv">
+                        <!-- 输入主体 -->
+                        <!-- 选数据 -->
+                        <fairnessDataset :dataname="dataname" @clientDatasetSelect="clientDatasetSelect"></fairnessDataset>
+                        <!-- 选模型 -->
+                        <div class="model">
+                            <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择模型结构</p>
+                            <div style="width: 1104px;margin-bottom: 16px;">
+                                <a-upload 
+                                action="/fairness/uploadModel"
+                                :file-list="fileList"
+                                name="ckpt"
+                                @change="uploadModel">
+                                <div class="uploadModelStyle" >请上传模型</div>
+                                </a-upload>
+                            </div>
+                            <a-radio :style="radioStyle" defaultChecked disabled v-if="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) > -1">
+                                3 Hidden-layer FCN
+                            </a-radio>
+                            <a-radio :style="radioStyle" defaultChecked v-else>
+                                Resnet50
+                            </a-radio>
+                            <p v-if="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) === -1">使用缓存模型
+                                <a-switch checked-children="开"  un-checked-children="关" :checked='test_mode' :disabled="retrain_disabled" @change="onChangeSwitch"/>
+                            </p>
+                        </div>
+                        <!-- 选优化算法 -->
+                        <div class="selectDebiasMethod">
+                            <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择公平性提升算法</p>
+                            <a-radio-group v-model="debiasMethodValue"  @change="onChangeDebiasMethod($event)">
+                                <div class="debiasModule" v-for="(temp,index) in debiasMethod" :key="index">
+                                    <a-radio :style="radioStyle" :value="index" :disabled="debiasDisabled[index]" >
+                                        {{ temp.name }}
+                                    </a-radio>
+                                    <div class="formulaDes" v-if="debiasMethodValue===index">
+                                        {{temp.name}}：{{ temp.des }}
+
+                                    </div>
+                                </div>
+                            </a-radio-group>
+                        </div>
+                        <!-- 选评估算法 -->
+                        <div class="selectMethod">
+                            <p class="mainParamName"><select-icon :stlye="{width:'4px'}" />请选择评估算法（可多选）</p>
+                            <div class="methodDes">
+                                <a-checkbox-group @change="onChangeEvaMethod" :disabled ="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) > -1 ? false: true">
+                                    <a-row  type="flex" justify="space-around" v-for="index in 8">
+                                        <a-col :span="index > 6 ? 12:8" v-for="num in (index > 6 ? 2:3)">
+                                            <a-checkbox  v-if="index > 6 && (18+(index-7)*2+num-1<22)" :value=Object.keys(evamethod)[18+(index-7)*2+num-1] >
+                                                <div :class="18+(index-7)*2+num-1>17 ? 'checkboxdivlen':'checkboxdiv'" :style="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) > -1 ?'':disablestyle" @mouseenter="checkboxMouseEnter(index, num)" >{{ Object.values(evamethod)[18+(index-7)*2+num-1]["name"] }}</div>
+                                            </a-checkbox>
+                                            <a-checkbox  v-else-if="index <= 6 " :value=Object.keys(evamethod)[(index-1)*3+num-1] >
+                                                <div :class="(index-1)*3+num-1>17 ? 'checkboxdivlen':'checkboxdiv'" :style="['German','Adult','Compas'].indexOf(dataname[dataNameValue]) > -1 ?'':disablestyle" @mouseenter="checkboxMouseEnter(index, num)">{{ Object.values(evamethod)[(index-1)*3+num-1]["name"] }}</div>
+                                            </a-checkbox>
+                                            
+                                        </a-col>
+                                        <transition name="fade">
+                                            <a-col :span="24" v-show="methodDesShow[index-1]">
+                                                <div class="formulaDes" v-if="rowkey <= 6">
+                                                    <span class="formula" v-html="Object.values(evamethod)[rowkey*3+colkey]['formula']"></span>
+                                                    <span class="formulaDes" v-html="Object.values(evamethod)[rowkey*3+colkey]['des']"></span>
+                                                </div>
+                                                <div class="formulaDes" v-else-if="rowkey > 6">
+                                                    <span class="formula" v-html="Object.values(evamethod)[18+(rowkey-6)*2+colkey]['formula']"></span>
+                                                    <span class="formulaDes" v-html="Object.values(evamethod)[18+(rowkey-6)*2+colkey]['des']"></span>
+                                                </div>
+                                            </a-col>
+                                        </transition>
+                                    </a-row>
+                                </a-checkbox-group>
+                                <div v-for="(methods, i) in imgEvaMethod" :key="i" style="margin-bottom: 16px;">
+                                    <a-row :gutter="16" style="height:50px;" type="flex">
+                                        <a-col :flex="24 / methods.length" v-for="(method, j) in methods" :key="j" class="denfenseMethod">
+                                            <a-button :id="'button' + i + j"  @click="changeMethods(i,j)" :disabled ="['Cifar10-S','CelebA'].indexOf(dataname[dataNameValue]) > -1 ? false: true">{{ method.name }}</a-button>
+                                        </a-col>
+                                    </a-row>
+                                    <div v-if="methodHoverIndex==i && methodDescription !== ''" style="padding:14px 24px;margin-bottom: 16px;"> {{ methodDescription }} </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 进度条组件 -->
+            <div class="progress-container">
+                <!-- <h2 class="subTitle" style="margin-top: -96px;">公平性</h2> -->
+                <div class="progress-wrapper">
+                    <vertical-steps
+                        :mainSteps="fairnessSteps"
+                        :currentMainStep="currentMainStep"
+                        :currentSubStep="currentSubStep"
+                        @update:currentSubStep="handleSubStepChange"
+                    />
+                </div>
+            </div>
+            <!-- 日志展示 -->
+            <div v-show="logflag">
+                <showLog :percent="percent" :logtext="logtext"></showLog>
+            </div>
+            <!-- 结果展示 -->
+            <resultDialog @on-close="closeDialog" :isShow="isShowPublish" v-show="isShowPublish">
+                <div slot="header">
+                    <div class="dialog_title">
+                        <img class="paramIcom" :src="funcDesText.imgpath" :alt="funcDesText.name">
+                        <h1>模型公平性提升结果报告</h1>
+                    </div>
+                </div>
+                <div class="dialog_publish_main" slot="main" id="pdfDom">
+                    <div v-if="Object.keys(postData).length > 0" style="background: var(--gray-7, #F2F4F9);;width: 100%;padding: 24px;">
+                      <a-row >
+                        <a-col :span="2">
+                          <div class="grid-content-name" style="color:#6C7385">数据集:</div>
+        
+                        </a-col>
+                        <a-col :span="4">
+                          <div class="grid-content-value">{{postData.dataname}}</div>
+
+                        </a-col>
+                        <a-col :span="2">
+                          <div class="grid-content-name" style="color:#6C7385">模型结构:</div>
+        
+                        </a-col>
+                        <a-col :span="4">
+                          <div class="grid-content-value">{{postData.modelname}}</div>
+
+                        </a-col>
+                        <a-col :span="2">
+                          <div class="grid-content-name" style="color:#6C7385">评估算法:</div>
+                        </a-col>
+                        <a-col :span="4">
+                          <div class="grid-content-value">{{defenseShow(postData.metrics)}}</div>
+                        </a-col>
+                        <a-col :span="2">
+                          <div class="grid-content-name" style="color:#6C7385">优化算法:</div>
+                        </a-col>
+                        <a-col :span="4">
+                          <div class="grid-content-value">{{postData.algorithmname}}</div>
+                        </a-col>
+                      </a-row>
+                    </div>
+                    <!-- 总评分 -->
+                    <div class="result_div_notop">
+                        <div class="g_score_content">
+                            <div class=" main_top_echarts_con_title ">数据集公平性提升效果</div>
+                            <div class="debias_res">
+                                <div class="debias_res_score">
+                                    <img src="../assets/img/beforeDebias.png" style="width: 360px;margin-top: -40px;"/>
+                                    <p class="g_score"> {{res.score.aft}}</p>
+                                    <p class="g_score_evaluate"> {{ res.score_evaluate.bef }}</p>
+                                    <p class="debias_state">提升前</p>
+                                </div>
+                                <div class="to_aft">
+                                    <img src="../assets/img/toAfter.svg" style="margin-top: -40px;"/>
+                                </div>
+                                <div class="debias_res_score">
+                                    <img src="../assets/img/afterDebias.png" style="width: 360px;margin-top: -40px;"/>
+                                    <p class="g_score"> {{res.score.aft}}</p>
+                                    <p class="g_score_evaluate"> {{ res.score_evaluate.aft }}</p>
+                                    <p class="debias_state">提升后</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="conclusion">
+                            <p class="result_text">模型公平性提升后的综合评分为{{res.score.aft}}，是一个{{ res.score_con.aft }}的模型</p>
+                            <p class="result_annotation">综合评分计算来源是个体公平性和群体公平性两个维度上的评分</p>
+                        </div>
+                    </div>
+                    <!-- 评分详情 -->
+                    <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
+                        <div class=" main_top_echarts_con_title ">公平性评分详情</div>
+                        <div class="two_score">
+                            <div class="left_score_label">
+                                <P class="score_text">{{ res.consistency_score.aft }}</P>
+                                <p class="score_lable">个体公平性评估</p>
+                            </div>
+                            <div class="center_score_label">
+                                <div class="process_bg" ><div class="left_pro" :style="'width:'+res.consistency_score.aft/100*210 +'px'"></div></div>
+                                <div class="process_bg" style="margin-left: -4px;"><div class="right_pro" :style="'width:'+res.group_score.aft/100*210 +'px'"></div></div>
+                            </div>
+                            <div class="right_score_label">
+                                <P class="score_text">{{ res.group_score.aft }}</P>
+                                <p class="score_lable">群体公平性评估</p>
+                            </div>
+                        </div>
+                        <div class="conclusion" style="height: 80px;">
+                            <div class="score_description">
+                                <div class="con_score">{{ res.consistency_score.aft }}</div>
+                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">模型个体公平性指标为{{ res.Consistency.aft }}</div>
+                            </div>
+                            
+                        </div>
+                        <div class="conclusion" style="height: 80px;">
+                            <div class="score_description">
+                                <div class="con_score">{{ res.group_score.aft }}</div>
+                                <div class="result_text" style="line-height: 24px ;display: inline;font-weight: 500;">模型经所选公平性评估算法评估后，综合得分为{{ res.group_score.aft }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 个体得分图 -->
+                    <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
+                        
+                        <div class="echart_title">
+                            
+                            <div class=" main_top_echarts_con_title ">个体公平性提升得分</div>
+                            <p class="title_annotation">个体公平性是统计数据集中相似的个体是否有相似的标签或预测结果</p>
+                            
+                        </div>
+                        <div>
+                            <div class="cons_echart_div">
+                                <div id = 'consevaBef'></div>
+                                <div id = 'consevaAft'></div>
+                            </div>
+                            <div class="conclusion">
+                                <p class="result_text">{{ res.consText }}</p>
+                                <p class="result_annotation">个体公平性指标越接近1，模型越公平。</p>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <!-- 群体 -->
+                    <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
+                        <div class="echart_title">
+                            
+                            <div class=" main_top_echarts_con_title ">模型群体公平性提升</div>
+                            <p class="title_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
+                            
+                        </div>
+                        <div class="group_echarts_div" >
+
+                            <div v-for="(temp,index) in senAttrList" class="attr_echarts_div" :key="index">
+                                <div class="attr_title_div">
+                                    <h3>{{ temp }}</h3>
+                                    <p>敏感属性</p>
+                                </div>
+                                <div class="group_echart_content">
+                                    <div  class="model_group_echart"  :id="temp"></div>
+                                </div>
+                                <div class="conclusion">
+                                    <p class="result_text">{{ res.groupText[temp] }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 图片数据集 -->
+                    <div class="result_div" v-if="['Cifar10-S', 'CelebA'].indexOf(postData.dataname) >-1">
+                        <div class="echart_title">
+                            <div class=" main_top_echarts_con_title ">图片数据集提升效果对比图</div>
+                        </div>
+                        <div class="group_echarts_div">
+                            <div  class="model_group_echart"  id="evaBar"></div>
+                            <div class="conclusion">
+                                <p class="result_text">{{ res.groupText["evaBar"] }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <a-divider>With Text</a-divider> -->
+                    <!-- 数据占比 -->
+                    <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
+                        <div class="echart_title">
+                            <div class=" main_top_echarts_con_title ">数据集中各群体的占比</div>
+                        </div>
+                        <div id="pro_tree"></div>   
+                        <div class="conclusion">
+                                    <p class="result_text">各群体的占比越均匀，数据集越公平</p>
+                                    <p class="result_annotation">子节点面积大小代表占比多少</p>
+                        </div>           
+                    </div>
+                    <!-- 相关性 -->
+                    <div class="result_div_notop" v-if="['German', 'Adult', 'Compas'].indexOf(postData.dataname) >-1">
+                      <div class="echart_title">
+                          <div class=" main_top_echarts_con_title ">数据集的各属性之间的相关性</div>
+                          <p class="title_annotation">群体公平性是指：根据敏感属性划分各个群体之间在一些目标属性上的差异</p>
+                      </div>
+                      <div class="heat_content" v-show="flag.nmi">
+                          <h3>互信息系数</h3>
+                          <div id="NMI" class="heat_canvas" :style="{height:heat_height.nmi}"></div>
+                          <div class="conclusion">
+                              <p class="result_text">互信息的值大于等于0，值越大表示两个变量之间的依赖关系越强。互信息为0时，表示两个变量相互独立。但是需要注意的是，互信息值的上限取决于两个变量的熵，因此互信息值本身并不具有直接的对比意义。可以使用归一化互信息（Normalized Mutual Information，NMI）进行归一化处理，将其值映射到0到1之间。</p>
+                          </div>
+                      </div>
+                      <div class="heat_content" v-show="flag.pearson">
+                          <h3>Pearson相关系数</h3>
+                          <div id="person" class="heat_canvas" :style="{height:heat_height.pearson}"></div>
+                          <div class="conclusion">
+                              <p class="result_text ">Pearson相关系数的取值范围为-1到1。1表示完全正相关，0表示无关，-1表示完全负相关。</p>
+                          </div>
+                      </div>
+                      <div class="heat_content" v-show="flag.spearman">
+                      <h3>Spearman秩相关系数</h3>
+                          <div id="spearman" class="heat_canvas" :style="{height:heat_height.spearman}"></div>
+                          <div class="conclusion" >
+                              <p class="result_text ">Spearman秩相关系数的取值范围也为-1到1。1表示完全正单调关系，0表示无单调关系，-1表示完全负单调关系。</p>
+                          </div>
+                      </div>
+                      <div class="heat_content" v-show="flag.kendalltau">
+                          <h3>Kendall Tau相关系数</h3>
+                          <div id="Kendall" class="heat_canvas" :style="{height:heat_height.kendalltau}"></div>
+                          <div class="conclusion">
+                              <p class="result_text ">Kendall Tau相关系数的取值范围也为-1到1。1表示完全正序关系，0表示无序关系，-1表示完全负序关系。</p>
+                          </div>
+                      </div>
+                        
+                    </div>
+                    <div>
+                        <a-button @click="getPdf()" style="width:160px;height:40px;margin-bottom:30px;
+                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;">
+                        导出报告内容
+                        </a-button>
+                        <a-button @click="downloadmodel()" style="width:160px;height:40px;margin-bottom:30px;
+                        font-size:18px;color:white;background-color:rgb(46, 56, 245);border-radius:8px;display:inline">
+                            下载模型
+                        </a-button>
+                    </div>
+                </div>
+            </resultDialog>
+        </a-layout-content>
+        <a-layout-footer>
+
+        </a-layout-footer>
+        </a-layout>
+     </div>
+</template>
+<script>
+/* 引入组件，导航栏 */
+import navmodule from "../components/nav_homme.vue";
+/* 引入组件，功能介绍 */
+import func_introduce from "../components/funcIntroduce.vue"
+/* 引入组件，公平性数据集选择 */
+import fairnessDataset from "../components/fairnessDatasetSelect.vue"
+/* 引入组件，日志显示 */
+import showLog from "../components/showLog.vue"
+/* 引入组件，结果显示 */
+import resultDialog from "../components/resultDialog.vue"
+/* 引入自定义js，结果显示 */
+import {drawconseva1, drawbarimproved, drawCorelationHeat, drawPopGraph} from "../assets/js/drawEcharts.js"
+/* 引入图片 */
+import funcicon from "../assets/img/modelEvaIcon.png"
+import bgimg from "../assets/img/modelEvaBackground.png"
+import centerPng from "../assets/img/center.png"
+import secondPng from "../assets/img/second.png"
+import VerticalSteps from "../components/VerticalSteps.vue"
+const selectSvg = {
+        template:`
+        <svg t="1680138013828" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4354" width="128" height="128"><path d="M534.869333 490.496a1403.306667 1403.306667 0 0 0 50.858667-25.813333c16.042667-8.618667 29.013333-15.061333 38.570667-19.029334 9.557333-3.925333 17.066667-6.058667 22.869333-6.058666 9.557333 0 17.749333 3.2 24.917333 10.026666 6.826667 6.826667 10.581333 15.061333 10.581334 25.088 0 5.76-1.706667 11.818667-5.12 17.92-3.413333 6.101333-7.168 10.069333-10.922667 11.861334-35.157333 14.677333-74.410667 25.429333-116.736 31.872 7.850667 7.168 17.066667 17.237333 28.330667 29.781333 11.264 12.544 17.066667 18.986667 17.749333 20.053333 4.096 6.101333 9.898667 13.653333 17.408 22.613334 7.509333 8.96 12.629333 15.786667 15.36 20.778666 2.730667 5.034667 4.437333 11.093333 4.437333 18.304a33.706667 33.706667 0 0 1-9.898666 24.021334 33.834667 33.834667 0 0 1-25.6 10.410666c-10.24 0-22.186667-8.618667-35.157334-25.472-12.970667-16.512-30.037333-46.933333-50.517333-91.050666-20.821333 39.424-34.816 65.962667-41.642667 78.506666-7.168 12.544-13.994667 22.186667-20.48 28.672a30.976 30.976 0 0 1-22.528 9.685334 32.256 32.256 0 0 1-25.258666-11.093334 35.413333 35.413333 0 0 1-9.898667-23.68c0-7.893333 1.365333-13.653333 4.096-17.578666 25.258667-35.84 51.541333-67.413333 78.848-93.568a756.650667 756.650667 0 0 1-61.44-12.544 383.061333 383.061333 0 0 1-57.685333-20.48c-3.413333-1.749333-6.485333-5.717333-9.557334-11.818667a30.208 30.208 0 0 1-5.12-16.853333 32.426667 32.426667 0 0 1 10.581334-25.088 33.152 33.152 0 0 1 24.234666-10.026667c6.485333 0 14.677333 2.133333 24.576 6.101333 9.898667 4.266667 22.186667 10.026667 37.546667 18.261334 15.36 7.893333 32.426667 16.853333 51.882667 26.538666-3.413333-18.261333-6.485333-39.082667-8.874667-62.378666-2.389333-23.296-3.413333-39.424-3.413333-48.042667 0-10.752 3.072-19.712 9.557333-27.264A30.677333 30.677333 0 0 1 512.341333 341.333333c9.898667 0 18.090667 3.925333 24.576 11.477334 6.485333 7.893333 9.557333 17.92 9.557334 30.464 0 3.584-0.682667 10.410667-1.365334 20.48-0.682667 10.368-2.389333 22.570667-4.096 36.906666-2.048 14.677333-4.096 31.146667-6.144 49.834667z" fill="#FF3838" p-id="4355"></path></svg>
+        `,
+    };
+    const selectIcon = {
+        template: `
+            <a-icon :component="selectSvg" />
+        `,
+        data() {
+            return {
+                selectSvg,
+            };
+        },
+    }
+export default {
+    name:"modelfairnessdebias",
+    components:{
+        /* 注册组件 */
+        navmodule:navmodule,
+        func_introduce:func_introduce,
+        showLog:showLog,
+        resultDialog:resultDialog,
+        fairnessDataset:fairnessDataset,
+        selectIcon,
+        VerticalSteps,
+    },
+    data(){
+        return{
+            htmlTitle: '模型公平性提升报告',
+            /* 评估行 */
+            rowkey:0,
+            colkey:0,
+            retrain_disabled:false,
+            /* 选中的提升算法值 */ 
+            debiasMethodValue:"",
+            methodDesShow:[false,false,false,false,false,false,false,false],
+            /* 进度条步骤状态 */
+            fairnessSteps: [
+                {
+                    title: '数据',
+                    subSteps: [
+                        { title: '数据公平性评估', path: '/dataFairnessEva' }
+                    ]
+                },
+                {
+                    title: '算法',
+                    subSteps: [
+                        { title: '数据公平性提升', path: '/dataFairnessDebias' }
+                    ]
+                },
+                {
+                    title: '模型',
+                    subSteps: [
+                        { title: '模型公平性提升', path: '/modelFairnessDebias' }
+                    ]
+                },
+            ],
+            currentMainStep: 2, // Now "模型" is at index 2
+            currentSubStep: 0,  // Default for this page
+            evamethod:{
+                "DI":{"name":"Dsiaprate Impact(DI)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mfrac></math>', "des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "DP":{"name":"Demographic Parity(DP)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mo stretchy="false">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">|</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
+                "FPd":{"name":"False Positive Difference(FPd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
+                "FPr":{"name":"False Positive Ratio(FPr)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "FNd":{"name":"False Negative Difference(FNd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
+                "FNr":{"name":"False Negative Ratio(FNr)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "TPd":{"name":"True Positive Difference(TPd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "TPr":{"name":"True Positive Ratio(TPr)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "TNd":{"name":"True Negative Difference(TNd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "TNr":{"name":"True Negative Ratio(TNr)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mi>Y</mi><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "FOd":{"name":"False Omission Difference(FOd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
+                "FOr":{"name":"False Omission Ratio(FOr)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>0</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "FDd":{"name":"False Discovery Difference(FDd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
+                "FDr":{"name":"False Discovery Ratio(FDr)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "PRd":{"name":"Precision Difference(PRd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
+                "F1d":{"name":"F1 Score Difference(F1d)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mfrac><mrow><mn>2</mn><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo>+</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac><mo>−</mo><mfrac><mrow><mn>2</mn><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>+</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow></mfrac><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "PE":{"name":"Predictive Equality" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
+                "EOD":{"name":"Equal Odds" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mstyle displaystyle="false" scriptlevel="0"><munder><mo data-mjx-texclass="OP">∑</mo><mrow><mi>y</mi><mo>∈</mo><mo stretchy="false">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false">)</mo></mrow></munder></mstyle></mrow><mrow><mo stretchy="false">|</mo></mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mi>y</mi><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mi>y</mi><mo stretchy="false">)</mo><mo stretchy="false">|</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'},
+                "PP":{"name":"Predictive Parity" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>P</mi><mo stretchy="false">(</mi>Y<mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mi>Y<mo>=</mo><mn>1</mn><mo>∣</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>,</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
+                "EOP":{"name":"Equal Opportunity" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>=</mo><mn>1</mn><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
+                "OMd":{"name":"Overall Misclassification Difference(OMd)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="INNER"><mo data-mjx-texclass="OPEN">|</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo><mo>−</mo><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo><mo data-mjx-texclass="CLOSE">|</mo></mrow></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>0</mn><mo>，则模型越公平</mo></math>'},
+                "OMr":{"name":"Overall Misclassification Ratio(OMr)" ,"formula":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false">(</mo><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>≠</mo><mi>Y</mi><mo>∣</mo><mi>Z</mi><mo>=</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac></math>',"des":'<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mover><mi>Y</mi><mo stretchy="false">^</mo></mover></mrow><mo>为模型预测结果，</mo><mi>Z</mi><mo>为保护属性（如种族），</mo><mn>0</mn><mo>代表劣势群体（如白人），</mo><mn>1</mn><mo>代表优势群体（如有色人种），</mo><mi>P</mi><mo>为概率，该计算结果越接近</mo><mn>1</mn><mo>，则模型越公平</mo></math>'}
+                },
+            imgEvaMethod:[
+                [{name:"mPre",description:""},
+                {name:"mFPR",description:""},
+                {name:"mFNR",description:""},
+                {name:"mTNR",description:""},
+                ],[
+                {name:"mTPR",description:""},
+                {name:"mAcc",description:""},
+                {name:"mF1",description:""},
+                {name:"mBA",description:""},
+            ]],
+            methodHoverIndex:-1,
+            methodDescription:'',    
+            /* 提升算法 */ 
+            debiasMethod:{
+                "Adersarial Debiasing":{'name':'Adversarial Debiasing(FAD)','des':'对抗训练纠偏算法是一种训练过程中的纠偏技术，可以使训练的分类器在最大化预测准确率的同时减少能从其预测结果中与保护属性相关的信息。这种训练算法时公平的，因为无法从它的预测结果中获取到与保护属性相关的信息。','class':['table']},
+                "Reject Option-SPd":{'name':'Reject Option Classification-SPd','des':'一种后处理技术，对于在不确定性最高的决策边界周围的样本，算法会以最小化统计均等差（Statistical parity difference）为目标，给出对劣势群体有利的结果和对优势群体不利的结果，从而缓解模型偏见。','class':['table']},
+                "Reject Option-AOd":{'name':'Reject Option Classification-AOd','des':'一种后处理技术，对于在不确定性最高的决策边界周围的样本，算法会以最小化平均概率差（Average odds difference）为目标，给出对劣势群体有利的结果和对优势群体不利的结果，从而缓解模型偏见','class':['table']},
+                "Reject Option-EOd":{'name':'Reject Option Classification-EOd','des':'一种后处理技术，对于在不确定性最高的决策边界周围的样本，算法会以最小化同等机遇差（Equal opportunity difference）为目标，给出对劣势群体有利的结果和对优势群体不利的结果，从而缓解模型偏见','class':['table']},
+                "Calibrated EOD-fnr":{'name':'Calibrat Edequalized Odds-fnr','des':'一种后处理技术，以使不同种群的预测结果具有相同的fnr（假阴性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
+                "Calibrated EOD-fpr":{'name':'Calibrat Edequalized Odds-fpr','des':'一种后处理技术，以使不同种群的预测结果具有相同的fpr（假阳性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
+                "Calibrated EOD-weighted":{'name':'Calibrat Edequalized Odds-weighted','des':'一种后处理技术，以使不同种群的预测结果具有相同的fnr（假阴性率）和fpr（假阳性率）为目标，优化分类器输出的分数，从而满足公平性指标。','class':['table']},
+                "domain_independent":{'name':'Domain Independent Training','des':'领域独立训练方法受到一种名为"解耦分类器"的技术的启发，通过让模型在训练过程中忽视数据中的偏见信息，从而减少模型对偏见的依赖。优点是可以有效地减少模型的性别偏见','class':['pic','table']},
+                "domain_discriminative":{'name':'Domain Adversarial Training',"des":"领域对抗性训练方法试图通过引入一个对抗性的学习过程来减少模型对偏见的依赖。具体来说，模型在训练过程中不仅要尽可能地准确预测目标标签，还要尽可能地忽视数据中的偏见信息。","class":['pic']},
+                "uniconf_adv":{'name':'Domain Conditional Training',"des":"领域条件训练类似于InclusiveFaceNet的训练方式，通过在训练过程中显式地考虑数据中的偏见信息，使模型能够在不同的子群体中都有良好的性能。优点是可以有效地减少模型对偏见的依赖。","class":['pic']},
+                "oversampling":{
+                  'name':'Oversampling',
+                  'des':'通过给予少数群体的样本更高的采样权重以平衡训练数据中域与类别的分布，缓解数据偏斜问题。',
+                  'class':['table']
+                },
+                "domain_adv_uniform_confusion":{
+                  'name':'Domain Adversarial Training with Uniform Confusion',
+                  'des':'基于均匀混淆损失的方法，通过最小化各域（如颜色/灰度）间的分类概率差异，迫使模型无法区分不同域的特征。旨在实现跨域特征混淆，但可能导致类别边界模糊，降低分类性能。',
+                  'class':['table']
+                },
+                "domain_adv_gradient_reversal":{
+                  'name':'Domain Adversarial Training with Gradient Reversal',
+                  'des':'通过梯度反转和投影技术，在训练中使主分类器最大化任务性能，同时对抗域分类器以最小化其对域信息的利用。其核心是对抗性梯度反向传播，但实验表明该方法虽略微提升准确率，仍因特征冗余编码问题表现有限。',
+                  'class':['table']
+                },
+                
+            },
+            fileList:[],
+            /* 单选按钮样式 */
+            radioStyle: {
+                display: 'block',
+                lineHeight: '30px',
+                width:'100%'
+            },
+            /* 热力图height*/
+            heat_height:{
+        pearson:"213px",
+        spearman:"213px",
+        kendalltau:"213px",
+        nmi:"213px",
+      },
+      flag:{
+        pearson:false,
+        spearman:false,
+        kendalltau:false,
+        nmi:false,
+      },
+            /* 评估按钮样式和状态 */
+            buttonBGColor:{
+                background:"#0B55F4",
+                color:"#FFFFFF"
+            },
+            disStatus:false,
+            /* 数据占比结论 */
+            propTextsub:"",
+            /* 日志框是否显示，false不显示，true显示，默认不显示 */
+            logflag:false,
+            test_mode:false,
+            /* 进度 */
+            percent:10,
+            /* 日志内容 */
+            logtext:[],
+            dataname:["German","Adult","Compas","Cifar10-S","CelebA"],
+            /* 选中数据集序号 */
+            dataNameValue:0,
+            /* 选中敏感属性列表 */
+            senAttrList:[],
+            /* 选中目标属性列表 */
+            tarAttrList:[],
+            /* 选中统计属性列表 */
+            staAttrList:[],
+            /* 功能介绍模块信息 */
+            funcDesText:{
+                /* 功能名称 */
+                name:"模型公平性提升",
+                /* 功能icon，需先引入 */
+                imgpath:funcicon,
+                /* 功能背景图片，需先引入 */
+                bgimg:bgimg,
+                /* 功能介绍下的总介绍 */
+                destext:"模型预测存在偏见，通过公平性提升功能，缓解模型偏见",
+                /* 背景介绍 */
+                backinfo:"模型公平性提升功能通过对抗训练纠偏技术、领域独立训练、拒绝选项分类、等几率校准等方法缓解模型偏见，使用各类评估方法对提升前后的模型进行公平性评估，直观展示提升效果",
+                /* 亮点介绍 */
+                highlight:[
+                    "支持表格数据集和图片数据集，表格数据集：German，Adult，Compas；图片数据集：CelebA，Cifar10-S",
+                    "支持22种评估算法从群体公平性、个体公平性两大维度对比模型提升前后的公平程度",
+                    "支持8种模型公平性提升算法，如对抗训练纠偏算法、领域独立训练算法、3种拒绝选项分类、3种等几率校准算法"
+                ]
+            },
+            /* 结果弹窗状态信息 */
+            isShowPublish:false,
+            /* 处理后的结果数据 */
+            res:{
+                // 总评分
+                "score":{"bef":null,"aft":null},
+                // 个体公平性评分
+                "consistency_score":{"bef":null,"aft":null},
+                // 群体公平性评分
+                "group_score":{"bef":null,"aft":null},
+                // 评估结论
+                "score_con":{"bef":null,"aft":null},
+                // 评分段
+                "score_evaluate":{"bef":null,"aft":null},
+                // 个体公平性得分
+                "Consistency":{"bef":null,"aft":null},
+                // 个体公平性结论
+                "consText":"",
+                // 群体公平性得分
+                "attrEvaValue":{
+                    "bef":{},
+                    "aft":{}
+                },
+                // 群体公平性评估算法
+                "labels":[],
+                // 群体公平性结论
+                "groupText":{},
+            },
+            /* 公平性结果 */
+            result:{},
+            /* 评估算法选择结果*/
+            evaCheckedValues:[],
+            evaImgCheckedValues:[],
+            modelpath:'',
+            /* 日志查询clock*/
+            logclk:"", 
+            /*主任务id*/ 
+            tid:"",
+            stidlist:[],
+            /* 公平性提升算法disable */
+            debiasDisabled:{
+                "domain_discriminative":false,
+                "uniconf_adv":false,
+                "domain_independent":false,
+                "Adersarial Debiasing":false,
+                "Reject Option-SPd":false,
+                "Reject Option-AOd":false,
+                "Reject Option-EOd":false,
+                "Calibrated EOD-fnr":false,
+                "Calibrated EOD-fpr":false,
+                "Calibrated EOD-weighted":false,
+            },
+            postData:{},
+            downloadURL:'',
+            disablestyle:{
+                'color': 'rgba(0,0,0,.25)',
+                'background-color': '#f5f5f5'
+            },
+        }
+    },
+    watch:{
+        /* 判断弹框是否显示，如果true显示结果弹框，并且底层滚动取消*/
+        isShowPublish:{
+            immediate:true,
+            handler(v){
+                if(v){
+                    this.noScroll();
+                }else{
+                    this.canScroll();
+                }
+            }
+        },
+        /* 监听路由变化，更新进度条状态 */
+        '$route': {
+            immediate: true,
+            handler() {
+                if (this.fairnessSteps && this.fairnessSteps.length > 0) { // Ensure steps are defined
+                    this.setProgressStepsByRoute();
+                }
+            }
+        },
+        dataNameValue(value){
+            this.buttonBGColor.background="#0B55F4"
+            this.disStatus=false;
+            this.modelName = this.dataname[value]+"默认模型";
+            if(this.dataname[value] != "Cifar10-S" && this.dataname[value] != "CelebA" ){
+                this.debiasDisabled = [false, false, false, false, false]
+            }else{
+                this.debiasDisabled = [false, false, true, true, true]
+            }
+            this.onChangeSwitch(true);
+        },
+        clientDatasetName(value){
+             // 按钮解禁
+             this.disStatus = false
+            this.buttonBGColor.background="#0B55F4"
+            // 根据选择的数据集，显示对应的保护属性
+            this.protectAttr = value
+        }
+    },
+    created() {
+        document.title = '模型公平性提升';
+        if (this.fairnessSteps && this.fairnessSteps.length > 0) { // Ensure steps are defined
+             this.setProgressStepsByRoute();
+        }
+    },
+    mounted() {
+        // 确保在组件挂载后设置正确的进度条状态
+        this.$nextTick(() => {
+            if (this.fairnessSteps && this.fairnessSteps.length > 0) { // Ensure steps are defined
+                this.setProgressStepsByRoute();
+            }
+        });
+    },
+    methods: { 
+        /* 处理子步骤变化 */
+        handleSubStepChange(subStepIndex) {
+            const mainStep = this.fairnessSteps[this.currentMainStep];
+            if (mainStep && mainStep.subSteps && mainStep.subSteps[subStepIndex]) {
+                const path = mainStep.subSteps[subStepIndex].path;
+                this.currentSubStep = subStepIndex; 
+                if (path && this.$route.path !== path) {
+                    this.$router.push(path);
+                }
+            } else {
+                 console.error("Sub-step path not found for", this.currentMainStep, subStepIndex);
+            }
+        },
+        /* 根据当前路由设置进度条状态 */
+        setProgressStepsByRoute() {
+            const routePath = this.$route.path;
+            if (!this.fairnessSteps || this.fairnessSteps.length === 0) return; // Guard clause
+            for (let mainIndex = 0; mainIndex < this.fairnessSteps.length; mainIndex++) {
+                const mainStep = this.fairnessSteps[mainIndex];
+                if (mainStep.subSteps) {
+                    for (let subIndex = 0; subIndex < mainStep.subSteps.length; subIndex++) {
+                        const subStep = mainStep.subSteps[subIndex];
+                        if (subStep.path === routePath) {
+                            this.currentMainStep = mainIndex;
+                            this.currentSubStep = subIndex;
+                            return;
+                        }
+                    }
+                }
+            }
+             if (routePath.includes('/modelFairnessDebias')) {
+                 this.currentMainStep = 2; // 模型 step is now at index 2 
+                 this.currentSubStep = 0;
+             } else {
+                 this.currentMainStep = 0; 
+                 this.currentSubStep = 0;
+             }
+        },
+        /* 获取日志 */ 
+        getLog(){
+            var that=this;
+            Object.keys(that.stidlist).forEach(function(key){
+                that.$axios.post("/Task/SubTaskLog",{tid:that.tid,stid:that.stidlist[key]}).then((res) => {
+                    if(res.data.log){
+                        that.logtext = res.data.log;
+                        that.percent = res.data.percent;
+                    }
+                });
+            });
+        },
+        /* 获取结果并展示 */
+        update(){
+            var that=this;
+            Object.keys(that.stidlist).forEach(function(key){
+                that.$axios.post("/Task/SubTaskResult",{tid:that.tid,stid:that.stidlist[key]}).then((res) => {
+                    if(res.data.result){
+                        that.result = res.data.result;
+                        that.resultPro(res.data.result);
+                        that.logflag = false;
+                        clearInterval(that.logclk);
+                        clearInterval(that.clk);
+                        that.isShowPublish = true;
+                    }
+                });
+            });
+        },
+        /* 点击评估触发事件 */
+        dataEvaClick(){
+            this.initParam();
+            /*判断选择*/
+            if (this.evaCheckedValues.length === 0 && this.evaImgCheckedValues.length === 0 && ['German','Adult','Compas'].indexOf(this.dataname[this.dataNameValue]) === -1){
+                this.$message.warning('请至少选择一项评估算法！',3);
+                return 0;
+            }
+            if (this.evaCheckedValues.length === 0 && ['German','Adult','Compas'].indexOf(this.dataname[this.dataNameValue]) > -1){
+                this.$message.warning('请至少选择一项评估算法！',3);
+                return 0;
+            }
+            if (this.debiasMethodValue === ""){
+                this.$message.warning('请在提升算法中至少选择一项提升算法！',3);
+                return 0;
+            }
+            
+            this.logflag = true;
+            var that = this;
+            that.percent = 20;
+            
+            /* 调用创建主任务接口 */
+            this.$axios.post("/Task/CreateTask",{AttackAndDefenseTask:0}).then((result) => {
+                console.log(result);
+                that.tid = result.data.Taskid;
+                
+                // 构建请求数据
+                let postData = {
+                    dataname: that.dataname[that.dataNameValue],
+                    modelname: ['German','Adult','Compas'].indexOf(that.dataname[that.dataNameValue]) > -1 ? "3 Hidden-layer FCN" : "Resnet50",
+                    algorithmname: Object.keys(that.debiasMethod)[that.debiasMethodValue],
+                    tid: that.tid,
+                    modelpath: that.modelpath || ""
+                };
+                
+                // 添加评估指标
+                if(['German','Adult','Compas'].indexOf(that.dataname[that.dataNameValue]) > -1){
+                    postData.metrics = JSON.stringify(that.evaCheckedValues);
+                    postData.senAttrList = JSON.stringify(that.senAttrList);
+                    postData.tarAttrList = that.tarAttrList;
+                    postData.staAttrList = JSON.stringify(that.staAttrList);
+                } else {
+                    postData.metrics = JSON.stringify(that.evaImgCheckedValues);
+                    postData.test_mode = that.test_mode;
+                }
+                
+                that.postData = postData;
+                that.percent = 40;
+                
+                console.log("发送到后端的数据:", postData);
+                that.$axios.post("/ModelFairnessDebias", postData).then((res) => {
+                    that.logflag = true;
+                    that.stidlist = {"ModelFairnessDebias": res.data.stid};
+                    that.logclk = window.setInterval(() => {
+                        that.getLog();
+                    }, 2000);
+                    that.clk = window.setInterval(() => {
+                        that.update();
+                    }, 2000);
+                }).catch((err) => {
+                    console.log(err);
+                    that.logflag = false;
+                    that.$message.error('请求失败，请检查网络连接！');
+                });
+            }).catch((err) => {
+                console.log(err);
+                that.logflag = false;
+                that.$message.error('创建任务失败！');
+            });
+        },
+        /* 初始化参数 */
+        initParam(){
+            this.logtext = [];
+            this.percent = 0;
+            if(this.logclk){
+                clearInterval(this.logclk);
+                this.logclk = '';
+            }
+            if(this.clk){
+                clearInterval(this.clk);
+                this.clk = '';
+            }
+        },
+        /* 处理结果数据 */
+        resultPro(result){
+            // 处理结果数据的逻辑
+            this.res = result;
+        },
+        /* 其他必要的方法 */
+        clientDatasetSelect(senAttrList, tarAttrList, staAttrList, dataNameValue){
+            this.senAttrList = senAttrList;
+            this.tarAttrList = tarAttrList;
+            this.staAttrList = staAttrList;
+            this.dataNameValue = dataNameValue;
+        },
+        onChangeDebiasMethod(e){
+            this.debiasMethodValue = e.target.value;
+        },
+        onChangeEvaMethod(checkedValues){
+            this.evaCheckedValues = checkedValues;
+        },
+        onChangeSwitch(checked){
+            this.test_mode = checked;
+        },
+        uploadModel(info){
+            this.fileList = info.fileList;
+            if(info.file.status === 'done'){
+                this.modelpath = info.file.response.path;
+            }
+        },
+        changeMethods(i, j){
+            // 处理图像评估方法选择
+        },
+        checkboxMouseEnter(index, num){
+            this.rowkey = index - 1;
+            this.colkey = num - 1;
+            this.methodDesShow = new Array(8).fill(false);
+            this.methodDesShow[index - 1] = true;
+        },
+        closeDialog(){
+            this.isShowPublish = false;
+        },
+        noScroll(){
+            document.body.style.overflow = 'hidden';
+        },
+        canScroll(){
+            document.body.style.overflow = 'auto';
+        }
+    }
+}
+</script>
+<!-- <style  scoped> -->
+<style scoped>
+
+.paramCon{
+    width: 1200px;
+    margin-left: 360px;
+}
+.paramTitle{
+    height:80px;
+    padding: 20px 24px 20px 26px;
+    text-align: left;
+    width: 1200px;
+}
+.methodDes{
+    width: 1104px;
+    /* height: 714px; */
+    text-align: center;
+}
+.checkboxdiv{
+    justify-content: center;
+    align-items: center;
+    padding: 16px 24px;
+    gap: 16px;
+
+    width: 360px;
+    height: 60px;
+    background: #F2F4F9;
+    border-radius: 4px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 28px;
+    color: #000000;
+    margin-right: 8px;
+}
+.checkboxdivlen{
+    justify-content: center;
+    align-items: center;
+    padding: 16px 24px;
+    gap: 16px;
+
+    width: 544px;
+    height: 60px;
+    background: #F2F4F9;
+    border-radius: 4px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 28px;
+    color: #000000;
+    margin-right: 8px;
+}
+/* 提升算法模块样式 */
+.debiasMethodDes{
+    /* Auto layout */
+
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+
+width: 1104px;
+height: 516px;
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+}
+.debiasModule{
+    width: 1104px;
+}
+.ant-checkbox-wrapper-checked .checkboxdiv{
+    background: #E7F0FD;
+    color: #0B55F4;
+}
+.ant-checkbox-wrapper-checked .checkboxdivlen{
+    background: #E7F0FD;
+    color: #0B55F4;
+}
+/* 复选框间距 */
+.ant-checkbox-wrapper{
+    margin-bottom: 16px;
+}
+/* 公式样式 */
+.formulaDes{
+    padding: 0px 20px;
+    margin-bottom: 10px;
+}
+.debias_res{
+    display: flex;
+    width: 814px;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    row-gap: 20px;
+    flex-wrap: wrap;
+}
+.debias_state{
+    color: #000;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+    margin-top: 100px;
+}
+
+.debias_res_score{
+    width: 360px;
+    height: 321px;
+    flex-shrink: 0;
+}
+.to_aft{
+    width: 78px;
+    height: 35px;
+    flex-shrink: 0;
+}
+.cons_echart_div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 84px;
+    align-self: stretch;
+}
+#consevaBef{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+    height: 320px;
+}
+#consevaAft{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+    height: 320px;
+}
+.formula{
+    height:24px;
+    width:15px;
+    font-family: 'HONOR Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 22px;
+}
+.paramTitle h3{
+    /* height: 48px; */
+    display: inline;
+    margin-top: 38px;
+    width: 279px;
+    height: 36px;
+    font-family: PingFangSC-Semibold;
+    font-size: 24px;
+    color: #333333;
+    letter-spacing: 0;
+    line-height: 48px;
+    font-weight: 600;
+}
+/* 按钮样式 */
+.DataEva{
+    float: right;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 20px;
+    padding: 0px 24px;
+    font-family: 'Microsoft YaHei';
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 24px;
+    gap: 4px;
+    width: 114px;
+    height: 40px;
+    background: #FFFFFF;
+    border-radius: 6px;
+}
+
+.ant-divider-horizontal{
+    margin: 0 0;
+}
+.conclusion{
+    margin-bottom: 0px;
+}
+/* 图表名称样式 */
+.echart_title{
+    display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px 120px;
+gap: 4px;
+
+width: 960px;
+height: 62px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+}
+.uploadModelStyle{
+    display: flex;
+    padding: 16px 24px;
+    align-items: center;
+    width: 1104px;
+    gap: 16px;
+    align-self: stretch;
+    border-radius: 4px;
+    background: var(--gray-7, #F2F4F9);
+    color: var(--blue-3, #0B55F4);
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+}
+.dialog_publish_main{
+align-items: center;
+flex-direction: column;
+position: absolute;
+display: flex;
+width: 1080px;
+gap: 60px;
+}
+.g_score_content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    align-self: stretch;
+}
+.g_score{
+    margin-top: -280px;
+}
+.g_score_evaluate{
+    margin-left: 156px;
+}
+
+/* 结果文字样式 */
+.resultext{
+    width: 100%;
+    /* height: 22px; */
+    font-family: PingFangSC-Regular;
+    font-size: 16px;
+    color: #000000;
+    font-weight: 400;
+    margin-top: -40px;
+}
+/* 得分图div */
+#rdeva{
+    display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+
+width: 960px;
+height: 414px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0
+}
+/* 得分图echart */
+#conseva{
+    width: 300px;
+    height:300px;
+}
+/* 仪表盘中的文字 */
+.conseva_label{
+    margin-top: -85px;
+    margin-bottom: 85px;
+    width: 86px;
+height: 16px;
+
+font-family: 'Helvetica Neue';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 16px;
+/* identical to box height, or 100% */
+
+text-align: center;
+
+/* gray-1 */
+
+color: #000000;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+/* 群体公平性 */
+.group_echarts_div{
+    display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 24px;
+margin-top: 32px;
+width: 960px;
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+flex-grow: 0;
+}
+/* 群体-单个属性框样式 */
+.attr_echarts_div{
+    display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+width: 960px;
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+/* 群体-属性标题框样式 */
+.attr_title_div{
+    display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 0px;
+gap: 4px;
+
+width: 960px;
+height: 64px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+.attr_title_div h3{
+    font-family: 'HONORSansCN-Bold';
+    flex-direction: column;
+    margin-bottom: 0px;
+font-size: 28px;
+line-height: 36px;
+/* identical to box height, or 129% */
+
+display: flex;
+align-items: center;
+text-align: center;
+
+color: rgba(0, 0, 0, 0.9);
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+}
+.attr_title_div p{
+    font-family: 'HONOR Sans CN';
+    flex-direction: column;
+    margin-bottom: 0px;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+
+display: flex;
+align-items: center;
+text-align: center;
+
+/* gray-3 */
+
+color: #6C7385;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+}
+.group_echart_content{
+    display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+width: 960px;
+height: 358px;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+/* 左边直方图 */
+.group_left_echart{
+    width: 480px;
+    height: 358px;
+    float: left;
+
+}
+.denfenseMethod .ant-btn{
+    width: 100%;
+    background-color: #F2F4F9;
+    height:60px;
+    color:#000;
+    border:0px;
+    text-align: center;
+    font-family: HONOR Sans CN;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px; 
+}
+.denfenseMethod .ant-btn:disabled{
+    color: rgba(0,0,0,.25);
+    background-color: #f5f5f5;
+}
+.model_group_echart{
+    width: 960px;
+    height: 358px;
+}
+/* .fade-enter-active{
+    animation: move 1s;
+}
+.fade-leave-active{
+    animation: move 1s reverse;
+} */
+/* 右边直方图 */
+.group_right_echart{
+    width: 480px;
+    height: 358px;
+    float: right;
+}
+/* 热力图框总样式 */
+.heat_content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    gap: 16px;
+
+    width: 960px;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+/* 热力图标题样式 */
+.heat_content h3{
+font-family: 'HONOR Sans CN';
+font-size: 24px;
+line-height: 32px;
+font-weight: 700;
+margin-top:24px;
+/* identical to box height, or 133% */
+
+display: flex;
+align-items: center;
+text-align: center;
+
+/* 文字色/light/fontgray4-title */
+
+color: rgba(0, 0, 0, 0.9);
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 1;
+}
+/* 热力图画布大小 */
+.heat_canvas{
+    width: 960px;
+    /* max-height: 930px;
+    min-height: 213px; */
+}
+/* 占比图画布大小 */
+#pro_tree{
+    width: 960px;
+    height: 600px;
+    /* min-height: 200px;
+    max-height: 600px; */
+}
+
+/* 进度条容器样式 */
+.progress-container {
+    width: 300px;
+    background-color: #F5F8FF;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: fit-content;
+}
+
+.progress-wrapper {
+    margin-top: 20px;
+}
+</style>
